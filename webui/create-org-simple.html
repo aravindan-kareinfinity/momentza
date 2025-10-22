@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Organization - Simple</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 10px;
+            font-size: 16px;
+        }
+        .button:hover {
+            background: #0056b3;
+        }
+        .button.success {
+            background: #28a745;
+        }
+        .button.success:hover {
+            background: #218838;
+        }
+        .result {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 10px 0;
+            white-space: pre-wrap;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏢 Create Organization</h1>
+        <p>This will create the organization with ID: <code>ddae3baf-3c43-41ba-8f79-c5bb73f60cfd</code></p>
+        
+        <button class="button" onclick="checkBackend()">1. Check Backend</button>
+        <button class="button success" onclick="createOrganization()">2. Create Organization</button>
+        <button class="button" onclick="testUrl()">3. Test Your URL</button>
+        
+        <div id="results"></div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://192.168.1.21:5212';
+        const TEST_ORG_ID = 'ddae3baf-3c43-41ba-8f79-c5bb73f60cfd';
+        
+        function addResult(title, content, type = 'success') {
+            const resultsDiv = document.getElementById('results');
+            const resultDiv = document.createElement('div');
+            resultDiv.className = `result ${type}`;
+            resultDiv.innerHTML = `<strong>${title}</strong>\n${content}`;
+            resultsDiv.appendChild(resultDiv);
+        }
+        
+        async function checkBackend() {
+            try {
+                addResult('🔄 Checking Backend', 'Testing if backend is running...');
+                
+                const response = await fetch(`${API_BASE_URL}/api/organizations`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    addResult('✅ Backend is Running', 
+                        `Found ${data.length} organizations in database:\n${JSON.stringify(data, null, 2)}`);
+                    
+                    if (data.length === 0) {
+                        addResult('⚠️ Database is Empty', 'No organizations found. Click "Create Organization" to add one.', 'error');
+                    } else {
+                        const testOrg = data.find(org => org.id === TEST_ORG_ID);
+                        if (testOrg) {
+                            addResult('✅ Organization Already Exists', 
+                                `Organization with ID '${TEST_ORG_ID}' already exists!`, 'success');
+                        } else {
+                            addResult('⚠️ Organization Not Found', 
+                                `Organization with ID '${TEST_ORG_ID}' not found. Click "Create Organization" to add it.`, 'error');
+                        }
+                    }
+                } else {
+                    addResult('❌ Backend Error', 
+                        `Status: ${response.status}\nResponse: ${JSON.stringify(data, null, 2)}`, 'error');
+                }
+            } catch (error) {
+                addResult('❌ Backend Not Running', 
+                    `Error: ${error.message}\n\nMake sure your backend server is running on port 5212.`, 'error');
+            }
+        }
+        
+        async function createOrganization() {
+            const orgData = {
+                id: TEST_ORG_ID,
+                name: "Test Organization",
+                contactperson: "John Doe",
+                contactno: "+1234567890",
+                defaultdomain: "192.168.1.21:8080",
+                customdomain: "test-org.local",
+                logo: null,
+                theme: {
+                    primaryColor: "#007bff",
+                    secondaryColor: "#6c757d",
+                    accentColor: "#28a745"
+                }
+            };
+            
+            try {
+                addResult('🔄 Creating Organization', 'Sending request to create organization...');
+                
+                const response = await fetch(`${API_BASE_URL}/api/organizations`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(orgData)
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.id) {
+                    addResult('✅ Organization Created Successfully', 
+                        `Organization created with ID: ${data.id}\n\nYou can now test your URL!`, 'success');
+                } else {
+                    addResult('❌ Failed to Create Organization', 
+                        `Status: ${response.status}\nResponse: ${JSON.stringify(data, null, 2)}`, 'error');
+                }
+            } catch (error) {
+                addResult('❌ Error Creating Organization', 
+                    `Error: ${error.message}`, 'error');
+            }
+        }
+        
+        function testUrl() {
+            const testUrl = `http://192.168.1.21:8080/${TEST_ORG_ID}`;
+            addResult('🌐 Test Your URL', 
+                `Open this URL in a new tab:\n\n${testUrl}\n\nClick the button below to open it.`, 'success');
+            
+            const button = document.createElement('button');
+            button.className = 'button success';
+            button.textContent = 'Open Test URL';
+            button.onclick = () => window.open(testUrl, '_blank');
+            document.getElementById('results').appendChild(button);
+        }
+        
+        // Auto-run check on page load
+        window.onload = function() {
+            addResult('🚀 Organization Creator Loaded', 'Click "Check Backend" to start.');
+        };
+    </script>
+</body>
+</html>

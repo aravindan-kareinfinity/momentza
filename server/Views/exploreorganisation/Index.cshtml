@@ -1,0 +1,1199 @@
+@{
+    ViewData["Title"] = "Explore Venues";
+    Layout = "_Layout";
+}
+
+<!-- Header Section -->
+<header class="bg-white border-bottom w-100">
+    <div class="d-flex align-items-center justify-content-between py-3 px-4">
+        <div class="d-flex align-items-center">
+            <div class="brand-logo me-3">
+                <div class="logo-circle bg-primary text-white d-flex align-items-center justify-content-center">M</div>
+            </div>
+            <h3 class="mb-0 fw-bold text-dark">Momantza</h3>
+        </div>
+        <div class="d-flex align-items-center gap-3">
+            <button class="btn btn-outline-primary btn-sm">Sign up</button>
+            <button class="btn btn-primary btn-sm">Log in</button>
+            <button class="btn btn-link text-dark">Menu</button>
+        </div>
+    </div>
+</header>
+
+<div class="container-fluid py-5">
+  
+    <!-- Filter Section -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="glass-card border-0">
+                <div class="card-body p-4">
+                    <div class="row g-3 align-items-end">
+                        <div class="col-xl-8 col-lg-8">
+                            <label class="form-label fw-semibold text-dark mb-2">Search Venues</label>
+                            <div class="search-input-group">
+                                <i class="fas fa-search search-icon"></i>
+                                <input type="text" class="form-control search-input" id="searchInput" placeholder="Search by venue name or location...">
+                            </div>
+                        </div>
+                        <div class="col-xl-2 col-lg-3 col-md-4">
+                            <label class="form-label fw-semibold text-dark mb-2">Location</label>
+                            <select class="form-select elegant-select" id="locationFilter">
+                                <option value="">All Locations</option>
+                            </select>
+                        </div>
+                        <div class="col-xl-2 col-lg-3 col-md-4">
+                            <label class="form-label fw-semibold text-dark mb-2">Capacity</label>
+                            <select class="form-select elegant-select" id="capacityFilter">
+                                <option value="">Any Capacity</option>
+                                <option value="100">Up to 100</option>
+                                <option value="300">Up to 300</option>
+                                <option value="500">Up to 500</option>
+                                <option value="1000">1000+</option>
+                            </select>
+                        </div>
+                        <div class="col-xl-2 col-lg-4 col-md-4">
+                            <button class="btn btn-danger btn-lg w-100" onclick="applyFilters()">
+                                <i class="fas fa-search me-2"></i>Search
+                            </button>
+                        </div>
+                        <div class="col-xl-2 col-lg-3 col-md-4">
+                            <button class="btn btn-outline-light text-dark w-100 h-100" onclick="clearFilters()">
+                                <i class="fas fa-refresh me-2"></i>Clear All
+                            </button>
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="text-muted" id="filterResults"></span>
+                                <div class="filter-tags" id="activeFilters"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading State -->
+    <div id="loadingState" class="text-center py-6">
+        <div class="loading-spinner">
+            <div class="spinner-ring"></div>
+                </div>
+        <p class="mt-4 text-muted">Discovering beautiful venues...</p>
+                    </div>
+                    
+    <!-- Error State -->
+    <div id="errorState" class="alert alert-elegant d-none" role="alert">
+        <div class="d-flex align-items-center">
+            <i class="fas fa-exclamation-triangle me-3 fa-lg"></i>
+            <div class="flex-grow-1">
+                <h5 class="alert-heading mb-1">Unable to Load Venues</h5>
+                <p class="mb-2" id="errorMessage">We encountered an issue while loading the venues. Please try again.</p>
+                <button class="btn btn-sm btn-outline-primary" onclick="loadHalls()">
+                    <i class="fas fa-redo me-1"></i>Try Again
+                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+    <!-- Halls Grid -->
+    <div id="hallsGrid" class="row g-4 d-none">
+        <!-- Halls will be dynamically loaded here -->
+    </div>
+
+    <!-- No Halls State -->
+    <div id="noHallsState" class="text-center py-6 d-none">
+        <div class="empty-state">
+            <i class="fas fa-building fa-4x text-muted mb-4"></i>
+            <h3 class="text-muted mb-3">No Venues Available</h3>
+            <p class="text-muted mb-4">We're currently updating our venue collection. Please check back soon.</p>
+            <button class="btn btn-primary" onclick="loadHalls()">
+                <i class="fas fa-refresh me-2"></i>Refresh
+                        </button>
+                    </div>
+                </div>
+</div>
+
+<style>
+/* Global Styles */
+:root {
+    --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    --glass-bg: rgba(255, 255, 255, 0.95);
+    --shadow-soft: 0 8px 32px rgba(0, 0, 0, 0.1);
+    --shadow-hover: 0 12px 48px rgba(0, 0, 0, 0.15);
+}
+
+body {
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    min-height: 100vh;
+}
+
+/* Card Styles */
+.glass-card {
+    background: var(--glass-bg);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    box-shadow: var(--shadow-soft);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.hall-card {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    margin-bottom: 0;
+    border: none;
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+.hall-card:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-hover);
+}
+
+.card-img-top {
+    transition: transform 0.6s ease;
+    height: 180px;
+    width: 100%;
+    object-fit: cover;
+    object-position: center;
+    border-radius: 0;
+}
+
+.hall-card:hover .card-img-top {
+    transform: scale(1.08);
+}
+
+/* Image Container */
+.card-img-container {
+    position: relative;
+    width: 100%;
+    height: 180px;
+    overflow: hidden;
+    border-radius: 0;
+}
+
+.card-img-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    display: block;
+}
+
+/* Ensure images fill the container properly */
+.card-img-container {
+    display: block;
+    background-color: #f8f9fa;
+}
+
+/* Fallback for images that don't load */
+.card-img-container img[src=""] {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+/* Text Gradients */
+.text-gradient-primary {
+    background: var(--primary-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Button Styles */
+.btn-gradient {
+    background: var(--primary-gradient);
+    border: none;
+    border-radius: 12px;
+    padding: 12px 24px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-gradient:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+}
+
+/* Price Badge */
+.price-badge {
+    background: var(--primary-gradient);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 1.1rem;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+/* Amenity Badge */
+.amenity-badge {
+    background: rgba(102, 126, 234, 0.1);
+    color: #667eea;
+    border: 1px solid rgba(102, 126, 234, 0.2);
+    padding: 6px 12px;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    margin: 0.1rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.amenity-badge:hover {
+    background: rgba(102, 126, 234, 0.2);
+    transform: translateY(-1px);
+}
+
+.amenity-badge-small {
+    background: rgba(102, 126, 234, 0.1);
+    color: #667eea;
+    border: 1px solid rgba(102, 126, 234, 0.2);
+    padding: 3px 8px;
+    border-radius: 10px;
+    font-size: 0.65rem;
+    margin: 0.05rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.amenity-badge-small:hover {
+    background: rgba(102, 126, 234, 0.2);
+    transform: translateY(-1px);
+}
+
+/* Search Input */
+.search-input-group {
+    position: relative;
+}
+
+.search-icon {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6c757d;
+    z-index: 3;
+}
+
+.search-input {
+    padding-left: 45px;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    background: rgba(255, 255, 255, 0.8);
+    transition: all 0.3s ease;
+}
+
+.search-input:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    background: white;
+}
+
+/* Elegant Select */
+.elegant-select {
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    background: rgba(255, 255, 255, 0.8);
+    transition: all 0.3s ease;
+}
+
+.elegant-select:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    background: white;
+}
+
+/* Loading Spinner */
+.loading-spinner {
+    display: inline-block;
+    position: relative;
+    width: 80px;
+    height: 80px;
+}
+
+.spinner-ring {
+    display: block;
+    width: 64px;
+    height: 64px;
+    margin: 8px;
+    border: 6px solid #667eea;
+    border-color: #667eea transparent transparent transparent;
+    border-radius: 50%;
+    animation: spinner-ring 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+}
+
+@@keyframes spinner-ring {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Alert Styles */
+.alert-elegant {
+    background: var(--glass-bg);
+    border: 1px solid rgba(255, 193, 7, 0.2);
+    border-radius: 16px;
+    backdrop-filter: blur(10px);
+}
+
+/* Calendar Styles */
+.availability-calendar {
+    background: rgba(255, 255, 255, 0.5);
+    border: 1px solid rgba(226, 232, 240, 0.8);
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin-top: 1rem;
+    backdrop-filter: blur(10px);
+}
+
+.availability-calendar-compact {
+    background: rgba(255, 255, 255, 0.5);
+    border: 1px solid rgba(226, 232, 240, 0.8);
+    border-radius: 12px;
+    padding: 0.5rem;
+    margin-top: 0.5rem;
+    backdrop-filter: blur(10px);
+}
+
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+}
+
+.calendar-header .calendar-nav {
+    padding: 8px 12px;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+    color: #64748b;
+    cursor: pointer;
+}
+
+.calendar-header .calendar-nav:hover {
+    background: rgba(102, 126, 234, 0.1);
+    color: #667eea;
+    transform: scale(1.1);
+}
+
+.calendar-month-year {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 2px;
+}
+
+.calendar-day {
+    text-align: center;
+    padding: 6px 2px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    min-height: 2.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid transparent;
+}
+
+.calendar-day:hover {
+    background: rgba(102, 126, 234, 0.1);
+    border-color: rgba(102, 126, 234, 0.3);
+    transform: scale(1.05);
+}
+
+.calendar-day.available {
+    background: rgba(34, 197, 94, 0.1);
+    color: #16a34a;
+    font-weight: 600;
+}
+
+.calendar-day.available:hover {
+    background: rgba(34, 197, 94, 0.2);
+    border-color: rgba(34, 197, 94, 0.3);
+}
+
+.calendar-day.booked {
+    background: rgba(239, 68, 68, 0.1);
+    color: #dc2626;
+    opacity: 0.8;
+    cursor: not-allowed;
+}
+
+.calendar-day.booked:hover {
+    transform: none;
+    border-color: transparent;
+}
+
+.calendar-day.partial {
+    background: rgba(245, 158, 11, 0.1);
+    color: #d97706;
+    font-weight: 500;
+}
+
+.calendar-day.partial:hover {
+    background: rgba(245, 158, 11, 0.2);
+    border-color: rgba(245, 158, 11, 0.3);
+}
+
+.calendar-day .day-number {
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.calendar-day .availability-icons {
+    display: flex;
+    gap: 2px;
+    align-items: center;
+    justify-content: center;
+}
+
+.calendar-day .availability-icons i {
+    font-size: 0.6rem;
+}
+
+.calendar-weekdays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 2px;
+    margin-bottom: 0.5rem;
+}
+
+.calendar-weekday {
+    text-align: center;
+    padding: 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* Empty State */
+.empty-state {
+    padding: 4rem 2rem;
+}
+
+/* Filter Tags */
+.filter-tags {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.filter-tag {
+    background: var(--primary-gradient);
+    color: white;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+/* Statistics Cards */
+.stats-card {
+    background: rgba(255, 255, 255, 0.6);
+    border-radius: 12px;
+    padding: 0.75rem;
+    text-align: center;
+    backdrop-filter: blur(10px);
+}
+
+.stats-card-compact {
+    background: rgba(255, 255, 255, 0.6);
+    border-radius: 8px;
+    padding: 0.5rem;
+    text-align: center;
+    backdrop-filter: blur(10px);
+}
+
+.stats-number {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+}
+
+.stats-label {
+    font-size: 0.75rem;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* NOBROKER Style Components */
+.brand-logo .logo-circle {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.search-form-container {
+    border: 1px solid #e9ecef;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.city-selector {
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    padding: 12px 20px;
+    min-width: 200px;
+}
+
+.city-selector:focus {
+    border-color: #dc3545;
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+}
+
+.search-input {
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    padding: 12px 20px 12px 45px;
+    font-size: 1rem;
+}
+
+.search-input:focus {
+    border-color: #dc3545;
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+}
+
+.elegant-select {
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    padding: 12px 20px;
+    font-size: 1rem;
+}
+
+.elegant-select:focus {
+    border-color: #dc3545;
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+}
+
+.btn-danger {
+    background-color: #dc3545;
+    border-color: #dc3545;
+    font-weight: 600;
+    padding: 12px 24px;
+}
+
+.btn-danger:hover {
+    background-color: #c82333;
+    border-color: #bd2130;
+}
+
+/* Background Graphics */
+body {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    position: relative;
+}
+
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: 
+        radial-gradient(circle at 20% 80%, rgba(220, 53, 69, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(23, 162, 184, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 40% 40%, rgba(102, 126, 234, 0.05) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: -1;
+}
+
+/* Responsive Design */
+@@media (max-width: 768px) {
+    .container-fluid {
+        padding-left: 0.5rem;
+        padding-right: 0.5rem;
+    }
+    
+    .hall-card {
+        margin-bottom: 1.5rem;
+    }
+    
+    .calendar-day {
+        padding: 8px 2px;
+        min-height: 3rem;
+    }
+    
+    .brand-logo .logo-circle {
+        width: 35px;
+        height: 35px;
+        font-size: 1rem;
+    }
+    
+    .city-selector {
+        min-width: 150px;
+        font-size: 1rem;
+    }
+}
+
+/* Animation for card entrance */
+@@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.hall-card {
+    animation: fadeInUp 0.6s ease forwards;
+}
+</style>
+
+<script>
+// Keep all the JavaScript logic exactly the same as in your original code
+// Only the HTML structure and CSS styles have been updated for elegance
+
+let allHalls = [];
+let allBookings = [];
+
+// Load halls from API
+async function loadHalls() {
+    try {
+        showLoading();
+        
+        // Use the new combined API endpoint
+        const hallsWithBookingsResponse = await fetch('/api/bookings/halls-with-bookings');
+
+        if (!hallsWithBookingsResponse.ok) {
+            throw new Error(`Failed to load halls with bookings: ${hallsWithBookingsResponse.statusText}`);
+        }
+
+        const hallsWithBookingsData = await hallsWithBookingsResponse.json();
+        
+        // Extract halls and bookings from the combined data
+        allHalls = hallsWithBookingsData.map(item => item.hall);
+        allBookings = hallsWithBookingsData.flatMap(item => 
+            item.bookings.map(booking => ({
+                ...booking,
+                hallId: item.hall.id
+            }))
+        );
+
+        // Store the combined data for easier access
+        window.hallsWithBookingsData = hallsWithBookingsData;
+
+        if (allHalls.length === 0) {
+            showNoHalls();
+        } else {
+            renderHalls();
+        }
+    } catch (error) {
+        console.error('Error loading halls:', error);
+        showError(error.message);
+    }
+}
+
+// Show loading state
+function showLoading() {
+    document.getElementById('loadingState').classList.remove('d-none');
+    document.getElementById('errorState').classList.add('d-none');
+    document.getElementById('hallsGrid').classList.add('d-none');
+    document.getElementById('noHallsState').classList.add('d-none');
+}
+
+// Show error state
+function showError(message) {
+    document.getElementById('loadingState').classList.add('d-none');
+    document.getElementById('errorState').classList.remove('d-none');
+    document.getElementById('hallsGrid').classList.add('d-none');
+    document.getElementById('noHallsState').classList.add('d-none');
+    document.getElementById('errorMessage').textContent = message;
+}
+
+// Show no halls state
+function showNoHalls() {
+    document.getElementById('loadingState').classList.add('d-none');
+    document.getElementById('errorState').classList.add('d-none');
+    document.getElementById('hallsGrid').classList.add('d-none');
+    document.getElementById('noHallsState').classList.remove('d-none');
+}
+
+// Render halls
+function renderHalls() {
+    const hallsGrid = document.getElementById('hallsGrid');
+    hallsGrid.innerHTML = '';
+
+    allHalls.forEach(hall => {
+        const hallCard = createHallCard(hall);
+        hallsGrid.appendChild(hallCard);
+    });
+
+    // Populate location filter
+    populateLocationFilter();
+    
+    // Add real-time search
+    document.getElementById('searchInput').addEventListener('input', applyFilters);
+    
+    // Update filter results
+    const filterResults = document.getElementById('filterResults');
+    filterResults.textContent = `Showing ${allHalls.length} venues`;
+
+    document.getElementById('loadingState').classList.add('d-none');
+    document.getElementById('errorState').classList.add('d-none');
+    document.getElementById('hallsGrid').classList.remove('d-none');
+    document.getElementById('noHallsState').classList.add('d-none');
+}
+
+// Create hall card
+function createHallCard(hall) {
+    const col = document.createElement('div');
+    col.className = 'col-xl-4 col-lg-6 col-md-12';
+
+    const card = document.createElement('div');
+    card.className = 'card h-100 glass-card hall-card';
+
+    // Get hall image
+    const imageUrl = getHallImageUrl(hall);
+    
+    // Get hall bookings and booking summary from the combined data
+    const hallData = window.hallsWithBookingsData.find(item => item.hall.id === hall.id);
+    const hallBookings = hallData ? hallData.bookings : [];
+    const bookingSummary = hallData ? hallData.bookingSummary : null;
+    
+    // Get starting price
+    const startingPrice = hall.rateCard?.morningRate || 20000;
+    
+    // Get amenities count
+    const amenitiesCount = hall.features?.length || 0;
+    
+    // Initialize calendar state for this hall
+    const calendarState = {
+        currentMonth: 9, // October (0-indexed)
+        currentYear: 2025
+    };
+
+    card.innerHTML = `
+        <!-- Image Section -->
+        <div class="card-img-container position-relative overflow-hidden">
+            <img src="${imageUrl}" 
+                 class="card-img-top" 
+                 alt="${hall.name}"
+                 onerror="handleImageError(this)">
+            <span class="badge bg-dark position-absolute top-0 end-0 m-3 px-3 py-2">Wedding Hall</span>
+            <div class="position-absolute bottom-0 start-0 m-3">
+                <div class="price-badge">₹${startingPrice.toLocaleString()}+</div>
+            </div>
+        </div>
+
+        <!-- Card Body -->
+        <div class="card-body d-flex flex-column p-3">
+            <!-- Header -->
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                <h6 class="card-title mb-0 fw-bold text-dark">${hall.name}</h6>
+                    </div>
+                    
+            <!-- Location and Capacity -->
+            <div class="d-flex justify-content-between text-muted mb-2 small">
+                <span><i class="fas fa-map-marker-alt me-1"></i>${hall.location}</span>
+                <span><i class="fas fa-users me-1"></i>${hall.capacity} guests</span>
+                <span><i class="fas fa-star me-1"></i>${amenitiesCount} amenities</span>
+                    </div>
+                    
+            <!-- Booking Statistics -->
+            ${bookingSummary ? `
+            <div class="row g-1 mb-2">
+                <div class="col-4">
+                    <div class="stats-card-compact">
+                        <div class="stats-number text-success small">${bookingSummary.confirmedBookings}</div>
+                        <div class="stats-label small">Confirmed</div>
+                    </div>
+                        </div>
+                <div class="col-4">
+                    <div class="stats-card-compact">
+                        <div class="stats-number text-warning small">${bookingSummary.pendingBookings}</div>
+                        <div class="stats-label small">Pending</div>
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="stats-card-compact">
+                        <div class="stats-number text-danger small">${bookingSummary.cancelledBookings}</div>
+                        <div class="stats-label small">Cancelled</div>
+                    </div>
+                </div>
+            </div>
+            ` : ''}
+            
+            <!-- Description -->
+            <p class="card-text text-muted mb-2 small flex-grow-1">${hall.address || 'Beautiful venue with premium facilities.'}</p>
+            
+            <!-- Amenities -->
+            <div class="mb-2">
+                ${hall.features ? hall.features.slice(0, 2).map(feature => 
+                    `<span class="amenity-badge-small d-inline-block me-1">${feature.name}</span>`
+                ).join('') : ''}
+                ${hall.features && hall.features.length > 2 ? 
+                    `<span class="amenity-badge-small d-inline-block">+${hall.features.length - 2}</span>` : ''}
+                    </div>
+                    
+            <!-- Availability Calendar -->
+            <div class="availability-calendar-compact">
+                <h6 class="mb-2 fw-semibold text-dark small">Availability</h6>
+                <div class="d-flex justify-content-between text-xs mb-2">
+                    <small><i class="fas fa-sun me-1" style="color: #FFC107;"></i>Morning Available</small>
+                    <small><i class="fas fa-moon me-1" style="color: #17A2B8;"></i>Evening Available</small>
+                    <small><i class="fas fa-times me-1" style="color: #DC3545;"></i>Booked</small>
+                    </div>
+                <div class="calendar-header">
+                    <i class="fas fa-chevron-left calendar-nav" data-direction="prev" data-hall-id="${hall.id}"></i>
+                    <span class="calendar-month-year">October 2025</span>
+                    <i class="fas fa-chevron-right calendar-nav" data-direction="next" data-hall-id="${hall.id}"></i>
+                            </div>
+                <div class="calendar-weekdays">
+                    <div class="calendar-weekday">Su</div>
+                    <div class="calendar-weekday">Mo</div>
+                    <div class="calendar-weekday">Tu</div>
+                    <div class="calendar-weekday">We</div>
+                    <div class="calendar-weekday">Th</div>
+                    <div class="calendar-weekday">Fr</div>
+                    <div class="calendar-weekday">Sa</div>
+                                </div>
+                <div class="calendar-grid" id="calendar-${hall.id}">
+                    ${generateCalendarDays(hallBookings, calendarState, hall.id)}
+                        </div>
+                    </div>
+                    
+            <!-- Action Button -->
+            <div class="mt-3 pt-3 border-top">
+                <button class="btn btn-gradient w-100 py-3 fw-semibold" onclick="viewDetails('${hall.id}')">
+                    <i class="fas fa-eye me-2"></i>View Details & Book
+                        </button>
+            </div>
+        </div>
+    `;
+
+    col.appendChild(card);
+    
+    // Add calendar navigation event listeners
+    setTimeout(() => {
+        const prevBtn = card.querySelector('[data-direction="prev"]');
+        const nextBtn = card.querySelector('[data-direction="next"]');
+        const monthYearElement = card.querySelector('.calendar-month-year');
+        const calendarGrid = card.querySelector('.calendar-grid');
+        
+        if (prevBtn && nextBtn && monthYearElement && calendarGrid) {
+            prevBtn.addEventListener('click', () => {
+                calendarState.currentMonth--;
+                if (calendarState.currentMonth < 0) {
+                    calendarState.currentMonth = 11;
+                    calendarState.currentYear--;
+                }
+                updateCalendar(hall.id, hallBookings, calendarState, monthYearElement, calendarGrid);
+            });
+            
+            nextBtn.addEventListener('click', () => {
+                calendarState.currentMonth++;
+                if (calendarState.currentMonth > 11) {
+                    calendarState.currentMonth = 0;
+                    calendarState.currentYear++;
+                }
+                updateCalendar(hall.id, hallBookings, calendarState, monthYearElement, calendarGrid);
+            });
+        }
+    }, 100);
+    
+    return col;
+}
+
+// All other JavaScript functions remain exactly the same as in your original code
+// (getHallImageUrl, handleImageError, generateCalendarDays, getBookingTooltip, 
+// getStatusBadgeClass, updateCalendar, viewDetails, bookNow, selectDate, 
+// applyFilters, clearFilters, populateLocationFilter)
+
+// Get hall image URL
+function getHallImageUrl(hall) {
+    if (hall.gallery && hall.gallery.length > 0) {
+        const galleryItem = hall.gallery[0];
+        if (galleryItem.startsWith('http')) {
+            return galleryItem;
+        }
+        // Use the gallery API endpoint format
+        return `http://localhost:5212/api/gallery/${galleryItem}/image`;
+    }
+    // Use a reliable fallback image - wedding venue placeholder
+    return 'https://images.unsplash.com/photo-1519167758481-83f1426e6b3c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80';
+}
+
+// Handle image load errors with better fallback
+function handleImageError(img) {
+    // Prevent infinite redirects by checking if we're already using a fallback
+    if (img.src.includes('placeholder') || img.dataset.fallbackUsed === 'true') {
+        // Use a simple colored placeholder if all else fails
+        img.style.backgroundColor = '#f8f9fa';
+        img.style.display = 'flex';
+        img.style.alignItems = 'center';
+        img.style.justifyContent = 'center';
+        img.style.color = '#6c757d';
+        img.style.fontSize = '14px';
+        img.alt = 'Image not available';
+        return;
+    }
+    
+    // Mark as fallback used to prevent infinite loops
+    img.dataset.fallbackUsed = 'true';
+    
+    // Try a different reliable image
+    img.src = 'https://images.unsplash.com/photo-1519167758481-83f1426e6b3c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80';
+}
+
+// Generate calendar days
+function generateCalendarDays(bookings, calendarState = { currentMonth: 9, currentYear: 2025 }, hallId = '') {
+    const today = new Date();
+    const currentMonth = calendarState.currentMonth;
+    const currentYear = calendarState.currentYear;
+    
+    // Get first day of month and how many days to show before
+    const firstDay = new Date(currentYear, currentMonth, 1);
+    const startDate = new Date(firstDay);
+    startDate.setDate(startDate.getDate() - firstDay.getDay());
+    
+    let html = '';
+    
+    // Generate 6 weeks (42 days)
+    for (let i = 0; i < 42; i++) {
+        const date = new Date(startDate);
+        date.setDate(startDate.getDate() + i);
+        
+        const isCurrentMonth = date.getMonth() === currentMonth;
+        const dayNumber = date.getDate();
+        
+        // Check booking status for this date - use the actual booking data structure
+        const dateStr = date.toISOString().split('T')[0];
+        const dayBookings = bookings.filter(booking => {
+            // Handle both eventDate string and Date object
+            const bookingDate = typeof booking.eventDate === 'string' 
+                ? booking.eventDate.split('T')[0] 
+                : new Date(booking.eventDate).toISOString().split('T')[0];
+            return bookingDate === dateStr;
+        });
+        
+        const hasFullDay = dayBookings.some(b => b.timeSlot === 'fullday');
+        const hasMorning = dayBookings.some(b => b.timeSlot === 'morning');
+        const hasEvening = dayBookings.some(b => b.timeSlot === 'evening');
+        
+        let statusClass = 'available';
+        let statusIcons = '<i class="fas fa-sun" style="color: #FFC107;"></i><i class="fas fa-moon" style="color: #17A2B8;"></i>';
+        
+        if (hasFullDay || (hasMorning && hasEvening)) {
+            statusClass = 'booked';
+            statusIcons = '<i class="fas fa-times" style="color: #DC3545;"></i>';
+        } else if (hasMorning) {
+            statusClass = 'partial';
+            statusIcons = '<i class="fas fa-times" style="color: #DC3545;"></i><i class="fas fa-moon" style="color: #17A2B8;"></i>';
+        } else if (hasEvening) {
+            statusClass = 'partial';
+            statusIcons = '<i class="fas fa-sun" style="color: #FFC107;"></i><i class="fas fa-times" style="color: #DC3545;"></i>';
+        }
+        
+        html += `
+            <div class="calendar-day ${statusClass}" 
+                 title="${getBookingTooltip(dayBookings)}"
+                 data-date="${date.toISOString().split('T')[0]}"
+                 data-hall-id="${hallId}"
+                 onclick="selectDate('${hallId}', '${date.toISOString().split('T')[0]}', '${statusClass}')">
+                <div class="day-number ${isCurrentMonth ? '' : 'text-muted'}">${dayNumber}</div>
+                <div class="availability-icons">
+                    ${statusIcons}
+    </div>
+</div>
+        `;
+    }
+    
+    return html;
+}
+
+// Get booking tooltip for calendar days
+function getBookingTooltip(dayBookings) {
+    if (dayBookings.length === 0) {
+        return 'Available for booking';
+    }
+    
+    const tooltips = dayBookings.map(booking => {
+        const timeSlot = booking.timeSlot.charAt(0).toUpperCase() + booking.timeSlot.slice(1);
+        return `${timeSlot}: ${booking.customerName} (${booking.eventType})`;
+    });
+    
+    return tooltips.join('\n');
+}
+
+// Get status badge class for styling
+function getStatusBadgeClass(status) {
+    switch(status.toLowerCase()) {
+        case 'confirmed':
+            return 'bg-success';
+        case 'active':
+            return 'bg-primary';
+        case 'pending':
+            return 'bg-warning';
+        case 'cancelled':
+            return 'bg-danger';
+        default:
+            return 'bg-secondary';
+    }
+}
+
+// Update calendar when navigation is clicked
+function updateCalendar(hallId, bookings, calendarState, monthYearElement, calendarGrid) {
+    const monthNames = [
+        'January', 'February', 'March', 'April', 'May', 'June',
+        'July', 'August', 'September', 'October', 'November', 'December'
+    ];
+    
+    // Update month/year display
+    monthYearElement.textContent = `${monthNames[calendarState.currentMonth]} ${calendarState.currentYear}`;
+    
+    // Generate new calendar days
+    const calendarDays = generateCalendarDays(bookings, calendarState, hallId);
+    
+    // Clear existing calendar days (keep the header and weekdays)
+    const existingDays = calendarGrid.querySelectorAll('.calendar-day');
+    existingDays.forEach(day => day.remove());
+    
+    // Add new calendar days
+    calendarGrid.insertAdjacentHTML('beforeend', calendarDays);
+}
+
+// Action functions
+function viewDetails(hallId) {
+    window.location.href = `http://192.168.29.69:8080/hall/${hallId}`;
+}
+
+function bookNow(hallId) {
+    alert(`Booking functionality for hall ${hallId} will be implemented soon!`);
+}
+
+// Handle date selection from calendar
+function selectDate(hallId, date, statusClass) {
+    // Don't allow selection of booked days or past days
+    if (statusClass === 'booked') {
+        alert('This date is fully booked and cannot be selected.');
+        return;
+    }
+    
+    // Check if date is in the past
+    const selectedDate = new Date(date);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    if (selectedDate < today) {
+        alert('Cannot select past dates.');
+        return;
+    }
+    
+    // Redirect to booking page with hall ID and selected date
+    window.location.href = `http://192.168.29.69:8080/booking/${hallId}?date=${date}`;
+}
+
+// Filter functionality
+function applyFilters() {
+    const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+    const locationFilter = document.getElementById('locationFilter').value;
+    const capacityFilter = document.getElementById('capacityFilter').value;
+    
+    const hallCards = document.querySelectorAll('.col-xl-4.col-lg-6.col-md-12');
+    let visibleCount = 0;
+    
+    hallCards.forEach(card => {
+        const hallName = card.querySelector('.card-title')?.textContent.toLowerCase() || '';
+        const hallLocation = card.querySelector('.text-muted small')?.textContent.toLowerCase() || '';
+        const hallCapacity = parseInt(card.querySelector('.text-muted small:nth-child(2)')?.textContent.match(/\d+/)?.[0] || '0');
+        
+        let show = true;
+        
+        // Search filter
+        if (searchTerm && !hallName.includes(searchTerm) && !hallLocation.includes(searchTerm)) {
+            show = false;
+        }
+        
+        // Location filter
+        if (locationFilter && !hallLocation.includes(locationFilter.toLowerCase())) {
+            show = false;
+        }
+        
+        // Capacity filter
+        if (capacityFilter) {
+            const maxCapacity = parseInt(capacityFilter);
+            if (hallCapacity > maxCapacity) {
+            show = false;
+            }
+        }
+        
+        card.style.display = show ? 'block' : 'none';
+        if (show) visibleCount++;
+    });
+    
+    // Update filter results
+    const filterResults = document.getElementById('filterResults');
+    filterResults.textContent = `Showing ${visibleCount} of ${hallCards.length} venues`;
+}
+
+function clearFilters() {
+    document.getElementById('searchInput').value = '';
+    document.getElementById('locationFilter').value = '';
+    document.getElementById('capacityFilter').value = '';
+    
+    // Show all cards
+    const hallCards = document.querySelectorAll('.col-xl-4.col-lg-6.col-md-12');
+    hallCards.forEach(card => {
+        card.style.display = 'block';
+    });
+    
+    // Update filter results
+    const filterResults = document.getElementById('filterResults');
+    filterResults.textContent = `Showing ${hallCards.length} venues`;
+}
+
+// Populate location filter options
+function populateLocationFilter() {
+    const locationFilter = document.getElementById('locationFilter');
+    const locations = new Set();
+    
+    allHalls.forEach(hall => {
+        if (hall.location) {
+            locations.add(hall.location);
+        }
+    });
+    
+    // Sort locations alphabetically
+    const sortedLocations = Array.from(locations).sort();
+    
+    sortedLocations.forEach(location => {
+        const option = document.createElement('option');
+        option.value = location;
+        option.textContent = location;
+        locationFilter.appendChild(option);
+    });
+}
+
+// Load halls when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    loadHalls();
+});
+</script>

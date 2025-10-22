@@ -1,0 +1,112 @@
+@{
+    ViewData["Title"] = "Momantza - Setup";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Welcome to Momantza</h1>
+    <p class="lead">Organization Management Platform</p>
+</div>
+
+<div class="row justify-content-center mt-5">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body text-center">
+                <h4 class="card-title">Get Started</h4>
+                <p class="card-text">Create your organization and admin user to start managing your halls and bookings.</p>
+                <a asp-controller="Setup" asp-action="Index" class="btn btn-success btn-lg">Setup Organization</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row justify-content-center mt-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body text-center">
+                <h4 class="card-title">Already Have an Account?</h4>
+                <p class="card-text">Access your organization dashboard and manage your halls and bookings.</p>
+                <a href="http://192.168.29.69:8080/login" class="btn btn-primary btn-lg" target="_blank">
+                    <i class="fas fa-sign-in-alt me-2"></i>Login
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Footer Section -->
+<footer class="bg-dark text-light mt-5 py-5">
+    <div class="container">
+        <div class="row">
+            <!-- Main Description -->
+            <div class="col-md-6 mb-4">
+                <h5 class="text-white mb-3">Creating beautiful memories for your special day with our premium wedding halls and exceptional service.</h5>
+            </div>
+            
+            <!-- Contact Information -->
+            <div class="col-md-3 mb-4">
+                <h6 class="text-white mb-3">Contact Information</h6>
+                <p class="mb-2">
+                    <i class="fas fa-phone me-2"></i>234234234
+                </p>
+                <p class="mb-2">
+                    <i class="fas fa-envelope me-2"></i>elayaraja@example.com
+                </p>
+                <p class="mb-2">
+                    <i class="fas fa-map-marker-alt me-2"></i>123 Wedding Street, City
+                </p>
+                <p class="mb-0">
+                    <i class="fas fa-clock me-2"></i>Mon-Sat: 9AM-6PM
+                </p>
+            </div>
+            
+            <!-- Quick Links -->
+            <div class="col-md-3 mb-4">
+                <h6 class="text-white mb-3">Quick Links</h6>
+                <ul class="list-unstyled">
+                    <li class="mb-2">
+                        <a href="/ExploreOrganisation" class="text-light text-decoration-none">
+                            <i class="fas fa-building me-2"></i>Our Halls
+                        </a>
+                    </li>
+                    <li class="mb-2">
+                        <a href="#" class="text-light text-decoration-none">
+                            <i class="fas fa-tags me-2"></i>Pricing
+                        </a>
+                    </li>
+                    <li class="mb-2">
+                        <a href="#" class="text-light text-decoration-none">
+                            <i class="fas fa-images me-2"></i>Gallery
+                        </a>
+                    </li>
+                    <li class="mb-2">
+                        <a href="#" class="text-light text-decoration-none">
+                            <i class="fas fa-phone me-2"></i>Contact
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Copyright -->
+        <hr class="my-4">
+        <div class="row">
+            <div class="col-12 text-center">
+                <p class="mb-0 text-muted">
+                    © 2024 localhost. All rights reserved.
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<style>
+    footer a:hover {
+        color: #ffc107 !important;
+        transition: color 0.3s ease;
+    }
+    
+    footer .fas {
+        width: 16px;
+        text-align: center;
+    }
+</style>

@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Port Checker - Find Your Backend</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .test-section h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        .button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .button:hover {
+            background: #0056b3;
+        }
+        .button.success {
+            background: #28a745;
+        }
+        .button.success:hover {
+            background: #218838;
+        }
+        .button.warning {
+            background: #ffc107;
+            color: #212529;
+        }
+        .button.warning:hover {
+            background: #e0a800;
+        }
+        .result {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 10px 0;
+            white-space: pre-wrap;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        .port-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin: 10px 0;
+        }
+        .port-item {
+            border: 1px solid #ddd;
+            padding: 10px;
+            border-radius: 4px;
+            text-align: center;
+        }
+        .port-item.working {
+            background: #d4edda;
+            border-color: #c3e6cb;
+        }
+        .port-item.error {
+            background: #f8d7da;
+            border-color: #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Port Checker - Find Your Backend</h1>
+        <p>This tool will help you find which port your backend is running on and what's available.</p>
+        
+        <div class="test-section">
+            <h3>🚀 Quick Port Scan</h3>
+            <p>Let's check common backend ports to see what's running:</p>
+            <button class="button" onclick="scanPorts()">Scan Common Ports</button>
+            <button class="button warning" onclick="scanCustomPorts()">Scan Custom Ports</button>
+        </div>
+        
+        <div class="test-section">
+            <h3>🎯 Test Specific Ports</h3>
+            <p>Test specific ports that might be running your backend:</p>
+            <div class="port-grid">
+                <div class="port-item">
+                    <strong>Port 5000</strong><br>
+                    <button class="button" onclick="testPort(5000)">Test</button>
+                </div>
+                <div class="port-item">
+                    <strong>Port 5212</strong><br>
+                    <button class="button" onclick="testPort(5212)">Test</button>
+                </div>
+                <div class="port-item">
+                    <strong>Port 5001</strong><br>
+                    <button class="button" onclick="testPort(5001)">Test</button>
+                </div>
+                <div class="port-item">
+                    <strong>Port 7000</strong><br>
+                    <button class="button" onclick="testPort(7000)">Test</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h3>🔧 Fix Configuration</h3>
+            <p>Once you find the correct port, update your configuration:</p>
+            <button class="button success" onclick="updateConfig()">Update Config to Correct Port</button>
+        </div>
+        
+        <div id="results"></div>
+    </div>
+
+    <script>
+        const COMMON_PORTS = [3000, 3001, 5000, 5001, 5212, 7000, 8000, 8080, 9000];
+        const CUSTOM_PORTS = [4000, 4001, 5002, 5003, 6000, 6001, 8001, 8002, 9001];
+        let workingPorts = [];
+        
+        function addResult(title, content, type = 'success') {
+            const resultsDiv = document.getElementById('results');
+            const resultDiv = document.createElement('div');
+            resultDiv.className = `result ${type}`;
+            resultDiv.innerHTML = `<strong>${title}</strong>\n${content}`;
+            resultsDiv.appendChild(resultDiv);
+        }
+        
+        async function testPort(port) {
+            const urls = [
+                `http://localhost:${port}/api/organizations`,
+                `http://localhost:${port}/api/health`,
+                `http://localhost:${port}/health`,
+                `http://localhost:${port}/`
+            ];
+            
+            addResult(`🔄 Testing Port ${port}`, `Testing multiple endpoints on port ${port}...`);
+            
+            for (const url of urls) {
+                try {
+                    const response = await fetch(url, { 
+                        method: 'GET',
+                        mode: 'cors',
+                        headers: {
+                            'Accept': 'application/json',
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        addResult(`✅ Port ${port} - ${url}`, 
+                            `Status: ${response.status}\nResponse: ${JSON.stringify(data, null, 2)}`, 'success');
+                        
+                        if (!workingPorts.includes(port)) {
+                            workingPorts.push(port);
+                        }
+                        return; // Found working endpoint, no need to test others
+                    } else {
+                        addResult(`⚠️ Port ${port} - ${url}`, 
+                            `Status: ${response.status} (Not OK)`, 'warning');
+                    }
+                } catch (error) {
+                    addResult(`❌ Port ${port} - ${url}`, 
+                        `Error: ${error.message}`, 'error');
+                }
+            }
+        }
+        
+        async function scanPorts() {
+            addResult('🔄 Scanning Common Ports', 'Testing common backend ports...');
+            workingPorts = [];
+            
+            for (const port of COMMON_PORTS) {
+                await testPort(port);
+                // Small delay to avoid overwhelming the server
+                await new Promise(resolve => setTimeout(resolve, 100));
+            }
+            
+            if (workingPorts.length > 0) {
+                addResult('✅ Working Ports Found', 
+                    `Found working backend on ports: ${workingPorts.join(', ')}`, 'success');
+            } else {
+                addResult('❌ No Working Ports Found', 
+                    'No working backend found on common ports. Your backend might not be running.', 'error');
+            }
+        }
+        
+        async function scanCustomPorts() {
+            addResult('🔄 Scanning Custom Ports', 'Testing custom backend ports...');
+            
+            for (const port of CUSTOM_PORTS) {
+                await testPort(port);
+                await new Promise(resolve => setTimeout(resolve, 100));
+            }
+        }
+        
+        function updateConfig() {
+            if (workingPorts.length === 0) {
+                addResult('❌ No Working Ports', 
+                    'No working ports found. Please start your backend server first.', 'error');
+                return;
+            }
+            
+            const recommendedPort = workingPorts[0];
+            const newConfig = {
+                "VITE_API_BASE_URL": `http://localhost:${recommendedPort}`,
+                "VITE_APP_TITLE": "Wedding Hub Manager",
+                "VITE_APP_VERSION": "1.0.0",
+                "VITE_ENVIRONMENT": "production"
+            };
+            
+            addResult('🔧 Configuration Update', 
+                `Recommended configuration:\n\n${JSON.stringify(newConfig, null, 2)}\n\n` +
+                `Update your webui/public/config.json file with this content.`, 'success');
+            
+            // Create a downloadable config file
+            const blob = new Blob([JSON.stringify(newConfig, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'config.json';
+            a.textContent = 'Download Updated Config';
+            a.className = 'button success';
+            a.style.margin = '10px';
+            document.getElementById('results').appendChild(a);
+        }
+        
+        // Auto-run on page load
+        window.onload = function() {
+            addResult('🚀 Port Checker Loaded', 'Click "Scan Common Ports" to find your backend server.');
+        };
+    </script>
+</body>
+</html>

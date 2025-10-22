@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Test Organization</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .form-group {
+            margin: 15px 0;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .button:hover {
+            background: #0056b3;
+        }
+        .button.success {
+            background: #28a745;
+        }
+        .button.success:hover {
+            background: #218838;
+        }
+        .result {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 10px 0;
+            white-space: pre-wrap;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏢 Create Test Organization</h1>
+        <p>This tool helps create a test organization for debugging purposes.</p>
+        
+        <form id="orgForm">
+            <div class="form-group">
+                <label for="orgId">Organization ID:</label>
+                <input type="text" id="orgId" value="ddae3baf-3c43-41ba-8f79-c5bb73f60cfd" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="orgName">Organization Name:</label>
+                <input type="text" id="orgName" value="Test Organization" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="contactPerson">Contact Person:</label>
+                <input type="text" id="contactPerson" value="John Doe">
+            </div>
+            
+            <div class="form-group">
+                <label for="contactNo">Contact Number:</label>
+                <input type="text" id="contactNo" value="+1234567890">
+            </div>
+            
+            <div class="form-group">
+                <label for="defaultDomain">Default Domain:</label>
+                <input type="text" id="defaultDomain" value="192.168.1.21:8080">
+            </div>
+            
+            <div class="form-group">
+                <label for="customDomain">Custom Domain:</label>
+                <input type="text" id="customDomain" value="test-org.local">
+            </div>
+            
+            <div class="form-group">
+                <label for="logo">Logo (Base64 or URL):</label>
+                <textarea id="logo" rows="3" placeholder="Enter logo as base64 or URL"></textarea>
+            </div>
+            
+            <button type="button" class="button" onclick="createOrganization()">Create Organization</button>
+            <button type="button" class="button success" onclick="createAndTest()">Create & Test</button>
+        </form>
+        
+        <div id="results"></div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://192.168.1.21:5000'; // Backend API URL
+        const FRONTEND_URL = 'http://192.168.1.21:8080';
+        
+        function addResult(title, content, type = 'success') {
+            const resultsDiv = document.getElementById('results');
+            const resultDiv = document.createElement('div');
+            resultDiv.className = `result ${type}`;
+            resultDiv.innerHTML = `<strong>${title}</strong>\n${content}`;
+            resultsDiv.appendChild(resultDiv);
+        }
+        
+        function generateUUID() {
+            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                const r = Math.random() * 16 | 0;
+                const v = c == 'x' ? r : (r & 0x3 | 0x8);
+                return v.toString(16);
+            });
+        }
+        
+        function createOrganization() {
+            const orgData = {
+                id: document.getElementById('orgId').value,
+                name: document.getElementById('orgName').value,
+                contactperson: document.getElementById('contactPerson').value,
+                contactno: document.getElementById('contactNo').value,
+                defaultdomain: document.getElementById('defaultDomain').value,
+                customdomain: document.getElementById('customDomain').value,
+                logo: document.getElementById('logo').value || null,
+                theme: {
+                    primaryColor: "#007bff",
+                    secondaryColor: "#6c757d",
+                    accentColor: "#28a745"
+                }
+            };
+            
+            addResult('🔄 Creating Organization', `Sending request to create organization:\n${JSON.stringify(orgData, null, 2)}`);
+            
+            fetch(`${API_BASE_URL}/api/organizations`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(orgData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.id) {
+                    addResult('✅ Organization Created Successfully', 
+                        `Organization created with ID: ${data.id}\n\nFull response:\n${JSON.stringify(data, null, 2)}`, 'success');
+                } else {
+                    addResult('❌ Organization Creation Failed', 
+                        `Response: ${JSON.stringify(data, null, 2)}`, 'error');
+                }
+            })
+            .catch(error => {
+                addResult('❌ Organization Creation Error', 
+                    `Error: ${error.message}`, 'error');
+            });
+        }
+        
+        function createAndTest() {
+            createOrganization();
+            
+            // Wait a bit then test
+            setTimeout(() => {
+                const orgId = document.getElementById('orgId').value;
+                testOrganization(orgId);
+            }, 2000);
+        }
+        
+        function testOrganization(orgId) {
+            addResult('🔄 Testing Created Organization', `Testing organization with ID: ${orgId}`);
+            
+            // Test the organization
+            fetch(`${API_BASE_URL}/api/organizations/${orgId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.id) {
+                    addResult('✅ Organization Test Successful', 
+                        `Organization found:\n${JSON.stringify(data, null, 2)}`, 'success');
+                    
+                    // Test the frontend URL
+                    const testUrl = `${FRONTEND_URL}/${orgId}`;
+                    addResult('🌐 Test Frontend URL', 
+                        `Open this URL in a new tab to test: ${testUrl}\n\nClick the button below to open it.`, 'success');
+                    
+                    // Add button to open URL
+                    const button = document.createElement('button');
+                    button.className = 'button success';
+                    button.textContent = 'Open Test URL';
+                    button.onclick = () => window.open(testUrl, '_blank');
+                    document.getElementById('results').appendChild(button);
+                } else {
+                    addResult('❌ Organization Test Failed', 
+                        `Response: ${JSON.stringify(data, null, 2)}`, 'error');
+                }
+            })
+            .catch(error => {
+                addResult('❌ Organization Test Error', 
+                    `Error: ${error.message}`, 'error');
+            });
+        }
+        
+        // Generate a random UUID on page load
+        window.onload = function() {
+            document.getElementById('orgId').value = generateUUID();
+            addResult('🚀 Test Organization Creator Loaded', 'Fill in the form above and click "Create Organization" to create a test organization.');
+        };
+    </script>
+</body>
+</html>

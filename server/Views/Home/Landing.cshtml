@@ -1,0 +1,565 @@
+@{
+    ViewData["Title"] = "Momantza – Simplifying Celebration Space Management";
+    Layout = "_LandingLayout";
+}
+
+<div x-data="{ showModal: false, navopen: false }">
+    <!-- Navigation Bar -->
+    <nav class="bg-white shadow-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+            <h1 class="flex items-center gap-2 text-xl font-bold text-pink-600">
+                <span>Momantza</span>
+            </h1>
+            <button @@click="navopen = !navopen" class="md:hidden block text-2xl">☰</button>
+
+            <ul class="hidden md:flex gap-6 text-sm font-medium">
+                <li><a href="#features" class="hover:text-pink-600">✨ Features</a></li>
+                <li><a href="#services" class="hover:text-pink-600">🧰 Services</a></li>
+                <li><a href="#benefits" class="hover:text-pink-600">🎯 Benefits</a></li>
+                <li><a href="#onboarding" class="hover:text-pink-600">🚀 Onboarding</a></li>
+                <li><a href="#contact" class="hover:text-pink-600">📞 Contact</a></li>
+                 <li><a asp-controller="ExploreOrganisation" asp-action="Index" class="hover:text-pink-600">📞 Explore</a></li>
+                <li><a asp-controller="Setup" asp-action="Index" class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700">Setup</a></li>
+            </ul>
+        </div>
+
+        <!-- Mobile menu -->
+        <div x-show="navopen" class="md:hidden bg-white border-t px-4 pb-4 space-y-2">
+            <a href="#features" @@click="navopen = false" class="block">Features</a>
+            <a href="#services" @@click="navopen = false" class="block">Services</a>
+            <a href="#benefits" @@click="navopen = false" class="block">Benefits</a>
+            <a href="#onboarding" @@click="navopen = false" class="block">Onboarding</a>
+            <a href="#contact" @@click="navopen = false" class="block">Contact</a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="relative bg-gradient-to-r from-pink-50 via-rose-50 to-yellow-50 py-24 text-center overflow-hidden">
+        <style>
+            @@keyframes float {
+                0%, 100% {
+                    transform: translateY(0px);
+                }
+                50% {
+                    transform: translateY(-10px);
+                }
+            }
+            .float {
+                animation: float 6s ease-in-out infinite;
+            }
+        </style>
+
+        <!-- Decorative Icons -->
+        <div class="hidden sm:block pointer-events-none select-none">
+            <div class="absolute top-[5%] left-[4%] text-3xl opacity-40 rotate-[12deg] float" data-aos="fade" data-aos-delay="100">📅</div>
+            <div class="absolute top-[10%] left-[85%] text-2xl opacity-40 rotate-[-15deg] float" data-aos="fade" data-aos-delay="200">🔐</div>
+            <div class="absolute top-[18%] left-[25%] text-4xl opacity-40 rotate-[8deg] float" data-aos="fade" data-aos-delay="300">🧾</div>
+            <div class="absolute top-[20%] left-[65%] text-3xl opacity-40 rotate-[18deg] float" data-aos="fade" data-aos-delay="400">📦</div>
+            <div class="absolute top-[8%] left-[45%] text-2xl opacity-40 rotate-[-20deg] float" data-aos="fade" data-aos-delay="500">⚡</div>
+            <div class="absolute top-[28%] left-[12%] text-3xl opacity-40 rotate-[6deg] float" data-aos="fade" data-aos-delay="600">🎉</div>
+            <div class="absolute top-[15%] left-[78%] text-2xl opacity-40 rotate-[10deg] float" data-aos="fade" data-aos-delay="700">📊</div>
+            <div class="absolute top-[30%] left-[48%] text-5xl opacity-40 rotate-[-12deg] float" data-aos="fade" data-aos-delay="800">🧹</div>
+            <div class="absolute top-[22%] left-[90%] text-3xl opacity-40 rotate-[7deg] float" data-aos="fade" data-aos-delay="900">🛠️</div>
+            <div class="absolute top-[10%] left-[60%] text-2xl opacity-40 rotate-[28deg] float" data-aos="fade" data-aos-delay="1000">🧾</div>
+
+            <div class="absolute bottom-[15%] left-[5%] text-2xl opacity-40 rotate-[-8deg] float" data-aos="fade" data-aos-delay="1100">👨‍🍳</div>
+            <div class="absolute bottom-[18%] right-[10%] text-4xl opacity-40 rotate-[16deg] float" data-aos="fade" data-aos-delay="1200">📈</div>
+            <div class="absolute bottom-[10%] left-[32%] text-3xl opacity-40 rotate-[5deg] float" data-aos="fade" data-aos-delay="1300">🎊</div>
+            <div class="absolute bottom-[8%] right-[25%] text-3xl opacity-40 rotate-[-6deg] float" data-aos="fade" data-aos-delay="1400">🔧</div>
+            <div class="absolute bottom-[6%] left-[20%] text-3xl opacity-40 rotate-[2deg] float" data-aos="fade" data-aos-delay="1500">💼</div>
+            <div class="absolute bottom-[22%] right-[20%] text-2xl opacity-40 rotate-[-10deg] float" data-aos="fade" data-aos-delay="1600">📞</div>
+            <div class="absolute bottom-[26%] left-[25%] text-2xl opacity-40 rotate-[14deg] float" data-aos="fade" data-aos-delay="1700">🧑‍💼</div>
+            <div class="absolute bottom-[14%] right-[40%] text-4xl opacity-40 rotate-[6deg] float" data-aos="fade" data-aos-delay="1800">🗓️</div>
+            <div class="absolute bottom-[20%] left-[48%] text-3xl opacity-40 rotate-[-5deg] float" data-aos="fade" data-aos-delay="1900">🔑</div>
+            <div class="absolute bottom-[10%] right-[5%] text-2xl opacity-40 rotate-[4deg] float" data-aos="fade" data-aos-delay="2000">🏨</div>
+        </div>
+
+        <!-- Hero content -->
+        <h1 class="text-4xl font-bold text-gray-800 mb-4 relative z-10" data-aos="fade-up">Manage Your Celebration Space With Style</h1>
+        <p class="text-gray-600 text-lg mb-8 relative z-10" data-aos="fade-up" data-aos-delay="300">A complete suite to showcase, book, and manage your hall online.</p>
+        <button @@click="showModal = true" class="relative z-10 inline-block px-8 py-3 bg-pink-600 text-white font-semibold rounded-lg shadow hover:bg-pink-700 transition duration-300">Start Your Journey</button>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="py-16 bg-white text-center px-4">
+        <div class="max-w-4xl mx-auto">
+            <h2 class="text-3xl font-bold mb-6 text-gray-800">✨ Powerful Features for Every Hall Owner</h2>
+            <p class="text-gray-600 text-base leading-relaxed mb-8">Momantza is more than just a booking tool — it's a complete operating system for your marriage or function hall. It helps you digitize bookings, manage customers, handle utilities, and track inventory effortlessly.</p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-left text-gray-700">
+                <div class="flex items-start space-x-3">
+                    <span class="text-2xl">📅</span>
+                    <div>
+                        <strong>Smart Booking Calendar:</strong>
+                        <span>View, schedule, and manage your hall's availability in real time.</span>
+                    </div>
+                </div>
+
+                <div class="flex items-start space-x-3">
+                    <span class="text-2xl">💬</span>
+                    <div>
+                        <strong>Instant Lead Capture:</strong>
+                        <span>Collect inquiries via web form, WhatsApp, or walk-ins — never miss a customer.</span>
+                    </div>
+                </div>
+
+                <div class="flex items-start space-x-3">
+                    <span class="text-2xl">📦</span>
+                    <div>
+                        <strong>Inventory Tracker:</strong>
+                        <span>Issue, return, and bill for reusable, rental, and sold items with ease.</span>
+                    </div>
+                </div>
+
+                <div class="flex items-start space-x-3">
+                    <span class="text-2xl">⚡</span>
+                    <div>
+                        <strong>EB & Generator Log:</strong>
+                        <span>Meter readings and fuel usage tracked and auto-billed per booking.</span>
+                    </div>
+                </div>
+
+                <div class="flex items-start space-x-3">
+                    <span class="text-2xl">🧾</span>
+                    <div>
+                        <strong>Invoice Engine:</strong>
+                        <span>Create beautiful, detailed invoices with all charges calculated automatically.</span>
+                    </div>
+                </div>
+
+                <div class="flex items-start space-x-3">
+                    <span class="text-2xl">📱</span>
+                    <div>
+                        <strong>Mobile-Friendly Dashboard:</strong>
+                        <span>Manage your hall from anywhere — anytime, on any device.</span>
+                    </div>
+                </div>
+
+                <div class="flex items-start space-x-3">
+                    <span class="text-2xl">🔐</span>
+                    <div>
+                        <strong>Secure Handover Flow:</strong>
+                        <span>Track keys, items, inspections, and feedback during check-in/out.</span>
+                    </div>
+                </div>
+
+                <div class="flex items-start space-x-3">
+                    <span class="text-2xl">🌐</span>
+                    <div>
+                        <strong>Multi-language & SEO Ready:</strong>
+                        <span>Serve customers in their local language with a website optimized for Google.</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Services Section -->
+    <section id="services" class="py-16 bg-gray-50 text-center px-4">
+        <div class="max-w-4xl mx-auto">
+            <h2 class="text-3xl font-bold mb-6 text-gray-800">🧰 Our Services</h2>
+            <p class="text-gray-600 text-base leading-relaxed mb-8">We offer a complete suite of tools tailored specifically for marriage and function hall businesses.</p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-left text-gray-700">
+                <div class="flex items-start space-x-3">
+                    <span class="text-2xl">📞</span>
+                    <div><strong>Lead Management:</strong> <span>Capture, track and follow up with inquiries from website, phone, and walk-ins.</span></div>
+                </div>
+                <div class="flex items-start space-x-3">
+                    <span class="text-2xl">👨‍🍳</span>
+                    <div><strong>Kitchen & Catering Planning:</strong> <span>Manage food orders, track kitchen inventory, and coordinate services.</span></div>
+                </div>
+                <div class="flex items-start space-x-3">
+                    <span class="text-2xl">🏨</span>
+                    <div><strong>Room Allocation:</strong> <span>Book, assign, and track stay facilities with room-wise guest info.</span></div>
+                </div>
+                <div class="flex items-start space-x-3">
+                    <span class="text-2xl">🧾</span>
+                    <div><strong>Multi-Item Invoicing:</strong> <span>Create final bills with EB, generator, services, and item usage in one place.</span></div>
+                </div>
+                <div class="flex items-start space-x-3">
+                    <span class="text-2xl">🗓️</span>
+                    <div><strong>Scheduling Engine:</strong> <span>Set and remind for tasks like cleaning, inspections, or maintenance checks.</span></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Benefits Section -->
+    <section id="benefits" class="py-16 bg-white text-center px-4">
+        <div class="max-w-4xl mx-auto">
+            <h2 class="text-3xl font-bold mb-6 text-gray-800">🎯 Benefits for Hall Owners</h2>
+            <p class="text-gray-600 text-base leading-relaxed mb-8">Momantza empowers hall owners to grow their business by giving them the tools to digitize and streamline every operation.</p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-left text-gray-700">
+                <div class="flex items-start space-x-3">
+                    <span class="text-2xl">💡</span>
+                    <div>
+                        <strong>Improved Visibility:</strong>
+                        <div>Get a web presence with booking calendar, photo gallery & SEO benefits.</div>
+                    </div>
+                </div>
+
+                <div class="flex items-start space-x-3">
+                    <span class="text-2xl">📊</span>
+                    <div>
+                        <strong>Reports & Insights:</strong>
+                        <div>Know which dates, services or seasons bring you the most revenue.</div>
+                    </div>
+                </div>
+
+                <div class="flex items-start space-x-3">
+                    <span class="text-2xl">📱</span>
+                    <div>
+                        <strong>Mobile Convenience:</strong>
+                        <div>View bookings, issue items, or approve invoices on-the-go from your mobile.</div>
+                    </div>
+                </div>
+
+                <div class="flex items-start space-x-3">
+                    <span class="text-2xl">🛡️</span>
+                    <div>
+                        <strong>Reduced Risks:</strong>
+                        <div>Secure handovers, inventory tracking & audit logs help avoid conflicts.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Onboarding Section -->
+    <section id="onboarding" class="py-16 bg-gray-50 text-center px-4">
+        <div class="max-w-4xl mx-auto">
+            <h2 class="text-3xl font-bold mb-6 text-gray-800">🚀 How Onboarding Works</h2>
+            <p class="text-gray-600 text-base leading-relaxed mb-8">Getting started is easy! Follow these simple steps to set up your hall management system.</p>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-white p-6 rounded-lg shadow">
+                    <div class="text-4xl mb-4">1️⃣</div>
+                    <h3 class="font-bold mb-2">Sign Up</h3>
+                    <p class="text-sm text-gray-600">Create your account and tell us about your hall</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow">
+                    <div class="text-4xl mb-4">2️⃣</div>
+                    <h3 class="font-bold mb-2">Setup</h3>
+                    <p class="text-sm text-gray-600">Add your services, inventory, and pricing details</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow">
+                    <div class="text-4xl mb-4">3️⃣</div>
+                    <h3 class="font-bold mb-2">Go Live</h3>
+                    <p class="text-sm text-gray-600">Start accepting bookings and managing your hall</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Everything Momantza Helps You Handle Section -->
+    <section class="py-16 bg-gradient-to-r from-blue-50 to-indigo-50 px-4">
+        <div class="max-w-6xl mx-auto">
+            <h2 class="text-3xl font-bold mb-6 text-gray-800 text-center">📋 Everything Momantza Helps You Handle — Automatically</h2>
+            <p class="text-gray-600 text-base leading-relaxed mb-8 text-center">Say goodbye to scattered notebooks, missed inspections, and billing headaches. Momantza keeps everything organized — from the moment a booking inquiry arrives to the final invoice after handover. Here's what your new workflow will cover:</p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <div class="text-3xl mb-3">📈</div>
+                    <h3 class="font-bold mb-2">Dashboard & Analytics</h3>
+                    <p class="text-sm text-gray-600">Gain deep insights with monthly reports on revenue, bookings, lead sources, and service usage trends.</p>
+                </div>
+
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <div class="text-3xl mb-3">☑️</div>
+                    <h3 class="font-bold mb-2">Pre-Event Checklist</h3>
+                    <p class="text-sm text-gray-600">Ensure everything's ready — lights, sound, sanitation, welcome board & kitchen gear — before the guests arrive.</p>
+                </div>
+
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <div class="text-3xl mb-3">🔐</div>
+                    <h3 class="font-bold mb-2">Handover & Inspection Workflow</h3>
+                    <p class="text-sm text-gray-600">Digital key handover with inventory verification and staff checklist completion for clean closure.</p>
+                </div>
+
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <div class="text-3xl mb-3">🧹</div>
+                    <h3 class="font-bold mb-2">Cleaning & Maintenance Logs</h3>
+                    <p class="text-sm text-gray-600">Track every sweep, sanitize, plumbing repair or AC service — all tagged to the correct booking.</p>
+                </div>
+
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <div class="text-3xl mb-3">⚡</div>
+                    <h3 class="font-bold mb-2">EB & Generator Usage Billing</h3>
+                    <p class="text-sm text-gray-600">Auto-calculate power consumed or generator hours used — and apply it directly to the bill.</p>
+                </div>
+
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <div class="text-3xl mb-3">🛠️</div>
+                    <h3 class="font-bold mb-2">Task Management & Reminders</h3>
+                    <p class="text-sm text-gray-600">Schedule regular maintenance (like generator or lift checks) and close complaint-based tasks fast.</p>
+                </div>
+
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <div class="text-3xl mb-3">📦</div>
+                    <h3 class="font-bold mb-2">Inventory Management & Billing</h3>
+                    <p class="text-sm text-gray-600">Rent, sell, or issue free items — and bill them automatically based on usage or return status.</p>
+                </div>
+
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <div class="text-3xl mb-3">🧾</div>
+                    <h3 class="font-bold mb-2">Billing & Final Settlement</h3>
+                    <p class="text-sm text-gray-600">Final invoice combines rent, EB, services, inventory & extras — clear, beautiful & sharable via WhatsApp.</p>
+                </div>
+
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <div class="text-3xl mb-3">🎤</div>
+                    <h3 class="font-bold mb-2">Customer Feedback & Reviews</h3>
+                    <p class="text-sm text-gray-600">Collect and showcase reviews after every booking to build trust and attract new customers online.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Website Features Section -->
+    <section class="py-16 bg-white px-4">
+        <div class="max-w-6xl mx-auto">
+            <h2 class="text-3xl font-bold mb-6 text-gray-800 text-center">🖥️ Own Your Hall's Website in Minutes</h2>
+            <p class="text-gray-600 text-base leading-relaxed mb-8 text-center">Stand out with a modern, mobile-friendly micro-site — loaded with chat, booking calendar, and gallery. Designed for marriage & function hall owners to simplify booking and boost leads.</p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                <div class="text-center">
+                    <div class="text-4xl mb-4">💬</div>
+                    <h3 class="font-bold mb-2">Interactive Chat</h3>
+                    <p class="text-sm text-gray-600">Let your customers message you directly from the site. Answer questions in real-time.</p>
+                </div>
+
+                <div class="text-center">
+                    <div class="text-4xl mb-4">📅</div>
+                    <h3 class="font-bold mb-2">Online Booking Calendar</h3>
+                    <p class="text-sm text-gray-600">Display your hall's availability instantly — no more back-and-forth calls.</p>
+                </div>
+
+                <div class="text-center">
+                    <div class="text-4xl mb-4">📸</div>
+                    <h3 class="font-bold mb-2">Gallery Showcase</h3>
+                    <p class="text-sm text-gray-600">Add images of past events, decorations, or rooms to impress new clients.</p>
+                </div>
+
+                <div class="text-center">
+                    <div class="text-4xl mb-4">🧾</div>
+                    <h3 class="font-bold mb-2">Lead Capture Form</h3>
+                    <p class="text-sm text-gray-600">Visitors can leave their contact info and requirements — leads go directly to your dashboard.</p>
+                </div>
+
+                <div class="text-center">
+                    <div class="text-4xl mb-4">⚙️</div>
+                    <h3 class="font-bold mb-2">Fully Branded</h3>
+                    <p class="text-sm text-gray-600">Your hall's name, address, contact info, and gallery — hosted under a branded subdomain.</p>
+                </div>
+
+                <div class="text-center">
+                    <div class="text-4xl mb-4">⏱️</div>
+                    <h3 class="font-bold mb-2">Set Up in 2 Days</h3>
+                    <p class="text-sm text-gray-600">From sign-up to live website, it takes just 48 hours to launch and go live.</p>
+                </div>
+            </div>
+
+            <div class="text-center">
+                <button class="px-8 py-3 bg-blue-600 text-white font-semibold rounded-lg shadow hover:bg-blue-700 transition duration-300">Get My Website Now</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Finance System Section -->
+    <section class="py-16 bg-gradient-to-r from-green-50 to-emerald-50 px-4">
+        <div class="max-w-6xl mx-auto">
+            <h2 class="text-3xl font-bold mb-6 text-gray-800 text-center">💰 Built-in Finance & Ledger System</h2>
+            <p class="text-gray-600 text-base leading-relaxed mb-8 text-center">Go beyond billing. Manage every rupee that comes in and goes out — right from your admin dashboard. Our simplified finance module brings professional accounting to your fingertips.</p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <div class="text-3xl mb-3">📊</div>
+                    <h3 class="font-bold mb-2">Unified Ledger System</h3>
+                    <p class="text-sm text-gray-600">Treat every hall rent, inventory item, EB charge, and expense as ledger entries — no separate tables needed.</p>
+                </div>
+
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <div class="text-3xl mb-3">🧾</div>
+                    <h3 class="font-bold mb-2">Smart Invoicing</h3>
+                    <p class="text-sm text-gray-600">Each invoice automatically maps to ledgers — clean audit trail, zero double entries.</p>
+                </div>
+
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <div class="text-3xl mb-3">💡</div>
+                    <h3 class="font-bold mb-2">Daily & Year-End Reports</h3>
+                    <p class="text-sm text-gray-600">View trial balance, profit & loss, and year-end summary — all from the dashboard.</p>
+                </div>
+
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <div class="text-3xl mb-3">🏦</div>
+                    <h3 class="font-bold mb-2">Cash & Bank Tracking</h3>
+                    <p class="text-sm text-gray-600">Log payments received via cash, UPI, or bank transfers. Track deposits, withdrawals, and expenses.</p>
+                </div>
+
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <div class="text-3xl mb-3">✅</div>
+                    <h3 class="font-bold mb-2">Simplified for Non-Accountants</h3>
+                    <p class="text-sm text-gray-600">No complex charts or software needed. Just tag income & expense, and we do the math for you.</p>
+                </div>
+
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <div class="text-3xl mb-3">🧠</div>
+                    <h3 class="font-bold mb-2">Profit Insights Per Booking</h3>
+                    <p class="text-sm text-gray-600">Understand profitability per event — see revenue, cost, and profit in one place.</p>
+                </div>
+            </div>
+
+            <div class="text-center">
+                <button class="px-8 py-3 bg-green-600 text-white font-semibold rounded-lg shadow hover:bg-green-700 transition duration-300">Activate My Finance Dashboard</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="py-16 bg-gray-50 px-4">
+        <div class="max-w-4xl mx-auto">
+            <h2 class="text-3xl font-bold mb-8 text-gray-800 text-center">❓ Frequently Asked Questions</h2>
+            <p class="text-gray-600 text-base leading-relaxed mb-8 text-center">Here are some common questions marriage/function hall owners ask before getting started with Momantza.</p>
+
+            <div class="space-y-4">
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <h3 class="font-semibold text-gray-800">☑️ What is included in the Pre-Event Checklist?</h3>
+                </div>
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <h3 class="font-semibold text-gray-800">🔐 How does the handover process work after the event?</h3>
+                </div>
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <h3 class="font-semibold text-gray-800">🧹 How are cleaning and maintenance tracked?</h3>
+                </div>
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <h3 class="font-semibold text-gray-800">⚡ How is electricity and generator usage calculated?</h3>
+                </div>
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <h3 class="font-semibold text-gray-800">📦 Can I track rented and sold items separately?</h3>
+                </div>
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <h3 class="font-semibold text-gray-800">🧾 How is the final bill calculated?</h3>
+                </div>
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <h3 class="font-semibold text-gray-800">💰 Will GST be added to invoices?</h3>
+                </div>
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <h3 class="font-semibold text-gray-800">🧩 Can the system be customized to my process?</h3>
+                </div>
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <h3 class="font-semibold text-gray-800">📊 Is there a dashboard to track bookings & income?</h3>
+                </div>
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <h3 class="font-semibold text-gray-800">🔐 Is my data and customer information secure?</h3>
+                </div>
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <h3 class="font-semibold text-gray-800">👨‍🍳 Can this handle kitchen, decorator or AC vendors?</h3>
+                </div>
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <h3 class="font-semibold text-gray-800">🧑‍💻 I'm not very tech-savvy — can I still use it?</h3>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Before/After Comparison Section -->
+    <section class="py-16 bg-white px-4">
+        <div class="max-w-6xl mx-auto">
+            <h2 class="text-3xl font-bold mb-8 text-gray-800 text-center">📞 Still Managing Your Hall the Hard Way?</h2>
+            <p class="text-gray-600 text-base leading-relaxed mb-8 text-center">Are you tired of writing bookings in notebooks and chasing payments manually? Missing follow-ups, misplacing keys, or calculating EB charges late at night? You're losing time, money, and peace of mind — every single event. Your competitors are getting online leads, automating tasks, and offering a smoother experience. Let us help you catch up, and level up — starting today.</p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                <div class="bg-red-50 p-6 rounded-lg border-l-4 border-red-500">
+                    <h3 class="text-xl font-bold text-red-800 mb-4">😩 Before Momantza</h3>
+                    <ul class="space-y-2 text-gray-700">
+                        <li class="flex items-start">
+                            <span class="text-red-500 mr-2">⏱️</span>
+                            <span>Wasting hours calculating EB & generator usage manually</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-red-500 mr-2">📖</span>
+                            <span>Bookings written on paper and forgotten or overlapped</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-red-500 mr-2">📞</span>
+                            <span>Customers calling 3 times to confirm slot or payment</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-red-500 mr-2">🧹</span>
+                            <span>No checklist for cleaning, inventory or key handover</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-red-500 mr-2">💸</span>
+                            <span>Losing money on broken or missing rental items</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-red-500 mr-2">🚫</span>
+                            <span>No visibility or leads from Google or website</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="bg-green-50 p-6 rounded-lg border-l-4 border-green-500">
+                    <h3 class="text-xl font-bold text-green-800 mb-4">✨ With Momantza</h3>
+                    <ul class="space-y-2 text-gray-700">
+                        <li class="flex items-start">
+                            <span class="text-green-500 mr-2">⚡</span>
+                            <span>Automatic EB & generator billing calculations</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-green-500 mr-2">📱</span>
+                            <span>Digital booking calendar with real-time availability</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-green-500 mr-2">💬</span>
+                            <span>Online booking and payment confirmation</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-green-500 mr-2">✅</span>
+                            <span>Complete digital checklists and workflows</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-green-500 mr-2">💰</span>
+                            <span>Track and bill every item automatically</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-green-500 mr-2">🌐</span>
+                            <span>Professional website with online leads</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="text-center">
+                <button class="px-8 py-3 bg-pink-600 text-white font-semibold rounded-lg shadow hover:bg-pink-700 transition duration-300">✨ Yes, I Want a Simpler Way!</button>
+                <p class="text-sm text-gray-600 mt-2">We'll set up your demo site and dashboard in just 2 days.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="py-16 bg-gray-800 text-white text-center px-4">
+        <div class="max-w-4xl mx-auto">
+            <h2 class="text-3xl font-bold mb-6">📞 Contact Us</h2>
+            <p class="text-gray-300 text-base leading-relaxed mb-8">Have questions? We're here to help!</p>
+            <button @@click="showModal = true" class="px-8 py-3 bg-pink-600 text-white font-semibold rounded-lg shadow hover:bg-pink-700 transition duration-300">Get in Touch</button>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-8 text-center">
+        <p>&copy; 2024 Momantza. All rights reserved.</p>
+    </footer>
+
+    <!-- Modal -->
+    <div x-show="showModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" @@click.self="showModal = false">
+        <div class="bg-white p-8 rounded-lg max-w-md w-full mx-4">
+            <h3 class="text-2xl font-bold mb-4">Start Your Journey</h3>
+            <p class="text-gray-600 mb-6">Thank you for your interest! Please contact us to get started.</p>
+            <button @@click="showModal = false" class="w-full px-4 py-2 bg-pink-600 text-white rounded-lg hover:bg-pink-700">Close</button>
+        </div>
+    </div>
+</div>
+

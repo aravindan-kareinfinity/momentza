@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Organization Debug Tool</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .test-section h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        .button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .button:hover {
+            background: #0056b3;
+        }
+        .button.danger {
+            background: #dc3545;
+        }
+        .button.danger:hover {
+            background: #c82333;
+        }
+        .result {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 10px 0;
+            white-space: pre-wrap;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        .input-group {
+            margin: 10px 0;
+        }
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .input-group input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .org-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 10px;
+            margin: 10px 0;
+        }
+        .org-card {
+            border: 1px solid #ddd;
+            padding: 10px;
+            border-radius: 4px;
+            background: #f8f9fa;
+        }
+        .org-card h4 {
+            margin: 0 0 5px 0;
+            color: #333;
+        }
+        .org-card p {
+            margin: 2px 0;
+            font-size: 12px;
+            color: #666;
+        }
+        .org-id {
+            font-family: monospace;
+            background: #e9ecef;
+            padding: 2px 4px;
+            border-radius: 2px;
+            font-size: 11px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Organization Debug Tool</h1>
+        <p>This tool helps debug organization-related issues by testing API endpoints and showing available organizations.</p>
+        
+        <div class="test-section">
+            <h3>📋 Quick Tests</h3>
+            <button class="button" onclick="testAllOrganizations()">Get All Organizations</button>
+            <button class="button" onclick="testCurrentOrganization()">Get Current Organization</button>
+            <button class="button" onclick="testDatabaseConnection()">Test Database Connection</button>
+            <button class="button danger" onclick="clearResults()">Clear Results</button>
+        </div>
+        
+        <div class="test-section">
+            <h3>🎯 Test Specific Organization</h3>
+            <div class="input-group">
+                <label for="orgIdInput">Organization ID:</label>
+                <input type="text" id="orgIdInput" placeholder="Enter Organization ID" value="ddae3baf-3c43-41ba-8f79-c5bb73f60cfd">
+            </div>
+            <button class="button" onclick="testSpecificOrganization()">Test This Organization</button>
+            <button class="button" onclick="testAllEndpoints()">Test All Endpoints</button>
+        </div>
+        
+        <div class="test-section">
+            <h3>🌐 Test URL Patterns</h3>
+            <button class="button" onclick="testUrlPatterns()">Test All URL Patterns</button>
+            <button class="button" onclick="openTestUrls()">Open Test URLs</button>
+        </div>
+        
+        <div id="results"></div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://192.168.1.21:5000'; // Backend API URL // Backend API
+        const FRONTEND_URL = 'http://192.168.1.21:8080'; // Frontend URL
+        
+        function addResult(title, content, type = 'success') {
+            const resultsDiv = document.getElementById('results');
+            const resultDiv = document.createElement('div');
+            resultDiv.className = `result ${type}`;
+            resultDiv.innerHTML = `<strong>${title}</strong>\n${content}`;
+            resultsDiv.appendChild(resultDiv);
+        }
+        
+        function clearResults() {
+            document.getElementById('results').innerHTML = '';
+        }
+        
+        async function testAllOrganizations() {
+            try {
+                addResult('🔄 Testing GET /api/organizations', 'Fetching all organizations...');
+                
+                const response = await fetch(`${API_BASE_URL}/api/organizations`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    addResult('✅ GET All Organizations - SUCCESS', 
+                        `Found ${data.length} organizations:\n${JSON.stringify(data, null, 2)}`);
+                    
+                    // Display organizations in a nice format
+                    if (data.length > 0) {
+                        let orgListHtml = '<div class="org-list">';
+                        data.forEach(org => {
+                            orgListHtml += `
+                                <div class="org-card">
+                                    <h4>${org.name || 'Unnamed Organization'}</h4>
+                                    <p><strong>ID:</strong> <span class="org-id">${org.id}</span></p>
+                                    <p><strong>Default Domain:</strong> ${org.defaultdomain || 'N/A'}</p>
+                                    <p><strong>Custom Domain:</strong> ${org.customdomain || 'N/A'}</p>
+                                    <p><strong>Contact:</strong> ${org.contactperson || 'N/A'}</p>
+                                </div>
+                            `;
+                        });
+                        orgListHtml += '</div>';
+                        addResult('📋 Available Organizations', orgListHtml);
+                    }
+                } else {
+                    addResult('❌ GET All Organizations - ERROR', 
+                        `Status: ${response.status}\nResponse: ${JSON.stringify(data, null, 2)}`, 'error');
+                }
+            } catch (error) {
+                addResult('❌ GET All Organizations - EXCEPTION', 
+                    `Error: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testCurrentOrganization() {
+            try {
+                addResult('🔄 Testing GET /api/organizations/current', 'Fetching current organization...');
+                
+                const response = await fetch(`${API_BASE_URL}/api/organizations/current`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    addResult('✅ GET Current Organization - SUCCESS', 
+                        `Current organization:\n${JSON.stringify(data, null, 2)}`);
+                } else {
+                    addResult('❌ GET Current Organization - ERROR', 
+                        `Status: ${response.status}\nResponse: ${JSON.stringify(data, null, 2)}`, 'error');
+                }
+            } catch (error) {
+                addResult('❌ GET Current Organization - EXCEPTION', 
+                    `Error: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testDatabaseConnection() {
+            try {
+                addResult('🔄 Testing Database Connection', 'Testing DBSync endpoint...');
+                
+                const response = await fetch(`${API_BASE_URL}/api/organizations/DBSync`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    addResult('✅ Database Connection - SUCCESS', 
+                        `Database sync result:\n${JSON.stringify(data, null, 2)}`);
+                } else {
+                    addResult('❌ Database Connection - ERROR', 
+                        `Status: ${response.status}\nResponse: ${JSON.stringify(data, null, 2)}`, 'error');
+                }
+            } catch (error) {
+                addResult('❌ Database Connection - EXCEPTION', 
+                    `Error: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testSpecificOrganization() {
+            const orgId = document.getElementById('orgIdInput').value;
+            if (!orgId) {
+                addResult('❌ Input Error', 'Please enter an organization ID', 'error');
+                return;
+            }
+            
+            try {
+                addResult(`🔄 Testing Organization ID: ${orgId}`, 'Testing different API endpoints...');
+                
+                // Test different endpoints
+                const endpoints = [
+                    `/api/organizations/${orgId}`,
+                    `/api/organizations/by-id/${orgId}`,
+                    `/api/organizations/id/${orgId}`
+                ];
+                
+                let found = false;
+                for (const endpoint of endpoints) {
+                    try {
+                        const response = await fetch(`${API_BASE_URL}${endpoint}`);
+                        const data = await response.json();
+                        
+                        if (response.ok) {
+                            addResult(`✅ ${endpoint} - SUCCESS`, 
+                                `Organization found:\n${JSON.stringify(data, null, 2)}`, 'success');
+                            found = true;
+                        } else {
+                            addResult(`❌ ${endpoint} - ERROR`, 
+                                `Status: ${response.status}\nResponse: ${JSON.stringify(data, null, 2)}`, 'error');
+                        }
+                    } catch (error) {
+                        addResult(`❌ ${endpoint} - EXCEPTION`, 
+                            `Error: ${error.message}`, 'error');
+                    }
+                }
+                
+                if (!found) {
+                    addResult('⚠️ Organization Not Found', 
+                        `The organization with ID '${orgId}' was not found in any endpoint. Please check if the ID is correct or if the organization exists in the database.`, 'warning');
+                }
+            } catch (error) {
+                addResult('❌ Test Specific Organization - EXCEPTION', 
+                    `Error: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testAllEndpoints() {
+            const orgId = document.getElementById('orgIdInput').value;
+            if (!orgId) {
+                addResult('❌ Input Error', 'Please enter an organization ID', 'error');
+                return;
+            }
+            
+            addResult('🔄 Testing All Endpoints', `Testing all possible endpoints for organization ID: ${orgId}`);
+            
+            const endpoints = [
+                { name: 'Standard', url: `/api/organizations/${orgId}` },
+                { name: 'By-ID', url: `/api/organizations/by-id/${orgId}` },
+                { name: 'ID', url: `/api/organizations/id/${orgId}` },
+                { name: 'Current', url: `/api/organizations/current` },
+                { name: 'All', url: `/api/organizations` }
+            ];
+            
+            for (const endpoint of endpoints) {
+                try {
+                    const response = await fetch(`${API_BASE_URL}${endpoint.url}`);
+                    const data = await response.json();
+                    
+                    const status = response.ok ? '✅' : '❌';
+                    const type = response.ok ? 'success' : 'error';
+                    
+                    addResult(`${status} ${endpoint.name} (${endpoint.url})`, 
+                        `Status: ${response.status}\nResponse: ${JSON.stringify(data, null, 2)}`, type);
+                } catch (error) {
+                    addResult(`❌ ${endpoint.name} (${endpoint.url}) - EXCEPTION`, 
+                        `Error: ${error.message}`, 'error');
+                }
+            }
+        }
+        
+        function testUrlPatterns() {
+            const orgId = document.getElementById('orgIdInput').value;
+            if (!orgId) {
+                addResult('❌ Input Error', 'Please enter an organization ID', 'error');
+                return;
+            }
+            
+            const urlPatterns = [
+                `${FRONTEND_URL}/`,
+                `${FRONTEND_URL}/org/${orgId}`,
+                `${FRONTEND_URL}/${orgId}`,
+                `${FRONTEND_URL}/?orgId=${orgId}`
+            ];
+            
+            addResult('🌐 URL Patterns to Test', 
+                `Test these URLs in your browser:\n\n${urlPatterns.map(url => `• ${url}`).join('\n')}`, 'warning');
+        }
+        
+        function openTestUrls() {
+            const orgId = document.getElementById('orgIdInput').value;
+            if (!orgId) {
+                addResult('❌ Input Error', 'Please enter an organization ID', 'error');
+                return;
+            }
+            
+            const urls = [
+                `${FRONTEND_URL}/`,
+                `${FRONTEND_URL}/org/${orgId}`,
+                `${FRONTEND_URL}/${orgId}`,
+                `${FRONTEND_URL}/?orgId=${orgId}`
+            ];
+            
+            urls.forEach(url => {
+                window.open(url, '_blank');
+            });
+            
+            addResult('🌐 Opened Test URLs', 
+                `Opened ${urls.length} test URLs in new tabs. Check each one to see which works.`, 'success');
+        }
+        
+        // Auto-run on page load
+        window.onload = function() {
+            addResult('🚀 Debug Tool Loaded', 'Click the buttons above to test the API endpoints and debug organization issues.');
+        };
+    </script>
+</body>
+</html>
