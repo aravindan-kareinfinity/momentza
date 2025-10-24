@@ -16,7 +16,12 @@ namespace Momantza.Models
         
         [MaxLength(20)]
         public string ContactNo { get; set; } = string.Empty;
-        
+
+        public string Address { get; set; } = string.Empty;
+
+        public string About { get; set; } = string.Empty;
+
+
         [Required]
         [MaxLength(100)]
         public string DefaultDomain { get; set; } = string.Empty;

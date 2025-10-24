@@ -39,16 +39,18 @@ namespace Momantza.Services
                     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
                 );";
 
+
             using var connection = new NpgsqlConnection(_connectionString);
             connection.Open();
             using var command = new NpgsqlCommand(createTableSql, connection);
             command.ExecuteNonQuery();
         }
 
+
         public override async Task<List<Communication>> GetAllAsync()
         {
             var orgId = GetCurrentOrganizationId();
-            var sql = "SELECT * FROM communications WHERE organizationid = @organizationId ORDER BY created_at DESC";
+            var sql = "SELECT * FROM communication WHERE organizationid = @organizationId ORDER BY created_at DESC";
             using var connection = await GetConnectionAsync();
             using var command = new NpgsqlCommand(sql, connection);
             command.Parameters.AddWithValue("@organizationId", orgId);
@@ -63,7 +65,7 @@ namespace Momantza.Services
 
         public async Task<Communication?> GetByIdAsync(string id)
         {
-            var sql = "SELECT * FROM communications WHERE id = @id";
+            var sql = "SELECT * FROM communication WHERE id = @id";
 
             using var connection = new NpgsqlConnection(_connectionString);
             await connection.OpenAsync();
@@ -82,23 +84,23 @@ namespace Momantza.Services
         public async Task<Communication> CreateAsync(Communication communication)
         {
             communication.Id = Guid.NewGuid().ToString();
-            communication.CreatedAt = DateTime.UtcNow;
+            //communication.created_at = DateTime.UtcNow;
 
             var sql = @"
-                INSERT INTO communications (id, booking_id, date, time, from_person, to_person, detail, created_at)
-                VALUES (@id, @bookingId, @date, @time, @fromPerson, @toPerson, @detail, @createdAt)";
+                INSERT INTO communication (id, booking_id, date, time, from_person, to_person, detail, created_at,type)
+                VALUES (@id, @bookingId, @date, @time, @fromPerson, @toPerson, @detail, @createdAt,'lead')";
 
             using var connection = new NpgsqlConnection(_connectionString);
             await connection.OpenAsync();
             using var command = new NpgsqlCommand(sql, connection);
             command.Parameters.AddWithValue("@id", communication.Id);
-            command.Parameters.AddWithValue("@bookingId", communication.BookingId);
+            command.Parameters.AddWithValue("@bookingId", communication.booking_id);
             command.Parameters.AddWithValue("@date", communication.Date);
             command.Parameters.AddWithValue("@time", communication.Time);
-            command.Parameters.AddWithValue("@fromPerson", communication.FromPerson);
-            command.Parameters.AddWithValue("@toPerson", communication.ToPerson);
+            command.Parameters.AddWithValue("@fromPerson", communication.from_Person);
+            command.Parameters.AddWithValue("@toPerson", communication.to_Person);
             command.Parameters.AddWithValue("@detail", communication.Detail);
-            command.Parameters.AddWithValue("@createdAt", communication.CreatedAt);
+            command.Parameters.AddWithValue("@createdAt", communication.Created_at);
 
             await command.ExecuteNonQueryAsync();
             return communication;
@@ -109,19 +111,20 @@ namespace Momantza.Services
             var sql = @"
                 UPDATE communications 
                 SET booking_id = @bookingId, date = @date, time = @time, 
-                    from_person = @fromPerson, to_person = @toPerson, detail = @detail
+                    from_person = @fromPerson, to_person = @toPerson, detail = @detail,crate_at=createdAt
                 WHERE id = @id";
 
             using var connection = new NpgsqlConnection(_connectionString);
             await connection.OpenAsync();
             using var command = new NpgsqlCommand(sql, connection);
             command.Parameters.AddWithValue("@id", id);
-            command.Parameters.AddWithValue("@bookingId", communication.BookingId);
+            command.Parameters.AddWithValue("@bookingId", communication.booking_id);
             command.Parameters.AddWithValue("@date", communication.Date);
             command.Parameters.AddWithValue("@time", communication.Time);
-            command.Parameters.AddWithValue("@fromPerson", communication.FromPerson);
-            command.Parameters.AddWithValue("@toPerson", communication.ToPerson);
+            command.Parameters.AddWithValue("@fromPerson", communication.from_Person);
+            command.Parameters.AddWithValue("@toPerson", communication.to_Person);
             command.Parameters.AddWithValue("@detail", communication.Detail);
+            command.Parameters.AddWithValue("@created_at", communication.Created_at);
 
             var rowsAffected = await command.ExecuteNonQueryAsync();
             if (rowsAffected == 0)
@@ -169,13 +172,14 @@ namespace Momantza.Services
             return new Communication
             {
                 Id = reader["id"].ToString() ?? "",
-                BookingId = reader["booking_id"].ToString() ?? "",
+                booking_id = reader["booking_id"].ToString() ?? "",
                 Date = reader["date"] != DBNull.Value ? Convert.ToDateTime(reader["date"]) : DateTime.MinValue,
                 Time = reader["time"] != DBNull.Value ? Convert.ToDateTime(reader["time"]) : DateTime.MinValue,
-                FromPerson = reader["from_person"].ToString() ?? "",
-                ToPerson = reader["to_person"].ToString() ?? "",
+                from_Person = reader["from_person"].ToString() ?? "",
+                to_Person = reader["to_person"].ToString() ?? "",
                 Detail = reader["detail"].ToString() ?? "",
-                CreatedAt = reader["created_at"] != DBNull.Value ? Convert.ToDateTime(reader["created_at"]) : DateTime.UtcNow
+                Organizationid = reader["organizationid"]?.ToString() ?? "",
+                Created_at = reader["created_at"] != DBNull.Value ? Convert.ToDateTime(reader["created_at"]) : DateTime.UtcNow
             };
         }
 
@@ -186,38 +190,38 @@ namespace Momantza.Services
 
         protected override (string sql, Dictionary<string, object?> parameters, List<string> jsonFields) GenerateInsertSql(Communication entity)
         {
-            var sql = @"INSERT INTO communication (id, bookingid, date, time, fromperson, toperson, detail, organizationid, createdat) VALUES (@id, @bookingid, @date, @time, @fromperson, @toperson, @detail, @organizationid, @createdat)";
+            var sql = @"INSERT INTO communication (id, booking_id, date, time, from_person, to_person, detail, organizationid, createdat) VALUES (@id, @bookingid, @date, @time, @fromperson, @toperson, @detail, @organizationid, @createdat)";
             var parameters = new Dictionary<string, object?>
             {
                 ["@id"] = entity.Id,
-                ["@bookingid"] = entity.BookingId,
+                ["@bookingid"] = entity.booking_id,
                 ["@date"] = entity.Date,
                 ["@time"] = entity.Time,
-                ["@fromperson"] = entity.FromPerson,
-                ["@toperson"] = entity.ToPerson,
+                ["@fromperson"] = entity.from_Person,
+                ["@toperson"] = entity.to_Person,
                 ["@detail"] = entity.Detail,
-                ["@organizationid"] = entity.OrganizationId,
-                ["@createdat"] = entity.CreatedAt
+                ["@organizationid"] = entity.Organizationid,
+                ["@createdat"] = entity.Created_at
             };
             return (sql, parameters, new List<string>());
         }
 
         protected override (string sql, Dictionary<string, object?> parameters, List<string> jsonFields) GenerateUpdateSql(Communication entity)
         {
-            var sql = @"UPDATE communication SET bookingid = @bookingid, date = @date, time = @time, fromperson = @fromperson, toperson = @toperson, detail = @detail, organizationid = @organizationid, createdat = @createdat WHERE id = @id";
+            var sql = @"UPDATE communication SET booking_id = @bookingid, date = @date, time = @time, from_person = @fromperson, to_person = @toperson, detail = @detail, organizationid = @organizationid, createdat = @createdat WHERE id = @id";
             var parameters = new Dictionary<string, object?>
             {
                 ["@id"] = entity.Id,
-                ["@bookingid"] = entity.BookingId,
+                ["@bookingid"] = entity.booking_id,
                 ["@date"] = entity.Date,
                 ["@time"] = entity.Time,
-                ["@fromperson"] = entity.FromPerson,
-                ["@toperson"] = entity.ToPerson,
+                ["@fromperson"] = entity.from_Person,
+                ["@toperson"] = entity.to_Person,
                 ["@detail"] = entity.Detail,
-                ["@organizationid"] = entity.OrganizationId,
-                ["@createdat"] = entity.CreatedAt
+                ["@organizationid"] = entity.Organizationid,
+                ["@createdat"] = entity.Created_at
             };
             return (sql, parameters, new List<string>());
         }
     }
-} 
+}

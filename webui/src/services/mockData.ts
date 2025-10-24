@@ -123,6 +123,8 @@ export const mockOrganizations: Organization[] = [
     name: 'Royal Weddings',
     contactPerson: 'John Smith',
     contactNo: '+1-234-567-8900',
+    address:'wertyui',
+    about:'qwertydfgh',
     defaultDomain: 'royalweddings.com',
     customDomain: 'www.royalweddings.com',
     logo: 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=100&q=80',

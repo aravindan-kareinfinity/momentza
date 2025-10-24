@@ -132,7 +132,7 @@ namespace Momantza.Controllers
         public async Task<IActionResult> GetByOrganization(string organizationId)
         {
             try
-            {
+            { 
                 var clicks = await _customerClicksDataService.GetByOrganizationAsync(organizationId);
                 return Ok(clicks);
             }

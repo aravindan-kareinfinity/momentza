@@ -3,6 +3,8 @@ export interface Organization {
   name: string;
   contactPerson: string;
   contactNo: string;
+  address:string;
+  about?:string;
   defaultDomain: string;
   customDomain?: string;
   logo?: string;
@@ -146,4 +148,17 @@ export interface HandOverImage {
   imageUrl: string;
   description: string;
   uploadedAt: string;
+}
+
+export interface Inventoryitem{
+  id:string;
+  name:string;
+  description:string;
+  quantity:number;
+  unit:string;
+  price:number;
+  organizationid:string;
+  createdat:string;
+  updatedat:string;
+  notes:string;
 }

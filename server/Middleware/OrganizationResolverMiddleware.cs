@@ -92,7 +92,7 @@ namespace Momantza.Middleware
                 if (!string.IsNullOrEmpty(subdomain) && context.Request.Path.Value == "/")
                 {
                     // Redirect to frontend with organization ID in URL path
-                    var frontendUrl = $"http://192.168.1.21:8080/{org.OrganizationId}";
+                    var frontendUrl = $"http://192.168.1.13:8080/{org.OrganizationId}";
                     Console.WriteLine($"Subdomain '{subdomain}' resolved to organization '{org.OrganizationId}'");
                     Console.WriteLine($"Redirecting to: {frontendUrl}");
                     context.Response.Redirect(frontendUrl);
@@ -116,7 +116,7 @@ namespace Momantza.Middleware
         public async Task<OrganizationContext?> ResolveAsync(HttpContext context)
         {
             // FIRST: Try subdomain-based resolution
-            var subdomain = context.Items["Subdomain"]?.ToString();
+            var subdomain = context.Request.Host.Host;
             
             if (!string.IsNullOrEmpty(subdomain))
             {

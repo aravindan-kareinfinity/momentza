@@ -321,7 +321,7 @@ namespace Momantza.Services
             try
             {
                 using var connection = await GetConnectionAsync();
-                var sql = "SELECT * FROM booking WHERE customeremail = @userId OR customername LIKE @userName AND organizationid = @organizationId ORDER BY createdat DESC";
+                var sql = "SELECT * FROM bookings WHERE customeremail = @userId OR customername LIKE @userName AND organizationid = @organizationId ORDER BY createdat DESC";
                 using var command = new NpgsqlCommand(sql, connection);
                 command.Parameters.AddWithValue("@userId", userId);
                 command.Parameters.AddWithValue("@userName", $"%{userId}%");

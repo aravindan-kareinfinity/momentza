@@ -34,6 +34,7 @@ namespace Momantza.Services
                     name VARCHAR(200) NOT NULL,
                     quantity INTEGER NOT NULL,
                     price DECIMAL(10,2) NOT NULL,
+                    
                     notes TEXT,
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP

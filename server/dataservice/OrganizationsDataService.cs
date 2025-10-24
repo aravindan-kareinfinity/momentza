@@ -19,6 +19,8 @@ namespace Momantza.Services
                 Name = reader["name"].ToString() ?? string.Empty,
                 ContactPerson = reader["contactperson"].ToString() ?? string.Empty,
                 ContactNo = reader["contactno"].ToString() ?? string.Empty,
+                Address = reader["address"].ToString()?? string.Empty,
+                About = reader["about"].ToString() ?? string.Empty,
                 DefaultDomain = reader["defaultdomain"].ToString() ?? string.Empty,
                 CustomDomain = reader["customdomain"]?.ToString(),
                 Logo = reader["logo"]?.ToString(),
@@ -30,13 +32,15 @@ namespace Momantza.Services
 
         protected override (string sql, Dictionary<string, object?> parameters, List<string> jsonFields) GenerateInsertSql(Organizations entity)
         {
-            var sql = @"INSERT INTO organization (id, name, contactperson, contactno, defaultdomain, customdomain, logo, theme, createdat, updatedat) VALUES (@id, @name, @contactperson, @contactno, @defaultdomain, @customdomain, @logo, @theme, @createdat, @updatedat)";
+            var sql = @"INSERT INTO organization (id, name, contactperson, contactno,address, about, defaultdomain, customdomain, logo, theme, createdat, updatedat) VALUES (@id, @name, @contactperson, @contactno,@address,@about, @defaultdomain, @customdomain, @logo, @theme, @createdat, @updatedat)";
             var parameters = new Dictionary<string, object?>
             {
                 ["@id"] = entity.Id,
                 ["@name"] = entity.Name,
                 ["@contactperson"] = entity.ContactPerson,
                 ["@contactno"] = entity.ContactNo,
+                ["@address"] = entity.Address,
+                ["@about"] = entity.About,
                 ["@defaultdomain"] = entity.DefaultDomain,
                 ["@customdomain"] = entity.CustomDomain,
                 ["@logo"] = entity.Logo,
@@ -53,13 +57,15 @@ namespace Momantza.Services
             // Update the UpdatedAt timestamp
             entity.UpdatedAt = DateTime.UtcNow;
             
-            var sql = @"UPDATE organization SET name = @name, contactperson = @contactperson, contactno = @contactno, defaultdomain = @defaultdomain, customdomain = @customdomain, logo = @logo, theme = @theme, updatedat = @updatedat WHERE id = @id";
+            var sql = @"UPDATE organization SET name = @name, contactperson = @contactperson, contactno = @contactno,address=@address,about=@about, defaultdomain = @defaultdomain, customdomain = @customdomain, logo = @logo, theme = @theme, updatedat = @updatedat WHERE id = @id";
             var parameters = new Dictionary<string, object?>
             {
                 ["@id"] = entity.Id,
                 ["@name"] = entity.Name,
                 ["@contactperson"] = entity.ContactPerson,
                 ["@contactno"] = entity.ContactNo,
+                ["@address"] = entity.Address,
+                ["@about"] = entity.About,
                 ["@defaultdomain"] = entity.DefaultDomain,
                 ["@customdomain"] = entity.CustomDomain,
                 ["@logo"] = entity.Logo,
@@ -118,6 +124,8 @@ namespace Momantza.Services
                         name VARCHAR(255) NOT NULL,
                         contactperson VARCHAR(255),
                         contactno VARCHAR(50),
+                        address TEXT,
+                        about TEXT,
                         defaultdomain VARCHAR(255),
                         customdomain VARCHAR(255),
                         logo TEXT,
@@ -144,6 +152,7 @@ namespace Momantza.Services
             try
             {
                 using var connection = await GetConnectionAsync();
+                
                 var sql = "SELECT * FROM organization WHERE defaultdomain = @domain OR customdomain = @domain LIMIT 1";
                 using var command = new NpgsqlCommand(sql, connection);
                 command.Parameters.AddWithValue("@domain", domain);

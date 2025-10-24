@@ -6,30 +6,33 @@ namespace Momantza.Models
     {
         [Key]
         public string Id { get; set; } = string.Empty;
-        
+
         [Required]
-        public string BookingId { get; set; } = string.Empty;
-        
+        public string booking_id { get; set; } = string.Empty;
+
         [Required]
         public DateTime Date { get; set; }
-        
+
         [Required]
         public DateTime Time { get; set; }
-        
+
         [Required]
         [MaxLength(100)]
-        public string FromPerson { get; set; } = string.Empty;
-        
+        public string from_Person { get; set; } = string.Empty;
+
         [Required]
         [MaxLength(100)]
-        public string ToPerson { get; set; } = string.Empty;
-        
+        public string to_Person { get; set; } = string.Empty;
+
         [Required]
         [MaxLength(1000)]
         public string Detail { get; set; } = string.Empty;
-        
-        public string OrganizationId { get; set; } = string.Empty;
 
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public string Organizationid { get; set; } = string.Empty;
+
+        public DateTime Created_at { get; set; } = DateTime.UtcNow;
+
+
+
     }
-} 
+}

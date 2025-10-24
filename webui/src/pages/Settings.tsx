@@ -121,8 +121,8 @@ const Settings = () => {
         name: organization.name,
         contactPerson: organization.contactPerson,
         contactNo: organization.contactNo,
-        address: '', // Not available in Organization type
-        about: '', // Not available in Organization type
+        address: organization.address, // Not available in Organization type
+        about: organization.about, // Not available in Organization type
         defaultDomain: organization.defaultDomain,
         customDomain: organization.customDomain || ''
       });
@@ -234,6 +234,8 @@ const Settings = () => {
         name: organization.name,
         contactPerson: organization.contactPerson,
         contactNo: organization.contactNo,
+        address:organization.address,
+        about:organization.about,
         defaultDomain: organization.defaultDomain,
         customDomain: organization.customDomain,
         logo: uploadedImage.id,

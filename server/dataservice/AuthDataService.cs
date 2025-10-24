@@ -1,14 +1,11 @@
-using Npgsql;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.IdentityModel.Tokens;
+using Momantza.Middleware;
 using Momantza.Models;
-using System.Text.Json;
+using Npgsql;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Text;
-using Microsoft.IdentityModel.Tokens;
 using System.Security.Cryptography;
-using Microsoft.AspNetCore.Http;
-using Momantza.Middleware;
+using System.Text;
 
 namespace Momantza.Services
 {
@@ -40,9 +37,9 @@ namespace Momantza.Services
             _userDataService = userDataService;
             _configuration = configuration;
             _httpContextAccessor = httpContextAccessor;
-            _connectionString = configuration.GetConnectionString("DefaultConnection") 
+            _connectionString = configuration.GetConnectionString("DefaultConnection")
                 ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
-            
+
             // Get JWT settings from configuration
             _jwtSecret = _configuration["Jwt:Secret"] ?? "1gQOKNB18uzkUCFV3lK3QUXqcfVQak15t7BKR4YPpDg=";
             _jwtIssuer = _configuration["Jwt:Issuer"] ?? "MomantzaAPI";
@@ -78,6 +75,7 @@ namespace Momantza.Services
             try
             {
                 var orgId = GetCurrentOrganizationId();
+
                 if (string.IsNullOrEmpty(orgId))
                 {
                     Console.WriteLine("No organization ID found in context");
@@ -85,7 +83,7 @@ namespace Momantza.Services
                 }
 
                 var user = await _userDataService.GetByEmailAndOrganizationAsync(email, orgId);
-                
+
                 if (user != null && VerifyPassword(password, user.Password))
                 {
                     // Generate JWT token for the user
@@ -115,7 +113,7 @@ namespace Momantza.Services
                         }
                     }
                 }
-                
+
                 return null;
             }
             catch (Exception ex)
@@ -178,7 +176,7 @@ namespace Momantza.Services
 
                 var userId = userIdClaim.Value;
                 var orgId = GetCurrentOrganizationId();
-                
+
                 if (string.IsNullOrEmpty(orgId))
                 {
                     Console.WriteLine("No organization ID found in context");
@@ -302,11 +300,11 @@ namespace Momantza.Services
                 {
                     // Hash the new password
                     var hashedNewPassword = HashPassword(newPassword);
-                    
+
                     // Update user with new hashed password
                     user.Password = hashedNewPassword;
                     user.UpdatedAt = DateTime.UtcNow;
-                    
+
                     var success = await _userDataService.UpdateAsync(user);
                     return success;
                 }
@@ -657,4 +655,4 @@ namespace Momantza.Services
         Task<Users?> RegisterAsync(string email, string password, string name, string? organizationId = null);
         Task<Users?> RefreshTokenAsync(string refreshToken);
     }
-} 
+}

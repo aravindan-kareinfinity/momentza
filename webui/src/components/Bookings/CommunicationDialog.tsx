@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
@@ -8,7 +8,8 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { CalendarIcon } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
-import { bookingService } from '@/services/ServiceFactory';
+import { bookingService, communicationService } from '@/services/ServiceFactory';
+import { useToast } from '@/hooks/use-toast';
 import { useServiceMutation } from '@/hooks/useService';
 
 interface CommunicationDialogProps {
@@ -21,32 +22,81 @@ interface CommunicationDialogProps {
 export function CommunicationDialog({ 
   isOpen, 
   onClose, 
-  bookingId, 
+  bookingId,
   onCommunicationAdded 
 }: CommunicationDialogProps) {
   const [lastContactDate, setLastContactDate] = useState<Date | undefined>(undefined);
   const [customerResponse, setCustomerResponse] = useState('');
-
-  // Mutation hook for updating booking communication
-  const updateCommunicationMutation = useServiceMutation(
-    () => bookingService.updateBookingCommunication(bookingId, lastContactDate?.toISOString() || '', customerResponse)
-  );
+  const [submitting, setSubmitting] = useState(false);
+  const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!lastContactDate || !customerResponse.trim()) {
       return;
     }
 
+    setSubmitting(true);
+
+    // Build time as ISO and date as YYYY-MM-DD (server expects proper DateTime for time)
+    const isoTime = lastContactDate.toISOString();
+    const dateOnly = format(lastContactDate, 'yyyy-MM-dd');
+
+    const commBody: any = {
+      booking_id: bookingId,
+      date: dateOnly,
+      time: isoTime,
+      from_Person: 'System',
+      to_Person: 'Customer',
+      detail: customerResponse
+    };
+
     try {
-      await updateCommunicationMutation.mutateAsync();
+      // Send flat payload (server expects the communication object directly)
+      await communicationService.createCommunication(commBody as any);
+      // Created successfully as independent communication
       onCommunicationAdded();
       onClose();
       setLastContactDate(undefined);
       setCustomerResponse('');
-    } catch (error) {
-      console.error('Failed to update communication:', error);
+    } catch (err: any) {
+      // Surface API validation errors to the user via toast. Do not fall back to booking update.
+      console.error('createCommunication failed:', err);
+
+      const defaultMsg = 'Failed to create communication. Please check the form and try again.';
+      // If ApiError nested with response body exists, try to extract validation errors
+      const detailMessage = (() => {
+        try {
+          if (!err) return defaultMsg;
+          // ApiError from ApiClient should have a `body` or `message`
+          const payload = err?.body ?? err?.response ?? err?.data ?? err;
+          if (payload && typeof payload === 'object') {
+            // If errors object present (from .NET model validation)
+            if (payload.errors && typeof payload.errors === 'object') {
+              return Object.entries(payload.errors)
+                .map(([k, v]) => `${k}: ${Array.isArray(v) ? v.join(', ') : v}`)
+                .join('\n');
+            }
+            // If message/title present
+            if (payload.title || payload.message) {
+              return `${payload.title ?? ''}${payload.message ? ': ' + payload.message : ''}`;
+            }
+          }
+          // Fallback to err.message
+          return err?.message ?? defaultMsg;
+        } catch (e) {
+          return defaultMsg;
+        }
+      })();
+
+      toast({
+        title: 'Communication not saved',
+        description: detailMessage,
+        variant: 'destructive'
+      });
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -55,6 +105,9 @@ export function CommunicationDialog({
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Update Communication</DialogTitle>
+          <DialogDescription>
+            Update the last contact date and notes for this booking. This helps keep track of customer communications.
+          </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
@@ -100,9 +153,9 @@ export function CommunicationDialog({
             </Button>
             <Button 
               type="submit" 
-              disabled={!lastContactDate || !customerResponse.trim() || updateCommunicationMutation.isLoading}
+              disabled={!lastContactDate || !customerResponse.trim() || submitting}
             >
-              {updateCommunicationMutation.isLoading ? 'Updating...' : 'Update'}
+              {submitting ? 'Updating...' : 'Update'}
             </Button>
           </div>
         </form>

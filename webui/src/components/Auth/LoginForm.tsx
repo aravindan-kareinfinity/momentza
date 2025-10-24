@@ -10,7 +10,7 @@ import { LogIn } from 'lucide-react';
 
 export function LoginForm() {
   const [email, setEmail] = useState('admin@momantza.com');
-  const [password, setPassword] = useState('abc123');
+  const [password, setPassword] = useState('abc@123');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();

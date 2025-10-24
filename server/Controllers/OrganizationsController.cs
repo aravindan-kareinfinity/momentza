@@ -1,7 +1,8 @@
-using Microsoft.AspNetCore.Mvc;
-using Momantza.Services;
-using Momantza.Models;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using Momantza.Middleware;
+using Momantza.Models;
+using Momantza.Services;
 using Npgsql;
 
 namespace Momantza.Controllers
@@ -183,31 +184,36 @@ namespace Momantza.Controllers
         [HttpGet("current")]
         [HttpGet("me")]  // Alternative route
         [HttpGet("active")]  // Another alternative route
-        public async Task<IActionResult> GetCurrent()
+       // [HttpGet("current")]
+        public async Task<IActionResult> GetCurrentOrganization()
         {
             try
             {
-                Console.WriteLine($"GetCurrent method called. Request path: {Request.Path}");
-                Console.WriteLine($"Request host: {Request.Host.Host}");
-                
-                // Get the current domain from the request
-                var domain = Request.Host.Host;
-                Console.WriteLine($"Looking for organization with domain: {domain}");
-                
+                // Get the domain from the current request
+                var domain = HttpContext.Request.Host.Host;
+
+                // Remove port if present (localhost:3000 -> localhost)
+                if (domain.Contains(':'))
+                {
+                    domain = domain.Split(':')[0];
+                }
+
+                Console.WriteLine($"🔍 Looking for organization by domain: {domain}");
+
                 var organization = await _organizationDataService.GetByDomainAsync(domain);
                 if (organization == null)
                 {
-                    Console.WriteLine("Organization not found for domain: " + domain);
-                    return NotFound(new { message = "Current organization not found" });
+                    Console.WriteLine($"❌ No organization found for domain: {domain}");
+                    return NotFound(new { message = $"No organization found for domain: {domain}" });
                 }
-                
-                Console.WriteLine($"Found organization: {organization.Name}");
+
+                Console.WriteLine($"✅ Found organization: {organization.Name}");
                 return Ok(organization);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error in GetCurrent: {ex.Message}");
-                return StatusCode(500, new { message = "Internal server error", error = ex.Message });
+                Console.WriteLine($"❌ Error getting current organization: {ex.Message}");
+                return StatusCode(500, new { message = "Internal server error" });
             }
         }
 
