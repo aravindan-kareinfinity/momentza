@@ -73,22 +73,86 @@ namespace Momantza.Services
             }
         }
 
+        //public async Task<Users?> LoginAsync(string email, string password)
+        //{
+        //    try
+        //    {
+
+
+        //        var orgId = GetCurrentOrganizationId();
+
+        //        if (string.IsNullOrEmpty(orgId))
+        //        {
+        //            Console.WriteLine("No organization ID found in context");
+        //            return null;
+        //        }
+
+        //        var user = await _userDataService.GetByEmailAndOrganizationAsync(email, orgId);
+
+        //        if (user != null && VerifyPassword(password, user.Password))
+        //        {
+        //            // Generate JWT token for the user
+        //            var token = await GenerateTokenAsync(user);
+        //            if (!string.IsNullOrEmpty(token))
+        //            {
+        //                return user;
+        //            }
+        //        }
+        //        else if (user == null)
+        //        {
+        //            // Check if there are any users for the current organization
+        //            var existingUsers = await _userDataService.GetByOrganizationAsync(orgId);
+        //            if (!existingUsers.Any())
+        //            {
+        //                password = "Momantza";
+        //                // No users exist for this organization, create admin user
+        //                var adminUser = await CreateAdminUserAsync(orgId);
+        //                if (adminUser != null && VerifyPassword(password, adminUser.Password))
+        //                {
+        //                    // Generate JWT token for the admin user
+        //                    var token = await GenerateTokenAsync(adminUser);
+        //                    if (!string.IsNullOrEmpty(token))
+        //                    {
+        //                        return adminUser;
+        //                    }
+        //                }
+        //            }
+        //        }
+
+        //        return null;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Console.WriteLine($"Error during login: {ex.Message}");
+        //        return null;
+        //    }
+        //}
+
         public async Task<Users?> LoginAsync(string email, string password)
         {
             try
             {
                 var orgId = GetCurrentOrganizationId();
+
                 if (string.IsNullOrEmpty(orgId))
                 {
-                    Console.WriteLine("No organization ID found in context");
+                    var tempUser = await _userDataService.GetByEmailWithoutOrgAsync(email);
+                    if (tempUser != null && !string.IsNullOrEmpty(tempUser.OrganizationId))
+                    {
+                        orgId = tempUser.OrganizationId;
+                    }
+                }
+
+                if (string.IsNullOrEmpty(orgId))
+                {
+                    Console.WriteLine("No organization ID found for user.");
                     return null;
                 }
 
                 var user = await _userDataService.GetByEmailAndOrganizationAsync(email, orgId);
-                
+
                 if (user != null && VerifyPassword(password, user.Password))
                 {
-                    // Generate JWT token for the user
                     var token = await GenerateTokenAsync(user);
                     if (!string.IsNullOrEmpty(token))
                     {
@@ -97,16 +161,13 @@ namespace Momantza.Services
                 }
                 else if (user == null)
                 {
-                    // Check if there are any users for the current organization
                     var existingUsers = await _userDataService.GetByOrganizationAsync(orgId);
                     if (!existingUsers.Any())
                     {
                         password = "Momantza";
-                        // No users exist for this organization, create admin user
                         var adminUser = await CreateAdminUserAsync(orgId);
                         if (adminUser != null && VerifyPassword(password, adminUser.Password))
                         {
-                            // Generate JWT token for the admin user
                             var token = await GenerateTokenAsync(adminUser);
                             if (!string.IsNullOrEmpty(token))
                             {
@@ -115,7 +176,7 @@ namespace Momantza.Services
                         }
                     }
                 }
-                
+
                 return null;
             }
             catch (Exception ex)
@@ -124,6 +185,8 @@ namespace Momantza.Services
                 return null;
             }
         }
+
+
 
         public async Task<bool> LogoutAsync(string token)
         {

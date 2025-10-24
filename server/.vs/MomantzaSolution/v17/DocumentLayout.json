@@ -1,21 +1,37 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "E:\\chitahapu\\momentza\\server\\",
+  "WorkspaceRootPath": "G:\\work projects\\momentza\\momentza\\server\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{E622D273-3207-4422-AC9B-67DF4E645BF5}|MomantzaApp.csproj|e:\\chitahapu\\momentza\\server\\middleware\\organizationresolvermiddleware.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{E622D273-3207-4422-AC9B-67DF4E645BF5}|MomantzaApp.csproj|g:\\work projects\\momentza\\momentza\\server\\dataservice\\authdataservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E622D273-3207-4422-AC9B-67DF4E645BF5}|MomantzaApp.csproj|solutionrelative:dataservice\\authdataservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E622D273-3207-4422-AC9B-67DF4E645BF5}|MomantzaApp.csproj|g:\\work projects\\momentza\\momentza\\server\\dataservice\\userdataservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E622D273-3207-4422-AC9B-67DF4E645BF5}|MomantzaApp.csproj|solutionrelative:dataservice\\userdataservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E622D273-3207-4422-AC9B-67DF4E645BF5}|MomantzaApp.csproj|g:\\work projects\\momentza\\momentza\\server\\middleware\\organizationresolvermiddleware.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{E622D273-3207-4422-AC9B-67DF4E645BF5}|MomantzaApp.csproj|solutionrelative:middleware\\organizationresolvermiddleware.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{E622D273-3207-4422-AC9B-67DF4E645BF5}|MomantzaApp.csproj|e:\\chitahapu\\momentza\\server\\controllers\\organizationscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{E622D273-3207-4422-AC9B-67DF4E645BF5}|MomantzaApp.csproj|g:\\work projects\\momentza\\momentza\\server\\controllers\\authcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E622D273-3207-4422-AC9B-67DF4E645BF5}|MomantzaApp.csproj|solutionrelative:controllers\\authcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E622D273-3207-4422-AC9B-67DF4E645BF5}|MomantzaApp.csproj|g:\\work projects\\momentza\\momentza\\server\\dataservice\\organizationsdataservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E622D273-3207-4422-AC9B-67DF4E645BF5}|MomantzaApp.csproj|solutionrelative:dataservice\\organizationsdataservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E622D273-3207-4422-AC9B-67DF4E645BF5}|MomantzaApp.csproj|g:\\work projects\\momentza\\momentza\\server\\controllers\\organizationscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{E622D273-3207-4422-AC9B-67DF4E645BF5}|MomantzaApp.csproj|solutionrelative:controllers\\organizationscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{E622D273-3207-4422-AC9B-67DF4E645BF5}|MomantzaApp.csproj|e:\\chitahapu\\momentza\\server\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{E622D273-3207-4422-AC9B-67DF4E645BF5}|MomantzaApp.csproj|g:\\work projects\\momentza\\momentza\\server\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{E622D273-3207-4422-AC9B-67DF4E645BF5}|MomantzaApp.csproj|solutionrelative:program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{E622D273-3207-4422-AC9B-67DF4E645BF5}|MomantzaApp.csproj|e:\\chitahapu\\momentza\\server\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "AbsoluteMoniker": "D:0:0:{E622D273-3207-4422-AC9B-67DF4E645BF5}|MomantzaApp.csproj|g:\\work projects\\momentza\\momentza\\server\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
       "RelativeMoniker": "D:0:0:{E622D273-3207-4422-AC9B-67DF4E645BF5}|MomantzaApp.csproj|solutionrelative:appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
     }
   ],
@@ -26,63 +42,117 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 4,
+          "SelectedChildIndex": 6,
           "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{cce594b6-0c39-4442-ba28-10c64ac7e89f}"
+            },
             {
               "$type": "Bookmark",
               "Name": "ST:131:0:{1fc202d4-d401-403c-9834-5b218574bb67}"
             },
             {
               "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "OrganizationResolverMiddleware.cs",
+              "DocumentMoniker": "G:\\work projects\\momentza\\momentza\\server\\Middleware\\OrganizationResolverMiddleware.cs",
+              "RelativeDocumentMoniker": "Middleware\\OrganizationResolverMiddleware.cs",
+              "ToolTip": "G:\\work projects\\momentza\\momentza\\server\\Middleware\\OrganizationResolverMiddleware.cs",
+              "RelativeToolTip": "Middleware\\OrganizationResolverMiddleware.cs",
+              "ViewState": "AgIAAFsAAAAAAAAAAADwv2cAAAAIAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-10-23T06:12:54.749Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
               "DocumentIndex": 1,
+              "Title": "UserDataService.cs",
+              "DocumentMoniker": "G:\\work projects\\momentza\\momentza\\server\\dataservice\\UserDataService.cs",
+              "RelativeDocumentMoniker": "dataservice\\UserDataService.cs",
+              "ToolTip": "G:\\work projects\\momentza\\momentza\\server\\dataservice\\UserDataService.cs",
+              "RelativeToolTip": "dataservice\\UserDataService.cs",
+              "ViewState": "AgIAAMcAAAAAAAAAAAAAAMkAAAA7AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-10-22T10:58:05.321Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "AuthController.cs",
+              "DocumentMoniker": "G:\\work projects\\momentza\\momentza\\server\\Controllers\\AuthController.cs",
+              "RelativeDocumentMoniker": "Controllers\\AuthController.cs",
+              "ToolTip": "G:\\work projects\\momentza\\momentza\\server\\Controllers\\AuthController.cs",
+              "RelativeToolTip": "Controllers\\AuthController.cs",
+              "ViewState": "AgIAADcAAAAAAAAAAADwv0IAAAAIAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-10-22T09:29:30.224Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "OrganizationsDataService.cs",
+              "DocumentMoniker": "G:\\work projects\\momentza\\momentza\\server\\dataservice\\OrganizationsDataService.cs",
+              "RelativeDocumentMoniker": "dataservice\\OrganizationsDataService.cs",
+              "ToolTip": "G:\\work projects\\momentza\\momentza\\server\\dataservice\\OrganizationsDataService.cs",
+              "RelativeToolTip": "dataservice\\OrganizationsDataService.cs",
+              "ViewState": "AgIAAAQAAAAAAAAAAADgvzIAAACHAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-10-22T06:23:07.006Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "AuthDataService.cs",
+              "DocumentMoniker": "G:\\work projects\\momentza\\momentza\\server\\dataservice\\AuthDataService.cs",
+              "RelativeDocumentMoniker": "dataservice\\AuthDataService.cs",
+              "ToolTip": "G:\\work projects\\momentza\\momentza\\server\\dataservice\\AuthDataService.cs",
+              "RelativeToolTip": "dataservice\\AuthDataService.cs",
+              "ViewState": "AgIAAHYAAAAAAAAAAAAAAMEAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-10-22T06:21:27.392Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
               "Title": "OrganizationsController.cs",
-              "DocumentMoniker": "E:\\chitahapu\\momentza\\server\\Controllers\\OrganizationsController.cs",
+              "DocumentMoniker": "G:\\work projects\\momentza\\momentza\\server\\Controllers\\OrganizationsController.cs",
               "RelativeDocumentMoniker": "Controllers\\OrganizationsController.cs",
-              "ToolTip": "E:\\chitahapu\\momentza\\server\\Controllers\\OrganizationsController.cs",
+              "ToolTip": "G:\\work projects\\momentza\\momentza\\server\\Controllers\\OrganizationsController.cs",
               "RelativeToolTip": "Controllers\\OrganizationsController.cs",
-              "ViewState": "AQIAAMkAAAAAAAAAAAArwN0AAAAQAAAA",
+              "ViewState": "AgIAAE0AAAAAAAAAAAAwwGQAAABNAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-10-11T13:58:18.617Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 6,
               "Title": "Program.cs",
-              "DocumentMoniker": "E:\\chitahapu\\momentza\\server\\Program.cs",
+              "DocumentMoniker": "G:\\work projects\\momentza\\momentza\\server\\Program.cs",
               "RelativeDocumentMoniker": "Program.cs",
-              "ToolTip": "E:\\chitahapu\\momentza\\server\\Program.cs",
+              "ToolTip": "G:\\work projects\\momentza\\momentza\\server\\Program.cs",
               "RelativeToolTip": "Program.cs",
-              "ViewState": "AQIAAEQAAAAAAAAAAAAswFQAAABMAAAA",
+              "ViewState": "AgIAABUAAAAAAAAAAAAAAB0AAAApAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-10-11T13:48:03.236Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-10-11T13:48:03.236Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 7,
               "Title": "appsettings.json",
-              "DocumentMoniker": "E:\\chitahapu\\momentza\\server\\appsettings.json",
+              "DocumentMoniker": "G:\\work projects\\momentza\\momentza\\server\\appsettings.json",
               "RelativeDocumentMoniker": "appsettings.json",
-              "ToolTip": "E:\\chitahapu\\momentza\\server\\appsettings.json",
+              "ToolTip": "G:\\work projects\\momentza\\momentza\\server\\appsettings.json",
               "RelativeToolTip": "appsettings.json",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAABgAAAAdAAAA",
+              "ViewState": "AgIAAA8AAAAAAAAAAAAAABwAAAAFAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2025-10-11T13:02:56.453Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "OrganizationResolverMiddleware.cs",
-              "DocumentMoniker": "E:\\chitahapu\\momentza\\server\\Middleware\\OrganizationResolverMiddleware.cs",
-              "RelativeDocumentMoniker": "Middleware\\OrganizationResolverMiddleware.cs",
-              "ToolTip": "E:\\chitahapu\\momentza\\server\\Middleware\\OrganizationResolverMiddleware.cs",
-              "RelativeToolTip": "Middleware\\OrganizationResolverMiddleware.cs",
-              "ViewState": "AQIAAG4AAAAAAAAAAAAIwIMAAAAUAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-10-11T10:44:31.48Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-10-11T13:02:56.453Z"
             }
           ]
         }

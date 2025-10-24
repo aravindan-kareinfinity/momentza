@@ -71,7 +71,7 @@
     </div>
 
     <script>
-        const API_BASE_URL = 'http://192.168.1.21:5212';
+        const API_BASE_URL = 'http://192.168.1.15:5212';
         const TEST_ORG_ID = 'ddae3baf-3c43-41ba-8f79-c5bb73f60cfd';
         
         function addResult(title, content, type = 'success') {
@@ -121,7 +121,7 @@
                 name: "Test Organization",
                 contactperson: "John Doe",
                 contactno: "+1234567890",
-                defaultdomain: "192.168.1.21:8080",
+                defaultdomain: "192.168.1.15:8080",
                 customdomain: "test-org.local",
                 logo: null,
                 theme: {
@@ -158,7 +158,7 @@
         }
         
         function testUrl() {
-            const testUrl = `http://192.168.1.21:8080/${TEST_ORG_ID}`;
+            const testUrl = `http://192.168.1.15:8080/${TEST_ORG_ID}`;
             addResult('🌐 Test Your URL', 
                 `Open this URL in a new tab:\n\n${testUrl}\n\nClick the button below to open it.`, 'success');
             

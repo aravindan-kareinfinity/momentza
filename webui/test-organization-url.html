@@ -65,27 +65,27 @@
             <h3>📋 Test URLs</h3>
             <p class="description">Click on these URLs to test different organization resolution scenarios:</p>
             
-            <a href="http://192.168.1.21:8080/" class="url-link">
+            <a href="http://192.168.1.15:8080/" class="url-link">
                 <strong>Base URL</strong><br>
                 <span class="description">Should use cached/current organization</span>
             </a>
             
-            <a href="http://192.168.1.21:8080/org/123e4567-e89b-12d3-a456-426614174000" class="url-link">
+            <a href="http://192.168.1.15:8080/org/123e4567-e89b-12d3-a456-426614174000" class="url-link">
                 <strong>Organization by ID in Path (/org/{id})</strong><br>
                 <span class="description">Should fetch organization by ID from URL path</span>
             </a>
             
-            <a href="http://192.168.1.21:8080/ddae3baf-3c43-41ba-8f79-c5bb73f60cfd" class="url-link">
+            <a href="http://192.168.1.15:8080/ddae3baf-3c43-41ba-8f79-c5bb73f60cfd" class="url-link">
                 <strong>Organization by ID Direct (/{id})</strong><br>
                 <span class="description">Should fetch organization by ID directly from root path</span>
             </a>
             
-            <a href="http://192.168.1.21:8080/?orgId=123e4567-e89b-12d3-a456-426614174000" class="url-link">
+            <a href="http://192.168.1.15:8080/?orgId=123e4567-e89b-12d3-a456-426614174000" class="url-link">
                 <strong>Organization by ID in Query</strong><br>
                 <span class="description">Should fetch organization by ID from query parameter</span>
             </a>
             
-            <a href="http://192.168.1.21:8080/org/123e4567-e89b-12d3-a456-426614174000?other=param" class="url-link">
+            <a href="http://192.168.1.15:8080/org/123e4567-e89b-12d3-a456-426614174000?other=param" class="url-link">
                 <strong>Organization by ID with Additional Params</strong><br>
                 <span class="description">Should fetch organization by ID from path (priority over query)</span>
             </a>
