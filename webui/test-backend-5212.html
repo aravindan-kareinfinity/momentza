@@ -95,7 +95,7 @@
     </div>
 
     <script>
-        const API_BASE_URL = 'http://192.168.1.13:5212';
+        const API_BASE_URL = 'http://192.168.1.9:5212';
         const TEST_ORG_ID = 'ddae3baf-3c43-41ba-8f79-c5bb73f60cfd';
         
         function addResult(title, content, type = 'success') {
@@ -187,7 +187,7 @@
                 name: "Test Organization",
                 contactperson: "John Doe",
                 contactno: "+1234567890",
-                defaultdomain: "192.168.1.13:8080",
+                defaultdomain: "192.168.1.9:8080",
                 customdomain: "test-org.local",
                 logo: null,
                 theme: {
@@ -225,7 +225,7 @@
         }
         
         async function testYourUrl() {
-            const testUrl = `http://192.168.1.13:8080/${TEST_ORG_ID}`;
+            const testUrl = `http://192.168.1.9:8080/${TEST_ORG_ID}`;
             addResult('🌐 Test Your Frontend URL', 
                 `Test this URL in a new tab:\n\n${testUrl}\n\nClick the button below to open it.`, 'success');
             
