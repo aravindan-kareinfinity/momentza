@@ -6,7 +6,7 @@ namespace Momantza.Services
 {
     public class BookingDataService : BaseDataService<Booking>, IBookingDataService
     {
-        public BookingDataService(IConfiguration configuration, IHttpContextAccessor httpContextAccessor) : base(configuration, httpContextAccessor,"bookings")
+        public BookingDataService(IConfiguration configuration, IHttpContextAccessor httpContextAccessor) : base(configuration, httpContextAccessor, "bookings")
         {
         }
 
@@ -26,76 +26,102 @@ namespace Momantza.Services
                 GuestCount = Convert.ToInt32(reader["guestcount"]),
                 TotalAmount = Convert.ToDecimal(reader["totalamount"]),
                 Status = reader["status"].ToString() ?? string.Empty,
+                IsActive = reader["isactive"] != DBNull.Value ? Convert.ToBoolean(reader["isactive"]) : true,
+                CustomerResponse = reader["customerresponse"]?.ToString() ?? string.Empty,
                 LastContactDate = reader["lastcontactdate"] != DBNull.Value ? Convert.ToDateTime(reader["lastcontactdate"]) : null,
-                CreatedAt = reader["createdat"] != DBNull.Value ? Convert.ToDateTime(reader["createdat"]) : DateTime.UtcNow
+                CreatedAt = reader["createdat"] != DBNull.Value ? Convert.ToDateTime(reader["createdat"]) : DateTime.UtcNow,
+                UpdatedAt = reader["updatedat"] != DBNull.Value ? Convert.ToDateTime(reader["updatedat"]) : DateTime.UtcNow
             };
         }
 
         protected override (string sql, Dictionary<string, object?> parameters, List<string> jsonFields) GenerateInsertSql(Booking entity)
         {
-            var sql = @"INSERT INTO bookings (id, organizationid, hallid, customername, customeremail, customerphone, eventdate, eventtype, timeslot, guestcount, totalamount, status, isactive, customerresponse, lastcontactdate, handoverdetails, createdat, updatedat) VALUES (@id, @organizationid, @hallid, @customername, @customeremail, @customerphone, @eventdate, @eventtype, @timeslot, @guestcount, @totalamount, @status, @isactive, @customerresponse, @lastcontactdate, @handoverdetails, @createdat, @updatedat)";
+            // REMOVE handoverdetails from SQL
+            var sql = @"INSERT INTO bookings (id, organizationid, hallid, customername, customeremail, customerphone, eventdate, eventtype, timeslot, guestcount, totalamount, status, isactive, customerresponse, lastcontactdate, createdat, updatedat) 
+                       VALUES (@id, @organizationid, @hallid, @customername, @customeremail, @customerphone, @eventdate, @eventtype, @timeslot, @guestcount, @totalamount, @status, @isactive, @customerresponse, @lastcontactdate, @createdat, @updatedat)";
+
             var parameters = new Dictionary<string, object?>
             {
                 ["@id"] = entity.Id,
                 ["@organizationid"] = entity.OrganizationId,
-                ["@hallid"] = entity.HallId,
-                ["@customername"] = entity.CustomerName,
-                ["@customeremail"] = entity.CustomerEmail,
-                ["@customerphone"] = entity.CustomerPhone,
+                ["@hallid"] = entity.HallId ?? (object)DBNull.Value,
+                ["@customername"] = entity.CustomerName ?? (object)DBNull.Value,
+                ["@customeremail"] = entity.CustomerEmail ?? (object)DBNull.Value,
+                ["@customerphone"] = entity.CustomerPhone ?? (object)DBNull.Value,
                 ["@eventdate"] = entity.EventDate,
-                ["@eventtype"] = entity.EventType,
-                ["@timeslot"] = entity.TimeSlot,
+                ["@eventtype"] = entity.EventType ?? (object)DBNull.Value,
+                ["@timeslot"] = entity.TimeSlot ?? (object)DBNull.Value,
                 ["@guestcount"] = entity.GuestCount,
                 ["@totalamount"] = entity.TotalAmount,
-                ["@status"] = entity.Status,
+                ["@status"] = entity.Status ?? (object)DBNull.Value,
                 ["@isactive"] = entity.IsActive,
-                ["@customerresponse"] = entity.CustomerResponse,
-                ["@lastcontactdate"] = entity.LastContactDate,
-                ["@handoverdetails"] = entity.HandOverDetails,
+                ["@customerresponse"] = entity.CustomerResponse ?? (object)DBNull.Value,
+                ["@lastcontactdate"] = entity.LastContactDate ?? (object)DBNull.Value,
                 ["@createdat"] = entity.CreatedAt,
                 ["@updatedat"] = entity.UpdatedAt
             };
-            var jsonFields = new List<string> { "@handoverdetails" };
-            return (sql, parameters, jsonFields);
+
+            // REMOVE jsonFields for handoverdetails
+            return (sql, parameters, new List<string>());
         }
 
         protected override (string sql, Dictionary<string, object?> parameters, List<string> jsonFields) GenerateUpdateSql(Booking entity)
         {
-            var sql = @"UPDATE bookings SET organizationid = @organizationid, hallid = @hallid, customername = @customername, customeremail = @customeremail, customerphone = @customerphone, eventdate = @eventdate, eventtype = @eventtype, timeslot = @timeslot, guestcount = @guestcount, totalamount = @totalamount, status = @status, isactive = @isactive, customerresponse = @customerresponse, lastcontactdate = @lastcontactdate, handoverdetails = @handoverdetails, updatedat = @updatedat WHERE id = @id";
+            // REMOVE handoverdetails from SQL and add organization filter
+            var sql = @"UPDATE bookings SET 
+                       organizationid = @organizationid, 
+                       hallid = @hallid, 
+                       customername = @customername, 
+                       customeremail = @customeremail, 
+                       customerphone = @customerphone, 
+                       eventdate = @eventdate, 
+                       eventtype = @eventtype, 
+                       timeslot = @timeslot, 
+                       guestcount = @guestcount, 
+                       totalamount = @totalamount, 
+                       status = @status, 
+                       isactive = @isactive, 
+                       customerresponse = @customerresponse, 
+                       lastcontactdate = @lastcontactdate, 
+                       updatedat = @updatedat 
+                       WHERE id = @id AND organizationid = @currentOrganizationId";
+
             var parameters = new Dictionary<string, object?>
             {
                 ["@id"] = entity.Id,
                 ["@organizationid"] = entity.OrganizationId,
-                ["@hallid"] = entity.HallId,
-                ["@customername"] = entity.CustomerName,
-                ["@customeremail"] = entity.CustomerEmail,
-                ["@customerphone"] = entity.CustomerPhone,
+                ["@hallid"] = entity.HallId ?? (object)DBNull.Value,
+                ["@customername"] = entity.CustomerName ?? (object)DBNull.Value,
+                ["@customeremail"] = entity.CustomerEmail ?? (object)DBNull.Value,
+                ["@customerphone"] = entity.CustomerPhone ?? (object)DBNull.Value,
                 ["@eventdate"] = entity.EventDate,
-                ["@eventtype"] = entity.EventType,
-                ["@timeslot"] = entity.TimeSlot,
+                ["@eventtype"] = entity.EventType ?? (object)DBNull.Value,
+                ["@timeslot"] = entity.TimeSlot ?? (object)DBNull.Value,
                 ["@guestcount"] = entity.GuestCount,
                 ["@totalamount"] = entity.TotalAmount,
-                ["@status"] = entity.Status,
+                ["@status"] = entity.Status ?? (object)DBNull.Value,
                 ["@isactive"] = entity.IsActive,
-                ["@customerresponse"] = entity.CustomerResponse,
-                ["@lastcontactdate"] = entity.LastContactDate,
-                ["@handoverdetails"] = entity.HandOverDetails,
-                ["@updatedat"] = entity.UpdatedAt
+                ["@customerresponse"] = entity.CustomerResponse ?? (object)DBNull.Value,
+                ["@lastcontactdate"] = entity.LastContactDate ?? (object)DBNull.Value,
+                ["@updatedat"] = DateTime.UtcNow,
+                ["@currentOrganizationId"] = GetCurrentOrganizationId()
             };
-            var jsonFields = new List<string> { "@handoverdetails" };
-            return (sql, parameters, jsonFields);
+
+            // REMOVE jsonFields for handoverdetails
+            return (sql, parameters, new List<string>());
         }
 
+        // FIX: Update table name from "booking" to "bookings" in all queries
         public async Task<List<Booking>> GetByHallIdAsync(string hallId)
         {
             try
             {
                 using var connection = await GetConnectionAsync();
-                var sql = "SELECT * FROM booking WHERE hallid = @hallId AND organizationid = @organizationId ORDER BY eventdate DESC";
+                var sql = "SELECT * FROM bookings WHERE hallid = @hallId AND organizationid = @organizationId ORDER BY eventdate DESC";
                 using var command = new NpgsqlCommand(sql, connection);
                 command.Parameters.AddWithValue("@hallId", hallId);
                 command.Parameters.AddWithValue("@organizationId", GetCurrentOrganizationId());
-                
+
                 using var reader = await command.ExecuteReaderAsync();
                 var results = new List<Booking>();
                 while (await reader.ReadAsync())
@@ -116,11 +142,11 @@ namespace Momantza.Services
             try
             {
                 using var connection = await GetConnectionAsync();
-                var sql = "SELECT * FROM booking WHERE status = @status AND organizationid = @organizationId ORDER BY createdat DESC";
+                var sql = "SELECT * FROM bookings WHERE status = @status AND organizationid = @organizationId ORDER BY createdat DESC";
                 using var command = new NpgsqlCommand(sql, connection);
                 command.Parameters.AddWithValue("@status", status);
                 command.Parameters.AddWithValue("@organizationId", GetCurrentOrganizationId());
-                
+
                 using var reader = await command.ExecuteReaderAsync();
                 var results = new List<Booking>();
                 while (await reader.ReadAsync())
@@ -141,12 +167,12 @@ namespace Momantza.Services
             try
             {
                 using var connection = await GetConnectionAsync();
-                var sql = "SELECT * FROM booking WHERE eventdate >= @startDate AND eventdate <= @endDate AND organizationid = @organizationId ORDER BY eventdate";
+                var sql = "SELECT * FROM bookings WHERE eventdate >= @startDate AND eventdate <= @endDate AND organizationid = @organizationId ORDER BY eventdate";
                 using var command = new NpgsqlCommand(sql, connection);
                 command.Parameters.AddWithValue("@startDate", startDate);
                 command.Parameters.AddWithValue("@endDate", endDate);
                 command.Parameters.AddWithValue("@organizationId", GetCurrentOrganizationId());
-                
+
                 using var reader = await command.ExecuteReaderAsync();
                 var results = new List<Booking>();
                 while (await reader.ReadAsync())
@@ -167,12 +193,30 @@ namespace Momantza.Services
             try
             {
                 using var connection = await GetConnectionAsync();
-                var sql = "UPDATE booking SET status = @status WHERE id = @id AND organizationid = @organizationId";
+
+                var orgId = GetCurrentOrganizationId();
+                string sql;
+                if (string.IsNullOrEmpty(orgId))
+                {
+                    // No org context — update by id only (defensive)
+                    sql = "UPDATE bookings SET status = @status, updatedat = @updatedat WHERE id = @id";
+                }
+                else
+                {
+                    // Normal path: ensure organization match
+                    sql = "UPDATE bookings SET status = @status, updatedat = @updatedat WHERE id = @id AND organizationid = @organizationId";
+                }
+
                 using var command = new NpgsqlCommand(sql, connection);
                 command.Parameters.AddWithValue("@id", id);
                 command.Parameters.AddWithValue("@status", status);
-                command.Parameters.AddWithValue("@organizationId", GetCurrentOrganizationId());
-                
+                command.Parameters.AddWithValue("@updatedat", DateTime.UtcNow);
+
+                if (!string.IsNullOrEmpty(orgId))
+                {
+                    command.Parameters.AddWithValue("@organizationId", orgId);
+                }
+
                 var rowsAffected = await command.ExecuteNonQueryAsync();
                 return rowsAffected > 0;
             }
@@ -212,13 +256,13 @@ namespace Momantza.Services
 
                 if (!string.IsNullOrEmpty(filters.CustomerName))
                 {
-                    filteredBookings = filteredBookings.Where(booking => 
+                    filteredBookings = filteredBookings.Where(booking =>
                         booking.CustomerName.ToLower().Contains(filters.CustomerName.ToLower()));
                 }
 
                 if (!string.IsNullOrEmpty(filters.EventType))
                 {
-                    filteredBookings = filteredBookings.Where(booking => 
+                    filteredBookings = filteredBookings.Where(booking =>
                         booking.EventType.ToLower().Contains(filters.EventType.ToLower()));
                 }
 
@@ -242,15 +286,15 @@ namespace Momantza.Services
             {
                 var allBookings = await GetByOrganizationIdAsync(organizationId);
                 var today = DateTime.Today;
-                
+
                 return new BookingStatistics
                 {
                     NewLeads = allBookings.Count(b => b.Status == "pending"),
                     RejectedLeads = allBookings.Count(b => b.Status == "cancelled"),
                     ConfirmedLeads = allBookings.Count(b => b.Status == "confirmed"),
-                    UpcomingEvents = allBookings.Count(b => 
+                    UpcomingEvents = allBookings.Count(b =>
                         b.Status == "confirmed" && b.EventDate.Date >= today),
-                    HappeningEvents = allBookings.Count(b => 
+                    HappeningEvents = allBookings.Count(b =>
                         b.Status == "active" || (b.Status == "confirmed" && b.EventDate.Date == today)),
                     TotalBookings = allBookings.Count,
                     TotalRevenue = allBookings
@@ -279,6 +323,8 @@ namespace Momantza.Services
                     booking.CreatedAt = DateTime.UtcNow;
                 }
 
+                booking.UpdatedAt = DateTime.UtcNow;
+
                 var success = await CreateAsync(booking);
                 if (!success) throw new Exception("Failed to create booking");
 
@@ -291,42 +337,17 @@ namespace Momantza.Services
             }
         }
 
-        public async Task<Booking> RecordHandOverAsync(string id, HandOverDetails handOverDetails)
-        {
-            try
-            {
-                var booking = await GetByIdAsync(id);
-                if (booking == null)
-                    throw new Exception("Booking not found");
-
-                // Update booking with handover details and status
-                booking.Status = "active";
-                // Note: You might need to add HandOverDetails property to Booking model
-                // booking.HandOverDetails = handOverDetails;
-
-                var success = await UpdateAsync(booking);
-                if (!success) throw new Exception("Failed to update booking");
-
-                return booking;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error recording handover: {ex.Message}");
-                throw;
-            }
-        }
-
         public async Task<List<Booking>> GetByUserAsync(string userId)
         {
             try
             {
                 using var connection = await GetConnectionAsync();
-                var sql = "SELECT * FROM bookings WHERE customeremail = @userId OR customername LIKE @userName AND organizationid = @organizationId ORDER BY createdat DESC";
+                var sql = "SELECT * FROM bookings WHERE (customeremail = @userId OR customername LIKE @userName) AND organizationid = @organizationId ORDER BY createdat DESC";
                 using var command = new NpgsqlCommand(sql, connection);
                 command.Parameters.AddWithValue("@userId", userId);
                 command.Parameters.AddWithValue("@userName", $"%{userId}%");
                 command.Parameters.AddWithValue("@organizationId", GetCurrentOrganizationId());
-                
+
                 using var reader = await command.ExecuteReaderAsync();
                 var results = new List<Booking>();
                 while (await reader.ReadAsync())
@@ -347,11 +368,11 @@ namespace Momantza.Services
             try
             {
                 using var connection = await GetConnectionAsync();
-                var sql = "SELECT * FROM booking WHERE DATE(eventdate) = DATE(@date) AND organizationid = @organizationId ORDER BY eventdate";
+                var sql = "SELECT * FROM bookings WHERE DATE(eventdate) = DATE(@date) AND organizationid = @organizationId ORDER BY eventdate";
                 using var command = new NpgsqlCommand(sql, connection);
                 command.Parameters.AddWithValue("@date", date);
                 command.Parameters.AddWithValue("@organizationId", GetCurrentOrganizationId());
-                
+
                 using var reader = await command.ExecuteReaderAsync();
                 var results = new List<Booking>();
                 while (await reader.ReadAsync())
@@ -378,8 +399,7 @@ namespace Momantza.Services
         Task<List<Booking>> SearchBookingsAsync(string organizationId, BookingFilters filters);
         Task<BookingStatistics> GetBookingStatisticsAsync(string organizationId);
         Task<Booking> CreateBookingAsync(Booking booking);
-        Task<Booking> RecordHandOverAsync(string id, HandOverDetails handOverDetails);
         Task<List<Booking>> GetByUserAsync(string userId);
         Task<List<Booking>> GetByDateAsync(DateTime date);
     }
-} 
+}

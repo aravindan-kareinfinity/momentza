@@ -15,6 +15,7 @@ export interface ServiceItem {
   hsnCode: string;
   taxPercentage: number;
   basePrice: number;
+  isActive: boolean;
 }
 
 export interface InventoryItem {
@@ -488,11 +489,11 @@ export const mockTicketCategories: MasterDataItem[] = [
 
 // Services
 export const mockServices: ServiceItem[] = [
-  { id: '1', name: 'Decoration Service', hsnCode: '998711', taxPercentage: 18, basePrice: 5000 },
-  { id: '2', name: 'Catering Service', hsnCode: '996331', taxPercentage: 5, basePrice: 800 },
-  { id: '3', name: 'Photography Service', hsnCode: '998212', taxPercentage: 18, basePrice: 15000 },
-  { id: '4', name: 'DJ Service', hsnCode: '998213', taxPercentage: 18, basePrice: 8000 },
-  { id: '5', name: 'Security Service', hsnCode: '997122', taxPercentage: 18, basePrice: 2000 },
+  { id: '1', name: 'Decoration Service', hsnCode: '998711', taxPercentage: 18, basePrice: 5000 ,isActive:true},
+  { id: '2', name: 'Catering Service', hsnCode: '996331', taxPercentage: 5, basePrice: 800 ,isActive:true},
+  { id: '3', name: 'Photography Service', hsnCode: '998212', taxPercentage: 18, basePrice: 15000,isActive:true },
+  { id: '4', name: 'DJ Service', hsnCode: '998213', taxPercentage: 18, basePrice: 8000,isActive:true },
+  { id: '5', name: 'Security Service', hsnCode: '997122', taxPercentage: 18, basePrice: 2000,isActive:true },
 ];
 
 // Inventory Items (for booking management)

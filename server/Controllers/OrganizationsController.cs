@@ -116,6 +116,8 @@ namespace Momantza.Controllers
                 existingOrg.Name = organization.Name ?? existingOrg.Name;
                 existingOrg.ContactPerson = organization.ContactPerson ?? existingOrg.ContactPerson;
                 existingOrg.ContactNo = organization.ContactNo ?? existingOrg.ContactNo;
+                existingOrg.Address = organization.Address ?? existingOrg.Address;
+                existingOrg.About = organization.About ?? existingOrg.About;
                 existingOrg.DefaultDomain = organization.DefaultDomain ?? existingOrg.DefaultDomain;
                 existingOrg.CustomDomain = organization.CustomDomain ?? existingOrg.CustomDomain;
                 existingOrg.Logo = organization.Logo ?? existingOrg.Logo;
@@ -192,7 +194,7 @@ namespace Momantza.Controllers
                 // Get the domain from the current request
                 var domain = HttpContext.Request.Host.Host;
 
-                // Remove port if present (localhost:3000 -> localhost)
+                // Remove port if present (localhost:3000 -> localhostGetByDomainAsync
                 if (domain.Contains(':'))
                 {
                     domain = domain.Split(':')[0];
@@ -267,6 +269,8 @@ namespace Momantza.Controllers
                             name VARCHAR(255) NOT NULL,
                             contactperson VARCHAR(255),
                             contactno VARCHAR(50),
+                            address TEXT,
+                            about TEXT,
                             defaultdomain VARCHAR(255),
                             customdomain VARCHAR(255),
                             logo TEXT,

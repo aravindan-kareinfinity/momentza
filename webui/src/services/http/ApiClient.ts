@@ -3,7 +3,8 @@ import { requestManager } from '../RequestManager';
 
 export class ApiClient {
   private get baseUrl() {
-    return runtimeConfig.VITE_API_BASE_URL || 'http://localhost:5000';
+    //return runtimeConfig.VITE_API_BASE_URL || 'http://localhost:5212';
+   return 'http://localhost:5212'
   }
   private headers: HeadersInit;
   private defaultTimeout: number = 10000; // 10 seconds default timeout
@@ -11,7 +12,8 @@ export class ApiClient {
   constructor() {
     this.headers = {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${this.getAuthToken()}`
+      'Authorization': `Bearer ${this.getAuthToken()}`,
+      'X-Organization-Id': this.getOrganizationId()
     };
   }
   
@@ -24,10 +26,43 @@ export class ApiClient {
     return '';
   }
   
+  private getOrganizationId(): string {
+    // 1) Try URL query: ?orgId=
+    try {
+      if (typeof window !== 'undefined') {
+        const url = new URL(window.location.href);
+        const orgIdFromSearch = url.searchParams.get('orgId');
+        if (orgIdFromSearch) return orgIdFromSearch;
+        
+        // 2) Try path pattern like /org/{id}/...
+        const parts = url.pathname.split('/').filter(Boolean);
+        const orgIndex = parts.indexOf('org');
+        if (orgIndex >= 0 && parts[orgIndex + 1]) {
+          return parts[orgIndex + 1];
+        }
+      }
+    } catch {}
+
+    // 3) Try localStorage override key (if app sets it elsewhere)
+    const storedOrgId = localStorage.getItem('currentOrganizationId') || localStorage.getItem('selectedOrganizationId');
+    if (storedOrgId) return storedOrgId;
+
+    // 4) Fallback to logged-in user's organizationId
+    const user = localStorage.getItem('currentUser');
+    if (user) {
+      try {
+        const userData = JSON.parse(user);
+        return userData.organizationId || '';
+      } catch {}
+    }
+    return '';
+  }
+  
   private updateHeaders(): void {
     this.headers = {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${this.getAuthToken()}`
+      'Authorization': `Bearer ${this.getAuthToken()}`,
+      'X-Organization-Id': this.getOrganizationId()
     };
   }
 

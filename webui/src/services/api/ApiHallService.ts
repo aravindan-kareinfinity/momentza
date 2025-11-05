@@ -9,7 +9,7 @@ export class ApiHallService implements IHallService {
 
   async getById(id: string): Promise<Hall | null> {
     try {
-      return await apiClient.get<Hall>(`/api/halls/${id}`);
+      return await apiClient.get<Hall>(`/api/halls/1752588534882`);
     } catch (error) {
       if (error.status === 404) {
         return null;

@@ -75,13 +75,24 @@ namespace Momantza.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(string id, dynamic serviceData)
+        public async Task<IActionResult> Update(string id, [FromBody] ServiceItem serviceData)
         {
             try
             {
-                // Set the ID on the service data
-                serviceData.Id = id;
-                var success = await _servicesDataService.UpdateAsync(serviceData);
+                // Create a new ServiceItem with the ID from route
+                var updatedService = new ServiceItem
+                {
+                    Id = id, // Use the ID from URL route
+                    Name = serviceData.Name,
+                    HsnCode = serviceData.HsnCode,
+                    TaxPercentage = serviceData.TaxPercentage,
+                    BasePrice = serviceData.BasePrice,
+                   // IsActive = serviceData.IsActive,
+                    // Add other properties if needed
+                   // UserId = serviceData.UserId // Make sure to include this if your model requires it
+                };
+
+                var success = await _servicesDataService.UpdateAsync(updatedService);
                 if (!success)
                 {
                     return NotFound(new { message = "Service not found" });

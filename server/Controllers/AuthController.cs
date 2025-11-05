@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Momantza.Services;
 using Momantza.Models;
@@ -19,7 +19,7 @@ namespace Momantza.Controllers
 
         [HttpPost("login")]
         public async Task<IActionResult> Login(LoginRequest request)
-        {
+         {
             try
             {
                 if (!ModelState.IsValid)
@@ -181,10 +181,20 @@ namespace Momantza.Controllers
                     return BadRequest(ModelState);
                 }
 
-                var result = await _authService.RegisterAsync(request.Email, request.Password, request.Name, request.OrganizationId);
+                // Get organization from context
+                var organization = HttpContext.Items["Organization"] as OrganizationContext;
+                if (organization == null)
+                {
+                    return BadRequest(new { message = "Unable to determine organization. Please access via organization subdomain." });
+                }
+
+               Console.WriteLine($"👤 Register attempt for organization domain: {organization.Domain} (ID: {organization.OrganizationId})");
+
+                // Register user in the specific organization
+                var result = await _authService.RegisterAsync(request.Email, request.Password, request.Name, organization.OrganizationId.ToString());
                 if (result == null)
                 {
-                    return BadRequest(new { message = "Registration failed" });
+                    return BadRequest(new { message = "Registration failed - user may already exist in this organization" });
                 }
 
                 // Generate token for the newly registered user
@@ -269,4 +279,4 @@ namespace Momantza.Controllers
             }
         }
     }
-} 
+}

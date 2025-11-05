@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { ServerErrorDialog } from '@/components/ui/ServerErrorDialog';
 import { 
@@ -44,7 +44,6 @@ import {
   servicesService
 } from '../services/ServiceFactory';
 import { TicketItem, Communication } from '../services/mockData';
-
 
 interface Payment {
   id: string;
@@ -94,7 +93,7 @@ interface BookingManagementData {
   hall: any;
   services: any[];
   tickets: any[];
-  communications: any[];
+  communication: any[];
   billingSettings: any;
   currentBooking: any;
 }
@@ -103,7 +102,16 @@ const BookingManagement = () => {
   const { bookingId } = useParams<{ bookingId: string }>();
   const navigate = useNavigate();
 
-  // Page-level state for all data (Single source of truth)
+  // Helper functions
+  const generateInvoiceNumber = () => {
+    const timestamp = Date.now();
+    const random = Math.floor(Math.random() * 1000);
+    const invoiceNo = `INV-${timestamp}-${random}`;
+    setInvoiceNumber(invoiceNo);
+    return invoiceNo;
+  };
+
+  // Page-level state for all data
   const [pageData, setPageData] = useState<BookingManagementData>({
     bookings: [],
     eventTypes: [],
@@ -113,33 +121,152 @@ const BookingManagement = () => {
     hall: null,
     services: [],
     tickets: [],
-    communications: [],
+    communication: [],
     billingSettings: null,
-    currentBooking: {
-      id: '1',
-      organizationId: 'org-123',
-      hallId: '1',
-      customerName: 'John Doe',
-      customerEmail: 'john.doe@example.com',
-      customerPhone: '123-456-7890',
-      eventDate: new Date().toISOString().split('T')[0],
-      timeSlot: 'morning' as const,
-      eventType: 'Wedding',
-      guestCount: 100,
-      totalAmount: 5000,
-      status: 'confirmed' as const,
-      createdAt: new Date().toISOString(),
-      isActive: false,
-      lastContactDate: new Date().toISOString().split('T')[0],
-      customerResponse: 'Awaiting confirmation',
-      handOverDetails: null,
-    }
+    currentBooking: null
   });
 
   // Single loading and error state for entire page
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
   const [showErrorDialog, setShowErrorDialog] = useState(false);
+
+  // State for all functionality
+  const [selectedFeatures, setSelectedFeatures] = useState<Feature[]>([
+    { id: 'feature-1', name: 'Stage', price: 500, quantity: 1 },
+    { id: 'feature-2', name: 'Lighting', price: 300, quantity: 1 },
+  ]);
+  
+  const [selectedServices, setSelectedServices] = useState<Service[]>([
+    { id: 'service-1', name: 'Catering', price: 2000, directPay: false },
+    { id: 'service-2', name: 'Decoration', price: 1500, directPay: false },
+  ]);
+  
+  const [payments, setPayments] = useState<Payment[]>([
+    { id: 'payment-1', date: new Date().toISOString(), mode: 'cash', amount: 2000, personName: 'John Doe', notes: 'Initial payment' },
+  ]);
+  
+  const [handoverImages, setHandoverImages] = useState<HandoverImage[]>([
+    { id: 'img-1', url: '/placeholder.svg', category: 'Before Event', description: 'Hall setup before event' },
+  ]);
+
+  const [discount, setDiscount] = useState(0);
+  const [discountReason, setDiscountReason] = useState('');
+  const [invoiceNumber, setInvoiceNumber] = useState('');
+  const [invoiceDate, setInvoiceDate] = useState(new Date().toISOString().split('T')[0]);
+
+  // Billing information state
+  const [billingName, setBillingName] = useState('');
+  const [billingAddress, setBillingAddress] = useState('');
+  const [billingGST, setBillingGST] = useState('');
+
+  // Time slot state - simplified like in bookings.tsx
+  const [selectedTimeSlot, setSelectedTimeSlot] = useState('');
+  const [baseAmount, setBaseAmount] = useState(0);
+
+  // Dialog states
+  const [showFeatureDialog, setShowFeatureDialog] = useState(false);
+  const [showServiceDialog, setShowServiceDialog] = useState(false);
+  const [showPaymentDialog, setShowPaymentDialog] = useState(false);
+  const [showTicketDialog, setShowTicketDialog] = useState(false);
+  const [showInventoryDialog, setShowInventoryDialog] = useState(false);
+  const [showHandoverImageDialog, setShowHandoverImageDialog] = useState(false);
+  const [showEditInventoryDialog, setShowEditInventoryDialog] = useState(false);
+  const [showCommunicationDialog, setShowCommunicationDialog] = useState(false);
+  const [statusChangeDialog, setStatusChangeDialog] = useState({ open: false, bookingId: '', newStatus: '', reason: '' });
+
+  // Form states
+  const [newFeature, setNewFeature] = useState({ name: '', quantity: 1 });
+  const [newService, setNewService] = useState({ name: '', directPay: false });
+  const [newPayment, setNewPayment] = useState({ date: new Date().toISOString(), mode: 'cash' as Payment['mode'], amount: 0, personName: '', notes: '' });
+  const [newTicket, setNewTicket] = useState({ title: '', description: '', category: '', assignedTo: '', priority: 'medium' as 'low' | 'medium' | 'high', status: 'open' as 'open' | 'in-progress' | 'completed' });
+  const [newInventoryItem, setNewInventoryItem] = useState({ name: '', quantity: 1, price: 0, notes: '' });
+  const [newHandoverImage, setNewHandoverImage] = useState({ category: '', description: '' });
+  const [newCommunication, setNewCommunication] = useState({ 
+    date: new Date().toISOString().split('T')[0], 
+    time: new Date().toLocaleTimeString('en-US', { hour12: true, hour: 'numeric', minute: '2-digit' }), 
+    fromPerson: '', 
+    toPerson: '', 
+    detail: '',
+    Createdat: ''
+  });
+
+  // Edit states
+  const [editingItem, setEditingItem] = useState<any>(null);
+
+  // Available time slots - simple array like in bookings.tsx
+  const availableTimeSlots = [
+    { value: 'morning', label: 'Morning' },
+    { value: 'evening', label: 'Evening' },
+    { value: 'fullday', label: 'Full Day' }
+  ];
+
+  // Calculate base amount based on time slot - simplified
+  const calculateBaseAmount = (timeSlot: string): number => {
+    if (!timeSlot) {
+      console.warn('[BookingManagement] No time slot provided for base amount calculation');
+      return 0;
+    }
+    
+    // Use the booking's total amount or calculate based on time slot
+    const booking = pageData.currentBooking;
+    if (booking?.totalAmount && booking.totalAmount > 0) {
+      return booking.totalAmount;
+    }
+    
+    // Fallback pricing based on time slot
+    const pricing: { [key: string]: number } = {
+      'morning': 10000,
+      'evening': 15000,
+      'fullday': 25000
+    };
+    
+    const baseAmount = pricing[timeSlot] || 0;
+    console.log(`[BookingManagement] Base amount calculation for ${timeSlot}: ₹${baseAmount}`);
+    
+    return baseAmount;
+  };
+
+  // Update booking when time slot changes
+  const handleTimeSlotChange = async (newTimeSlot: string) => {
+    if (!pageData.currentBooking) return;
+    
+    try {
+      const newBaseAmount = calculateBaseAmount(newTimeSlot);
+      
+      console.log(`[BookingManagement] Time slot change: ${selectedTimeSlot} → ${newTimeSlot}, amount: ₹${newBaseAmount}`);
+      
+      // Create updated booking object
+      const updatedBooking = {
+        ...pageData.currentBooking,
+        timeSlot: newTimeSlot,
+        totalAmount: newBaseAmount,
+        updatedAt: new Date().toISOString()
+      };
+      
+      // Update in database
+      const result = await bookingService.update(pageData.currentBooking.id, updatedBooking);
+      
+      if (result) {
+        console.log('[BookingManagement] Successfully updated booking in database');
+        
+        // Update local state immediately
+        setSelectedTimeSlot(newTimeSlot);
+        setBaseAmount(newBaseAmount);
+        setPageData(prev => ({
+          ...prev,
+          currentBooking: updatedBooking
+        }));
+        
+      } else {
+        throw new Error('Failed to update booking in database');
+      }
+    } catch (error) {
+      console.error('[BookingManagement] Failed to update time slot:', error);
+      // Revert UI state on error
+      setSelectedTimeSlot(pageData.currentBooking.timeSlot);
+    }
+  };
 
   // Fetch all data once when page initializes
   const fetchPageData = async () => {
@@ -148,34 +275,132 @@ const BookingManagement = () => {
       setError(null);
       console.log('[BookingManagement] Fetching all page data...');
 
-      // Fetch all data in parallel
-      const [
-        bookings,
-        eventTypes,
-        employees,
-        inventoryItems,
-        ticketCategories,
-        services,
-        billingSettings
-      ] = await Promise.all([
-        bookingService.getBookingsByOrganization('org1'),
+      // First, get all halls to see what's available
+      let allHalls = [];
+      try {
+        allHalls = await hallService.getAllHalls();
+        console.log('[BookingManagement] Available halls:', allHalls);
+      } catch (hallError) {
+        console.warn('[BookingManagement] Could not fetch halls:', hallError);
+      }
+
+      // First, try to load the specific booking if bookingId is present
+      let currentBooking = null as any;
+
+      if (bookingId) {
+        try {
+          currentBooking = await bookingService.getById(bookingId);
+          console.log('[BookingManagement] Loaded booking by id:', bookingId, currentBooking);
+        } catch (getByIdErr) {
+          console.warn('[BookingManagement] Failed to load booking by id, will fallback to organization bookings', getByIdErr);
+        }
+      }
+
+      // Determine organizationId from either the booking (if loaded) or from page data
+      const organizationId = currentBooking?.organizationId || pageData.currentBooking?.organizationId || (pageData.bookings?.[0]?.organizationId);
+
+      if (!organizationId) {
+        throw new Error('Organization ID not found for fetching bookings and related data');
+      }
+
+      // Fetch all supporting data in parallel with resilience
+      const results = await Promise.allSettled([
+        bookingService.getBookingsByOrganization(organizationId),
         settingsService.getEventTypes(),
         settingsService.getEmployees(),
-        inventoryService.getAllInventoryItems(),
         settingsService.getTicketCategories(),
         servicesService.getAllServices(),
         billingService.getBillingSettings()
       ]);
 
+      const getOrDefault = <T,>(idx: number, def: T): T => {
+        const r = results[idx];
+        if (r && r.status === 'fulfilled') {
+          return (r as PromiseFulfilledResult<T>).value;
+        }
+        console.error('[BookingManagement] Failed fetching index', idx, r && r.status === 'rejected' ? r.reason : 'unknown');
+        return def;
+      };
+
+      const bookings = getOrDefault<any[]>(0, []);
+      const eventTypes = getOrDefault<any[]>(1, []);
+      const employees = getOrDefault<any[]>(2, []);
+      const inventoryItems = getOrDefault<any[]>(3, []);
+      const ticketCategories = getOrDefault<any[]>(4, []);
+      const services = getOrDefault<any[]>(5, []);
+      const billingSettings = getOrDefault<any>(5, null);
+
       // Find current booking
-      const currentBooking = bookings.find((b: any) => b.id === bookingId) || pageData.currentBooking;
+      currentBooking = currentBooking || bookings.find((b: any) => b.id === bookingId) || pageData.currentBooking || null;
+
+      // Try to get the hall - use first available hall if the specified one doesn't exist
+      let hall = null;
+      const bookingHallId = currentBooking?.hallId;
+
+      if (bookingHallId) {
+        try {
+          hall = await hallService.getById(bookingHallId);
+          console.log('[BookingManagement] Found hall with ID:', bookingHallId, hall);
+        } catch (hallError) {
+          console.warn(`[BookingManagement] Hall with ID ${bookingHallId} not found, trying first available hall`);
+          // Use first available hall as fallback
+          if (allHalls.length > 0) {
+            hall = allHalls[0];
+            console.log('[BookingManagement] Using fallback hall:', hall);
+          }
+        }
+      }
+
+      // If still no hall and we have halls available, use the first one
+      if (!hall && allHalls.length > 0) {
+        hall = allHalls[0];
+        console.log('[BookingManagement] Using first available hall as fallback:', hall);
+      }
 
       // Fetch booking-specific data
-      const [hall, tickets, communications] = await Promise.all([
-        hallService.getById(currentBooking.hallId),
-        ticketService.getTicketsByBookingId(bookingId || '1'),
-        communicationService.getCommunicationsByBookingId(bookingId || '1')
+      const bookingIdSafe = currentBooking?.id || bookingId || '1';
+      const [ticketsRes, commsRes] = await Promise.allSettled([
+        ticketService.getTicketsByBookingId(bookingIdSafe),
+        communicationService.getCommunicationsByBookingId(bookingIdSafe)
       ]);
+
+      // Normalize tickets and communications so they are always arrays
+      const ticketsRaw = ticketsRes.status === 'fulfilled' ? ticketsRes.value : [];
+      const communicationsRaw = commsRes.status === 'fulfilled' ? commsRes.value : [];
+
+      const tickets = Array.isArray(ticketsRaw) ? ticketsRaw : (ticketsRaw ? [ticketsRaw] : []);
+      const communications = Array.isArray(communicationsRaw) ? communicationsRaw : (communicationsRaw ? [communicationsRaw] : []);
+
+      if (ticketsRes.status === 'rejected') console.warn('[BookingManagement] Failed fetching tickets:', ticketsRes.reason);
+      if (commsRes.status === 'rejected') console.warn('[BookingManagement] Failed fetching communications:', commsRes.reason);
+
+      // Set time slot and calculate base amount from current booking
+      if (currentBooking) {
+        const initialTimeSlot = currentBooking.timeSlot || '';
+        setSelectedTimeSlot(initialTimeSlot);
+        
+        // Calculate base amount from time slot (use stored totalAmount if available)
+        const calculatedBaseAmount = currentBooking.totalAmount > 0 ? currentBooking.totalAmount : calculateBaseAmount(initialTimeSlot);
+        setBaseAmount(calculatedBaseAmount);
+        
+        console.log(`[BookingManagement] Initial booking setup:`, {
+          timeSlot: initialTimeSlot,
+          calculatedBaseAmount: calculatedBaseAmount,
+          storedTotalAmount: currentBooking.totalAmount
+        });
+
+        // If stored total amount is 0 but we have a time slot, update the booking
+        if (currentBooking.totalAmount === 0 && initialTimeSlot && calculatedBaseAmount > 0) {
+          console.log('[BookingManagement] Updating booking with calculated base amount');
+          const updatedBooking = {
+            ...currentBooking,
+            totalAmount: calculatedBaseAmount,
+            updatedAt: new Date().toISOString()
+          };
+          await bookingService.update(currentBooking.id, updatedBooking);
+          currentBooking = updatedBooking;
+        }
+      }
 
       setPageData({
         bookings,
@@ -186,10 +411,25 @@ const BookingManagement = () => {
         ticketCategories,
         hall,
         tickets,
-        communications,
+        communication: communications,
         billingSettings,
         currentBooking
       });
+
+      // Auto-populate billing details from booking
+      if (currentBooking?.billingDetails) {
+        setBillingName(currentBooking.billingDetails.billingName || '');
+        setBillingAddress(currentBooking.billingDetails.billingAddress || '');
+        setBillingGST(currentBooking.billingDetails.gstNumber || '');
+      }
+
+      // Auto-generate invoice number and date if empty
+      if (!invoiceNumber) {
+        setInvoiceNumber(generateInvoiceNumber());
+      }
+      if (!invoiceDate) {
+        setInvoiceDate(new Date().toISOString().split('T')[0]);
+      }
 
       setShowErrorDialog(false);
     } catch (err) {
@@ -205,7 +445,7 @@ const BookingManagement = () => {
   // Fetch data once when page mounts
   useEffect(() => {
     fetchPageData();
-  }, [bookingId]); // Re-fetch when bookingId changes
+  }, [bookingId]);
 
   const handleRetry = async () => {
     await fetchPageData();
@@ -214,8 +454,6 @@ const BookingManagement = () => {
   const handleCloseErrorDialog = () => {
     setShowErrorDialog(false);
   };
-
-
 
   // Loading state
   if (loading) {
@@ -263,83 +501,59 @@ const BookingManagement = () => {
     hall,
     services: availableServices,
     tickets: ticketsList,
-    communications: communicationsList,
+    communication: communicationsList,
     billingSettings
   } = pageData;
 
+  // Defensive normalization for render-time lists
+  const ticketsArray = Array.isArray(ticketsList) ? ticketsList : (ticketsList ? [ticketsList] : []);
+  const servicesArray = Array.isArray(availableServices) ? availableServices : (availableServices ? [availableServices] : []);
+
   const masterFeatures = hall?.features || [];
-
-  // State for all functionality
-  const [selectedFeatures, setSelectedFeatures] = useState<Feature[]>([
-    { id: 'feature-1', name: 'Stage', price: 500, quantity: 1 },
-    { id: 'feature-2', name: 'Lighting', price: 300, quantity: 1 },
-  ]);
   
-  const [selectedServices, setSelectedServices] = useState<Service[]>([
-    { id: 'service-1', name: 'Catering', price: 2000, directPay: false },
-    { id: 'service-2', name: 'Decoration', price: 1500, directPay: false },
-  ]);
-  
-  const [payments, setPayments] = useState<Payment[]>([
-    { id: 'payment-1', date: new Date().toISOString(), mode: 'cash', amount: 2000, personName: 'John Doe', notes: 'Initial payment' },
-  ]);
-  
-  const [handoverImages, setHandoverImages] = useState<HandoverImage[]>([
-    { id: 'img-1', url: '/placeholder.svg', category: 'Before Event', description: 'Hall setup before event' },
-  ]);
+  // Use the calculated baseAmount from state
+  const bookingSafe: any = booking || {};
+  const bookingGuestCount = Number(bookingSafe.guestCount) || 0;
+  const bookingEventDateIso = bookingSafe.eventDate && !isNaN(Date.parse(bookingSafe.eventDate))
+    ? new Date(bookingSafe.eventDate).toISOString().split('T')[0]
+    : '';
 
-  const [discount, setDiscount] = useState(0);
-  const [discountReason, setDiscountReason] = useState('');
-  const [invoiceNumber, setInvoiceNumber] = useState('');
-  const [invoiceDate, setInvoiceDate] = useState(new Date().toISOString().split('T')[0]);
+  // Calculate totals - use the baseAmount from state
+  const safeBookingTotal = baseAmount;
+  const featuresTotal = selectedFeatures.reduce((sum, f) => sum + (Number(f.price || 0) * Number(f.quantity || 0)), 0);
+  const servicesTotal = selectedServices.filter(s => !s.directPay).reduce((sum, s) => sum + Number(s.price || 0), 0);
+  const inventoryTotal = availableInventoryItems.reduce((sum, item) => sum + (Number(item.price || 0) * Number(item.quantity || 0)), 0);
+  const safeDiscount = Number(discount || 0);
+  const totalCharges = safeBookingTotal + featuresTotal + servicesTotal + inventoryTotal - safeDiscount;
 
-  // Billing information state
-  const [billingName, setBillingName] = useState('');
-  const [billingAddress, setBillingAddress] = useState('');
-  const [billingGST, setBillingGST] = useState('');
+  const totalPayments = payments.reduce((sum, payment) => sum + Number(payment.amount || 0), 0);
 
-  // Dialog states
-  const [showFeatureDialog, setShowFeatureDialog] = useState(false);
-  const [showServiceDialog, setShowServiceDialog] = useState(false);
-  const [showPaymentDialog, setShowPaymentDialog] = useState(false);
-  const [showTicketDialog, setShowTicketDialog] = useState(false);
-  const [showInventoryDialog, setShowInventoryDialog] = useState(false);
-  const [showHandoverImageDialog, setShowHandoverImageDialog] = useState(false);
-  const [showEditInventoryDialog, setShowEditInventoryDialog] = useState(false);
-  const [showCommunicationDialog, setShowCommunicationDialog] = useState(false);
-  const [statusChangeDialog, setStatusChangeDialog] = useState({ open: false, bookingId: '', newStatus: '', reason: '' });
-
-  // Form states
-  const [newFeature, setNewFeature] = useState({ name: '', quantity: 1 });
-  const [newService, setNewService] = useState({ name: '', directPay: false });
-  const [newPayment, setNewPayment] = useState({ date: new Date().toISOString(), mode: 'cash' as Payment['mode'], amount: 0, personName: '', notes: '' });
-  const [newTicket, setNewTicket] = useState({ title: '', description: '', category: '', assignedTo: '', priority: 'medium' as 'low' | 'medium' | 'high', status: 'open' as 'open' | 'in-progress' | 'completed' });
-  const [newInventoryItem, setNewInventoryItem] = useState({ name: '', quantity: 1, price: 0, notes: '' });
-  const [newHandoverImage, setNewHandoverImage] = useState({ category: '', description: '' });
-  const [newCommunication, setNewCommunication] = useState({ 
-    date: new Date().toISOString().split('T')[0], 
-    time: new Date().toLocaleTimeString('en-US', { hour12: true, hour: 'numeric', minute: '2-digit' }), 
-    fromPerson: '', 
-    toPerson: '', 
-    detail: '' 
-  });
-
-  // Edit states
-  const [editingItem, setEditingItem] = useState<any>(null);
-
-  // Calculate totals
-  const featuresTotal = selectedFeatures.reduce((sum, f) => sum + (f.price * f.quantity), 0);
-  const servicesTotal = selectedServices.filter(s => !s.directPay).reduce((sum, s) => sum + s.price, 0);
-  const inventoryTotal = availableInventoryItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-  const totalCharges = booking.totalAmount + featuresTotal + servicesTotal + inventoryTotal - discount;
-  const totalPayments = payments.reduce((sum, payment) => sum + payment.amount, 0);
-  
-  const gstPercentage = billingSettings?.taxPercentage || 0;
+  const gstPercentage = Number(billingSettings?.taxPercentage || 0);
   const taxAmount = Math.round((totalCharges * gstPercentage) / 100);
   const billAmount = totalCharges + taxAmount;
   const balanceAmount = billAmount - totalPayments;
 
+  // Debug log to verify calculations
+  console.log('[BookingManagement] Current state:', { 
+    selectedTimeSlot,
+    baseAmount, 
+    safeBookingTotal
+  });
 
+  // Billing handlers
+  const handleSaveBillingInfo = async () => {
+    if (!booking) return;
+    const updatedBooking = {
+      ...booking,
+      billingDetails: {
+        billingName,
+        billingAddress,
+        gstNumber: billingGST
+      }
+    };
+    await bookingService.update(booking.id, updatedBooking);
+    await fetchPageData();
+  };
 
   // Feature handlers
   const handleAddFeature = () => {
@@ -447,7 +661,7 @@ const BookingManagement = () => {
 
   const handleDeleteTicket = async (ticketId: string, reason: string) => {
     await ticketService.deleteTicket(ticketId);
-    await fetchPageData(); // Refresh tickets data
+    await fetchPageData();
     console.log(`Ticket deleted. Reason: ${reason}`);
   };
 
@@ -461,7 +675,7 @@ const BookingManagement = () => {
         priority: newTicket.priority,
         status: newTicket.status
       });
-      await fetchPageData(); // Refresh tickets data
+      await fetchPageData();
       setEditingItem(null);
       setNewTicket({ title: '', description: '', category: '', assignedTo: '', priority: 'medium', status: 'open' });
       setShowTicketDialog(false);
@@ -469,7 +683,6 @@ const BookingManagement = () => {
   };
 
   const handleStatusChange = async (bookingId: string, newStatus: string, reason?: string) => {
-    // Get the current booking to clone it
     const currentBooking = await bookingService.getById(bookingId);
     if (currentBooking) {
       const updatedBooking = {
@@ -478,7 +691,7 @@ const BookingManagement = () => {
       };
       const result = await bookingService.update(bookingId, updatedBooking);
       if (result) {
-        await fetchPageData(); // Refresh bookings data
+        await fetchPageData();
         setStatusChangeDialog({ open: false, bookingId: '', newStatus: '', reason: '' });
       }
     }
@@ -486,13 +699,20 @@ const BookingManagement = () => {
 
   // Inventory handlers
   const handleAddInventoryItem = async () => {
-    await inventoryService.createInventoryItem({
+    const orgId = pageData.currentBooking?.organizationId || pageData.bookings?.[0]?.organizationId || '';
+
+    await inventoryService.create({
       name: newInventoryItem.name,
+      description: newInventoryItem.notes || '',
       quantity: newInventoryItem.quantity,
+      unit: 'pcs',
       price: newInventoryItem.price,
-      notes: newInventoryItem.notes
-    });
-    await fetchPageData(); // Refresh inventory data
+      organizationid: orgId,
+      createdat: new Date().toISOString(),
+      updatedat: new Date().toISOString(),
+      notes: newInventoryItem.notes || ''
+    } as any);
+    await fetchPageData();
     setNewInventoryItem({ name: '', quantity: 1, price: 0, notes: '' });
     setShowInventoryDialog(false);
   };
@@ -517,8 +737,8 @@ const BookingManagement = () => {
         price: newInventoryItem.price,
         notes: newInventoryItem.notes
       };
-      await inventoryService.updateInventoryItem(editingItem.id, updatedInventoryItem);
-      await fetchPageData(); // Refresh inventory data
+      await inventoryService.update(editingItem.id, updatedInventoryItem);
+      await fetchPageData();
       setEditingItem(null);
       setNewInventoryItem({ name: '', quantity: 1, price: 0, notes: '' });
       setShowEditInventoryDialog(false);
@@ -526,8 +746,8 @@ const BookingManagement = () => {
   };
 
   const handleDeleteInventory = async (itemId: string, reason: string) => {
-    await inventoryService.deleteInventoryItem(itemId);
-    await fetchPageData(); // Refresh inventory data
+    await inventoryService.delete(itemId);
+    await fetchPageData();
     console.log(`Inventory item deleted. Reason: ${reason}`);
   };
 
@@ -558,44 +778,60 @@ const BookingManagement = () => {
 
   // Communication handlers
   const handleAddCommunication = async () => {
-    const communicationData: Omit<Communication, 'id'> = {
-      bookingId: bookingId || '1',
-      date: newCommunication.date,
-      time: newCommunication.time,
-      fromPerson: newCommunication.fromPerson,
-      toPerson: newCommunication.toPerson,
-      detail: newCommunication.detail,
-      createdAt: new Date().toISOString()
-    };
-    await communicationService.createCommunication(communicationData);
-    setNewCommunication({ 
-      date: new Date().toISOString().split('T')[0], 
-      time: new Date().toLocaleTimeString('en-US', { hour12: true, hour: 'numeric', minute: '2-digit' }), 
-      fromPerson: '', 
-      toPerson: '', 
-      detail: '' 
-    });
-    setShowCommunicationDialog(false);
+    try {
+      const bookingIdVal = pageData.currentBooking?.id || bookingId || '';
+
+      const communicationData: any = {
+        booking_id: bookingIdVal,
+        bookingId: bookingIdVal,
+        date: newCommunication.date,
+        time: newCommunication.time,
+        from_Person: newCommunication.fromPerson,
+        fromPerson: newCommunication.fromPerson,
+        to_Person: newCommunication.toPerson,
+        toPerson: newCommunication.toPerson,
+        detail: newCommunication.detail
+      };
+
+      console.log('[BookingManagement] Creating communication:', communicationData);
+      try {
+        await communicationService.createCommunication(communicationData);
+      } catch (err: any) {
+        console.error('[BookingManagement] createCommunication failed', err);
+        if (err && err.data) console.error('API error data:', err.data);
+        throw err;
+      }
+
+      await fetchPageData();
+
+      setNewCommunication({ 
+        date: new Date().toISOString().split('T')[0], 
+        time: new Date().toLocaleTimeString('en-US', { hour12: true, hour: 'numeric', minute: '2-digit' }), 
+        fromPerson: '', 
+        toPerson: '', 
+        detail: '',
+        Createdat: ''
+      });
+      setShowCommunicationDialog(false);
+    } catch (err) {
+      console.error('[BookingManagement] Failed to create communication', err);
+      const anyErr: any = err;
+      if (anyErr && anyErr.data) {
+        console.error('[BookingManagement] Server response body:', anyErr.data);
+      }
+    }
   };
 
   const handleDeleteCommunication = async (communicationId: string, reason: string) => {
     await communicationService.deleteCommunication(communicationId);
-    await fetchPageData(); // Refresh communications data
+    await fetchPageData();
     console.log(`Communication deleted. Reason: ${reason}`);
   };
 
-  // Invoice handlers
-  const generateInvoiceNumber = () => {
-    const timestamp = Date.now();
-    const random = Math.floor(Math.random() * 1000);
-    const invoiceNo = `INV-${timestamp}-${random}`;
-    setInvoiceNumber(invoiceNo);
-    return invoiceNo;
-  };
-
-  const viewInvoicePDF = () => {
-    // Implementation for viewing PDF
-    console.log('Viewing invoice PDF...');
+  const viewInvoicePDF = async () => {
+    if (!booking) return;
+    await handleSaveBillingInfo();
+    navigate(`/invoice/${booking.id}?invoiceNo=${invoiceNumber}&invoiceDate=${invoiceDate}`);
   };
 
   return (
@@ -611,7 +847,66 @@ const BookingManagement = () => {
           <p className="text-gray-500">Manage all aspects of this booking.</p>
         </div>
 
-        <Card>
+        {/* Booking Summary Card */}
+        <Card className="mb-6">
+          <CardHeader>
+            <div className="flex justify-between items-center">
+              <CardTitle>Booking Summary</CardTitle>
+              <Badge variant={
+                booking.status === 'confirmed' ? 'default' :
+                booking.status === 'pending' ? 'secondary' :
+                booking.status === 'cancelled' ? 'destructive' : 'outline'
+              }>
+                {booking.status || 'Pending'}
+              </Badge>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="flex items-center space-x-2">
+                <User className="h-4 w-4 text-gray-500" />
+                <div>
+                  <p className="text-sm font-medium">{booking.customerName}</p>
+                  <p className="text-xs text-gray-500">{booking.customerEmail} • {booking.customerPhone}</p>
+                </div>
+              </div>
+              
+              <div className="flex items-center space-x-2">
+                <MapPin className="h-4 w-4 text-gray-500" />
+                <div>
+                  <p className="text-sm font-medium">{hall?.name || 'Unknown Hall'}</p>
+                  <p className="text-xs text-gray-500">{bookingEventDateIso} - {selectedTimeSlot}</p>
+                </div>
+              </div>
+              
+              <div className="flex items-center space-x-2">
+                <Calendar className="h-4 w-4 text-gray-500" />
+                <div>
+                  <p className="text-sm font-medium">{bookingGuestCount} guests</p>
+                  <p className="text-xs text-gray-500">{booking.eventType}</p>
+                </div>
+              </div>
+              
+              <div className="flex items-center space-x-2">
+                <DollarSign className="h-4 w-4 text-gray-500" />
+                <div>
+                  <p className="text-sm font-medium">₹{safeBookingTotal.toLocaleString()}</p>
+                  <p className="text-xs text-gray-500">Base Amount ({selectedTimeSlot})</p>
+                </div>
+              </div>
+            </div>
+            
+            {/* Last Contact Date */}
+            {booking.lastContactDate && (
+              <div className="mt-4 flex items-center space-x-2 text-sm text-gray-600">
+                <Clock className="h-4 w-4" />
+                <span>Last Contact: {new Date(booking.lastContactDate).toLocaleDateString()}</span>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card className="mb-6">
           <CardHeader>
             <CardTitle>Booking Information</CardTitle>
           </CardHeader>
@@ -638,15 +933,20 @@ const BookingManagement = () => {
             </div>
             <div>
               <Label>Event Date</Label>
-              <Input type="date" value={booking.eventDate} readOnly />
+              <Input type="date" value={bookingEventDateIso} readOnly />
             </div>
             <div>
-              <Label>Time Slot</Label>
-              <Input type="text" value={booking.timeSlot} readOnly />
-            </div>
+  <Label>Time Slot</Label>
+  <Input 
+    type="text" 
+    value={selectedTimeSlot} 
+    readOnly
+  />
+  
+</div>
             <div>
               <Label>Guest Count</Label>
-              <Input type="number" value={booking.guestCount} readOnly />
+              <Input type="number" value={bookingGuestCount} readOnly />
             </div>
           </CardContent>
         </Card>
@@ -714,7 +1014,7 @@ const BookingManagement = () => {
                   <CardTitle>Services Management</CardTitle>
                   <Button onClick={() => setShowServiceDialog(true)}>
                     <Plus className="h-4 w-4 mr-2" />
-                    Add Service
+                    Add Service 
                   </Button>
                 </div>
               </CardHeader>
@@ -840,16 +1140,36 @@ const BookingManagement = () => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {ticketsList.map((ticket) => (
-                    <div key={ticket.id} className="flex justify-between items-center p-3 bg-gray-50 rounded">
-                      <div>
-                        <span className="font-medium">{ticket.title}</span>
-                        <Badge variant="outline" className="ml-2">{ticket.status}</Badge>
-                        <Badge variant="secondary" className="ml-2">{ticket.priority}</Badge>
-                        <p className="text-sm text-gray-600">{ticket.description}</p>
-                        <p className="text-xs text-gray-500">Assigned to: {ticket.assignedTo}</p>
+                  {ticketsArray.map((ticket, idx) => (
+                    <div key={ticket?.id || `ticket-${idx}`} className="flex justify-between items-center p-3 bg-gray-50 rounded">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-2">
+                          <span className="font-medium">{ticket.title}</span>
+                          <Badge 
+                            variant={
+                              ticket.status === 'open' ? 'default' :
+                              ticket.status === 'in-progress' ? 'secondary' :
+                              ticket.status === 'resolved' ? 'outline' : 'destructive'
+                            }
+                          >
+                            {ticket.status}
+                          </Badge>
+                          <Badge 
+                            variant={
+                              ticket.priority === 'high' ? 'destructive' :
+                              ticket.priority === 'medium' ? 'default' : 'outline'
+                            }
+                          >
+                            {ticket.priority}
+                          </Badge>
+                        </div>
+                        <p className="text-sm text-gray-600 mb-1">{ticket.description}</p>
+                        <div className="flex items-center gap-4 text-xs text-gray-500">
+                          <span>Category: {ticket.category}</span>
+                          <span>Assigned to: {ticket.assignedTo}</span>
+                          <span>Booking: {ticket.bookingId}</span>
+                        </div>
                       </div>
-
                       
                       <div className="flex gap-2">
                         <Button variant="outline" size="sm" onClick={() => handleEditTicket(ticket)}>
@@ -954,8 +1274,8 @@ const BookingManagement = () => {
             </CardHeader>
             <CardContent className="space-y-3">
               <div className="flex justify-between">
-                <span>Base Amount:</span>
-                <span>₹{booking.totalAmount.toLocaleString()}</span>
+                <span>Base Total:</span>
+                <span>₹{safeBookingTotal.toLocaleString()}</span>
               </div>
               
               {featuresTotal > 0 && (
@@ -991,7 +1311,6 @@ const BookingManagement = () => {
                   <span>Total Amount:</span>
                   <span>₹{totalCharges.toLocaleString()}</span>
                 </div>
-                {/* Tax Section */}
                 <div className="flex justify-between text-yellow-700">
                   <span>Tax (GST {gstPercentage}%)</span>
                   <span>₹{taxAmount.toLocaleString()}</span>
@@ -1037,7 +1356,6 @@ const BookingManagement = () => {
               <CardTitle>Invoice & Billing Details</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-
               {/* Billing Information */}
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold text-gray-800">Billing Information</h3>
@@ -1048,6 +1366,7 @@ const BookingManagement = () => {
                     value={billingName}
                     onChange={(e) => setBillingName(e.target.value)}
                     placeholder="Enter billing name"
+                    required
                   />
                 </div>
 
@@ -1069,47 +1388,96 @@ const BookingManagement = () => {
                     placeholder="Enter GST number (optional)"
                   />
                 </div>
+
               </div>
 
               <div className="border-t pt-4">
                 <h3 className="text-lg font-semibold text-gray-800 mb-4">Invoice Details</h3>
               
-              <div className="space-y-2">
-                <Label>Invoice Number</Label>
-              <div className="flex gap-2">
-                <Input
-                  value={invoiceNumber}
-                  onChange={(e) => setInvoiceNumber(e.target.value)}
-                  placeholder="Click Generate to create invoice number"
-                  readOnly
-                />
-                <Button onClick={() => setInvoiceNumber(generateInvoiceNumber())}>
-                  Generate
+                <div className="space-y-2">
+                  <Label>Invoice Number</Label>
+                  <div className="flex gap-2">
+                    <Input
+                      value={invoiceNumber}
+                      onChange={(e) => setInvoiceNumber(e.target.value)}
+                      placeholder="Click Generate to create invoice number"
+                      readOnly
+                    />
+                    <Button onClick={() => setInvoiceNumber(generateInvoiceNumber())}>
+                      Generate
+                    </Button>
+                  </div>
+                </div>
+
+                <div>
+                  <Label>Invoice Date</Label>
+                  <Input
+                    type="date"
+                    value={invoiceDate}
+                    onChange={(e) => setInvoiceDate(e.target.value)}
+                  />
+                </div>
+
+                <Button onClick={viewInvoicePDF} className="w-full">
+                  <FileText className="h-4 w-4 mr-2" />
+                  View & Generate Invoice PDF
                 </Button>
               </div>
-            </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
 
+      {/* Status Change Dialog */}
+      <Dialog open={statusChangeDialog.open} onOpenChange={(open) => setStatusChangeDialog(prev => ({...prev, open}))}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Change Booking Status</DialogTitle>
+            <DialogDescription>
+              Update the status for {booking?.customerName}'s booking
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
             <div>
-              <Label>Invoice Date</Label>
-              <Input
-                type="date"
-                value={invoiceDate}
-                onChange={(e) => setInvoiceDate(e.target.value)}
+              <Label>New Status</Label>
+              <Select 
+                value={statusChangeDialog.newStatus} 
+                onValueChange={(value) => setStatusChangeDialog(prev => ({...prev, newStatus: value}))}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="pending">Pending</SelectItem>
+                  <SelectItem value="confirmed">Confirmed</SelectItem>
+                  <SelectItem value="cancelled">Cancelled</SelectItem>
+                  <SelectItem value="completed">Completed</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label>Reason for Change (Optional)</Label>
+              <Textarea
+                value={statusChangeDialog.reason}
+                onChange={(e) => setStatusChangeDialog(prev => ({...prev, reason: e.target.value}))}
+                placeholder="Enter reason for status change..."
               />
             </div>
-
-            <Button onClick={viewInvoicePDF} className="w-full" disabled={!invoiceNumber}>
-              <FileText className="h-4 w-4 mr-2" />
-              Invoice PDF
+            <Button 
+              onClick={() => handleStatusChange(
+                statusChangeDialog.bookingId, 
+                statusChangeDialog.newStatus, 
+                statusChangeDialog.reason
+              )}
+              className="w-full"
+            >
+              Update Status
             </Button>
           </div>
-          </CardContent>
-        </Card>
-      </div>
-    </div>
+        </DialogContent>
+      </Dialog>
 
-      {/* All Dialogs */}
-      {/* Feature Dialog */}
+      {/* All other dialogs remain the same */}
       <Dialog open={showFeatureDialog} onOpenChange={setShowFeatureDialog}>
         <DialogContent>
           <DialogHeader>
@@ -1160,9 +1528,9 @@ const BookingManagement = () => {
                   <SelectValue placeholder="Select service" />
                 </SelectTrigger>
                 <SelectContent>
-                  {availableServices.map(service => (
-                    <SelectItem key={service.id} value={service.name}>
-                      {service.name} - ₹{service.basePrice}
+                  {servicesArray.map((service, idx) => (
+                    <SelectItem key={service?.id || `service-${idx}`} value={service?.name || ''}>
+                      {(service?.name || 'Unnamed Service')} - ₹{service?.basePrice ?? 0}
                     </SelectItem>
                   ))}
                 </SelectContent>

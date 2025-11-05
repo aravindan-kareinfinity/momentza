@@ -26,13 +26,13 @@ namespace Momantza.Services
                 Capacity = Convert.ToInt32(reader["capacity"]),
                 Location = reader["location"].ToString() ?? string.Empty,
                 Address = reader["address"].ToString() ?? string.Empty,
-                Features = reader["features"] != DBNull.Value 
+                Features = reader["features"] != DBNull.Value
                     ? JsonSerializer.Deserialize<List<HallFeature>>(reader["features"].ToString() ?? "[]") ?? new List<HallFeature>()
                     : new List<HallFeature>(),
-                RateCard = reader["ratecard"] != DBNull.Value 
+                RateCard = reader["ratecard"] != DBNull.Value
                     ? JsonSerializer.Deserialize<RateCard>(reader["ratecard"].ToString() ?? "{}") ?? new RateCard()
                     : new RateCard(),
-                Gallery = reader["gallery"] != DBNull.Value 
+                Gallery = reader["gallery"] != DBNull.Value
                     ? JsonSerializer.Deserialize<List<string>>(reader["gallery"].ToString() ?? "[]") ?? new List<string>()
                     : new List<string>(),
                 IsActive = Convert.ToBoolean(reader["isactive"])
@@ -111,11 +111,10 @@ namespace Momantza.Services
         public override async Task<Hall?> GetByIdAsync(string id)
         {
             var orgId = GetCurrentOrganizationId();
-            var sql = "SELECT * FROM halls WHERE id = @id AND organizationid = @organizationId";
+            var sql = "SELECT * FROM halls WHERE id = @id";
             using var connection = await GetConnectionAsync();
             using var command = new NpgsqlCommand(sql, connection);
             command.Parameters.AddWithValue("@id", id);
-            command.Parameters.AddWithValue("@organizationId", orgId);
             using var reader = await command.ExecuteReaderAsync();
             if (await reader.ReadAsync())
             {
@@ -131,7 +130,7 @@ namespace Momantza.Services
                 using var connection = await GetConnectionAsync();
                 var sql = "SELECT * FROM halls WHERE isactive = true";
                 using var command = new NpgsqlCommand(sql, connection);
-                
+
                 using var reader = await command.ExecuteReaderAsync();
                 var results = new List<Hall>();
                 while (await reader.ReadAsync())
@@ -156,7 +155,7 @@ namespace Momantza.Services
                 using var command = new NpgsqlCommand(sql, connection);
                 command.Parameters.AddWithValue("@minCapacity", minCapacity);
                 command.Parameters.AddWithValue("@maxCapacity", maxCapacity);
-                
+
                 using var reader = await command.ExecuteReaderAsync();
                 var results = new List<Hall>();
                 while (await reader.ReadAsync())
@@ -191,7 +190,7 @@ namespace Momantza.Services
                 using var command = new NpgsqlCommand(sql, connection);
                 command.Parameters.AddWithValue("@organizationId", organizationId);
                 command.Parameters.AddWithValue("@hallIds", accessibleHallIds.ToArray());
-                
+
                 using var reader = await command.ExecuteReaderAsync();
                 var results = new List<Hall>();
                 while (await reader.ReadAsync())
@@ -221,8 +220,8 @@ namespace Momantza.Services
 
                 var dateStr = date.ToString("yyyy-MM-dd");
                 var hallBookings = await _bookingDataService.GetByHallIdAsync(hallId);
-                var dayBookings = hallBookings.Where(booking => 
-                    booking.EventDate.ToString("yyyy-MM-dd") == dateStr && 
+                var dayBookings = hallBookings.Where(booking =>
+                    booking.EventDate.ToString("yyyy-MM-dd") == dateStr &&
                     (booking.Status == "confirmed" || booking.Status == "active")
                 ).ToList();
 
@@ -296,19 +295,18 @@ namespace Momantza.Services
         {
             try
             {
-                var existing = await GetByIdAsync(id);
+                var existing = await GetByIdAsync(id); // Use the fixed method
                 if (existing == null)
                     throw new Exception("Hall not found");
 
-                // Update only the provided fields
-                if (!string.IsNullOrEmpty(updates.Name)) existing.Name = updates.Name;
-                if (!string.IsNullOrEmpty(updates.OrganizationId)) existing.OrganizationId = updates.OrganizationId;
-                if (updates.Capacity > 0) existing.Capacity = updates.Capacity;
-                if (!string.IsNullOrEmpty(updates.Location)) existing.Location = updates.Location;
-                if (!string.IsNullOrEmpty(updates.Address)) existing.Address = updates.Address;
-                if (updates.Features != null) existing.Features = updates.Features;
-                if (updates.RateCard != null) existing.RateCard = updates.RateCard;
-                if (updates.Gallery != null) existing.Gallery = updates.Gallery;
+                // Update fields
+                existing.Name = updates.Name ?? existing.Name;
+                existing.Capacity = updates.Capacity > 0 ? updates.Capacity : existing.Capacity;
+                existing.Location = updates.Location ?? existing.Location;
+                existing.Address = updates.Address ?? existing.Address;
+                existing.Features = updates.Features ?? existing.Features;
+                existing.RateCard = updates.RateCard ?? existing.RateCard;
+                existing.Gallery = updates.Gallery ?? existing.Gallery;
                 existing.IsActive = updates.IsActive;
 
                 var success = await UpdateAsync(existing);
@@ -336,10 +334,10 @@ namespace Momantza.Services
         Task<List<Hall>> GetAllHallsAsync();
         Task<List<Hall>> GetHallsByOrganizationAsync(string organizationId);
         Task<List<Hall>> GetAccessibleHallsAsync(string organizationId, List<string> accessibleHallIds);
-        Task<Hall?> GetHallByIdAsync(string id);
+        Task<Hall> GetHallByIdAsync(string id);
         Task<List<TimeSlot>> GetAvailableTimeSlotsAsync(string hallId, DateTime date);
         Task<Hall> CreateHallAsync(Hall hall);
         Task<Hall> UpdateHallAsync(string id, Hall updates);
         Task<bool> DeleteHallAsync(string id);
     }
-} 
+}

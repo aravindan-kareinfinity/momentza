@@ -20,8 +20,60 @@ const BookingEdit = () => {
   const [booking, setBooking] = useState<Booking | null>(null);
   const [clonedBooking, setClonedBooking] = useState<Booking | null>(null);
   const [hall, setHall] = useState<any>(null);
+  const [halls, setHalls] = useState<any[]>([]);
+  const [timeSlots, setTimeSlots] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Form state
+  const [customerName, setCustomerName] = useState<string>('');
+  const [customerEmail, setCustomerEmail] = useState<string>('');
+  const [customerPhone, setCustomerPhone] = useState<string>('');
+  const [eventDate, setEventDate] = useState<string>('');
+  const [eventType, setEventType] = useState<string>('');
+  const [timeSlot, setTimeSlot] = useState<Booking['timeSlot']>('morning');
+  const [guestCount, setGuestCount] = useState<string>('');
+  const [status, setStatus] = useState<Booking['status']>('pending');
+  const [statusReason, setStatusReason] = useState<string>('');
+  const [lastContactDate, setLastContactDate] = useState<string>('');
+  const [customerResponse, setCustomerResponse] = useState<string>('');
+  const [submitting, setSubmitting] = useState<boolean>(false);
+
+  // Available event types
+  const availableEventTypes = [
+    'Wedding',
+    'Birthday Party',
+    'Corporate Event',
+    'Conference',
+    'Seminar',
+    'Reception',
+    'Anniversary',
+    'Baby Shower',
+    'Other'
+  ];
+
+  // Fetch time slots based on hall and date
+  const fetchTimeSlots = async (hallId: string, date: string) => {
+    if (!hallId || !date) {
+      setTimeSlots([]);
+      return;
+    }
+
+    try {
+      const dateObj = new Date(date);
+      const slots = await hallService.getAvailableTimeSlots(hallId, dateObj);
+      setTimeSlots(slots || []);
+    } catch (err) {
+      console.error('Failed to load time slots:', err);
+      setTimeSlots([]);
+    }
+  };
+
+  // Calculate total amount when time slot is selected
+  const calculateTotalAmount = (selectedTimeSlot: string): number => {
+    const slot = timeSlots.find(slot => slot.value === selectedTimeSlot);
+    return slot ? slot.price : 0;
+  };
 
   // Fetch data on component mount
   useEffect(() => {
@@ -36,6 +88,10 @@ const BookingEdit = () => {
         setLoading(true);
         setError(null);
         
+        // Fetch all halls for selection
+        const allHalls = await hallService.getAllHalls();
+        setHalls(allHalls);
+        
         // Fetch the specific booking by ID
         const bookingData = await bookingService.getById(bookingId);
         setBooking(bookingData);
@@ -45,11 +101,16 @@ const BookingEdit = () => {
           setClonedBooking({ ...bookingData });
         }
         
-        // Fetch hall data if booking exists
+        // Fetch current hall data if booking exists
         if (bookingData?.hallId) {
           try {
             const hallData = await hallService.getById(bookingData.hallId);
             setHall(hallData);
+            
+            // Fetch time slots for the current booking
+            if (bookingData.eventDate) {
+              await fetchTimeSlots(bookingData.hallId, bookingData.eventDate);
+            }
           } catch (err) {
             console.error('Failed to load hall data:', err);
             setError('Failed to load hall data');
@@ -65,9 +126,7 @@ const BookingEdit = () => {
 
     fetchData();
   }, [bookingId]);
-  
 
-  
   // Helper function to format date for HTML date input
   const formatDateForInput = (dateString: string): string => {
     if (!dateString) return '';
@@ -92,20 +151,6 @@ const BookingEdit = () => {
     }
   };
 
-  // State initialization with proper type safety
-  const [customerName, setCustomerName] = useState<string>('');
-  const [customerEmail, setCustomerEmail] = useState<string>('');
-  const [customerPhone, setCustomerPhone] = useState<string>('');
-  const [eventDate, setEventDate] = useState<string>('');
-  const [eventType, setEventType] = useState<string>('');
-  const [timeSlot, setTimeSlot] = useState<Booking['timeSlot']>('morning');
-  const [guestCount, setGuestCount] = useState<string>('');
-  const [status, setStatus] = useState<Booking['status']>('pending');
-  const [statusReason, setStatusReason] = useState<string>('');
-  const [lastContactDate, setLastContactDate] = useState<string>('');
-  const [customerResponse, setCustomerResponse] = useState<string>('');
-  const [submitting, setSubmitting] = useState<boolean>(false);
-
   // Update form state when booking data is loaded
   useEffect(() => {
     if (booking) {
@@ -114,7 +159,8 @@ const BookingEdit = () => {
       setCustomerPhone(booking.customerPhone || '');
       
       // Set event date with proper formatting
-      setEventDate(formatDateForInput(booking.eventDate));
+      const formattedDate = formatDateForInput(booking.eventDate);
+      setEventDate(formattedDate);
       
       setEventType(booking.eventType || '');
       setTimeSlot(booking.timeSlot || 'morning');
@@ -127,6 +173,232 @@ const BookingEdit = () => {
       setCustomerResponse(booking.customerResponse || '');
     }
   }, [booking]);
+
+  // Fetch time slots when hall or date changes
+  useEffect(() => {
+    if (hall?.id && eventDate) {
+      fetchTimeSlots(hall.id, eventDate);
+    }
+  }, [hall?.id, eventDate]);
+
+  // Handle hall change
+  const handleHallChange = async (newHallId: string) => {
+    if (!booking) return;
+    
+    try {
+      // Find the selected hall
+      const selectedHall = halls.find(h => h.id === newHallId);
+      if (!selectedHall) return;
+
+      // Update local state
+      setHall(selectedHall);
+
+      // Fetch time slots for new hall
+      if (eventDate) {
+        await fetchTimeSlots(newHallId, eventDate);
+      }
+
+      // Update booking with new hall ID
+      const updatedBooking = {
+        ...booking,
+        hallId: newHallId,
+        updatedAt: new Date().toISOString()
+      };
+      
+      await bookingService.update(booking.id, updatedBooking);
+      
+      // Update local booking state
+      setBooking(updatedBooking);
+      if (clonedBooking) {
+        setClonedBooking(updatedBooking);
+      }
+      
+      console.log('Hall updated to:', selectedHall.name);
+    } catch (error) {
+      console.error('Failed to update hall:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to update hall',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  // Handle event type change
+  const handleEventTypeChange = async (newEventType: string) => {
+    if (!booking) return;
+    
+    try {
+      // Update local state
+      setEventType(newEventType);
+
+      // Update booking with new event type
+      const updatedBooking = {
+        ...booking,
+        eventType: newEventType,
+        updatedAt: new Date().toISOString()
+      };
+      
+      await bookingService.update(booking.id, updatedBooking);
+      
+      // Update local booking state
+      setBooking(updatedBooking);
+      if (clonedBooking) {
+        setClonedBooking(updatedBooking);
+      }
+      
+      console.log('Event type updated to:', newEventType);
+    } catch (error) {
+      console.error('Failed to update event type:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to update event type',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  // Handle time slot change - update total amount
+  const handleTimeSlotChange = async (newTimeSlot: Booking['timeSlot']) => {
+    if (!booking) return;
+    
+    try {
+      // Calculate new total amount based on time slot
+      const newTotalAmount = calculateTotalAmount(newTimeSlot);
+      
+      // Update local state
+      setTimeSlot(newTimeSlot);
+
+      // Update booking with new time slot and total amount
+      const updatedBooking = {
+        ...booking,
+        timeSlot: newTimeSlot,
+        totalAmount: newTotalAmount,
+        updatedAt: new Date().toISOString()
+      };
+      
+      await bookingService.update(booking.id, updatedBooking);
+      
+      // Update local booking state
+      setBooking(updatedBooking);
+      if (clonedBooking) {
+        setClonedBooking(updatedBooking);
+      }
+      
+      console.log(`Time slot updated to: ${newTimeSlot}, Total amount: ₹${newTotalAmount}`);
+      
+      toast({
+        title: 'Success',
+        description: `Time slot updated to ${newTimeSlot}. Total amount: ₹${newTotalAmount.toLocaleString()}`,
+      });
+    } catch (error) {
+      console.error('Failed to update time slot:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to update time slot',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  // Handle event date change
+  const handleEventDateChange = async (newEventDate: string) => {
+    if (!booking) return;
+    
+    try {
+      // Update local state
+      setEventDate(newEventDate);
+
+      // Fetch time slots for new date
+      if (hall?.id) {
+        await fetchTimeSlots(hall.id, newEventDate);
+      }
+
+      // Update booking with new event date
+      const updatedBooking = {
+        ...booking,
+        eventDate: newEventDate,
+        updatedAt: new Date().toISOString()
+      };
+      
+      await bookingService.update(booking.id, updatedBooking);
+      
+      // Update local booking state
+      setBooking(updatedBooking);
+      if (clonedBooking) {
+        setClonedBooking(updatedBooking);
+      }
+      
+      console.log('Event date updated to:', newEventDate);
+    } catch (error) {
+      console.error('Failed to update event date:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to update event date',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSubmitting(true);
+
+    try {
+      // Check if any updateable field has changed
+      const hasChanged =
+        customerName !== booking.customerName ||
+        customerEmail !== booking.customerEmail ||
+        customerPhone !== booking.customerPhone ||
+        eventDate !== formatDateForInput(booking.eventDate) ||
+        eventType !== booking.eventType ||
+        timeSlot !== booking.timeSlot ||
+        parseInt(guestCount) !== booking.guestCount ||
+        customerResponse !== booking.customerResponse ||
+        lastContactDate !== formatDateForInput(booking.lastContactDate);
+
+      // Update all updateable fields if any changed
+      if (hasChanged && clonedBooking) {
+        const updatedBooking = {
+          ...clonedBooking,
+          customerName,
+          customerEmail,
+          customerPhone,
+          eventDate,
+          eventType,
+          timeSlot,
+          guestCount: parseInt(guestCount),
+          customerResponse,
+          lastContactDate
+        };
+        await bookingService.update(booking.id, updatedBooking);
+      }
+
+      // Update booking status if changed
+      if (status !== booking.status) {
+        await bookingService.updateBookingStatus(booking.id, status, statusReason);
+      }
+
+      toast({
+        title: 'Success',
+        description: 'Booking updated successfully!',
+      });
+
+      navigate('/admin/bookings');
+    } catch (error) {
+      console.error('Error updating booking:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to update booking',
+        variant: 'destructive',
+      });
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  // Get current time slot price for display
+  const currentTimeSlotPrice = calculateTotalAmount(timeSlot);
 
   // Show loading state
   if (loading) {
@@ -169,56 +441,6 @@ const BookingEdit = () => {
     );
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSubmitting(true);
-
-    try {
-      // Check if main booking details have changed
-      const hasBookingDetailsChanged = 
-        eventDate !== booking.eventDate ||
-        timeSlot !== booking.timeSlot ||
-        parseInt(guestCount) !== booking.guestCount;
-
-      // Update main booking details if changed
-      if (hasBookingDetailsChanged && clonedBooking) {
-        const updatedBooking = {
-          ...clonedBooking,
-          eventDate,
-          timeSlot,
-          guestCount: parseInt(guestCount)
-        };
-        await bookingService.update(booking.id, updatedBooking);
-      }
-
-      // Update booking status if changed
-      if (status !== booking.status) {
-        await bookingService.updateBookingStatus(booking.id, status, statusReason);
-      }
-      
-      // Update communication if provided
-      if (lastContactDate || customerResponse) {
-        await bookingService.updateBookingCommunication(booking.id, lastContactDate, customerResponse);
-      }
-      
-      toast({
-        title: 'Success',
-        description: 'Booking updated successfully!',
-      });
-      
-      navigate('/admin/bookings');
-    } catch (error) {
-      console.error('Error updating booking:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to update booking',
-        variant: 'destructive',
-      });
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -246,10 +468,9 @@ const BookingEdit = () => {
                   value={customerName}
                   onChange={(e) => setCustomerName(e.target.value)}
                   required
-                  disabled
                 />
               </div>
-              
+
               <div className="space-y-2">
                 <Label htmlFor="customerEmail">Email</Label>
                 <Input
@@ -258,7 +479,6 @@ const BookingEdit = () => {
                   value={customerEmail}
                   onChange={(e) => setCustomerEmail(e.target.value)}
                   required
-                  disabled
                 />
               </div>
             </div>
@@ -270,7 +490,6 @@ const BookingEdit = () => {
                 value={customerPhone}
                 onChange={(e) => setCustomerPhone(e.target.value)}
                 required
-                disabled
               />
             </div>
           </CardContent>
@@ -279,17 +498,32 @@ const BookingEdit = () => {
         <Card>
           <CardHeader>
             <CardTitle>Event Details</CardTitle>
-            <p className="text-sm text-gray-600">You can edit the event date, time slot, and guest count below</p>
+            <p className="text-sm text-gray-600">You can edit the event details below</p>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="hall">Hall</Label>
-                <Input
-                  id="hall"
-                  value={hall?.name || 'Loading...'}
-                  disabled
-                />
+                <Select 
+                  value={hall?.id || ''} 
+                  onValueChange={handleHallChange}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select hall" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {halls.map((hallItem) => (
+                      <SelectItem key={hallItem.id} value={hallItem.id}>
+                        {hallItem.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {hall && (
+                  <p className="text-sm text-gray-600 mt-1">
+                    Current: {hall.name}
+                  </p>
+                )}
               </div>
               
               <div className="space-y-2">
@@ -298,7 +532,7 @@ const BookingEdit = () => {
                   id="eventDate"
                   type="date"
                   value={eventDate}
-                  onChange={(e) => setEventDate(e.target.value)}
+                  onChange={(e) => handleEventDateChange(e.target.value)}
                   required
                 />
               </div>
@@ -307,25 +541,40 @@ const BookingEdit = () => {
             <div className="grid grid-cols-3 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="eventType">Event Type</Label>
-                <Input
-                  id="eventType"
-                  value={eventType}
-                  onChange={(e) => setEventType(e.target.value)}
-                  required
-                  disabled
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="timeSlot">Time Slot</Label>
-                <Select value={timeSlot} onValueChange={(value) => setTimeSlot(value as Booking['timeSlot'])}>
+                <Select 
+                  value={eventType} 
+                  onValueChange={handleEventTypeChange}
+                >
                   <SelectTrigger>
-                    <SelectValue placeholder="Select time slot" />
+                    <SelectValue placeholder="Select event type" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="morning">Morning</SelectItem>
-                    <SelectItem value="evening">Evening</SelectItem>
-                    <SelectItem value="fullday">Full Day</SelectItem>
+                    {availableEventTypes.map((type) => (
+                      <SelectItem key={type} value={type}>
+                        {type}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              {/* Time Slot Select with dynamic pricing */}
+              <div className="space-y-2">
+                <Label htmlFor="timeSlot">Time Slot</Label>
+                <Select 
+                  value={timeSlot} 
+                  onValueChange={handleTimeSlotChange}
+                  disabled={!hall || !eventDate || timeSlots.length === 0}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder={timeSlots.length === 0 ? "No slots available" : "Select time slot"} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {timeSlots?.map((slot) => (
+                      <SelectItem key={slot.value} value={slot.value}>
+                        {slot.label} - ₹{slot.price.toLocaleString()}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>

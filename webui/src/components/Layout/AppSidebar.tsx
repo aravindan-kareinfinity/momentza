@@ -28,15 +28,15 @@ import {
 import { NavLink, useLocation } from "react-router-dom";
 
 const items = [
-  {
+  /*{
     title: "Dashboard",
     url: "/admin",
     icon: Home,
-  },
+  },*/
   {
-    title: "Statistics",
+    title: "Dashboard",
     url: "/admin/statistics",
-    icon: BarChart3,
+    icon: Home,
   },
   {
     title: "Halls",

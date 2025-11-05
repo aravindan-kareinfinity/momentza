@@ -5,6 +5,7 @@ using System.Reflection;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Http;
 using Momantza.Middleware;
+using System.Linq;
 
 namespace Momantza.Services
 {
@@ -33,10 +34,31 @@ namespace Momantza.Services
         protected string GetCurrentOrganizationId()
         {
             var context = _httpContextAccessor.HttpContext;
-            if (context?.Items["Organization"] is OrganizationContext orgContext)
+            if (context == null) return string.Empty;
+
+            // 1) Prefer explicit OrganizationId item (string or Guid)
+            if (context.Items.TryGetValue("OrganizationId", out var orgIdObj) && orgIdObj != null)
             {
-                return orgContext.OrganizationId.ToString();
+                if (orgIdObj is string s && !string.IsNullOrEmpty(s)) return s;
+                if (orgIdObj is Guid g) return g.ToString();
             }
+
+            // 2) Fallback to Organization object
+            if (context.Items.TryGetValue("Organization", out var orgObj) && orgObj != null)
+            {
+                // Middleware's OrganizationContext lives in Momantza.Middleware
+                if (orgObj is Momantza.Middleware.OrganizationContext oc)
+                    return oc.OrganizationId.ToString();
+
+                if (orgObj is Guid g) return g.ToString();
+                if (orgObj is string s && !string.IsNullOrEmpty(s)) return s;
+            }
+
+            // 3) Try common JWT claims
+            var claim = context.User?.Claims.FirstOrDefault(c =>
+                c.Type == "organizationId" || c.Type == "org" || c.Type == "organization")?.Value;
+            if (!string.IsNullOrEmpty(claim)) return claim;
+
             return string.Empty;
         }
 
@@ -405,4 +427,4 @@ namespace Momantza.Services
         protected abstract (string sql, Dictionary<string, object?> parameters, List<string> jsonFields) GenerateInsertSql(T entity);
         protected abstract (string sql, Dictionary<string, object?> parameters, List<string> jsonFields) GenerateUpdateSql(T entity);
     }
-} 
+}

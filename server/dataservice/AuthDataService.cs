@@ -1,11 +1,14 @@
-﻿using Microsoft.IdentityModel.Tokens;
-using Momantza.Middleware;
+﻿using Npgsql;
+using Microsoft.Extensions.Configuration;
 using Momantza.Models;
-using Npgsql;
+using System.Text.Json;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Security.Cryptography;
 using System.Text;
+using Microsoft.IdentityModel.Tokens;
+using System.Security.Cryptography;
+using Microsoft.AspNetCore.Http;
+using Momantza.Middleware;
 
 namespace Momantza.Services
 {
@@ -70,12 +73,12 @@ namespace Momantza.Services
             }
         }
 
+        // Replace the LoginAsync method implementation with this updated version
         public async Task<Users?> LoginAsync(string email, string password)
         {
             try
             {
                 var orgId = GetCurrentOrganizationId();
-
                 if (string.IsNullOrEmpty(orgId))
                 {
                     Console.WriteLine("No organization ID found in context");
@@ -84,18 +87,52 @@ namespace Momantza.Services
 
                 var user = await _userDataService.GetByEmailAndOrganizationAsync(email, orgId);
 
-                if (user != null && VerifyPassword(password, user.Password))
+                if (user != null)
                 {
-                    // Generate JWT token for the user
-                    var token = await GenerateTokenAsync(user);
-                    if (!string.IsNullOrEmpty(token))
+                    // First try normal verification (works for bcrypt hashes)
+                    var passwordVerified = VerifyPassword(password, user.Password);
+
+                    // If verification failed and stored password looks like plain text, try direct compare and migrate
+                    if (!passwordVerified && !string.IsNullOrEmpty(user.Password) && !user.Password.StartsWith("$2"))
                     {
-                        return user;
+                        if (password == user.Password)
+                        {
+                            // Successful plain-text match -> migrate to bcrypt
+                            try
+                            {
+                                var newHashed = HashPassword(password);
+                                var updated = await _userDataService.UpdatePasswordAsync(user.Id, newHashed);
+                                if (updated)
+                                {
+                                    user.Password = newHashed; // keep in-memory consistent
+                                    passwordVerified = true;
+                                    Console.WriteLine($"Migrated plaintext password for user {user.Email} to bcrypt.");
+                                }
+                                else
+                                {
+                                    Console.WriteLine($"Failed to update hashed password for user {user.Email}.");
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                Console.WriteLine($"Error migrating password for {user.Email}: {ex.Message}");
+                            }
+                        }
+                    }
+
+                    if (passwordVerified)
+                    {
+                        // Generate JWT token for the user
+                        var token = await GenerateTokenAsync(user);
+                        if (!string.IsNullOrEmpty(token))
+                        {
+                            return user;
+                        }
                     }
                 }
-                else if (user == null)
+                else
                 {
-                    // Check if there are any users for the current organization
+                    // existing logic for no user: create admin on first-run per org
                     var existingUsers = await _userDataService.GetByOrganizationAsync(orgId);
                     if (!existingUsers.Any())
                     {
@@ -301,11 +338,8 @@ namespace Momantza.Services
                     // Hash the new password
                     var hashedNewPassword = HashPassword(newPassword);
 
-                    // Update user with new hashed password
-                    user.Password = hashedNewPassword;
-                    user.UpdatedAt = DateTime.UtcNow;
-
-                    var success = await _userDataService.UpdateAsync(user);
+                    // Update only the password using the new user-data-service API
+                    var success = await _userDataService.UpdatePasswordAsync(userId, hashedNewPassword);
                     return success;
                 }
 
@@ -361,16 +395,13 @@ namespace Momantza.Services
                     return null; // User already exists in this organization
                 }
 
-                // Hash the password
-                var hashedPassword = HashPassword(password);
-
-                // Create new user
+                // Create new user (pass plain password, hashing is handled by IUserDataService.CreateUserAsync)
                 var newUser = new Users
                 {
                     Id = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds().ToString(),
                     Email = email,
                     Name = name,
-                    Password = hashedPassword,
+                    Password = password, // plain here — CreateUserAsync will hash
                     OrganizationId = orgId, // Always use organization ID from context
                     Role = "user", // Default role
                     CreatedAt = DateTime.UtcNow,
@@ -380,13 +411,9 @@ namespace Momantza.Services
                 // Ensure organization ID is set from context
                 AssignOrganizationIdIfNeeded(newUser);
 
-                var success = await _userDataService.CreateAsync(newUser);
-                if (!success)
-                {
-                    return null;
-                }
-
-                return newUser;
+                // Use CreateUserAsync so password is hashed centrally
+                var createdUser = await _userDataService.CreateUserAsync(newUser);
+                return createdUser;
             }
             catch (Exception ex)
             {
@@ -443,12 +470,26 @@ namespace Momantza.Services
         // Helper method to verify password hash using BCrypt
         private bool VerifyPassword(string password, string hashedPassword)
         {
+            if (string.IsNullOrEmpty(password) || string.IsNullOrEmpty(hashedPassword))
+                return false;
+
+            // Quick validation: bcrypt hashes start with "$2" ($2a$, $2b$, $2y$, ...).
+            // If value doesn't look like a bcrypt hash treat it as invalid (avoid exception).
+            if (!hashedPassword.StartsWith("$2"))
+                return false;
+
             try
             {
                 return BCrypt.Net.BCrypt.Verify(password, hashedPassword);
             }
-            catch
+            catch (BCrypt.Net.SaltParseException)
             {
+                // Malformed salt/hash — treat as invalid credentials
+                return false;
+            }
+            catch (Exception)
+            {
+                // Any other error — be safe and treat as failed verification
                 return false;
             }
         }
@@ -609,13 +650,13 @@ namespace Momantza.Services
         {
             try
             {
-                // Create admin user with default credentials
+                // Create admin user with default credentials (pass plain password)
                 var adminUser = new Users
                 {
                     Id = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds().ToString(),
-                    Email = "admin", // Generate a unique email
+                    Email = "admin", // Generate a unique email if needed
                     Name = "Administrator",
-                    Password = HashPassword("Momantza"), // Default password
+                    Password = "Momantza", // plain here; CreateUserAsync will hash
                     OrganizationId = organizationId,
                     Role = "admin", // Admin role
                     CreatedAt = DateTime.UtcNow,
@@ -625,11 +666,11 @@ namespace Momantza.Services
                 // Ensure organization ID is set from context
                 AssignOrganizationIdIfNeeded(adminUser);
 
-                var success = await _userDataService.CreateAsync(adminUser);
-                if (success)
+                var created = await _userDataService.CreateUserAsync(adminUser);
+                if (created != null)
                 {
                     Console.WriteLine($"Created admin user for organization: {organizationId}");
-                    return adminUser;
+                    return created;
                 }
 
                 return null;

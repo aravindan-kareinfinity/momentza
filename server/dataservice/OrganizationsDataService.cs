@@ -207,6 +207,8 @@ namespace Momantza.Services
                 if (!string.IsNullOrEmpty(updates.Name)) existing.Name = updates.Name;
                 if (!string.IsNullOrEmpty(updates.ContactPerson)) existing.ContactPerson = updates.ContactPerson;
                 if (!string.IsNullOrEmpty(updates.ContactNo)) existing.ContactNo = updates.ContactNo;
+                if (!string.IsNullOrEmpty(updates.Address)) existing.Address = updates.Address;
+                if (!string.IsNullOrEmpty(updates.About)) existing.About = updates.About;
                 if (!string.IsNullOrEmpty(updates.DefaultDomain)) existing.DefaultDomain = updates.DefaultDomain;
                 if (!string.IsNullOrEmpty(updates.CustomDomain)) existing.CustomDomain = updates.CustomDomain;
                 if (!string.IsNullOrEmpty(updates.Logo)) existing.Logo = updates.Logo;

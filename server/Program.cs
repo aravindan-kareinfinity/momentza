@@ -12,6 +12,7 @@ builder.Services.AddControllersWithViews()
     {
         options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase; // Use camelCase
     });
+
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddSession(options =>
 {
@@ -25,22 +26,10 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
     {
-        policy.WithOrigins(
-                "http://localhost:3000",
-                "http://localhost:3001",
-                "http://localhost:4173",
-                "https://localhost:3000",
-                "https://localhost:3001",
-                "http://localhost:8080",
-                "https://localhost:8080",
-                "http://192.168.1.21:8080",
-                "https://192.168.1.21:8080", "http://192.168.1.13:8080",
-        "https://192.168.1.13:8080",
-        "http://localhost:8080", "*"
-              )
-              .AllowAnyMethod()
-              .AllowAnyHeader()
-              .AllowCredentials();
+        policy
+            .AllowAnyOrigin()
+            .AllowAnyMethod()
+            .AllowAnyHeader(); // allow X-Organization-Id
     });
 });
 
@@ -60,13 +49,16 @@ builder.Services.AddAuthentication("Bearer")
     });
 
 builder.Services.AddSingleton<IOrganizationResolver, DomainOrganizationResolver>();
+
+// Return an empty OrganizationContext when not present instead of throwing.
 builder.Services.AddScoped<OrganizationContext>(_ =>
 {
     var context = _.GetRequiredService<IHttpContextAccessor>().HttpContext;
-    return context?.Items["Organization"] as OrganizationContext ?? throw new UnauthorizedAccessException();
+    // return existing or an empty OrganizationContext (avoid throwing)
+    return context?.Items["Organization"] as OrganizationContext ?? new OrganizationContext();
 });
 
-// Register all data services with IConfiguration dependency
+// Register data services
 builder.Services.AddScoped<IAuthDataService, AuthDataService>();
 builder.Services.AddScoped<IOrganizationsDataService, OrganizationsDataService>();
 builder.Services.AddScoped<IUserDataService, UserDataService>();
@@ -85,17 +77,22 @@ builder.Services.AddScoped<ICommunicationDataService, CommunicationDataService>(
 builder.Services.AddScoped<ITicketDataService, TicketDataService>();
 builder.Services.AddScoped<IInventoryDataService, InventoryDataService>();
 builder.Services.AddScoped<IStatisticsDataService, StatisticsDataService>();
+builder.Services.AddScoped<IHandoverDataService, HandoverDataService>();
+builder.Services.AddHttpContextAccessor();
 
 var app = builder.Build();
 
-// Correct middleware order
+// Middleware ordering: resolve organization BEFORE authentication/authorization
 app.UseStaticFiles();
-app.UseRouting();
+
 app.UseCors("AllowAll");
+
+// <-- run resolver early so HttpContext.Items["Organization"] is set for controllers/services
+app.UseMiddleware<OrganizationResolverMiddleware>();
+app.UseRouting();
+app.UseSession();
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseSession();
-app.UseMiddleware<OrganizationResolverMiddleware>();
 
 // Configure MVC routing
 app.MapControllerRoute(

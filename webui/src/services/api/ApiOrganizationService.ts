@@ -147,7 +147,7 @@ export class ApiOrganizationService implements IOrganizationService {
 
   async getById(id: string): Promise<Organization | null> {
     try {
-      return await apiClient.get<Organization>(`/api/organizations/${id}`);
+      return await apiClient.get<Organization>(`/api/organizations/by-id/${id}`);
     } catch (error) {
       if (error.status === 404) {
         return null;

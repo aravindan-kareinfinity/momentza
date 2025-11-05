@@ -57,7 +57,7 @@ namespace Momantza.Controllers
                 {
                     return BadRequest(ModelState);
                 }
-                user.Password =  BCrypt.Net.BCrypt.HashPassword(user.Password, BCrypt.Net.BCrypt.GenerateSalt(12));
+                user.Password = BCrypt.Net.BCrypt.HashPassword(user.Password, BCrypt.Net.BCrypt.GenerateSalt(12));
                 var success = await _userDataService.CreateUserAsync(user);
                 if (success == null)
                 {
@@ -76,7 +76,7 @@ namespace Momantza.Controllers
         {
             try
             {
-                var success = await _userDataService.UpdateUserAsync(user.Id,user);
+                var success = await _userDataService.UpdateUserAsync(user.Id, user);
                 if (success == null)
                 {
                     return NotFound(new { message = "User not found" });
@@ -139,4 +139,4 @@ namespace Momantza.Controllers
             }
         }
     }
-} 
+}

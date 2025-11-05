@@ -14,5 +14,6 @@ namespace Momantza.Models
         public string? EventType { get; set; }
         
         public string? HallId { get; set; }
+        public string? OrganizationId { get; internal set; }
     }
 } 

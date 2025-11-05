@@ -42,6 +42,7 @@ namespace Momantza.Services
                     booking_id VARCHAR(50),
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                    organizationid VARCHAR(50);
                 );";
 
             using var connection = GetConnectionAsync().Result;
@@ -90,8 +91,8 @@ namespace Momantza.Services
             ticket.UpdatedAt = DateTime.UtcNow;
 
             var sql = @"
-                INSERT INTO tickets (id, title, description, category, status, assigned_to, priority, booking_id, created_at, updated_at)
-                VALUES (@id, @title, @description, @category, @status, @assignedTo, @priority, @bookingId, @createdAt, @updatedAt)";
+                INSERT INTO tickets (id, title, description, category, status, assigned_to, priority, booking_id, created_at, updated_at,organizationid)
+                VALUES (@id, @title, @description, @category, @status, @assignedTo, @priority, @bookingId, @createdAt, @updatedAt,@organizationId)";
 
             using var connection = await GetConnectionAsync();
             using var command = new NpgsqlCommand(sql, connection);
@@ -105,6 +106,7 @@ namespace Momantza.Services
             command.Parameters.AddWithValue("@bookingId", ticket.BookingId ?? (object)DBNull.Value);
             command.Parameters.AddWithValue("@createdAt", ticket.CreatedAt);
             command.Parameters.AddWithValue("@updatedAt", ticket.UpdatedAt);
+            command.Parameters.AddWithValue("@organizationId", ticket.OrganizationId ?? (object)DBNull.Value);
 
             await command.ExecuteNonQueryAsync();
             return ticket;
@@ -118,7 +120,7 @@ namespace Momantza.Services
                 UPDATE tickets 
                 SET title = @title, description = @description, category = @category, 
                     status = @status, assigned_to = @assignedTo, priority = @priority, 
-                    booking_id = @bookingId, updated_at = @updatedAt
+                    booking_id = @bookingId, updated_at = @updatedAt , organizationid = @organizationId,
                 WHERE id = @id";
 
             using var connection = await GetConnectionAsync();
@@ -132,6 +134,7 @@ namespace Momantza.Services
             command.Parameters.AddWithValue("@priority", ticket.Priority);
             command.Parameters.AddWithValue("@bookingId", ticket.BookingId ?? (object)DBNull.Value);
             command.Parameters.AddWithValue("@updatedAt", ticket.UpdatedAt);
+            command.Parameters.AddWithValue("@organizationId", ticket.OrganizationId ?? (object)DBNull.Value);
 
             var rowsAffected = await command.ExecuteNonQueryAsync();
             if (rowsAffected == 0)
@@ -158,7 +161,7 @@ namespace Momantza.Services
         {
             var orgId = GetCurrentOrganizationId();
             var tickets = new List<TicketItem>();
-            var sql = "SELECT * FROM tickets WHERE booking_id = @bookingId AND organizationid = @organizationId ORDER BY created_at DESC";
+            var sql = "SELECT * FROM tickets WHERE booking_id = @bookingId OR organizationid = @organizationId ORDER BY created_at DESC";
 
             using var connection = await GetConnectionAsync();
             using var command = new NpgsqlCommand(sql, connection);
@@ -248,7 +251,8 @@ namespace Momantza.Services
                 Priority = reader["priority"].ToString() ?? "",
                 BookingId = reader["booking_id"]?.ToString(),
                 CreatedAt = reader["created_at"] != DBNull.Value ? Convert.ToDateTime(reader["created_at"]) : DateTime.UtcNow,
-                UpdatedAt = reader["updated_at"] != DBNull.Value ? Convert.ToDateTime(reader["updated_at"]) : DateTime.UtcNow
+                UpdatedAt = reader["updated_at"] != DBNull.Value ? Convert.ToDateTime(reader["updated_at"]) : DateTime.UtcNow,
+                OrganizationId = reader["organizationid"].ToString() ?? ""
             };
         }
 
