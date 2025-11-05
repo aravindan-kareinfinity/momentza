@@ -5,8 +5,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
+import { Switch } from '@/components/ui/switch';
 import { Plus, Edit, Trash2, Save, Settings as SettingsIcon, Building, Users, CreditCard, Package, Tag, FileText } from 'lucide-react';
 import { authService, billingService, servicesService, settingsService, organizationService, galleryService } from '@/services/ServiceFactory';
 import { useServiceMutation } from '@/hooks/useService';
@@ -66,7 +67,6 @@ const Settings = () => {
           settingsService.getInventoryItems(),
           settingsService.getTicketCategories()
         ]);
-        
         setBillingData(billingSettings);
         setServices(Array.isArray(servicesData) ? servicesData : []);
         setEventTypes(Array.isArray(eventTypesData) ? eventTypesData : []);
@@ -86,14 +86,14 @@ const Settings = () => {
   }, []);
 
   // Local state for form data
-  const [orgData, setOrgData] = useState({
-    name: '',
-    contactPerson: '',
-    contactNo: '',
-    address: '',
-    about: '',
-    defaultDomain: '',
-    customDomain: ''
+  const [organizationData, setOrganizationData] = useState({
+    name: 'dhinesh',
+    contactPerson: 'Raja',
+    contactNo: '9865741237',
+    address: 'cuddalore Dist',
+    about: 'Mandabam.Com',
+    defaultDomain: 'www.local.com',
+    customDomain: 'www.local.com'
   });
 
   const [logoFile, setLogoFile] = useState<File | null>(null);
@@ -117,7 +117,7 @@ const Settings = () => {
       console.log('Organization data loaded:', organization);
       console.log('Organization logo:', organization.logo);
       
-      setOrgData({
+      setOrganizationData({
         name: organization.name,
         contactPerson: organization.contactPerson,
         contactNo: organization.contactNo,
@@ -176,6 +176,11 @@ const Settings = () => {
       Promise.resolve(servicesService.updateService(data.id, data.service))
   );
 
+  const updateServiceStatusMutation = useServiceMutation(
+    (data: { id: string; updates: Partial<ServiceItem> }) => 
+      Promise.resolve(servicesService.updateService(data.id, data.updates))
+  );
+
   const deleteServiceMutation = useServiceMutation(
     (id: string) => Promise.resolve(servicesService.deleteService(id))
   );
@@ -198,7 +203,8 @@ const Settings = () => {
     name: '',
     hsnCode: '',
     taxPercentage: 18,
-    basePrice: 0
+    basePrice: 0,
+    isActive: true
   });
   const [editingService, setEditingService] = useState<ServiceItem | null>(null);
 
@@ -234,8 +240,6 @@ const Settings = () => {
         name: organization.name,
         contactPerson: organization.contactPerson,
         contactNo: organization.contactNo,
-        address:organization.address,
-        about:organization.about,
         defaultDomain: organization.defaultDomain,
         customDomain: organization.customDomain,
         logo: uploadedImage.id,
@@ -243,13 +247,13 @@ const Settings = () => {
       };
       
       console.log('Sending update data:', updateData);
-      await updateOrganizationMutation.execute(updateData);
-      await refreshOrganization();
-      
-      toast({
-        title: 'Success',
-        description: 'Logo uploaded successfully',
-      });
+      const res = await updateOrganizationMutation.execute(updateData as any);
+      if (!res) {
+        toast({ title: 'Error', description: 'Failed to update organization with logo', variant: 'destructive' });
+      } else {
+        await refreshOrganization();
+        toast({ title: 'Success', description: 'Logo uploaded successfully' });
+      }
     } catch (error) {
       console.error('Failed to upload logo:', error);
       toast({
@@ -263,15 +267,35 @@ const Settings = () => {
   };
 
   const handleSaveOrganization = async () => {
-    if (organization?.id) {
+    if (!organization?.id) {
+      toast({ title: 'Error', description: 'No organization available to update', variant: 'destructive' });
+      return;
+    }
+
+    try {
       // Include logo in the update if it exists
       const updateData = {
-        ...orgData,
+        ...organizationData,
         logo: organization.logo // Include current logo
       };
-      await updateOrganizationMutation.execute(updateData);
+
+      console.log('Sending organization update:', updateData);
+      const res = await updateOrganizationMutation.execute(updateData as any);
+      if (!res) {
+        toast({ title: 'Error', description: 'Failed to save organization', variant: 'destructive' });
+        return;
+      }
+
+      // Refresh and update UI
       await refreshOrganization();
-      console.log('Organization updated:', updateData);
+      // Reflect saved data in local form state
+      setOrganizationData(prev => ({ ...prev, name: res.name || prev.name, contactPerson: res.contactPerson || prev.contactPerson, contactNo: res.contactNo || prev.contactNo, defaultDomain: res.defaultDomain || prev.defaultDomain, customDomain: res.customDomain || prev.customDomain }));
+
+      toast({ title: 'Success', description: 'Organization updated successfully' });
+      console.log('Organization updated:', res);
+    } catch (err) {
+      console.error('Error saving organization:', err);
+      toast({ title: 'Error', description: 'Failed to save organization', variant: 'destructive' });
     }
   };
 
@@ -288,29 +312,64 @@ const Settings = () => {
   };
 
   const handleAddService = async () => {
-    if (editingService) {
-      // Update with full entity
-      const updatedService = {
-        ...editingService,
-        ...newService
-      };
-      await updateServiceMutation.execute({
-        id: editingService.id,
-        service: updatedService
-      });
-      setEditingService(null);
-    } else {
-      await createServiceMutation.execute(newService);
+    if (!organization?.id) {
+      toast({ title: 'Error', description: 'No organization available', variant: 'destructive' });
+      return;
     }
-    // Refresh services data
     try {
+      if (editingService) {
+        // Update with full entity
+        const updatedService = {
+          ...editingService,
+          ...newService,
+          organizationId: organization.id
+        };
+        await updateServiceMutation.execute({
+          id: editingService.id,
+          service: updatedService
+        });
+        toast({ title: 'Success', description: 'Service updated successfully' });
+        setEditingService(null);
+      } else {
+        const serviceToCreate = {
+          ...newService,
+          organizationId: organization.id,
+          isActive: newService.isActive ?? true
+        };
+        await createServiceMutation.execute(serviceToCreate);
+        toast({ title: 'Success', description: 'Service added successfully' });
+      }
+      // Refresh services data
+      try {
+        const updatedServices = await servicesService.getAllServices();
+        setServices(updatedServices || []);
+        console.log('Refreshed services:', updatedServices);
+      } catch (err) {
+        console.error('Failed to refresh services data:', err);
+        toast({ title: 'Warning', description: 'Service saved but failed to refresh list', variant: 'destructive' });
+      }
+    } catch (err) {
+      console.error('Failed to save service:', err);
+      toast({ title: 'Error', description: 'Failed to save service', variant: 'destructive' });
+    }
+    setNewService({ name: '', hsnCode: '', taxPercentage: 18, basePrice: 0, isActive: true });
+    setShowServiceDialog(false);
+  };
+
+  const handleToggleServiceStatus = async (id: string, isActive: boolean) => {
+    try {
+      await updateServiceStatusMutation.execute({
+        id,
+        updates: { isActive }
+      });
+      toast({ title: 'Success', description: `Service ${isActive ? 'activated' : 'deactivated'} successfully` });
+      // Refresh services data
       const updatedServices = await servicesService.getAllServices();
       setServices(updatedServices || []);
     } catch (err) {
-      console.error('Failed to refresh services data:', err);
+      console.error('Failed to update service status:', err);
+      toast({ title: 'Error', description: 'Failed to update service status', variant: 'destructive' });
     }
-    setNewService({ name: '', hsnCode: '', taxPercentage: 18, basePrice: 0 });
-    setShowServiceDialog(false);
   };
 
   const handleEditService = (service: ServiceItem) => {
@@ -318,7 +377,8 @@ const Settings = () => {
       name: service.name,
       hsnCode: service.hsnCode,
       taxPercentage: service.taxPercentage,
-      basePrice: service.basePrice
+      basePrice: service.basePrice,
+      isActive: service.isActive ?? true
     });
     setEditingService(service);
     setShowServiceDialog(true);
@@ -419,7 +479,7 @@ const Settings = () => {
 
   const openAddServiceDialog = () => {
     setEditingService(null);
-    setNewService({ name: '', hsnCode: '', taxPercentage: 18, basePrice: 0 });
+    setNewService({ name: '', hsnCode: '', taxPercentage: 18, basePrice: 0, isActive: true });
     setShowServiceDialog(true);
   };
 
@@ -537,32 +597,32 @@ const Settings = () => {
                   <Label htmlFor="orgName">Organization Name</Label>
                   <Input
                     id="orgName"
-                    value={orgData.name}
-                    onChange={(e) => setOrgData(prev => ({ ...prev, name: e.target.value }))}
+                    value={organizationData.name}
+                    onChange={(e) => setOrganizationData(prev => ({ ...prev, name: e.target.value }))}
                   />
                 </div>
                 <div>
                   <Label htmlFor="contactPerson">Contact Person</Label>
                   <Input
                     id="contactPerson"
-                    value={orgData.contactPerson}
-                    onChange={(e) => setOrgData(prev => ({ ...prev, contactPerson: e.target.value }))}
+                    value={organizationData.contactPerson}
+                    onChange={(e) => setOrganizationData(prev => ({ ...prev, contactPerson: e.target.value }))}
                   />
                 </div>
                 <div>
                   <Label htmlFor="contactNo">Contact Number</Label>
                   <Input
                     id="contactNo"
-                    value={orgData.contactNo}
-                    onChange={(e) => setOrgData(prev => ({ ...prev, contactNo: e.target.value }))}
+                    value={organizationData.contactNo}
+                    onChange={(e) => setOrganizationData(prev => ({ ...prev, contactNo: e.target.value }))}
                   />
                 </div>
                 <div>
                   <Label htmlFor="address">Address</Label>
                   <Input
                     id="address"
-                    value={orgData.address}
-                    onChange={(e) => setOrgData(prev => ({ ...prev, address: e.target.value }))}
+                    value={organizationData.address}
+                    onChange={(e) => setOrganizationData(prev => ({ ...prev, address: e.target.value }))}
                   />
                 </div>
               </div>
@@ -571,8 +631,8 @@ const Settings = () => {
                 <Label htmlFor="about">About</Label>
                 <Textarea
                   id="about"
-                  value={orgData.about}
-                  onChange={(e) => setOrgData(prev => ({ ...prev, about: e.target.value }))}
+                  value={organizationData.about}
+                  onChange={(e) => setOrganizationData(prev => ({ ...prev, about: e.target.value }))}
                   placeholder="Tell us about your organization"
                 />
               </div>
@@ -582,16 +642,16 @@ const Settings = () => {
                   <Label htmlFor="defaultDomain">Default Domain</Label>
                   <Input
                     id="defaultDomain"
-                    value={orgData.defaultDomain}
-                    onChange={(e) => setOrgData(prev => ({ ...prev, defaultDomain: e.target.value }))}
+                    value={organizationData.defaultDomain}
+                    onChange={(e) => setOrganizationData(prev => ({ ...prev, defaultDomain: e.target.value }))}
                   />
                 </div>
                 <div>
                   <Label htmlFor="customDomain">Custom Domain</Label>
                   <Input
                     id="customDomain"
-                    value={orgData.customDomain}
-                    onChange={(e) => setOrgData(prev => ({ ...prev, customDomain: e.target.value }))}
+                    value={organizationData.customDomain}
+                    onChange={(e) => setOrganizationData(prev => ({ ...prev, customDomain: e.target.value }))}
                     placeholder="yourdomain.com"
                   />
                 </div>
@@ -751,12 +811,16 @@ const Settings = () => {
                 {safeServices?.map((service) => (
                   <div key={service.id} className="flex justify-between items-center p-3 border rounded">
                     <div className="flex-1">
-                      <div className="font-medium">{service.name}</div>
+                      <div className="flex items-center justify-between">
+                        <div className="font-medium">{service.name}</div>
+                        
+                      </div>
                       <div className="text-sm text-gray-600">
                         HSN: {service.hsnCode} | Tax: {service.taxPercentage}% | Price: ₹{service.basePrice}
                       </div>
                     </div>
-                    <div className="flex gap-2">
+                    <div className="flex items-center gap-2">
+                      
                       <Button
                         size="sm"
                         variant="outline"
@@ -805,7 +869,11 @@ const Settings = () => {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Add New Item</DialogTitle>
+            <div />
           </DialogHeader>
+          <DialogDescription>
+            Create a new master data item. This will be available in the related dropdowns.
+          </DialogDescription>
           <div className="space-y-4">
             <div>
               <Label htmlFor="itemName">Name</Label>
@@ -840,7 +908,11 @@ const Settings = () => {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>{editingService ? 'Edit Service' : 'Add New Service'}</DialogTitle>
+            <div />
           </DialogHeader>
+          <DialogDescription>
+            Provide details for the service. These values are used for billing and invoices.
+          </DialogDescription>
           <div className="space-y-4">
             <div>
               <Label htmlFor="serviceName">Service Name</Label>
@@ -880,6 +952,7 @@ const Settings = () => {
                 placeholder="Enter base price"
               />
             </div>
+            
             <Button onClick={handleAddService} className="w-full">
               {editingService ? 'Update Service' : 'Add Service'}
             </Button>

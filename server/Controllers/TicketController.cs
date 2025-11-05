@@ -6,11 +6,11 @@ namespace Momantza.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class TicketController : ControllerBase
+    public class TicketsController : ControllerBase
     {
         private readonly ITicketDataService _ticketService;
 
-        public TicketController(ITicketDataService ticketService)
+        public TicketsController(ITicketDataService ticketService)
         {
             _ticketService = ticketService;
         }
@@ -103,7 +103,7 @@ namespace Momantza.Controllers
             }
         }
 
-        [HttpGet("booking/{bookingId}")]
+        [HttpGet("bookings/{bookingId}/tickets")]
         public async Task<ActionResult<List<TicketItem>>> GetByBookingId(string bookingId)
         {
             try

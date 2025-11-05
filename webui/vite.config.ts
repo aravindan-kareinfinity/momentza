@@ -25,6 +25,26 @@ export default defineConfig(({ mode }: { mode: string }) => ({
   server: {
     host: "::",
     port: 8080,
+    cors: true,
+    // ADD PROXY CONFIGURATION HERE
+    proxy: {
+      '/api': {
+        target: 'http://localhost:5212', // Your backend URL
+        changeOrigin: true,
+        secure: false,
+        configure: (proxy, _options) => {
+          proxy.on('error', (err, _req, _res) => {
+            console.log('proxy error', err);
+          });
+          proxy.on('proxyReq', (proxyReq, req, _res) => {
+            console.log('Sending Request to the Target:', req.method, req.url);
+          });
+          proxy.on('proxyRes', (proxyRes, req, _res) => {
+            console.log('Received Response from Target:', proxyRes.statusCode, req.url);
+          });
+        },
+      },
+    },
   },
   plugins: [
     react(),

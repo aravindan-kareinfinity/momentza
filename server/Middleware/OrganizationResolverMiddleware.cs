@@ -1,4 +1,8 @@
+﻿using System;
+using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 using Npgsql;
 
 namespace Momantza.Middleware
@@ -33,10 +37,10 @@ namespace Momantza.Middleware
             // Get host and extract subdomain and domain
             var host = context.Request.Host.Host.ToLower();
             var parts = host.Split('.');
-            
+
             string subdomain = "";
             string domain = "";
-            
+
             if (parts.Length >= 2)
             {
                 subdomain = parts[0]; // First part is subdomain
@@ -46,60 +50,55 @@ namespace Momantza.Middleware
             {
                 domain = host; // No subdomain, use full host as domain
             }
-            
-            // Store subdomain and domain in context for use by controllers
+
+            // Store subdomain and domain in context for use by resolver/controllers
             context.Items["Subdomain"] = subdomain;
             context.Items["Domain"] = domain;
-            
+
             // FIRST: Try to resolve organization from subdomain
             var org = await resolver.ResolveAsync(context);
-            
+
             // SECOND: If subdomain resolution failed, check URL path patterns
             if (org == null)
             {
-                var path = context.Request.Path.Value?.ToLower();
-                if (path != null)
+                var segments = context.Request.Path.Value?.Split(new[] {'/'}, StringSplitOptions.RemoveEmptyEntries);
+                if (segments != null && segments.Length >= 2 && segments[0].Equals("org", StringComparison.OrdinalIgnoreCase))
                 {
-                    var pathParts = path.Split('/');
-                    
-                    // Check for /org/{orgId} pattern
-                    if (path.StartsWith("/org/") && pathParts.Length >= 3 && !string.IsNullOrEmpty(pathParts[2]))
-                    {
-                        var orgIdFromUrl = pathParts[2];
-                        context.Items["OrganizationIdFromUrl"] = orgIdFromUrl;
-                        Console.WriteLine($"Organization ID found in URL (/org/ pattern): {orgIdFromUrl}");
-                        
-                        // Try to resolve organization again with URL-based ID
-                        org = await resolver.ResolveAsync(context);
-                    }
-                    // Check for direct UUID in root path (e.g., /{uuid})
-                    else if (pathParts.Length == 2 && !string.IsNullOrEmpty(pathParts[1]) && IsValidGuid(pathParts[1]))
-                    {
-                        var orgIdFromUrl = pathParts[1];
-                        context.Items["OrganizationIdFromUrl"] = orgIdFromUrl;
-                        Console.WriteLine($"Organization ID found in URL (direct UUID): {orgIdFromUrl}");
-                        
-                        // Try to resolve organization again with URL-based ID
-                        org = await resolver.ResolveAsync(context);
-                    }
+                    var orgIdFromUrl = segments[1];
+                    context.Items["OrganizationIdFromUrl"] = orgIdFromUrl;
+                    Console.WriteLine($"Organization ID found in URL (/org/ pattern): {orgIdFromUrl}");
+
+                    // Try to resolve organization again with URL-based ID
+                    org = await resolver.ResolveAsync(context);
+                }
+                // Check for direct UUID in root path (e.g., /{uuid})
+                else if (segments.Length == 1 && !string.IsNullOrEmpty(segments[0]) && IsValidGuid(segments[0]))
+                {
+                    var orgIdFromUrl = segments[0];
+                    context.Items["OrganizationIdFromUrl"] = orgIdFromUrl;
+                    Console.WriteLine($"Organization ID found in URL (direct UUID): {orgIdFromUrl}");
+
+                    // Try to resolve organization again with URL-based ID
+                    org = await resolver.ResolveAsync(context);
                 }
             }
             if (org != null)
             {
                 context.Items["Organization"] = org;
-                
+                // ensure a simple string id is always available
+                context.Items["OrganizationId"] = org.OrganizationId.ToString();
+
                 // Handle subdomain rerouting directly in middleware
                 if (!string.IsNullOrEmpty(subdomain) && context.Request.Path.Value == "/")
                 {
-                    // Redirect to frontend with organization ID in URL path
-                    var frontendUrl = $"http://192.168.1.13:8080/{org.OrganizationId}";
+                    var frontendUrl = $"http://{subdomain}.localhost:8080/{org.OrganizationId}";
                     Console.WriteLine($"Subdomain '{subdomain}' resolved to organization '{org.OrganizationId}'");
                     Console.WriteLine($"Redirecting to: {frontendUrl}");
                     context.Response.Redirect(frontendUrl);
                     return; // Stop processing, don't call _next
                 }
             }
-            
+
             await _next(context);
         }
     }
@@ -115,27 +114,30 @@ namespace Momantza.Middleware
 
         public async Task<OrganizationContext?> ResolveAsync(HttpContext context)
         {
-            // FIRST: Try subdomain-based resolution
-            var subdomain = context.Request.Host.Host;
-            
+            // Use the subdomain stored by the middleware (fallback to host)
+            var subdomainObj = context.Items["Subdomain"];
+            var subdomain = (subdomainObj as string) ?? context.Request.Host.Host ?? string.Empty;
+            subdomain = subdomain.ToLowerInvariant();
+
             if (!string.IsNullOrEmpty(subdomain))
             {
                 try
                 {
                     using var connection = new NpgsqlConnection(_config.GetConnectionString("DefaultConnection"));
                     await connection.OpenAsync();
-                    
+
                     var sql = "SELECT id, customdomain, name FROM organization WHERE lower(defaultdomain) LIKE @subdomainPattern OR lower(customdomain) LIKE @subdomainPattern LIMIT 1";
                     using var command = new NpgsqlCommand(sql, connection);
+                    // search lower-cased domain fields with a prefix match
                     command.Parameters.AddWithValue("@subdomainPattern", $"{subdomain}%");
-                    
+
                     using var reader = await command.ExecuteReaderAsync();
                     if (await reader.ReadAsync())
                     {
                         Console.WriteLine($"Organization found for subdomain '{subdomain}': {reader.GetString(0)}");
                         return new OrganizationContext
                         {
-                            OrganizationId = new Guid(reader.GetString(0)),
+                            OrganizationId = Guid.Parse(reader.GetString(0)),
                             Domain = reader.GetString(1)
                         };
                     }
@@ -145,7 +147,7 @@ namespace Momantza.Middleware
                     Console.WriteLine($"Error resolving organization for subdomain '{subdomain}': {ex.Message}");
                 }
             }
-            
+
             // SECOND: Fallback to URL-based resolution
             var orgIdFromUrl = context.Items["OrganizationIdFromUrl"]?.ToString();
             if (!string.IsNullOrEmpty(orgIdFromUrl))
@@ -154,18 +156,18 @@ namespace Momantza.Middleware
                 {
                     using var connection = new NpgsqlConnection(_config.GetConnectionString("DefaultConnection"));
                     await connection.OpenAsync();
-                    
+
                     var sql = "SELECT id, customdomain, name FROM organization WHERE id = @orgId LIMIT 1";
                     using var command = new NpgsqlCommand(sql, connection);
                     command.Parameters.AddWithValue("@orgId", Guid.Parse(orgIdFromUrl));
-                    
+
                     using var reader = await command.ExecuteReaderAsync();
                     if (await reader.ReadAsync())
                     {
                         Console.WriteLine($"Organization found for URL ID '{orgIdFromUrl}': {reader.GetString(0)}");
                         return new OrganizationContext
                         {
-                            OrganizationId = new Guid(reader.GetString(0)),
+                            OrganizationId = Guid.Parse(reader.GetString(0)),
                             Domain = reader.GetString(1)
                         };
                     }
@@ -175,9 +177,9 @@ namespace Momantza.Middleware
                     Console.WriteLine($"Error resolving organization for ID '{orgIdFromUrl}': {ex.Message}");
                 }
             }
-            
+
             return null;
         }
 
     }
-} 
+}

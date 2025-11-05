@@ -380,48 +380,6 @@
   },
   {
     "ContainingType": "Momantza.Controllers.BookingController",
-    "Method": "GetHallAvailability",
-    "RelativePath": "api/Booking/hall-availability/{hallId}",
-    "HttpMethod": "GET",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "hallId",
-        "Type": "System.String",
-        "IsRequired": true
-      },
-      {
-        "Name": "startDate",
-        "Type": "System.Nullable\u00601[[System.DateTime, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
-        "IsRequired": false
-      },
-      {
-        "Name": "endDate",
-        "Type": "System.Nullable\u00601[[System.DateTime, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
-        "IsRequired": false
-      }
-    ],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "Momantza.Controllers.BookingController",
-    "Method": "GetHallWithBookings",
-    "RelativePath": "api/Booking/hall-with-bookings/{hallId}",
-    "HttpMethod": "GET",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "hallId",
-        "Type": "System.String",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "Momantza.Controllers.BookingController",
     "Method": "GetByHall",
     "RelativePath": "api/Booking/hall/{hallId}",
     "HttpMethod": "GET",
@@ -434,16 +392,6 @@
         "IsRequired": true
       }
     ],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "Momantza.Controllers.BookingController",
-    "Method": "GetAllHallsWithBookings",
-    "RelativePath": "api/Booking/halls-with-bookings",
-    "HttpMethod": "GET",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [],
     "ReturnTypes": []
   },
   {
@@ -553,6 +501,101 @@
     "ReturnTypes": []
   },
   {
+    "ContainingType": "Momantza.Controllers.HandoverController",
+    "Method": "UpsertHandover",
+    "RelativePath": "api/bookings/{bookingId}/handover",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "bookingId",
+        "Type": "System.String",
+        "IsRequired": true
+      },
+      {
+        "Name": "request",
+        "Type": "Momantza.Models.HandoverRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Momantza.Controllers.HandoverController",
+    "Method": "UpsertHandover",
+    "RelativePath": "api/bookings/{bookingId}/handover",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "bookingId",
+        "Type": "System.String",
+        "IsRequired": true
+      },
+      {
+        "Name": "request",
+        "Type": "Momantza.Models.HandoverRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Momantza.Controllers.HandoverController",
+    "Method": "UpsertHandover",
+    "RelativePath": "api/bookings/{bookingId}/handover",
+    "HttpMethod": "PATCH",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "bookingId",
+        "Type": "System.String",
+        "IsRequired": true
+      },
+      {
+        "Name": "request",
+        "Type": "Momantza.Models.HandoverRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Momantza.Controllers.HandoverController",
+    "Method": "GetHandover",
+    "RelativePath": "api/bookings/{bookingId}/handover",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "bookingId",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Momantza.Controllers.HandoverController",
+    "Method": "DeleteHandover",
+    "RelativePath": "api/bookings/{bookingId}/handover",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "bookingId",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
     "ContainingType": "Momantza.Controllers.BookingController",
     "Method": "GetById",
     "RelativePath": "api/bookings/{id}",
@@ -644,48 +687,6 @@
   },
   {
     "ContainingType": "Momantza.Controllers.BookingController",
-    "Method": "GetHallAvailability",
-    "RelativePath": "api/bookings/hall-availability/{hallId}",
-    "HttpMethod": "GET",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "hallId",
-        "Type": "System.String",
-        "IsRequired": true
-      },
-      {
-        "Name": "startDate",
-        "Type": "System.Nullable\u00601[[System.DateTime, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
-        "IsRequired": false
-      },
-      {
-        "Name": "endDate",
-        "Type": "System.Nullable\u00601[[System.DateTime, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
-        "IsRequired": false
-      }
-    ],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "Momantza.Controllers.BookingController",
-    "Method": "GetHallWithBookings",
-    "RelativePath": "api/bookings/hall-with-bookings/{hallId}",
-    "HttpMethod": "GET",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "hallId",
-        "Type": "System.String",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "Momantza.Controllers.BookingController",
     "Method": "GetByHall",
     "RelativePath": "api/bookings/hall/{hallId}",
     "HttpMethod": "GET",
@@ -698,16 +699,6 @@
         "IsRequired": true
       }
     ],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "Momantza.Controllers.BookingController",
-    "Method": "GetAllHallsWithBookings",
-    "RelativePath": "api/bookings/halls-with-bookings",
-    "HttpMethod": "GET",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [],
     "ReturnTypes": []
   },
   {
@@ -3463,7 +3454,7 @@
       },
       {
         "Name": "serviceData",
-        "Type": "System.Object",
+        "Type": "Momantza.Models.ServiceItem",
         "IsRequired": true
       }
     ],
@@ -4054,6 +4045,16 @@
   },
   {
     "ContainingType": "Momantza.Controllers.StatisticsController",
+    "Method": "GetChartConfig",
+    "RelativePath": "api/Statistics/chart-config",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Momantza.Controllers.StatisticsController",
     "Method": "GetDashboardStatistics",
     "RelativePath": "api/Statistics/dashboard",
     "HttpMethod": "GET",
@@ -4080,6 +4081,134 @@
         "Name": "organizationId",
         "Type": "System.String",
         "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Momantza.Controllers.StatisticsController",
+    "Method": "GetMonthlyData",
+    "RelativePath": "api/Statistics/monthly",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "organizationId",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Momantza.Controllers.StatisticsController",
+    "Method": "GetAllStatistics",
+    "RelativePath": "api/Statistics/organizations/{organizationId}/all",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "organizationId",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Momantza.Controllers.StatisticsController",
+    "Method": "GetBasicStatistics",
+    "RelativePath": "api/Statistics/organizations/{organizationId}/basic",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "organizationId",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Momantza.Controllers.StatisticsController",
+    "Method": "GetCustomerInsights",
+    "RelativePath": "api/Statistics/organizations/{organizationId}/customer-insights",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "organizationId",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Momantza.Controllers.StatisticsController",
+    "Method": "GetGrowthMetrics",
+    "RelativePath": "api/Statistics/organizations/{organizationId}/growth",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "organizationId",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Momantza.Controllers.StatisticsController",
+    "Method": "GetHallUtilization",
+    "RelativePath": "api/Statistics/organizations/{organizationId}/hall-utilization",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "organizationId",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Momantza.Controllers.StatisticsController",
+    "Method": "GetLeadMetrics",
+    "RelativePath": "api/Statistics/organizations/{organizationId}/leads",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "organizationId",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Momantza.Controllers.StatisticsController",
+    "Method": "GetStatusDistribution",
+    "RelativePath": "api/Statistics/organizations/{organizationId}/status-distribution",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "organizationId",
+        "Type": "System.String",
+        "IsRequired": true
       }
     ],
     "ReturnTypes": []
@@ -4143,9 +4272,9 @@
     "ReturnTypes": []
   },
   {
-    "ContainingType": "Momantza.Controllers.TicketController",
+    "ContainingType": "Momantza.Controllers.TicketsController",
     "Method": "GetAll",
-    "RelativePath": "api/Ticket",
+    "RelativePath": "api/Tickets",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
@@ -4163,9 +4292,9 @@
     ]
   },
   {
-    "ContainingType": "Momantza.Controllers.TicketController",
+    "ContainingType": "Momantza.Controllers.TicketsController",
     "Method": "Create",
-    "RelativePath": "api/Ticket",
+    "RelativePath": "api/Tickets",
     "HttpMethod": "POST",
     "IsController": true,
     "Order": 0,
@@ -4189,9 +4318,9 @@
     ]
   },
   {
-    "ContainingType": "Momantza.Controllers.TicketController",
+    "ContainingType": "Momantza.Controllers.TicketsController",
     "Method": "GetById",
-    "RelativePath": "api/Ticket/{id}",
+    "RelativePath": "api/Tickets/{id}",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
@@ -4215,9 +4344,9 @@
     ]
   },
   {
-    "ContainingType": "Momantza.Controllers.TicketController",
+    "ContainingType": "Momantza.Controllers.TicketsController",
     "Method": "Update",
-    "RelativePath": "api/Ticket/{id}",
+    "RelativePath": "api/Tickets/{id}",
     "HttpMethod": "PUT",
     "IsController": true,
     "Order": 0,
@@ -4246,9 +4375,9 @@
     ]
   },
   {
-    "ContainingType": "Momantza.Controllers.TicketController",
+    "ContainingType": "Momantza.Controllers.TicketsController",
     "Method": "Delete",
-    "RelativePath": "api/Ticket/{id}",
+    "RelativePath": "api/Tickets/{id}",
     "HttpMethod": "DELETE",
     "IsController": true,
     "Order": 0,
@@ -4262,9 +4391,9 @@
     "ReturnTypes": []
   },
   {
-    "ContainingType": "Momantza.Controllers.TicketController",
+    "ContainingType": "Momantza.Controllers.TicketsController",
     "Method": "UpdateStatus",
-    "RelativePath": "api/Ticket/{id}/status",
+    "RelativePath": "api/Tickets/{id}/status",
     "HttpMethod": "PUT",
     "IsController": true,
     "Order": 0,
@@ -4293,9 +4422,9 @@
     ]
   },
   {
-    "ContainingType": "Momantza.Controllers.TicketController",
+    "ContainingType": "Momantza.Controllers.TicketsController",
     "Method": "GetByAssignedTo",
-    "RelativePath": "api/Ticket/assigned/{assignedTo}",
+    "RelativePath": "api/Tickets/assigned/{assignedTo}",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
@@ -4319,9 +4448,9 @@
     ]
   },
   {
-    "ContainingType": "Momantza.Controllers.TicketController",
+    "ContainingType": "Momantza.Controllers.TicketsController",
     "Method": "GetByBookingId",
-    "RelativePath": "api/Ticket/booking/{bookingId}",
+    "RelativePath": "api/Tickets/bookings/{bookingId}/tickets",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
@@ -4345,9 +4474,9 @@
     ]
   },
   {
-    "ContainingType": "Momantza.Controllers.TicketController",
+    "ContainingType": "Momantza.Controllers.TicketsController",
     "Method": "GetByStatus",
-    "RelativePath": "api/Ticket/status/{status}",
+    "RelativePath": "api/Tickets/status/{status}",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,

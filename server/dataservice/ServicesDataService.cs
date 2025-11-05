@@ -44,7 +44,7 @@ namespace Momantza.Services
 
         protected override (string sql, Dictionary<string, object?> parameters, List<string> jsonFields) GenerateUpdateSql(ServiceItem entity)
         {
-            var sql = @"UPDATE serviceitem SET name = @name, hsncode = @hsncode, taxpercentage = @taxpercentage, baseprice = @baseprice, organizationid = @organizationid, isactive = @isactive, updatedat = @updatedat WHERE id = @id";
+            var sql = @"UPDATE serviceitem SET name = @name, hsncode = @hsncode, taxpercentage = @taxpercentage, baseprice = @baseprice, organizationid = @organizationid, updatedat = @updatedat WHERE id = @id";
             var parameters = new Dictionary<string, object?>
             {
                 ["@id"] = entity.Id,
@@ -53,7 +53,7 @@ namespace Momantza.Services
                 ["@taxpercentage"] = entity.TaxPercentage,
                 ["@baseprice"] = entity.BasePrice,
                 ["@organizationid"] = entity.OrganizationId,
-                ["@isactive"] = entity.IsActive,
+               // ["@isactive"] = entity.IsActive,
                 ["@updatedat"] = entity.UpdatedAt
             };
             return (sql, parameters, new List<string>());

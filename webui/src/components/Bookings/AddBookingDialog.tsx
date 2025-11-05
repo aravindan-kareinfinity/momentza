@@ -30,10 +30,10 @@ export function AddBookingDialog({ isOpen, onClose, onBookingAdded }: AddBooking
     timeSlot: '',
     guestCount: '',
     hallId: '',
-    notes: ''
+    notes: '',
+    totalAmount: 0
   });
 
-  // State for data
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [halls, setHalls] = useState<any[]>([]);
   const [timeSlots, setTimeSlots] = useState<any[]>([]);
@@ -42,13 +42,11 @@ export function AddBookingDialog({ isOpen, onClose, onBookingAdded }: AddBooking
   const [showErrorDialog, setShowErrorDialog] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
-  // Fetch data on component mount
   const fetchData = async () => {
     try {
       setLoading(true);
       setError(null);
       
-      console.log('[AddBookingDialog] Fetching data...');
       const [user, hallsData] = await Promise.all([
         authService.getCurrentUser(),
         hallService.getAllHalls()
@@ -66,21 +64,38 @@ export function AddBookingDialog({ isOpen, onClose, onBookingAdded }: AddBooking
     }
   };
 
-  // Fetch time slots when hall and date are selected
   const fetchTimeSlots = async () => {
     if (!formData.hallId || !formData.eventDate) {
       setTimeSlots([]);
+      setFormData(prev => ({ ...prev, timeSlot: '', totalAmount: 0 }));
       return;
     }
 
     try {
       const slots = await hallService.getAvailableTimeSlots(formData.hallId, formData.eventDate);
       setTimeSlots(slots || []);
+      
+      if (slots && slots.length > 0) {
+        setFormData(prev => ({ ...prev, timeSlot: '', totalAmount: 0 }));
+      }
     } catch (err) {
-      console.error('Failed to fetch time slots:', err);
       setTimeSlots([]);
+      setFormData(prev => ({ ...prev, timeSlot: '', totalAmount: 0 }));
     }
   };
+
+  // Calculate total amount when time slot is selected
+  useEffect(() => {
+    if (formData.timeSlot && formData.hallId) {
+      const selectedHall = halls.find(hall => hall.id === formData.hallId);
+      const selectedTimeSlot = timeSlots.find(slot => slot.value === formData.timeSlot);
+      
+      if (selectedTimeSlot && selectedHall) {
+        const amount = selectedTimeSlot.price || 0;
+        setFormData(prev => ({ ...prev, totalAmount: amount }));
+      }
+    }
+  }, [formData.timeSlot, formData.hallId, halls, timeSlots]);
 
   useEffect(() => {
     if (isOpen) {
@@ -109,6 +124,7 @@ export function AddBookingDialog({ isOpen, onClose, onBookingAdded }: AddBooking
 
     try {
       setSubmitting(true);
+      
       await bookingService.createBooking({
         customerName: formData.customerName,
         customerPhone: formData.customerPhone,
@@ -120,8 +136,9 @@ export function AddBookingDialog({ isOpen, onClose, onBookingAdded }: AddBooking
         hallId: formData.hallId,
         organizationId: currentUser?.organizationId || '',
         status: 'pending',
-        totalAmount: 0
+        totalAmount: formData.totalAmount
       });
+      
       onBookingAdded();
       onClose();
       setFormData({
@@ -133,10 +150,10 @@ export function AddBookingDialog({ isOpen, onClose, onBookingAdded }: AddBooking
         timeSlot: '',
         guestCount: '',
         hallId: '',
-        notes: ''
+        notes: '',
+        totalAmount: 0
       });
     } catch (error) {
-      console.error('Failed to create booking:', error);
       setError(error as Error);
       setShowErrorDialog(true);
     } finally {
@@ -148,7 +165,6 @@ export function AddBookingDialog({ isOpen, onClose, onBookingAdded }: AddBooking
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  // Loading state
   if (loading) {
     return (
       <Dialog open={isOpen} onOpenChange={onClose}>
@@ -169,7 +185,6 @@ export function AddBookingDialog({ isOpen, onClose, onBookingAdded }: AddBooking
     );
   }
 
-  // Error state
   if (error || !currentUser || !halls) {
     return (
       <>
@@ -333,6 +348,15 @@ export function AddBookingDialog({ isOpen, onClose, onBookingAdded }: AddBooking
               onChange={(e) => handleInputChange('notes', e.target.value)}
               rows={3}
             />
+          </div>
+
+          <div className="border-t pt-4 mt-4">
+            <div className="flex justify-between items-center">
+              <span className="text-lg font-semibold">Total Amount:</span>
+              <span className="text-2xl font-bold text-green-600">
+                ₹{formData.totalAmount.toLocaleString()}
+              </span>
+            </div>
           </div>
 
           <div className="flex justify-end space-x-2">

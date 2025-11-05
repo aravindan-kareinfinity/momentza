@@ -20,7 +20,7 @@ namespace Momantza.Services
                 Email = reader["email"].ToString() ?? string.Empty,
                 Password = reader["password"].ToString() ?? string.Empty,
                 OrganizationId = reader["organizationid"].ToString() ?? string.Empty,
-                AccessibleHalls = reader["accessiblehalls"] != DBNull.Value 
+                AccessibleHalls = reader["accessiblehalls"] != DBNull.Value
                     ? JsonSerializer.Deserialize<List<string>>(reader["accessiblehalls"].ToString() ?? "[]") ?? new List<string>()
                     : new List<string>(),
                 Role = reader["role"].ToString() ?? string.Empty
@@ -91,7 +91,7 @@ namespace Momantza.Services
                 var sql = "SELECT * FROM users WHERE role = @role";
                 using var command = new NpgsqlCommand(sql, connection);
                 command.Parameters.AddWithValue("@role", role);
-                
+
                 using var reader = await command.ExecuteReaderAsync();
                 var results = new List<Users>();
                 while (await reader.ReadAsync())
@@ -120,6 +120,8 @@ namespace Momantza.Services
                 {
                     user.Id = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds().ToString();
                 }
+
+                // Hash password here (centralized)
                 user.Password = BCrypt.Net.BCrypt.HashPassword(user.Password, BCrypt.Net.BCrypt.GenerateSalt(12));
                 var success = await CreateAsync(user);
                 if (!success) throw new Exception("Failed to create user");
@@ -184,7 +186,7 @@ namespace Momantza.Services
                 using var command = new NpgsqlCommand(sql, connection);
                 command.Parameters.AddWithValue("@email", email);
                 command.Parameters.AddWithValue("@organizationId", organizationId);
-                
+
                 using var reader = await command.ExecuteReaderAsync();
                 if (await reader.ReadAsync())
                 {
@@ -208,7 +210,7 @@ namespace Momantza.Services
                 using var command = new NpgsqlCommand(sql, connection);
                 command.Parameters.AddWithValue("@id", id);
                 command.Parameters.AddWithValue("@organizationId", organizationId);
-                
+
                 using var reader = await command.ExecuteReaderAsync();
                 if (await reader.ReadAsync())
                 {
@@ -262,6 +264,27 @@ namespace Momantza.Services
                 return new List<Users>();
             }
         }
+
+        public async Task<bool> UpdatePasswordAsync(string id, string hashedPassword)
+        {
+            try
+            {
+                using var connection = await GetConnectionAsync();
+                var sql = "UPDATE users SET password = @password, updatedat = @updatedat WHERE id = @id";
+                using var command = new NpgsqlCommand(sql, connection);
+                command.Parameters.AddWithValue("@password", hashedPassword);
+                command.Parameters.AddWithValue("@updatedat", DateTime.UtcNow);
+                command.Parameters.AddWithValue("@id", id);
+
+                var rowsAffected = await command.ExecuteNonQueryAsync();
+                return rowsAffected > 0;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error updating password for user {id}: {ex.Message}");
+                return false;
+            }
+        }
     }
 
     public interface IUserDataService : IBaseDataService<Users>
@@ -276,5 +299,6 @@ namespace Momantza.Services
         Task<bool> DeleteUserAsync(string id);
         Task<Users?> GetUserByIdAsync(string id);
         Task<List<Users>> GetByOrganizationAsync(string organizationId);
+        Task<bool> UpdatePasswordAsync(string id, string hashedPassword);
     }
-} 
+}

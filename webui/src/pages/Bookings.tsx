@@ -107,7 +107,9 @@ const Bookings = () => {
   };
 
   const refreshBookings = async () => {
-    if (!currentUser?.organizationId) return;
+    if (!currentUser?.organizationId) {
+      return;
+    }
     
     try {
       const bookingsData = await bookingService.getBookingsByOrganization(currentUser.organizationId);
@@ -160,6 +162,30 @@ const Bookings = () => {
     }
   };
 
+  const formatDateDDMMYYYY = (input: string) => {
+    if (!input) {
+      return '';
+    }
+    // Support both YYYY-MM-DD and full ISO date-time
+    const [yStr, mStr, dStr] = input.split('T')[0].split('-');
+    const yyyy = yStr?.padStart(4, '0') || '';
+    const mm = mStr ? String(parseInt(mStr, 10)).padStart(2, '0') : '';
+    const dd = dStr ? String(parseInt(dStr, 10)).padStart(2, '0') : '';
+    if (!yyyy || !mm || !dd) {
+      // Fallback to native formatting if parsing fails
+      try {
+        const d = new Date(input);
+        const day = String(d.getDate()).padStart(2, '0');
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const year = String(d.getFullYear());
+        return `${day}/${month}/${year}`;
+      } catch {
+        return input;
+      }
+    }
+    return `${dd}/${mm}/${yyyy}`;
+  };
+
   const handleStatusChange = async (bookingId: string, newStatus: Booking['status'], reason?: string) => {
     await updateBookingStatusMutation.execute({ id: bookingId, status: newStatus, reason });
     
@@ -193,46 +219,59 @@ const Bookings = () => {
     return bookingDate >= today;
   };
 
-  const handleSearch = async () => {
-    if (!currentUser?.organizationId) return;
-    
+  const handleSearch = async (params?: {
+    organizationId?: string;
+    eventDateFrom?: string;
+    eventDateTo?: string;
+    status?: string;
+    searchTerm?: string;
+  }) => {
+    const effectiveOrganizationId = params?.organizationId || currentUser?.organizationId;
+    if (!effectiveOrganizationId) {
+      return;
+    }
+
     setIsSearching(true);
     try {
       // Build search request object
       const searchRequest: any = {
-        organizationId: currentUser.organizationId
+        organizationId: effectiveOrganizationId
       };
 
-      // Add filters if they exist
-      if (statusFilter && statusFilter !== 'all') {
-        if (statusFilter === 'upcoming') {
+      // Determine status
+      const effectiveStatus = params?.status ?? statusFilter;
+      if (effectiveStatus && effectiveStatus !== 'all') {
+        if (effectiveStatus === 'upcoming') {
           searchRequest.eventDateFrom = new Date().toISOString().split('T')[0];
         } else {
-          searchRequest.status = statusFilter;
+          searchRequest.status = effectiveStatus;
         }
       }
 
-      if (dateFrom) {
-        searchRequest.eventDateFrom = dateFrom;
+      // Determine date range
+      const effectiveDateFrom = params?.eventDateFrom ?? dateFrom;
+      const effectiveDateTo = params?.eventDateTo ?? dateTo;
+      if (effectiveDateFrom) {
+        searchRequest.eventDateFrom = effectiveDateFrom;
+      }
+      if (effectiveDateTo) {
+        searchRequest.eventDateTo = effectiveDateTo;
       }
 
-      if (dateTo) {
-        searchRequest.eventDateTo = dateTo;
-      }
-
-      if (searchTerm) {
-        // For search term, we'll use a generic search approach
-        // The API should handle searching across multiple fields
-        searchRequest.searchTerm = searchTerm;
+      // Determine search term
+      const effectiveSearchTerm = params?.searchTerm ?? searchTerm;
+      if (effectiveSearchTerm) {
+        searchRequest.searchTerm = effectiveSearchTerm;
+        searchRequest.CustomerName = effectiveSearchTerm;
       }
 
       console.log('[Bookings] Searching with request:', searchRequest);
-      
+
       // Call the API with search parameters
       const searchResults = await bookingService.searchBookings(searchRequest);
       setBookings(Array.isArray(searchResults) ? searchResults : []);
       setIsSearchActive(true);
-      
+
     } catch (err) {
       console.error('Search failed:', err);
       // Keep existing bookings on search error
@@ -241,9 +280,33 @@ const Bookings = () => {
     }
   };
 
-  // Use the bookings directly from API search results
-  // No additional client-side filtering needed since the API handles all filtering
-  const filteredBookings = Array.isArray(bookings) ? bookings : [];
+  // Apply client-side date range filtering so UI updates immediately when dates change
+  const filteredBookings = useMemo(() => {
+    const list = Array.isArray(bookings) ? bookings : [];
+    if (!dateFrom && !dateTo) {
+      return list;
+    }
+
+    // Normalize to date-only (avoid timezone issues)
+    const toDateOnlyTs = (isoOrDateOnly: string): number => {
+      const [y, m, d] = isoOrDateOnly.split('T')[0].split('-').map((v) => parseInt(v, 10));
+      return Date.UTC(y, m - 1, d);
+    };
+
+    const fromTs = dateFrom ? toDateOnlyTs(dateFrom) : null;
+    const toTs = dateTo ? toDateOnlyTs(dateTo) : null;
+
+    return list.filter((booking) => {
+      const eventTs = toDateOnlyTs(booking.eventDate);
+      if (fromTs !== null && eventTs < fromTs) {
+        return false;
+      }
+      if (toTs !== null && eventTs > toTs) {
+        return false;
+      }
+      return true;
+    });
+  }, [bookings, dateFrom, dateTo]);
 
   // Loading state
   if (loading) {
@@ -379,7 +442,7 @@ const Bookings = () => {
           <div className="mt-4 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Button 
-                onClick={handleSearch}
+                onClick={() => handleSearch()}
                 disabled={isSearching}
                 className="min-w-[120px]"
               >
@@ -462,7 +525,7 @@ const Bookings = () => {
               
               <div className="flex items-center text-sm text-gray-600">
                 <Calendar className="h-4 w-4 mr-2" />
-                {new Date(booking.eventDate).toLocaleDateString()} - {booking.timeSlot}
+                {formatDateDDMMYYYY(booking.eventDate)} - {booking.timeSlot}
               </div>
               
               <div className="flex items-center text-sm text-gray-600">
@@ -477,7 +540,7 @@ const Bookings = () => {
 
               {booking.lastContactDate && (
                 <div className="text-sm text-gray-600">
-                  <strong>Last Contact:</strong> {new Date(booking.lastContactDate).toLocaleDateString()}
+                  <strong>Last Contact:</strong> {formatDateDDMMYYYY(booking.lastContactDate)}
                 </div>
               )}
 

@@ -82,7 +82,7 @@ export class ApiBookingService implements IBookingService {
   }
 
   async updateBookingStatus(id: string, status: Booking['status'], reason?: string): Promise<Booking> {
-    return apiClient.patch<Booking>(`/api/bookings/${id}/status`, { status, reason });
+    return apiClient.put<Booking>(`/api/bookings/${id}/status`, { status, reason });
   }
 
   async toggleBookingActive(id: string, isActive: boolean): Promise<Booking> {
