@@ -50,6 +50,13 @@ namespace Momantza.Middleware
             {
                 domain = host; // No subdomain, use full host as domain
             }
+            // ✅ ADD THESE LOGS BELOW
+            Console.WriteLine("============== 🌐 DOMAIN DEBUG ==============");
+            Console.WriteLine($"Full Host: {host}");
+            Console.WriteLine($"Subdomain: {subdomain}");
+            Console.WriteLine($"Domain: {domain}");
+            Console.WriteLine($"Request Path: {context.Request.Path}");
+            Console.WriteLine("=============================================");
 
             // Store subdomain and domain in context for use by resolver/controllers
             context.Items["Subdomain"] = subdomain;

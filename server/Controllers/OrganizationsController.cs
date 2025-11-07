@@ -186,35 +186,69 @@ namespace Momantza.Controllers
         [HttpGet("current")]
         [HttpGet("me")]  // Alternative route
         [HttpGet("active")]  // Another alternative route
-       // [HttpGet("current")]
+                             // [HttpGet("current")]
+                             //public async Task<IActionResult> GetCurrentOrganization()
+                             //{
+                             //    try
+                             //    {
+                             //        // Get the domain from the current request
+                             //        var domain = HttpContext.Request.Host.Host;
+
+        //        // Remove port if present (localhost:3000 -> localhostGetByDomainAsync
+        //        if (domain.Contains(':'))
+        //        {
+        //            domain = domain.Split(':')[0];
+        //        }
+
+        //        Console.WriteLine($"🔍 Looking for organization by domain: {domain}");
+
+        //        var organization = await _organizationDataService.GetByDomainAsync(domain);
+        //        if (organization == null)
+        //        {
+        //            Console.WriteLine($"❌ No organization found for domain: {domain}");
+        //            return NotFound(new { message = $"No organization found for domain: {domain}" });
+        //        }
+
+        //        Console.WriteLine($"✅ Found organization: {organization.Name}");
+        //        return Ok(organization);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Console.WriteLine($"❌ Error getting current organization: {ex.Message}");
+        //        return StatusCode(500, new { message = "Internal server error" });
+        //    }
+        //}
         public async Task<IActionResult> GetCurrentOrganization()
         {
             try
             {
-                // Get the domain from the current request
-                var domain = HttpContext.Request.Host.Host;
-
-                // Remove port if present (localhost:3000 -> localhostGetByDomainAsync
-                if (domain.Contains(':'))
+                var isValidContext = await _organizationDataService.ValidateUserOrganizationContextAsync();
+                if (!isValidContext)
                 {
-                    domain = domain.Split(':')[0];
+                    Console.WriteLine(" Organization mismatch. Access denied.");
+                    return Unauthorized(new { message = "Access denied: organization mismatch" });
                 }
 
-                Console.WriteLine($"🔍 Looking for organization by domain: {domain}");
+                var domain = HttpContext.Request.Host.Host;
+
+                if (domain.Contains(':'))
+                    domain = domain.Split(':')[0];
+
+                Console.WriteLine($" Looking for organization by domain: {domain}");
 
                 var organization = await _organizationDataService.GetByDomainAsync(domain);
                 if (organization == null)
                 {
-                    Console.WriteLine($"❌ No organization found for domain: {domain}");
+                    Console.WriteLine($" No organization found for domain: {domain}");
                     return NotFound(new { message = $"No organization found for domain: {domain}" });
                 }
 
-                Console.WriteLine($"✅ Found organization: {organization.Name}");
+                Console.WriteLine($"Found organization: {organization.Name}");
                 return Ok(organization);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"❌ Error getting current organization: {ex.Message}");
+                Console.WriteLine($" Error getting current organization: {ex.Message}");
                 return StatusCode(500, new { message = "Internal server error" });
             }
         }

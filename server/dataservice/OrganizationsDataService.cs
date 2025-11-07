@@ -1,4 +1,4 @@
-using Npgsql;
+﻿using Npgsql;
 using Microsoft.Extensions.Configuration;
 using Momantza.Models;
 using System.Text.Json;
@@ -225,6 +225,52 @@ namespace Momantza.Services
                 throw;
             }
         }
+
+        public async Task<bool> ValidateUserOrganizationContextAsync()
+        {
+            try
+            {
+                var context = _httpContextAccessor.HttpContext;
+
+                //  1️ Get organizationId from JWT token
+                var orgIdFromToken = context?.User?.FindFirst("organizationId")?.Value;
+
+                //  2️ Optional fallback — if frontend sends it explicitly via header
+                var orgIdFromHeader = context?.Request.Headers["X-Organization-Id"].FirstOrDefault();
+
+                //  3️ Choose whichever is available
+                var activeOrgId = orgIdFromHeader ?? orgIdFromToken;
+
+                Console.WriteLine("======  ORGANIZATION CONTEXT CHECK ======");
+                Console.WriteLine($"OrganizationId (from token):  {orgIdFromToken}");
+                Console.WriteLine($"OrganizationId (from header): {orgIdFromHeader}");
+                Console.WriteLine($"Active organization ID:        {activeOrgId}");
+                Console.WriteLine("===========================================");
+
+                if (string.IsNullOrEmpty(orgIdFromToken))
+                {
+                    Console.WriteLine(" No organizationId found in token.");
+                    return false;
+                }
+
+                // For now — just validate that both match (if both exist)
+                if (!string.IsNullOrEmpty(orgIdFromHeader) && orgIdFromHeader != orgIdFromToken)
+                {
+                    Console.WriteLine(" Organization mismatch between token and header.");
+                    return false;
+                }
+
+                Console.WriteLine(" Organization context validated successfully!");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($" Error validating organization context: {ex.Message}");
+                return false;
+            }
+        }
+
+
     }
 
     public interface IOrganizationsDataService : IBaseDataService<Organizations>
@@ -233,5 +279,6 @@ namespace Momantza.Services
         Task<Organizations> GetCurrentOrganizationAsync(string domain);
         Task<List<Organizations>> GetAllOrganizationsAsync();
         Task<Organizations> UpdateOrganizationAsync(string id, Organizations updates);
+        Task<bool> ValidateUserOrganizationContextAsync();
     }
 } 
