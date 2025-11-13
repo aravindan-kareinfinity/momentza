@@ -202,6 +202,7 @@ namespace Momantza.Services
                 Console.WriteLine($"Error getting active services: {ex.Message}");
                 return new List<ServiceItem>();
             }
+
         }
     }
 
@@ -212,5 +213,7 @@ namespace Momantza.Services
         Task<bool> DeleteServiceAsync(string id);
         Task<List<ServiceItem>> GetByOrganizationAsync(string organizationId);
         Task<List<ServiceItem>> GetActiveAsync();
+
+       // Task<List<ServiceItem>> GetServicesByBookingIdAsync(string bookingId);
     }
 } 

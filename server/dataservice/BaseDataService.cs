@@ -37,11 +37,11 @@ namespace Momantza.Services
             if (context == null) return string.Empty;
 
             // 1) Prefer explicit OrganizationId item (string or Guid)
-            if (context.Items.TryGetValue("OrganizationId", out var orgIdObj) && orgIdObj != null)
+         /*   if (context.Items.TryGetValue("OrganizationId", out var orgIdObj) && orgIdObj != null)
             {
                 if (orgIdObj is string s && !string.IsNullOrEmpty(s)) return s;
                 if (orgIdObj is Guid g) return g.ToString();
-            }
+            }*/
 
             // 2) Fallback to Organization object
             if (context.Items.TryGetValue("Organization", out var orgObj) && orgObj != null)

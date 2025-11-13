@@ -464,7 +464,7 @@ namespace Momantza.Services
         // Helper method to hash passwords using BCrypt
         private string HashPassword(string password)
         {
-            return BCrypt.Net.BCrypt.HashPassword(password, BCrypt.Net.BCrypt.GenerateSalt(12));
+            return BCrypt.Net.BCrypt.HashPassword(password, 12);
         }
 
         // Helper method to verify password hash using BCrypt

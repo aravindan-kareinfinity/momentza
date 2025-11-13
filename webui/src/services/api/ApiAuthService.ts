@@ -62,7 +62,7 @@ export class ApiAuthService implements IAuthService {
       });
 
       if (!orgId) {
-        throw new Error('Please access via organization subdomain (e.g., jk.localhost:8080)');
+        throw new Error('Please access via organization subdomain (e.g., jk.localhost:5212)');
       }
 
       const resp = await fetch(`${backendUrl}/api/auth/login`, {

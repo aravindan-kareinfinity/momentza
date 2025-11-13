@@ -120,6 +120,7 @@ const CustomerClicks = () => {
   });
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [imageUrls, setImageUrls] = useState<Record<string, string>>({});
 
   const handleSave = async () => {
     if (!currentUser?.organizationId) {
@@ -254,6 +255,75 @@ const CustomerClicks = () => {
     setSelectedImage(null);
     setShowAddForm(true);
   };
+
+  // Fetch protected images with auth headers and cache blob URLs
+  useEffect(() => {
+    let isCancelled = false;
+    const abortControllers: Record<string, AbortController> = {};
+
+    const getAuthToken = () => {
+      try {
+        const user = localStorage.getItem('currentUser');
+        if (user) {
+          const data = JSON.parse(user);
+          return data.token || '';
+        }
+      } catch {}
+      return '';
+    };
+
+    const getOrganizationId = () => {
+      try {
+        const storedOrgId = localStorage.getItem('currentOrganizationId') || localStorage.getItem('selectedOrganizationId');
+        if (storedOrgId) return storedOrgId;
+        const user = localStorage.getItem('currentUser');
+        if (user) {
+          const data = JSON.parse(user);
+          return data.organizationId || '';
+        }
+      } catch {}
+      return '';
+    };
+
+    const fetchImage = async (id: string) => {
+      if (isCancelled || imageUrls[id]) return;
+      const controller = new AbortController();
+      abortControllers[id] = controller;
+      try {
+        const url = customerClicksService.getImageUrl(id);
+        const res = await fetch(url, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${getAuthToken()}`,
+            'X-Organization-Id': getOrganizationId()
+          },
+          signal: controller.signal
+        });
+        if (!res.ok) return;
+        const blob = await res.blob();
+        const objectUrl = URL.createObjectURL(blob);
+        if (!isCancelled) {
+          setImageUrls(prev => ({ ...prev, [id]: objectUrl }));
+        } else {
+          URL.revokeObjectURL(objectUrl);
+        }
+      } catch {
+        // ignore per-image failures
+      } finally {
+        delete abortControllers[id];
+      }
+    };
+
+    const ids = (Array.isArray(customerClicks) ? customerClicks : []).map(c => c.id);
+    ids.forEach(id => fetchImage(id));
+
+    return () => {
+      isCancelled = true;
+      Object.values(abortControllers).forEach(c => c.abort());
+      // Revoke created object URLs
+      Object.values(imageUrls).forEach(url => URL.revokeObjectURL(url));
+    };
+  }, [customerClicks]);
 
   // Show loading state
   if (loading) {
@@ -462,7 +532,7 @@ const CustomerClicks = () => {
               <Card key={click.id} className="overflow-hidden">
                 <div className="aspect-[4/3] relative">
                   <img
-                    src={customerClicksService.getImageUrl(click.id)}
+                    src={imageUrls[click.id] || customerClicksService.getImageUrl(click.id)}
                     alt={click.eventType}
                     className="w-full h-full object-cover"
                   />

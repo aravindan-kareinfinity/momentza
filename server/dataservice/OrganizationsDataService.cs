@@ -1,4 +1,4 @@
-using Npgsql;
+﻿using Npgsql;
 using Microsoft.Extensions.Configuration;
 using Momantza.Models;
 using System.Text.Json;
@@ -19,12 +19,12 @@ namespace Momantza.Services
                 Name = reader["name"].ToString() ?? string.Empty,
                 ContactPerson = reader["contactperson"].ToString() ?? string.Empty,
                 ContactNo = reader["contactno"].ToString() ?? string.Empty,
-                Address = reader["address"].ToString()?? string.Empty,
+                Address = reader["address"].ToString() ?? string.Empty,
                 About = reader["about"].ToString() ?? string.Empty,
                 DefaultDomain = reader["defaultdomain"].ToString() ?? string.Empty,
                 CustomDomain = reader["customdomain"]?.ToString(),
                 Logo = reader["logo"]?.ToString(),
-                Theme = reader["theme"] != DBNull.Value 
+                Theme = reader["theme"] != DBNull.Value
                     ? JsonSerializer.Deserialize<OrganizationTheme>(reader["theme"].ToString() ?? "{}") ?? new OrganizationTheme()
                     : new OrganizationTheme()
             };
@@ -56,7 +56,7 @@ namespace Momantza.Services
         {
             // Update the UpdatedAt timestamp
             entity.UpdatedAt = DateTime.UtcNow;
-            
+
             var sql = @"UPDATE organization SET name = @name, contactperson = @contactperson, contactno = @contactno,address=@address,about=@about, defaultdomain = @defaultdomain, customdomain = @customdomain, logo = @logo, theme = @theme, updatedat = @updatedat WHERE id = @id";
             var parameters = new Dictionary<string, object?>
             {
@@ -72,12 +72,12 @@ namespace Momantza.Services
                 ["@theme"] = entity.Theme,
                 ["@updatedat"] = entity.UpdatedAt
             };
-            
+
             Console.WriteLine($"Generating update SQL for organization {entity.Id}:");
             Console.WriteLine($"  Logo: {entity.Logo}");
             Console.WriteLine($"  Name: {entity.Name}");
             Console.WriteLine($"  UpdatedAt: {entity.UpdatedAt}");
-            
+
             var jsonFields = new List<string> { "@theme" };
             return (sql, parameters, jsonFields);
         }
@@ -90,7 +90,7 @@ namespace Momantza.Services
                 var sql = @"SELECT column_name, data_type FROM information_schema.columns WHERE table_name = 'organization' ORDER BY ordinal_position";
                 using var command = new NpgsqlCommand(sql, connection);
                 using var reader = await command.ExecuteReaderAsync();
-                
+
                 Console.WriteLine("Organization table structure:");
                 while (await reader.ReadAsync())
                 {
@@ -110,13 +110,13 @@ namespace Momantza.Services
             try
             {
                 using var connection = await GetConnectionAsync();
-                
+
                 // Drop table if exists
                 var dropSql = "DROP TABLE IF EXISTS organization CASCADE";
                 using var dropCommand = new NpgsqlCommand(dropSql, connection);
                 await dropCommand.ExecuteNonQueryAsync();
                 Console.WriteLine("Dropped existing organization table");
-                
+
                 // Create table with proper structure
                 var createSql = @"
                     CREATE TABLE organization (
@@ -133,11 +133,11 @@ namespace Momantza.Services
                         createdat TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
                         updatedat TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
                     )";
-                
+
                 using var createCommand = new NpgsqlCommand(createSql, connection);
                 await createCommand.ExecuteNonQueryAsync();
                 Console.WriteLine("Created new organization table with logo column");
-                
+
                 return true;
             }
             catch (Exception ex)
@@ -152,17 +152,17 @@ namespace Momantza.Services
             try
             {
                 using var connection = await GetConnectionAsync();
-                
+
                 var sql = "SELECT * FROM organization WHERE defaultdomain = @domain OR customdomain = @domain LIMIT 1";
                 using var command = new NpgsqlCommand(sql, connection);
                 command.Parameters.AddWithValue("@domain", domain);
-                
+
                 using var reader = await command.ExecuteReaderAsync();
                 if (await reader.ReadAsync())
                 {
                     return MapFromReader(reader);
                 }
-                
+
                 return null;
             }
             catch (Exception ex)
@@ -225,6 +225,52 @@ namespace Momantza.Services
                 throw;
             }
         }
+
+        public async Task<bool> ValidateUserOrganizationContextAsync()
+        {
+            try
+            {
+                var context = _httpContextAccessor.HttpContext;
+
+                //  1️ Get organizationId from JWT token
+                var orgIdFromToken = context?.User?.FindFirst("organizationId")?.Value;
+
+                //  2️ Optional fallback — if frontend sends it explicitly via header
+                var orgIdFromHeader = context?.Request.Headers["X-Organization-Id"].FirstOrDefault();
+
+                //  3️ Choose whichever is available
+                var activeOrgId = orgIdFromHeader ?? orgIdFromToken;
+
+                Console.WriteLine("======  ORGANIZATION CONTEXT CHECK ======");
+                Console.WriteLine($"OrganizationId (from token):  {orgIdFromToken}");
+                Console.WriteLine($"OrganizationId (from header): {orgIdFromHeader}");
+                Console.WriteLine($"Active organization ID:        {activeOrgId}");
+                Console.WriteLine("===========================================");
+
+                if (string.IsNullOrEmpty(orgIdFromToken))
+                {
+                    Console.WriteLine(" No organizationId found in token.");
+                    return false;
+                }
+
+                // For now — just validate that both match (if both exist)
+                if (!string.IsNullOrEmpty(orgIdFromHeader) && orgIdFromHeader != orgIdFromToken)
+                {
+                    Console.WriteLine(" Organization mismatch between token and header.");
+                    return false;
+                }
+
+                Console.WriteLine(" Organization context validated successfully!");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($" Error validating organization context: {ex.Message}");
+                return false;
+            }
+        }
+
+
     }
 
     public interface IOrganizationsDataService : IBaseDataService<Organizations>
@@ -233,5 +279,6 @@ namespace Momantza.Services
         Task<Organizations> GetCurrentOrganizationAsync(string domain);
         Task<List<Organizations>> GetAllOrganizationsAsync();
         Task<Organizations> UpdateOrganizationAsync(string id, Organizations updates);
+        Task<bool> ValidateUserOrganizationContextAsync();
     }
-} 
+}

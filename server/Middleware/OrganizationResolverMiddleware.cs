@@ -61,7 +61,7 @@ namespace Momantza.Middleware
             // SECOND: If subdomain resolution failed, check URL path patterns
             if (org == null)
             {
-                var segments = context.Request.Path.Value?.Split(new[] {'/'}, StringSplitOptions.RemoveEmptyEntries);
+                var segments = context.Request.Path.Value?.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
                 if (segments != null && segments.Length >= 2 && segments[0].Equals("org", StringComparison.OrdinalIgnoreCase))
                 {
                     var orgIdFromUrl = segments[1];

@@ -16,23 +16,48 @@ const Index = () => {
   const [error, setError] = useState<string | null>(null);
   const [fallbackHalls, setFallbackHalls] = useState<any[]>([]);
 
+  const resolveOrganizationId = (): string | null => {
+    // 1) Query override
+    try {
+      const url = new URL(window.location.href);
+      const q = url.searchParams.get('orgId');
+      if (q) return q;
+    } catch {}
+
+    // 2) Local overrides
+    const stored = localStorage.getItem('currentOrganizationId') || localStorage.getItem('selectedOrganizationId');
+    if (stored) return stored;
+
+    // 3) Subdomain: org.localhost -> org
+    const hostname = window.location.hostname;
+    if (hostname.includes('.localhost')) {
+      const sub = hostname.split('.')[0];
+      if (sub && sub !== 'www') return sub;
+    }
+
+    // 4) Router param (if present)
+    if (organizationId) return organizationId;
+
+    return null;
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
         setError(null);
         
-        let orgId = organizationId;
+        let orgId = resolveOrganizationId();
         
-        // If no organizationId in URL, try to get from current user
+        // Final fallback: try current user, then '1' for mock/dev
         if (!orgId) {
           try {
             const currentUser = await authService.getCurrentUser();
-            orgId = currentUser?.organizationId;
-          } catch (userError) {
-            console.warn('Could not get current user, using default organization');
-            orgId = '1'; // Default fallback
-          }
+            orgId = currentUser?.organizationId || null;
+          } catch {}
+        }
+        if (!orgId) {
+          orgId = '1';
         }
 
         if (!orgId) {

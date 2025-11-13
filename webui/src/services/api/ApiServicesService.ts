@@ -17,6 +17,9 @@ export class ApiServicesService implements IServicesService {
       throw error;
     }
   }
+  async getServicesByBookingId(bookingId: string): Promise<ServiceItem[]> {
+    return apiClient.get<ServiceItem[]>(`/api/services/bookings/${bookingId}/Services`);
+  }
 
   async create(data: Omit<ServiceItem, 'id'>): Promise<ServiceItem> {
     return apiClient.post<ServiceItem>('/api/services', data);

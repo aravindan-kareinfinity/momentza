@@ -150,5 +150,20 @@ namespace Momantza.Controllers
                 return StatusCode(500, new { message = "Internal server error", error = ex.Message });
             }
         }
+
+        /*[HttpGet("/bookings/{bookingId}/services")]
+
+        public async Task<ActionResult<List<ServiceItem>>> GetByBookingId(string bookingId)
+        {
+            try
+            {
+                var tickets = await _servicesDataService.GetServicesByBookingIdAsync(bookingId);
+                return Ok(tickets);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = ex.Message });
+            }
+        }*/
     }
 } 

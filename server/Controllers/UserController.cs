@@ -57,7 +57,7 @@ namespace Momantza.Controllers
                 {
                     return BadRequest(ModelState);
                 }
-                user.Password = BCrypt.Net.BCrypt.HashPassword(user.Password, BCrypt.Net.BCrypt.GenerateSalt(12));
+                //user.Password = BCrypt.Net.BCrypt.HashPassword(user.Password, 12);
                 var success = await _userDataService.CreateUserAsync(user);
                 if (success == null)
                 {

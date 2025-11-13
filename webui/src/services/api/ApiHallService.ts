@@ -9,13 +9,18 @@ export class ApiHallService implements IHallService {
 
   async getById(id: string): Promise<Hall | null> {
     try {
-      return await apiClient.get<Hall>(`/api/halls/1752588534882`);
+      // ❌ Wrong - hardcoded ID
+      // return await apiClient.get<Hall>(`/api/halls/1752588534882`);
+      
+      // ✅ Correct - use the id parameter
+      return await apiClient.get<Hall>(`/api/halls/${id}`);
     } catch (error) {
       if (error.status === 404) {
         return null;
       }
       throw error;
     }
+  
   }
 
   async create(data: Omit<Hall, 'id'>): Promise<Hall> {

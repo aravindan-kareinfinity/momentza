@@ -122,7 +122,7 @@ namespace Momantza.Services
                 }
 
                 // Hash password here (centralized)
-                user.Password = BCrypt.Net.BCrypt.HashPassword(user.Password, BCrypt.Net.BCrypt.GenerateSalt(12));
+                user.Password = BCrypt.Net.BCrypt.HashPassword(user.Password, 12);
                 var success = await CreateAsync(user);
                 if (!success) throw new Exception("Failed to create user");
 

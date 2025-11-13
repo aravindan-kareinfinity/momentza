@@ -36,7 +36,7 @@ export class ApiTicketService implements ITicketService {
   }
 
   async getTicketsByBookingId(bookingId: string): Promise<TicketItem[]> {
-    return apiClient.get<TicketItem[]>(`/api/ticket/bookings/${bookingId}/tickets`);
+    return apiClient.get<TicketItem[]>(`/api/tickets/bookings/${bookingId}/tickets`);
   }
 
   async updateTicketStatus(id: string, status: 'open' | 'in-progress' | 'completed'): Promise<TicketItem> {

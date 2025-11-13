@@ -85,11 +85,12 @@ export function AppSidebar() {
         // Use async method for API mode
         await authService.logout();
       }
-      navigate('/login');
+      // Go to organization front page on same host/subdomain
+      navigate('/');
     } catch (error) {
       console.error('Logout error:', error);
-      // Even if logout fails, navigate to login
-      navigate('/login');
+      // Even if logout fails, go to front page
+      navigate('/');
     }
   };
 

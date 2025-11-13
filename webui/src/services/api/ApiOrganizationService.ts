@@ -73,6 +73,15 @@ export class ApiOrganizationService implements IOrganizationService {
       }
     }
 
+    // If no organizationId provided, get it from user context (localStorage)
+    // This bypasses domain/subdomain validation and uses the user's organizationId directly
+    const userOrganizationId = this.getUserOrganizationId();
+    if (userOrganizationId) {
+      console.log('🔍 ApiOrganizationService: Using organization ID from user context:', userOrganizationId);
+      // Recursively call with the user's organizationId to fetch by ID
+      return this.getCurrentOrganization(userOrganizationId);
+    }
+
     // Return cached data if valid (fallback for backward compatibility)
     if (this.isCacheValid()) {
       console.log('🔍 ApiOrganizationService: Returning cached organization:', this.cachedOrganization);
@@ -118,6 +127,20 @@ export class ApiOrganizationService implements IOrganizationService {
       console.error('🔍 ApiOrganizationService: Error fetching organization:', error);
       throw error;
     }
+  }
+
+  // Helper method to get organization ID from user context (localStorage)
+  private getUserOrganizationId(): string | null {
+    try {
+      const user = localStorage.getItem('currentUser');
+      if (user) {
+        const userData = JSON.parse(user);
+        return userData.organizationId || null;
+      }
+    } catch (error) {
+      console.error('🔍 ApiOrganizationService: Error reading user organizationId from localStorage:', error);
+    }
+    return null;
   }
 
   // Method to force refresh the cache

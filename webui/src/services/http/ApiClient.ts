@@ -33,21 +33,30 @@ export class ApiClient {
         const url = new URL(window.location.href);
         const orgIdFromSearch = url.searchParams.get('orgId');
         if (orgIdFromSearch) return orgIdFromSearch;
-        
+
         // 2) Try path pattern like /org/{id}/...
         const parts = url.pathname.split('/').filter(Boolean);
         const orgIndex = parts.indexOf('org');
         if (orgIndex >= 0 && parts[orgIndex + 1]) {
           return parts[orgIndex + 1];
         }
+
+        // 3) Try subdomain: org.localhost -> org
+        const hostname = url.hostname;
+        if (hostname.includes('.localhost')) {
+          const subdomain = hostname.split('.')[0];
+          if (subdomain && subdomain !== 'www') {
+            return subdomain;
+          }
+        }
       }
     } catch {}
 
-    // 3) Try localStorage override key (if app sets it elsewhere)
+    // 4) Try localStorage override key (if app sets it elsewhere)
     const storedOrgId = localStorage.getItem('currentOrganizationId') || localStorage.getItem('selectedOrganizationId');
     if (storedOrgId) return storedOrgId;
 
-    // 4) Fallback to logged-in user's organizationId
+    // 5) Fallback to logged-in user's organizationId
     const user = localStorage.getItem('currentUser');
     if (user) {
       try {

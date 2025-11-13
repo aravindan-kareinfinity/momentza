@@ -30,6 +30,7 @@ const AddHall = () => {
   const [newFeature, setNewFeature] = useState({ name: '', charge: '' });
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [galleryImages, setGalleryImages] = useState<any[]>([]);
+  const [imageUrls, setImageUrls] = useState<Record<string, string>>({});
 
   // Fetch user and gallery data
   useEffect(() => {
@@ -49,6 +50,75 @@ const AddHall = () => {
     fetchData();
   }, []);
 
+  // Prefetch gallery images with auth headers and cache blob URLs
+  useEffect(() => {
+    let isCancelled = false;
+    const abortControllers: Record<string, AbortController> = {};
+
+    const getAuthToken = () => {
+      try {
+        const user = localStorage.getItem('currentUser');
+        if (user) {
+          const data = JSON.parse(user);
+          return data.token || '';
+        }
+      } catch {}
+      return '';
+    };
+
+    const getOrganizationId = () => {
+      try {
+        const storedOrgId = localStorage.getItem('currentOrganizationId') || localStorage.getItem('selectedOrganizationId');
+        if (storedOrgId) return storedOrgId;
+        const user = localStorage.getItem('currentUser');
+        if (user) {
+          const data = JSON.parse(user);
+          return data.organizationId || '';
+        }
+      } catch {}
+      return '';
+    };
+
+    const fetchImage = async (id: string) => {
+      if (isCancelled || imageUrls[id]) return;
+      const controller = new AbortController();
+      abortControllers[id] = controller;
+      try {
+        const url = galleryService.getImageUrl(id);
+        if (!url) return;
+        const res = await fetch(url, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${getAuthToken()}`,
+            'X-Organization-Id': getOrganizationId()
+          },
+          signal: controller.signal
+        });
+        if (!res.ok) return;
+        const blob = await res.blob();
+        const objectUrl = URL.createObjectURL(blob);
+        if (!isCancelled) {
+          setImageUrls(prev => ({ ...prev, [id]: objectUrl }));
+        } else {
+          URL.revokeObjectURL(objectUrl);
+        }
+      } catch {
+        // ignore
+      } finally {
+        delete abortControllers[id];
+      }
+    };
+
+    const ids = (Array.isArray(galleryImages) ? galleryImages : []).map(img => img.id);
+    ids.forEach(id => fetchImage(id));
+
+    return () => {
+      isCancelled = true;
+      Object.values(abortControllers).forEach(c => c.abort());
+      Object.values(imageUrls).forEach(url => URL.revokeObjectURL(url));
+    };
+  }, [galleryImages]);
+
   const handleAddFeature = () => {
     if (newFeature.name && newFeature.charge) {
       setFeatures([...features, { name: newFeature.name, charge: parseInt(newFeature.charge) }]);
@@ -60,11 +130,11 @@ const AddHall = () => {
     setFeatures(features.filter((_, i) => i !== index));
   };
 
-  const handleImageToggle = (imageUrl: string) => {
+  const handleImageToggle = (imageId: string) => {
     setSelectedImages(prev => 
-      prev.includes(imageUrl) 
-        ? prev.filter(url => url !== imageUrl)
-        : [...prev, imageUrl]
+      prev.includes(imageId) 
+        ? prev.filter(id => id !== imageId)
+        : [...prev, imageId]
     );
   };
 
@@ -268,16 +338,16 @@ const AddHall = () => {
                   <div
                     key={image.id}
                     className={`relative cursor-pointer rounded-lg overflow-hidden border-2 ${
-                      selectedImages.includes(image.url) ? 'border-primary' : 'border-gray-200'
+                      selectedImages.includes(image.id) ? 'border-primary' : 'border-gray-200'
                     }`}
-                    onClick={() => handleImageToggle(image.url)}
+                    onClick={() => handleImageToggle(image.id)}
                   >
                     <img
-                      src={`${image.url}?auto=format&fit=crop&w=200&q=80`}
+                      src={imageUrls[image.id] || galleryService.getImageUrl(image.id)}
                       alt={image.title}
                       className="w-full h-24 object-cover"
                     />
-                    {selectedImages.includes(image.url) && (
+                    {selectedImages.includes(image.id) && (
                       <div className="absolute inset-0 bg-primary/20 flex items-center justify-center">
                         <Badge>Selected</Badge>
                       </div>

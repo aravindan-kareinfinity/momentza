@@ -28,6 +28,8 @@ namespace Momantza.Models
         [MaxLength(500)]
         public string Notes { get; set; } = string.Empty;
 
+        public string orgId { get; set; } = string.Empty;
+            
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;

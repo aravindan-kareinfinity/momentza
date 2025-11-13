@@ -34,7 +34,8 @@ namespace Momantza.Services
                     name VARCHAR(200) NOT NULL,
                     quantity INTEGER NOT NULL,
                     price DECIMAL(10,2) NOT NULL,
-                    
+                    organizationid VARCHAR(50),
+                    description text,
                     notes TEXT,
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -80,18 +81,20 @@ namespace Momantza.Services
         public async Task<InventoryItem> CreateAsync(InventoryItem item)
         {
             item.Id = Guid.NewGuid().ToString();
-
             var sql = @"
-                INSERT INTO inventory_items (id, name, quantity, price, notes)
-                VALUES (@id, @name, @quantity, @price, @notes)";
+        INSERT INTO inventory_items (id, name, quantity, description, price, notes, organizationid)
+        VALUES (@id, @name, @quantity, @description, @price, @notes, @organizationid)";
 
             using var connection = await GetConnectionAsync();
             using var command = new NpgsqlCommand(sql, connection);
+
             command.Parameters.AddWithValue("@id", item.Id);
             command.Parameters.AddWithValue("@name", item.Name);
             command.Parameters.AddWithValue("@quantity", item.Quantity);
+            command.Parameters.AddWithValue("@description", item.Description ?? "");
             command.Parameters.AddWithValue("@price", item.Price);
             command.Parameters.AddWithValue("@notes", item.Notes ?? "");
+            command.Parameters.AddWithValue("@organizationid", item.orgId);
 
             await command.ExecuteNonQueryAsync();
             return item;
@@ -157,7 +160,8 @@ namespace Momantza.Services
                 Name = reader["name"].ToString() ?? "",
                 Quantity = Convert.ToInt32(reader["quantity"]),
                 Price = Convert.ToDecimal(reader["price"]),
-                Notes = reader["notes"]?.ToString() ?? ""
+                Notes = reader["notes"]?.ToString() ?? "",
+                orgId = reader["organizationid"]?.ToString() ?? ""
             };
         }
 
@@ -168,37 +172,37 @@ namespace Momantza.Services
 
         protected override (string sql, Dictionary<string, object?> parameters, List<string> jsonFields) GenerateInsertSql(InventoryItem entity)
         {
-            var sql = @"INSERT INTO inventoryitem (id, name, description, quantity, unit, price, notes, createdat, updatedat) VALUES (@id, @name, @description, @quantity, @unit, @price, @notes, @createdat, @updatedat)";
+            var sql = @"INSERT INTO inventory_items (id, name, quantity, price, notes, organizationid, created_at, updated_at) 
+                VALUES (@id, @name, @quantity, @price, @notes, @organizationid, @created_at, @updated_at)";
             var parameters = new Dictionary<string, object?>
             {
                 ["@id"] = entity.Id,
                 ["@name"] = entity.Name,
-                ["@description"] = entity.Description,
                 ["@quantity"] = entity.Quantity,
-                ["@unit"] = entity.Unit,
                 ["@price"] = entity.Price,
-                ["@notes"] = entity.Notes,
-                ["@createdat"] = entity.CreatedAt,
-                ["@updatedat"] = entity.UpdatedAt
+                ["@notes"] = entity.Notes ?? "",
+                ["@organizationid"] = entity.orgId,
+                ["@created_at"] = DateTime.UtcNow,
+                ["@updated_at"] = DateTime.UtcNow
             };
             return (sql, parameters, new List<string>());
         }
 
         protected override (string sql, Dictionary<string, object?> parameters, List<string> jsonFields) GenerateUpdateSql(InventoryItem entity)
         {
-            var sql = @"UPDATE inventoryitem SET name = @name, description = @description, quantity = @quantity, unit = @unit, price = @price, notes = @notes, updatedat = @updatedat WHERE id = @id";
+            var sql = @"UPDATE inventory_items 
+                SET name = @name, quantity = @quantity, price = @price, notes = @notes, updated_at = @updated_at 
+                WHERE id = @id";
             var parameters = new Dictionary<string, object?>
             {
                 ["@id"] = entity.Id,
                 ["@name"] = entity.Name,
-                ["@description"] = entity.Description,
                 ["@quantity"] = entity.Quantity,
-                ["@unit"] = entity.Unit,
                 ["@price"] = entity.Price,
-                ["@notes"] = entity.Notes,
-                ["@updatedat"] = entity.UpdatedAt
+                ["@notes"] = entity.Notes ?? "",
+                ["@updated_at"] = DateTime.UtcNow
             };
             return (sql, parameters, new List<string>());
         }
     }
-} 
+}

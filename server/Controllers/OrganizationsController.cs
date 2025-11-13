@@ -100,10 +100,10 @@ namespace Momantza.Controllers
             try
             {
                 Console.WriteLine($"Updating organization {id} with data: Logo={organization.Logo}, Name={organization.Name}");
-                
+
                 // Verify table structure first
                 // await _organizationDataService.VerifyTableStructure();
-                
+
                 // Get existing organization first
                 var existingOrg = await _organizationDataService.GetByIdAsync(id);
                 if (existingOrg == null)
@@ -111,7 +111,7 @@ namespace Momantza.Controllers
                     Console.WriteLine($"Organization {id} not found");
                     return NotFound(new { message = "Organization not found" });
                 }
-                
+
                 // Merge with existing data to ensure all fields are present
                 existingOrg.Name = organization.Name ?? existingOrg.Name;
                 existingOrg.ContactPerson = organization.ContactPerson ?? existingOrg.ContactPerson;
@@ -123,16 +123,16 @@ namespace Momantza.Controllers
                 existingOrg.Logo = organization.Logo ?? existingOrg.Logo;
                 existingOrg.Theme = organization.Theme ?? existingOrg.Theme;
                 existingOrg.UpdatedAt = DateTime.UtcNow;
-                
+
                 Console.WriteLine($"Merged organization data: Logo={existingOrg.Logo}, Name={existingOrg.Name}");
-                
+
                 var success = await _organizationDataService.UpdateAsync(existingOrg);
                 if (!success)
                 {
                     Console.WriteLine($"Failed to update organization {id}");
                     return StatusCode(500, new { message = "Failed to update organization" });
                 }
-                
+
                 var updatedOrg = await _organizationDataService.GetByIdAsync(id);
                 Console.WriteLine($"Successfully updated organization {id}, Logo={updatedOrg?.Logo}");
                 return Ok(updatedOrg);
@@ -186,35 +186,69 @@ namespace Momantza.Controllers
         [HttpGet("current")]
         [HttpGet("me")]  // Alternative route
         [HttpGet("active")]  // Another alternative route
-       // [HttpGet("current")]
+                             // [HttpGet("current")]
+                             //public async Task<IActionResult> GetCurrentOrganization()
+                             //{
+                             //    try
+                             //    {
+                             //        // Get the domain from the current request
+                             //        var domain = HttpContext.Request.Host.Host;
+
+        //        // Remove port if present (localhost:3000 -> localhostGetByDomainAsync
+        //        if (domain.Contains(':'))
+        //        {
+        //            domain = domain.Split(':')[0];
+        //        }
+
+        //        Console.WriteLine($"🔍 Looking for organization by domain: {domain}");
+
+        //        var organization = await _organizationDataService.GetByDomainAsync(domain);
+        //        if (organization == null)
+        //        {
+        //            Console.WriteLine($"❌ No organization found for domain: {domain}");
+        //            return NotFound(new { message = $"No organization found for domain: {domain}" });
+        //        }
+
+        //        Console.WriteLine($"✅ Found organization: {organization.Name}");
+        //        return Ok(organization);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Console.WriteLine($"❌ Error getting current organization: {ex.Message}");
+        //        return StatusCode(500, new { message = "Internal server error" });
+        //    }
+        //}
         public async Task<IActionResult> GetCurrentOrganization()
         {
             try
             {
-                // Get the domain from the current request
-                var domain = HttpContext.Request.Host.Host;
-
-                // Remove port if present (localhost:3000 -> localhostGetByDomainAsync
-                if (domain.Contains(':'))
+                var isValidContext = await _organizationDataService.ValidateUserOrganizationContextAsync();
+                if (!isValidContext)
                 {
-                    domain = domain.Split(':')[0];
+                    Console.WriteLine(" Organization mismatch. Access denied.");
+                    return Unauthorized(new { message = "Access denied: organization mismatch" });
                 }
 
-                Console.WriteLine($"🔍 Looking for organization by domain: {domain}");
+                var domain = HttpContext.Request.Host.Host;
+
+                if (domain.Contains(':'))
+                    domain = domain.Split(':')[0];
+
+                Console.WriteLine($" Looking for organization by domain: {domain}");
 
                 var organization = await _organizationDataService.GetByDomainAsync(domain);
                 if (organization == null)
                 {
-                    Console.WriteLine($"❌ No organization found for domain: {domain}");
+                    Console.WriteLine($" No organization found for domain: {domain}");
                     return NotFound(new { message = $"No organization found for domain: {domain}" });
                 }
 
-                Console.WriteLine($"✅ Found organization: {organization.Name}");
+                Console.WriteLine($"Found organization: {organization.Name}");
                 return Ok(organization);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"❌ Error getting current organization: {ex.Message}");
+                Console.WriteLine($" Error getting current organization: {ex.Message}");
                 return StatusCode(500, new { message = "Internal server error" });
             }
         }
@@ -226,14 +260,14 @@ namespace Momantza.Controllers
             try
             {
                 Console.WriteLine($"GetByIdFromUrl method called with ID: {id}");
-                
+
                 var organization = await _organizationDataService.GetByIdAsync(id);
                 if (organization == null)
                 {
                     Console.WriteLine($"Organization not found for ID: {id}");
                     return NotFound(new { message = "Organization not found" });
                 }
-                
+
                 Console.WriteLine($"Found organization by ID: {organization.Name}");
                 return Ok(organization);
             }
@@ -287,7 +321,7 @@ namespace Momantza.Controllers
                                 ALTER TABLE organization ADD COLUMN logo TEXT;
                             END IF;
                         END $$;" },
-                    
+
                     new { Name = "users", Sql = @"
                         CREATE TABLE IF NOT EXISTS users (
                             id VARCHAR(50) PRIMARY KEY,
@@ -300,7 +334,7 @@ namespace Momantza.Controllers
                             createdat TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
                             updatedat TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
                         )" },
-                    
+
                     new { Name = "halls", Sql = @"
                         CREATE TABLE IF NOT EXISTS halls (
                             id VARCHAR(50) PRIMARY KEY,
@@ -320,7 +354,7 @@ namespace Momantza.Controllers
                             createdat TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
                             updatedat TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
                         )" },
-                    
+
                     new { Name = "bookings", Sql = @"
                         CREATE TABLE IF NOT EXISTS bookings (
                             id VARCHAR(50) PRIMARY KEY,
@@ -343,7 +377,7 @@ namespace Momantza.Controllers
                             createdat TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
                             updatedat TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
                         )" },
-                    
+
                     new { Name = "reviews", Sql = @"
                         CREATE TABLE IF NOT EXISTS reviews (
                             id VARCHAR(50) PRIMARY KEY,
@@ -355,7 +389,7 @@ namespace Momantza.Controllers
                             organizationid VARCHAR(50) REFERENCES organization(id),
                             isenabled BOOLEAN DEFAULT true
                         )" },
-                    
+
                     new { Name = "galleryimage", Sql = @"
                         CREATE TABLE IF NOT EXISTS galleryimage (
                             id VARCHAR(50) PRIMARY KEY,
@@ -368,7 +402,7 @@ namespace Momantza.Controllers
                             imagebytes BYTEA,
                             contenttype VARCHAR(100)
                         )" },
-                    
+
                     new { Name = "carouselitem", Sql = @"
                         CREATE TABLE IF NOT EXISTS carouselitem (
                             id VARCHAR(50) PRIMARY KEY,
@@ -379,7 +413,7 @@ namespace Momantza.Controllers
                             isactive BOOLEAN DEFAULT true,
                             organizationid VARCHAR(50) REFERENCES organization(id)
                         )" },
-                    
+
                     new { Name = "customerclick", Sql = @"
                         CREATE TABLE IF NOT EXISTS customerclick (
                             id VARCHAR(50) PRIMARY KEY,
@@ -399,7 +433,7 @@ namespace Momantza.Controllers
                             organizationid VARCHAR(50) REFERENCES organization(id),
                             createdat TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
                         )" },
-                    
+
                     new { Name = "serviceitem", Sql = @"
                         CREATE TABLE IF NOT EXISTS serviceitem (
                             id VARCHAR(50) PRIMARY KEY,
@@ -412,7 +446,7 @@ namespace Momantza.Controllers
                             createdat TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
                             updatedat TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
                         )" },
-                    
+
                     new { Name = "microsite", Sql = @"
                         CREATE TABLE IF NOT EXISTS microsite (
                             id VARCHAR(50) PRIMARY KEY,
@@ -420,7 +454,7 @@ namespace Momantza.Controllers
                             components JSONB,
                             isactive BOOLEAN DEFAULT true
                         )" },
-                    
+
                     new { Name = "billingsettings", Sql = @"
                         CREATE TABLE IF NOT EXISTS billingsettings (
                             id VARCHAR(50) PRIMARY KEY,
@@ -436,7 +470,7 @@ namespace Momantza.Controllers
                             createdat TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
                             updatedat TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
                         )" },
-                    
+
                     new { Name = "masterdataitem", Sql = @"
                         CREATE TABLE IF NOT EXISTS masterdataitem (
                             id VARCHAR(50) PRIMARY KEY,
@@ -447,7 +481,7 @@ namespace Momantza.Controllers
                             createdat TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
                             updatedat TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
                         )" },
-                    
+
                     new { Name = "communication", Sql = @"
                         CREATE TABLE IF NOT EXISTS communication (
                             id VARCHAR(50) PRIMARY KEY,
@@ -460,7 +494,7 @@ namespace Momantza.Controllers
                             organizationid VARCHAR(50) REFERENCES organization(id),
                             createdat TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
                         )" },
-                    
+
                     new { Name = "inventoryitem", Sql = @"
                         CREATE TABLE IF NOT EXISTS inventoryitem (
                             id VARCHAR(50) PRIMARY KEY,
@@ -474,7 +508,7 @@ namespace Momantza.Controllers
                             createdat TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
                             updatedat TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
                         )" },
-                    
+
                     new { Name = "ticketitem", Sql = @"
                         CREATE TABLE IF NOT EXISTS ticketitem (
                             id VARCHAR(50) PRIMARY KEY,
@@ -489,7 +523,7 @@ namespace Momantza.Controllers
                             createdat TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
                             updatedat TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
                         )" },
-                    
+
                     new { Name = "monthlydata", Sql = @"
                         CREATE TABLE IF NOT EXISTS monthlydata (
                             id VARCHAR(50) PRIMARY KEY,
@@ -499,7 +533,7 @@ namespace Momantza.Controllers
                             organizationid VARCHAR(50) REFERENCES organization(id),
                             createdat TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
                         )" },
-                    
+
                     new { Name = "statusdata", Sql = @"
                         CREATE TABLE IF NOT EXISTS statusdata (
                             id VARCHAR(50) PRIMARY KEY,
@@ -509,7 +543,7 @@ namespace Momantza.Controllers
                             organizationid VARCHAR(50) REFERENCES organization(id),
                             createdat TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
                         )" },
-                    
+
                     new { Name = "hallutilization", Sql = @"
                         CREATE TABLE IF NOT EXISTS hallutilization (
                             id VARCHAR(50) PRIMARY KEY,
@@ -519,7 +553,7 @@ namespace Momantza.Controllers
                             organizationid VARCHAR(50) REFERENCES organization(id),
                             createdat TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
                         )" },
-                    
+
                     new { Name = "growthmetrics", Sql = @"
                         CREATE TABLE IF NOT EXISTS growthmetrics (
                             id VARCHAR(50) PRIMARY KEY,
@@ -529,7 +563,7 @@ namespace Momantza.Controllers
                             organizationid VARCHAR(50) REFERENCES organization(id),
                             createdat TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
                         )" },
-                    
+
                     new { Name = "customerinsights", Sql = @"
                         CREATE TABLE IF NOT EXISTS customerinsights (
                             id VARCHAR(50) PRIMARY KEY,
@@ -539,7 +573,7 @@ namespace Momantza.Controllers
                             organizationid VARCHAR(50) REFERENCES organization(id),
                             createdat TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
                         )" },
-                    
+
                     new { Name = "usersession", Sql = @"
                         CREATE TABLE IF NOT EXISTS usersession (
                             id VARCHAR(50) PRIMARY KEY,
@@ -560,7 +594,7 @@ namespace Momantza.Controllers
                     {
                         using var command = new NpgsqlCommand(table.Sql, connection);
                         await command.ExecuteNonQueryAsync();
-                        
+
                         syncResults.Add(new
                         {
                             Table = table.Name,
@@ -647,4 +681,4 @@ namespace Momantza.Controllers
             }
         }
     }
-} 
+}

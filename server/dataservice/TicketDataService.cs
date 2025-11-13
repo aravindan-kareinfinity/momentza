@@ -41,8 +41,8 @@ namespace Momantza.Services
                     priority VARCHAR(20) NOT NULL,
                     booking_id VARCHAR(50),
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                    organizationid VARCHAR(50);
+                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    organizationid VARCHAR(50)
                 );";
 
             using var connection = GetConnectionAsync().Result;
@@ -120,7 +120,7 @@ namespace Momantza.Services
                 UPDATE tickets 
                 SET title = @title, description = @description, category = @category, 
                     status = @status, assigned_to = @assignedTo, priority = @priority, 
-                    booking_id = @bookingId, updated_at = @updatedAt , organizationid = @organizationId,
+                    booking_id = @bookingId, updated_at = @updatedAt , organizationid = @organizationId
                 WHERE id = @id";
 
             using var connection = await GetConnectionAsync();

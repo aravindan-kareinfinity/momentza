@@ -184,7 +184,6 @@ const BookingManagement = () => {
   const [newHandoverImage, setNewHandoverImage] = useState({ category: '', description: '' });
   const [newCommunication, setNewCommunication] = useState({ 
     date: new Date().toISOString().split('T')[0], 
-    time: new Date().toLocaleTimeString('en-US', { hour12: true, hour: 'numeric', minute: '2-digit' }), 
     fromPerson: '', 
     toPerson: '', 
     detail: '',
@@ -308,6 +307,7 @@ const BookingManagement = () => {
         bookingService.getBookingsByOrganization(organizationId),
         settingsService.getEventTypes(),
         settingsService.getEmployees(),
+        settingsService.getInventoryItems(),
         settingsService.getTicketCategories(),
         servicesService.getAllServices(),
         billingService.getBillingSettings()
@@ -328,7 +328,7 @@ const BookingManagement = () => {
       const inventoryItems = getOrDefault<any[]>(3, []);
       const ticketCategories = getOrDefault<any[]>(4, []);
       const services = getOrDefault<any[]>(5, []);
-      const billingSettings = getOrDefault<any>(5, null);
+      const billingSettings = getOrDefault<any>(6, null);
 
       // Find current booking
       currentBooking = currentBooking || bookings.find((b: any) => b.id === bookingId) || pageData.currentBooking || null;
@@ -453,6 +453,34 @@ const BookingManagement = () => {
 
   const handleCloseErrorDialog = () => {
     setShowErrorDialog(false);
+  };
+
+  // Handle booking status change from dialog
+  const handleStatusChange = async (
+    bookingId: string,
+    newStatus: string,
+    reason?: string
+  ) => {
+    try {
+      await bookingService.updateBookingStatus(bookingId, newStatus as any, reason);
+
+      if (reason) {
+        // Record the communication entry about the status change
+        await bookingService.updateBookingCommunication(
+          bookingId,
+          new Date().toISOString().split('T')[0],
+          `Status changed to ${newStatus}. Reason: ${reason}`
+        );
+      }
+
+      // Refresh page data to reflect latest status
+      await fetchPageData();
+
+      // Close and reset the dialog state
+      setStatusChangeDialog({ open: false, bookingId: '', newStatus: '', reason: '' });
+    } catch (e) {
+      console.error('[BookingManagement] Failed to change status', e);
+    }
   };
 
   // Loading state
@@ -629,7 +657,9 @@ const BookingManagement = () => {
   };
 
   // Ticket handlers
-  const handleAddTicket = async () => {
+  // Ticket handlers - FIXED VERSION
+const handleAddTicket = async () => {
+  try {
     const ticketData: Omit<TicketItem, 'id'> = {
       title: newTicket.title,
       description: newTicket.description,
@@ -641,61 +671,113 @@ const BookingManagement = () => {
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     };
-    await ticketService.createTicket(ticketData);
-    setNewTicket({ title: '', description: '', category: '', assignedTo: '', priority: 'medium', status: 'open' });
-    setShowTicketDialog(false);
-  };
-
-  const handleEditTicket = (ticket: TicketItem) => {
-    setEditingItem(ticket);
+    
+    const createdTicket = await ticketService.createTicket(ticketData);
+    
+    // Update local state immediately - don't wait for fetchPageData
+    setPageData(prev => ({
+      ...prev,
+      tickets: [createdTicket, ...prev.tickets]
+    }));
+    
+    // Reset form and close dialog
     setNewTicket({ 
-      title: ticket.title, 
-      category: ticket.category,
-      description: ticket.description, 
-      assignedTo: ticket.assignedTo, 
-      priority: ticket.priority,
-      status: ticket.status
+      title: '', 
+      description: '', 
+      category: '', 
+      assignedTo: '', 
+      priority: 'medium', 
+      status: 'open' 
     });
-    setShowTicketDialog(true);
-  };
+    setShowTicketDialog(false);
+    
+    console.log('Ticket created successfully');
+  } catch (error) {
+    console.error('Error creating ticket:', error);
+    alert('Failed to create ticket. Please try again.');
+  }
+};
 
-  const handleDeleteTicket = async (ticketId: string, reason: string) => {
-    await ticketService.deleteTicket(ticketId);
-    await fetchPageData();
-    console.log(`Ticket deleted. Reason: ${reason}`);
-  };
+const handleEditTicket = (ticket: TicketItem) => {
+  setEditingItem(ticket);
+  setNewTicket({ 
+    title: ticket.title, 
+    category: ticket.category,
+    description: ticket.description || '', 
+    assignedTo: ticket.assignedTo, 
+    priority: ticket.priority,
+    status: ticket.status
+  });
+  setShowTicketDialog(true);
+};
 
-  const handleUpdateTicket = async () => {
-    if (editingItem) {
-      await ticketService.updateTicket(editingItem.id, {
-        title: newTicket.title,
-        description: newTicket.description,
-        category: newTicket.category,
-        assignedTo: newTicket.assignedTo,
-        priority: newTicket.priority,
-        status: newTicket.status
-      });
-      await fetchPageData();
-      setEditingItem(null);
-      setNewTicket({ title: '', description: '', category: '', assignedTo: '', priority: 'medium', status: 'open' });
-      setShowTicketDialog(false);
+const handleUpdateTicket = async () => {
+  if (!editingItem) return;
+  
+  try {
+    const updatedTicket = await ticketService.updateTicket(editingItem.id, {
+      title: newTicket.title,
+      description: newTicket.description,
+      category: newTicket.category,
+      assignedTo: newTicket.assignedTo,
+      priority: newTicket.priority,
+      status: newTicket.status
+    });
+    
+    // Update local state immediately
+    setPageData(prev => ({
+      ...prev,
+      tickets: prev.tickets.map(ticket => 
+        ticket.id === updatedTicket.id ? updatedTicket : ticket
+      )
+    }));
+    
+    // Reset form and close dialog
+    setEditingItem(null);
+    setNewTicket({ 
+      title: '', 
+      description: '', 
+      category: '', 
+      assignedTo: '', 
+      priority: 'medium', 
+      status: 'open' 
+    });
+    setShowTicketDialog(false);
+    
+    console.log('Ticket updated successfully');
+  } catch (error) {
+    console.error('Error updating ticket:', error);
+    alert('Failed to update ticket. Please try again.');
+  }
+};
+
+const handleDeleteTicket = async (ticketId: string, reason: string) => {
+  if (!reason) {
+    alert('Please provide a reason for deletion.');
+    return;
+  }
+
+  if (!confirm(`Are you sure you want to delete this ticket? Reason: ${reason}`)) {
+    return;
+  }
+
+  try {
+    const success = await ticketService.deleteTicket(ticketId);
+    if (success) {
+      // Update local state immediately
+      setPageData(prev => ({
+        ...prev,
+        tickets: prev.tickets.filter(ticket => ticket.id !== ticketId)
+      }));
+      console.log('Ticket deleted successfully');
+    } else {
+      alert('Failed to delete ticket. Please try again.');
     }
-  };
-
-  const handleStatusChange = async (bookingId: string, newStatus: string, reason?: string) => {
-    const currentBooking = await bookingService.getById(bookingId);
-    if (currentBooking) {
-      const updatedBooking = {
-        ...currentBooking,
-        status: newStatus as any
-      };
-      const result = await bookingService.update(bookingId, updatedBooking);
-      if (result) {
-        await fetchPageData();
-        setStatusChangeDialog({ open: false, bookingId: '', newStatus: '', reason: '' });
-      }
-    }
-  };
+  } catch (error) {
+    console.error('Error deleting ticket:', error);
+    alert('Failed to delete ticket. Please try again.');
+  }
+};
 
   // Inventory handlers
   const handleAddInventoryItem = async () => {
@@ -704,9 +786,9 @@ const BookingManagement = () => {
     await inventoryService.create({
       name: newInventoryItem.name,
       description: newInventoryItem.notes || '',
-      quantity: newInventoryItem.quantity,
-      unit: 'pcs',
-      price: newInventoryItem.price,
+      quantity: Number(newInventoryItem.quantity) || 0,
+     // unit: 'pcs',
+      price: Number(newInventoryItem.price) || 0,
       organizationid: orgId,
       createdat: new Date().toISOString(),
       updatedat: new Date().toISOString(),
@@ -733,8 +815,8 @@ const BookingManagement = () => {
       const updatedInventoryItem = {
         ...editingItem,
         name: newInventoryItem.name,
-        quantity: newInventoryItem.quantity,
-        price: newInventoryItem.price,
+        quantity: Number(newInventoryItem.quantity) || 0,
+        price: Number(newInventoryItem.price) || 0,
         notes: newInventoryItem.notes
       };
       await inventoryService.update(editingItem.id, updatedInventoryItem);
@@ -771,7 +853,7 @@ const BookingManagement = () => {
       setNewInventoryItem(prev => ({
         ...prev,
         name: itemName,
-        price: selectedItem.price || 0
+        price: Number(selectedItem.price) || 0
       }));
     }
   };
@@ -781,15 +863,20 @@ const BookingManagement = () => {
     try {
       const bookingIdVal = pageData.currentBooking?.id || bookingId || '';
 
+      const selectedDate = new Date(newCommunication.date);
+    const now = new Date();
+    selectedDate.setHours(now.getHours(), now.getMinutes(), now.getSeconds());
+
       const communicationData: any = {
         booking_id: bookingIdVal,
-        bookingId: bookingIdVal,
+      //  bookingId: bookingIdVal,
         date: newCommunication.date,
-        time: newCommunication.time,
+        time: selectedDate.toISOString(), 
         from_Person: newCommunication.fromPerson,
-        fromPerson: newCommunication.fromPerson,
+        //fromPerson: newCommunication.fromPerson,
         to_Person: newCommunication.toPerson,
-        toPerson: newCommunication.toPerson,
+        //toPerson: newCommunication.toPerson,
+        communication: newCommunication.detail,
         detail: newCommunication.detail
       };
 
@@ -806,7 +893,6 @@ const BookingManagement = () => {
 
       setNewCommunication({ 
         date: new Date().toISOString().split('T')[0], 
-        time: new Date().toLocaleTimeString('en-US', { hour12: true, hour: 'numeric', minute: '2-digit' }), 
         fromPerson: '', 
         toPerson: '', 
         detail: '',
@@ -1491,12 +1577,17 @@ const BookingManagement = () => {
                   <SelectValue placeholder="Select feature" />
                 </SelectTrigger>
                 <SelectContent>
-                  {masterFeatures.map(feature => (
-                    <SelectItem key={feature.name} value={feature.name}>
-                      {feature.name} - ₹{feature.charge}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
+    {Array.isArray(hall.features) && hall.features.length > 0 ? 
+      hall.features.map((feature, index) => (
+        <SelectItem key={feature.id || index} value={feature.name}>
+          {feature.name} - ₹{feature.charge || 0}
+        </SelectItem>
+      )) :
+      <SelectItem value="no-features" disabled>
+        No features available
+      </SelectItem>
+    }
+  </SelectContent>
               </Select>
             </div>
             <div>
@@ -1528,12 +1619,12 @@ const BookingManagement = () => {
                   <SelectValue placeholder="Select service" />
                 </SelectTrigger>
                 <SelectContent>
-                  {servicesArray.map((service, idx) => (
-                    <SelectItem key={service?.id || `service-${idx}`} value={service?.name || ''}>
-                      {(service?.name || 'Unnamed Service')} - ₹{service?.basePrice ?? 0}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
+  {servicesArray.map(service => (
+    <SelectItem key={service.id} value={service.name}>
+      {service.name} - ₹{service.basePrice || 0}
+    </SelectItem>
+  ))}
+</SelectContent>
               </Select>
             </div>
             <div className="flex items-center space-x-2">
@@ -1653,12 +1744,13 @@ const BookingManagement = () => {
                   <SelectValue placeholder="Select ticket category" />
                 </SelectTrigger>
                 <SelectContent>
-                  {availableTicketCategories.map(category => (
-                    <SelectItem key={category.id} value={category.name}>
-                      {category.name}
+                  {availableTicketCategories.map(item => (
+                    <SelectItem key={item.id} value={item.name}>
+                      {item.name}
                     </SelectItem>
                   ))}
                 </SelectContent>
+                
               </Select>
             </div>
 
@@ -1727,7 +1819,7 @@ const BookingManagement = () => {
               <Input
                 type="number"
                 value={newInventoryItem.quantity}
-                onChange={(e) => setNewInventoryItem({...newInventoryItem, quantity: parseInt(e.target.value)})}
+                onChange={(e) => setNewInventoryItem({...newInventoryItem, quantity: Number(e.target.value) || 0})}
               />
             </div>
             <div>
@@ -1735,8 +1827,9 @@ const BookingManagement = () => {
               <Input
                 type="number"
                 value={newInventoryItem.price}
-                readOnly
-                className="bg-gray-50"
+                onChange={(e) => setNewInventoryItem({...newInventoryItem, price: Number(e.target.value) || 0})}
+                min="0"
+                step="0.01"
               />
             </div>
             <div>
@@ -1783,7 +1876,7 @@ const BookingManagement = () => {
               <Input
                 type="number"
                 value={newInventoryItem.quantity}
-                onChange={(e) => setNewInventoryItem({...newInventoryItem, quantity: parseInt(e.target.value)})}
+                onChange={(e) => setNewInventoryItem({...newInventoryItem, quantity: Number(e.target.value) || 0})}
               />
             </div>
             <div>
@@ -1791,8 +1884,9 @@ const BookingManagement = () => {
               <Input
                 type="number"
                 value={newInventoryItem.price}
-                readOnly
-                className="bg-gray-50"
+                onChange={(e) => setNewInventoryItem({...newInventoryItem, price: Number(e.target.value) || 0})}
+                min="0"
+                step="0.01"
               />
             </div>
             <div>
@@ -1853,117 +1947,58 @@ const BookingManagement = () => {
 
       {/* Communication Dialog */}
       <Dialog open={showCommunicationDialog} onOpenChange={setShowCommunicationDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Add Communication</DialogTitle>
-          </DialogHeader>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <Label>Date</Label>
-              <Input
-                type="date"
-                value={newCommunication.date}
-                onChange={(e) => setNewCommunication({...newCommunication, date: e.target.value})}
-              />
-            </div>
-            <div>
-              <Label>Time</Label>
-              <div className="flex gap-2 items-center">
-                <Input
-                  type="number"
-                  min="1"
-                  max="12"
-                  placeholder="HH"
-                  value={newCommunication.time.split(':')[0] || ''}
-                  onChange={(e) => {
-                    const hour = e.target.value;
-                    const minute = newCommunication.time.split(':')[1] || '00';
-                    const ampm = newCommunication.time.includes('AM') ? 'AM' : 'PM';
-                    setNewCommunication({...newCommunication, time: `${hour}:${minute} ${ampm}`});
-                  }}
-                  className="w-16"
-                />
-                <span className="text-gray-500">:</span>
-                <Input
-                  type="number"
-                  min="0"
-                  max="59"
-                  placeholder="MM"
-                  value={newCommunication.time.split(':')[1]?.split(' ')[0] || ''}
-                  onChange={(e) => {
-                    const hour = newCommunication.time.split(':')[0] || '12';
-                    const minute = e.target.value.padStart(2, '0');
-                    const ampm = newCommunication.time.includes('AM') ? 'AM' : 'PM';
-                    setNewCommunication({...newCommunication, time: `${hour}:${minute} ${ampm}`});
-                  }}
-                  className="w-16"
-                />
-                <Select 
-                  value={newCommunication.time.includes('AM') ? 'AM' : 'PM'}
-                  onValueChange={(value) => {
-                    const timeParts = newCommunication.time.split(' ');
-                    const timeOnly = timeParts[0] || '12:00';
-                    setNewCommunication({...newCommunication, time: `${timeOnly} ${value}`});
-                  }}
-                >
-                  <SelectTrigger className="w-20">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="AM">AM</SelectItem>
-                    <SelectItem value="PM">PM</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-            <div>
-              <Label>From</Label>
-              <Select 
-                value={newCommunication.fromPerson} 
-                onValueChange={(value) => setNewCommunication({...newCommunication, fromPerson: value})}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select employee" />
-                </SelectTrigger>
-                <SelectContent>
-                  {employees.map(employee => (
-                    <SelectItem key={employee.id} value={employee.name}>
-                      {employee.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label>To</Label>
-              <Input
-                value={newCommunication.toPerson}
-                onChange={(e) => setNewCommunication({...newCommunication, toPerson: e.target.value})}
-              />
-            </div>
-            <div className="w-full md:col-span-2">
-              <Label>Detail</Label>
-              <Textarea
-                value={newCommunication.detail}
-                onChange={(e) => setNewCommunication({...newCommunication, detail: e.target.value})}
-              />
-            </div>
-            <Button onClick={handleAddCommunication}>
-              Add Communication
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      <ServerErrorDialog
-        isOpen={showErrorDialog}
-        onClose={handleCloseErrorDialog}
-        onRetry={handleRetry}
-        isLoading={loading}
-        title="Booking Data Error"
-        message={error?.message || 'Unable to load booking data. Please try again.'}
-      />
-    </>
+  <DialogContent>
+    <DialogHeader>
+      <DialogTitle>Add Communication</DialogTitle>
+    </DialogHeader>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <Label>Date</Label>
+        <Input
+          type="date"
+          value={newCommunication.date}
+          onChange={(e) => setNewCommunication({...newCommunication, date: e.target.value})}
+        />
+      </div>
+      <div>
+        <Label>From</Label>
+        <Select 
+          value={newCommunication.fromPerson} 
+          onValueChange={(value) => setNewCommunication({...newCommunication, fromPerson: value})}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Select employee" />
+          </SelectTrigger>
+          <SelectContent>
+            {employees.map(employee => (
+              <SelectItem key={employee.id} value={employee.name}>
+                {employee.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+      <div>
+        <Label>To</Label>
+        <Input
+          value={newCommunication.toPerson}
+          onChange={(e) => setNewCommunication({...newCommunication, toPerson: e.target.value})}
+        />
+      </div>
+      <div className="w-full md:col-span-2">
+        <Label>Detail</Label>
+        <Textarea
+          value={newCommunication.detail}
+          onChange={(e) => setNewCommunication({...newCommunication, detail: e.target.value})}
+        />
+      </div>
+      <Button onClick={handleAddCommunication}>
+        Add Communication
+      </Button>
+    </div>
+  </DialogContent>
+</Dialog>
+</>
   );
 };
 
