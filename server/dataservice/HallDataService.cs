@@ -325,6 +325,30 @@ namespace Momantza.Services
         {
             return await DeleteAsync(id);
         }
+
+        public async Task<Hall>GetHallsByNameAsync(string name)
+        {
+            using var connection = await GetConnectionAsync();
+            var sql = @"
+            SELECT *
+            FROM halls
+            WHERE organizationid = @orgId
+              AND isactive = true
+              AND LOWER(name) LIKE LOWER(@name)
+            LIMIT 1;
+    ";
+
+            using var command = new NpgsqlCommand(sql, connection);
+            command.Parameters.AddWithValue("@orgId", GetCurrentOrganizationId());
+            command.Parameters.AddWithValue("@name", $"%{name}%");
+
+            using var reader = await command.ExecuteReaderAsync();
+
+            if (await reader.ReadAsync())
+                return MapFromReader(reader);
+
+            return null;
+        }
     }
 
     public interface IHallDataService : IBaseDataService<Hall>
@@ -339,5 +363,8 @@ namespace Momantza.Services
         Task<Hall> CreateHallAsync(Hall hall);
         Task<Hall> UpdateHallAsync(string id, Hall updates);
         Task<bool> DeleteHallAsync(string id);
+
+        //for chatbot
+        Task<Hall> GetHallsByNameAsync(string name);
     }
 }

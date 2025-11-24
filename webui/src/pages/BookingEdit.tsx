@@ -60,8 +60,7 @@ const BookingEdit = () => {
     }
 
     try {
-      const dateObj = new Date(date);
-      const slots = await hallService.getAvailableTimeSlots(hallId, dateObj);
+      const slots = await hallService.getAvailableTimeSlots(hallId, date);
       setTimeSlots(slots || []);
     } catch (err) {
       console.error('Failed to load time slots:', err);
@@ -109,7 +108,8 @@ const BookingEdit = () => {
             
             // Fetch time slots for the current booking
             if (bookingData.eventDate) {
-              await fetchTimeSlots(bookingData.hallId, bookingData.eventDate);
+              const formattedDate = formatDateForInput(bookingData.eventDate);
+              await fetchTimeSlots(bookingData.hallId, formattedDate || bookingData.eventDate);
             }
           } catch (err) {
             console.error('Failed to load hall data:', err);
@@ -137,6 +137,11 @@ const BookingEdit = () => {
         return dateString;
       }
       
+      const dateOnlyMatch = dateString.match(/^(\d{4}-\d{2}-\d{2})T/);
+      if (dateOnlyMatch) {
+        return dateOnlyMatch[1];
+      }
+
       // Otherwise, parse and format
       const date = new Date(dateString);
       if (isNaN(date.getTime())) {

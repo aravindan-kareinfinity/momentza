@@ -50,7 +50,7 @@ namespace Momantza.Middleware
             {
                 domain = host; // No subdomain, use full host as domain
             }
-            // ✅ ADD THESE LOGS BELOW
+            // LOGS for checking purpose
             Console.WriteLine("============== 🌐 DOMAIN DEBUG ==============");
             Console.WriteLine($"Full Host: {host}");
             Console.WriteLine($"Subdomain: {subdomain}");

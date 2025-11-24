@@ -1256,6 +1256,22 @@
     "ReturnTypes": []
   },
   {
+    "ContainingType": "MomantzaApp.Controllers.ChatBotController",
+    "Method": "Ask",
+    "RelativePath": "api/ChatBot/ask",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "req",
+        "Type": "MomantzaApp.Models.ChatRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
     "ContainingType": "Momantza.Controllers.CommunicationController",
     "Method": "GetAll",
     "RelativePath": "api/Communication",
@@ -2103,6 +2119,27 @@
   },
   {
     "ContainingType": "Momantza.Controllers.HallController",
+    "Method": "GetAvailableTimeSlots",
+    "RelativePath": "api/Hall/{id}/timeslots",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.String",
+        "IsRequired": true
+      },
+      {
+        "Name": "date",
+        "Type": "System.DateTime",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Momantza.Controllers.HallController",
     "Method": "GetActiveHalls",
     "RelativePath": "api/Hall/active",
     "HttpMethod": "GET",
@@ -2231,6 +2268,27 @@
     "ContainingType": "Momantza.Controllers.HallController",
     "Method": "GetAvailableTimeSlots",
     "RelativePath": "api/halls/{id}/available-slots",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.String",
+        "IsRequired": true
+      },
+      {
+        "Name": "date",
+        "Type": "System.DateTime",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Momantza.Controllers.HallController",
+    "Method": "GetAvailableTimeSlots",
+    "RelativePath": "api/halls/{id}/timeslots",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,

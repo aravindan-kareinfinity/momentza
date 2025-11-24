@@ -37,7 +37,7 @@ export interface IHallService extends IDataService<Hall> {
   getHallsByOrganization(organizationId: string): Promise<Hall[]>;
   getAccessibleHalls(organizationId: string, accessibleHallIds: string[]): Promise<Hall[]>;
   getHallById(id: string): Promise<Hall | null>;
-  getAvailableTimeSlots(hallId: string, date: Date): Promise<Array<{value: string, label: string, price: number}>>;
+  getAvailableTimeSlots(hallId: string, date: string | Date): Promise<Array<{value: string, label: string, price: number}>>;
   createHall(hall: Omit<Hall, 'id'>): Promise<Hall>;
   updateHall(id: string, updates: Partial<Hall>): Promise<Hall>;
   deleteHall(id: string): Promise<boolean>;

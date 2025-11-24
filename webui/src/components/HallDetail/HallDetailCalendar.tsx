@@ -10,15 +10,21 @@ import { cn } from '@/lib/utils';
 
 interface HallDetailCalendarProps {
   hallId: string;
+  // accept the parent's selected date and setter
+  selectedDate: Date | null;
+  onDateSelect: React.Dispatch<React.SetStateAction<Date | null>>;
 }
 
-export function HallDetailCalendar({ hallId }: HallDetailCalendarProps) {
+export function HallDetailCalendar({
+  hallId,
+  selectedDate,
+  onDateSelect
+}: HallDetailCalendarProps) {
   // State for data
   const [bookings, setBookings] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
   const [showErrorDialog, setShowErrorDialog] = useState(false);
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 
   // Fetch data when hallId is available
   const fetchData = async () => {
@@ -27,7 +33,7 @@ export function HallDetailCalendar({ hallId }: HallDetailCalendarProps) {
     try {
       setLoading(true);
       setError(null);
-      
+
       console.log('[HallDetailCalendar] Fetching bookings...');
       // Get hall details to get organizationId
       const hall = await hallService.getHallById(hallId);
@@ -118,8 +124,8 @@ export function HallDetailCalendar({ hallId }: HallDetailCalendarProps) {
 
   const getBookingStatus = (date: Date) => {
     const dateStr = format(date, 'yyyy-MM-dd');
-    const dayBookings = safeBookings.filter(booking => 
-      booking.eventDate === dateStr && 
+    const dayBookings = safeBookings.filter(booking =>
+      booking.eventDate === dateStr &&
       (booking.status === 'confirmed' || booking.status === 'active')
     );
 
@@ -142,7 +148,7 @@ export function HallDetailCalendar({ hallId }: HallDetailCalendarProps) {
     const dayNumber = day.getDate();
     const isSelected = selectedDate && format(selectedDate, 'yyyy-MM-dd') === format(day, 'yyyy-MM-dd');
     const isDisabled = status === 'full' || day < new Date();
-    
+
     return (
       <div className={cn(
         "relative w-full h-full flex flex-col items-center justify-center p-1 rounded-md cursor-pointer",
@@ -150,14 +156,14 @@ export function HallDetailCalendar({ hallId }: HallDetailCalendarProps) {
         isDisabled && "opacity-50 cursor-not-allowed"
       )}>
         <span className="text-sm font-medium">{dayNumber}</span>
-        
+
         {/* Red cross mark for disabled days */}
         {isDisabled && (
           <div className="absolute top-0 right-0">
             <X className="h-3 w-3 text-red-500" />
           </div>
         )}
-        
+
         <div className="flex gap-1 mt-1">
           {status === 'full' && (
             <X className="h-2 w-2 text-red-500" />
@@ -186,7 +192,7 @@ export function HallDetailCalendar({ hallId }: HallDetailCalendarProps) {
   };
 
   // Get selected date bookings
-  const selectedDateBookings = selectedDate 
+  const selectedDateBookings = selectedDate
     ? safeBookings.filter(booking => {
         const bookingDate = new Date(booking.eventDate);
         return bookingDate.toDateString() === selectedDate.toDateString();
@@ -214,11 +220,11 @@ export function HallDetailCalendar({ hallId }: HallDetailCalendarProps) {
               <span>Booked</span>
             </div>
           </div>
-          
+
           <Calendar
             mode="single"
             selected={selectedDate}
-            onSelect={setSelectedDate}
+            onSelect={onDateSelect}
             disabled={disabledDates}
             className="w-full"
             classNames={{
@@ -227,7 +233,7 @@ export function HallDetailCalendar({ hallId }: HallDetailCalendarProps) {
               table: "w-full border-collapse space-y-1",
               head_row: "flex w-full",
               head_cell: "text-muted-foreground rounded-md flex-1 font-normal text-[0.8rem]",
-              row: "flex w-full mt-2",
+              row: "flex w/full mt-2",
               cell: "flex-1 text-center text-sm p-0 relative [&:has([aria-selected].day-range-end)]:rounded-r-md [&:has([aria-selected].day-outside)]:bg-accent/50 [&:has([aria-selected])]:bg-accent first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20",
             }}
             components={{
@@ -236,14 +242,14 @@ export function HallDetailCalendar({ hallId }: HallDetailCalendarProps) {
                   {...props}
                   className="h-14 w-full flex flex-col items-center justify-center hover:bg-accent rounded-md transition-colors"
                   disabled={getBookingStatus(date) === 'full' || date < new Date()}
-                  onClick={() => setSelectedDate(date)}
+                  onClick={() => onDateSelect(date)}
                 >
                   {renderDay(date)}
                 </button>
               ),
             }}
           />
-          
+
           {selectedDate && (
             <div className="mt-4">
               <h4 className="font-medium mb-2">

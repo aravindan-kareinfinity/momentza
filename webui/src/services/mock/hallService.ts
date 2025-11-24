@@ -60,11 +60,25 @@ class HallService {
     return Promise.resolve(hall || null);
   }
 
-  async getAvailableTimeSlots(hallId: string, date: Date): Promise<Array<{value: string, label: string, price: number}>> {
+  async getAvailableTimeSlots(hallId: string, date: string | Date): Promise<Array<{value: string, label: string, price: number}>> {
     const hall = await this.getHallById(hallId);
     if (!hall) return Promise.resolve([]);
 
-    const dateStr = format(date, 'yyyy-MM-dd');
+    const normalizeDate = (value: string | Date): Date => {
+      if (value instanceof Date) {
+        return value;
+      }
+
+      const parsed = new Date(value);
+      if (!isNaN(parsed.getTime())) {
+        return parsed;
+      }
+
+      throw new Error(`Invalid date: ${value}`);
+    };
+
+    const dateValue = normalizeDate(date);
+    const dateStr = format(dateValue, 'yyyy-MM-dd');
     const hallBookings = await bookingService.getBookingsByHall(hallId, hall.organizationId);
     const dayBookings = hallBookings.filter(booking => 
       booking.eventDate === dateStr && 

@@ -75,20 +75,23 @@ namespace Momantza.Services
         {
             try
             {
+                var organizationId = GetCurrentOrganizationId();
+
                 using var connection = await GetConnectionAsync();
-                var sql = "SELECT * FROM billingsettings WHERE id = 'default'";
+                var sql = "SELECT * FROM billingsettings WHERE organizationid = @organizationId LIMIT 1";
                 using var command = new NpgsqlCommand(sql, connection);
-                
+                command.Parameters.AddWithValue("@organizationId", organizationId);
+
                 using var reader = await command.ExecuteReaderAsync();
                 if (await reader.ReadAsync())
                 {
                     return MapFromReader(reader);
                 }
 
-                // Return default settings if none found
-                return new BillingSettings
+                // Create default settings for this organization
+                var defaultSettings = new BillingSettings
                 {
-                    Id = "default",
+                    Id = Guid.NewGuid().ToString(), // Use GUID instead of "1"
                     CompanyName = "Royal Wedding Halls",
                     GstNumber = "27AAAPL1234C1Z5",
                     Address = "123 Main Street, City, State - 123456",
@@ -97,14 +100,18 @@ namespace Momantza.Services
                     BankAccount = "1234567890",
                     IfscNumber = "ICIC0001234",
                     BankName = "ICICI Bank",
+                    OrganizationId = organizationId,
                     CreatedAt = DateTime.UtcNow,
                     UpdatedAt = DateTime.UtcNow
                 };
+
+                await CreateAsync(defaultSettings);
+                return defaultSettings;
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error getting billing settings: {ex.Message}");
-                return new BillingSettings();
+                return new BillingSettings { Id = Guid.NewGuid().ToString() };
             }
         }
 
@@ -112,40 +119,37 @@ namespace Momantza.Services
         {
             try
             {
-                // Check if settings exist
-                var existing = await GetBillingSettingsAsync();
-                if (existing.CompanyName == "Royal Wedding Halls" && existing.GstNumber == "27AAAPL1234C1Z5")
-                {
-                    // Create new settings
-                    settings.Id = "default";
-                    settings.CompanyName = string.IsNullOrEmpty(settings.CompanyName) ? existing.CompanyName : settings.CompanyName;
-                    settings.GstNumber = string.IsNullOrEmpty(settings.GstNumber) ? existing.GstNumber : settings.GstNumber;
-                    settings.Address = string.IsNullOrEmpty(settings.Address) ? existing.Address : settings.Address;
-                    settings.TaxPercentage = settings.TaxPercentage == 0 ? existing.TaxPercentage : settings.TaxPercentage;
-                    settings.HsnNumber = string.IsNullOrEmpty(settings.HsnNumber) ? existing.HsnNumber : settings.HsnNumber;
-                    settings.BankAccount = string.IsNullOrEmpty(settings.BankAccount) ? existing.BankAccount : settings.BankAccount;
-                    settings.IfscNumber = string.IsNullOrEmpty(settings.IfscNumber) ? existing.IfscNumber : settings.IfscNumber;
-                    settings.BankName = string.IsNullOrEmpty(settings.BankName) ? existing.BankName : settings.BankName;
-                    settings.CreatedAt = DateTime.UtcNow;
-                    settings.UpdatedAt = DateTime.UtcNow;
+                var organizationId = GetCurrentOrganizationId();
 
-                    var success = await CreateAsync(settings);
-                    if (!success) throw new Exception("Failed to create billing settings");
-                }
-                else
-                {
-                    // Update existing settings
-                    settings.UpdatedAt = DateTime.UtcNow;
-                    var success = await UpdateAsync(settings);
-                    if (!success) throw new Exception("Failed to update billing settings");
-                }
+                // Get or create settings for current organization
+                var existing = await GetBillingSettingsAsync();
+
+                // Update with provided values
+                settings.Id = existing.Id;
+                settings.OrganizationId = organizationId;
+                settings.CreatedAt = existing.CreatedAt;
+                settings.UpdatedAt = DateTime.UtcNow;
+
+                // Fill in any missing values
+                settings.CompanyName ??= existing.CompanyName;
+                settings.GstNumber ??= existing.GstNumber;
+                settings.Address ??= existing.Address;
+                settings.TaxPercentage = settings.TaxPercentage == 0 ? existing.TaxPercentage : settings.TaxPercentage;
+                settings.HsnNumber ??= existing.HsnNumber;
+                settings.BankAccount ??= existing.BankAccount;
+                settings.IfscNumber ??= existing.IfscNumber;
+                settings.BankName ??= existing.BankName;
+
+                var success = await UpdateAsync(settings);
+                if (!success)
+                    throw new Exception("Failed to update billing settings");
 
                 return settings;
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error updating billing settings: {ex.Message}");
-                throw;
+                throw new Exception($"Failed to update billing settings: {ex.Message}", ex);
             }
         }
 

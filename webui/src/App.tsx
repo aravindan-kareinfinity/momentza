@@ -32,6 +32,7 @@ import Settings from "./pages/Settings";
 import Statistics from "./pages/Statistics";
 import NotFound from "./pages/NotFound";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { AIChatBot } from "@/components/AIChatBot/AIChatBot";
 
 const queryClient = new QueryClient();
 
@@ -85,6 +86,7 @@ const App = () => {
             </Routes>
           </BrowserRouter>
           <RequestMonitor />
+          <AIChatBot />
         </TooltipProvider>
       </QueryClientProvider>
     </ErrorBoundary>

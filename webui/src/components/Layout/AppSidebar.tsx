@@ -97,24 +97,26 @@ export function AppSidebar() {
     <Sidebar>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Hall Management System</SidebarGroupLabel>
+          <SidebarGroupLabel className="text-lg font-bold">Hall Management System</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {items.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
-                    <NavLink
-                      to={item.url}
-                      end={item.url === "/admin"}
-                      className={({ isActive }) =>
-                        isActive
-                          ? "bg-accent text-accent-foreground"
-                          : "hover:bg-accent hover:text-accent-foreground"
-                      }
-                    >
-                      <item.icon />
-                      <span>{item.title}</span>
-                    </NavLink>
+                  <NavLink to={item.url} end={item.url === "/admin"}>
+                    {({ isActive }) => (
+                      <SidebarMenuButton
+                        className={
+                          isActive
+                            ? "bg-yellow-500 text-white hover:bg-yellow-600 hover:text-accent-foreground"
+                            : "hover:bg-accent hover:text-accent-foreground"
+                        }
+                      >
+                        <item.icon />
+                        <span>{item.title}</span>
+                      </SidebarMenuButton>
+                    )}
+                  </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}

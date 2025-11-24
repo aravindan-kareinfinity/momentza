@@ -29,8 +29,8 @@ namespace Momantza.Services
                 IsActive = reader["isactive"] != DBNull.Value ? Convert.ToBoolean(reader["isactive"]) : true,
                 CustomerResponse = reader["customerresponse"]?.ToString() ?? string.Empty,
                 LastContactDate = reader["lastcontactdate"] != DBNull.Value ? Convert.ToDateTime(reader["lastcontactdate"]) : null,
-                CreatedAt = reader["createdat"] != DBNull.Value ? Convert.ToDateTime(reader["createdat"]) : DateTime.UtcNow,
-                UpdatedAt = reader["updatedat"] != DBNull.Value ? Convert.ToDateTime(reader["updatedat"]) : DateTime.UtcNow
+                CreatedAt = reader["createdat"] != DBNull.Value ? Convert.ToDateTime(reader["createdat"]) : DateTime.Now,
+                UpdatedAt = reader["updatedat"] != DBNull.Value ? Convert.ToDateTime(reader["updatedat"]) : DateTime.Now
             };
         }
 
@@ -188,41 +188,110 @@ namespace Momantza.Services
             }
         }
 
+        //public async Task<bool> UpdateStatusAsync(string id, string status)
+        //{
+        //    try
+        //    {
+        //        using var connection = await GetConnectionAsync();
+
+        //        var orgId = GetCurrentOrganizationId();
+        //        string sql;
+        //        if (string.IsNullOrEmpty(orgId))
+        //        {
+        //            // No org context — update by id only (defensive)
+        //            sql = "UPDATE bookings SET status = @status, updatedat = @updatedat WHERE id = @id";
+        //        }
+        //        else
+        //        {
+        //            // Normal path: ensure organization match
+        //            sql = "UPDATE bookings SET status = @status, updatedat = @updatedat WHERE id = @id AND organizationid = @organizationId";
+        //        }
+
+        //        using var command = new NpgsqlCommand(sql, connection);
+        //        command.Parameters.AddWithValue("@id", id);
+        //        command.Parameters.AddWithValue("@status", status);
+        //        command.Parameters.AddWithValue("@updatedat", DateTime.UtcNow);
+
+        //        if (!string.IsNullOrEmpty(orgId))
+        //        {
+        //            command.Parameters.AddWithValue("@organizationId", orgId);
+        //        }
+
+        //        var rowsAffected = await command.ExecuteNonQueryAsync();
+        //        return rowsAffected > 0;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Console.WriteLine($"Error updating booking status: {ex.Message}");
+        //        return false;
+        //    }
+        //}
+
         public async Task<bool> UpdateStatusAsync(string id, string status)
         {
             try
             {
                 using var connection = await GetConnectionAsync();
-
                 var orgId = GetCurrentOrganizationId();
-                string sql;
-                if (string.IsNullOrEmpty(orgId))
+
+                string fetchsql;
+
+                Booking? currentBooking = null;
+                fetchsql = "SELECT hallid, eventdate, timeslot FROM bookings WHERE id = @id AND organizationid = @organizationId";
+
+                using (var fetchcmd = new NpgsqlCommand(fetchsql, connection))
                 {
-                    // No org context — update by id only (defensive)
-                    sql = "UPDATE bookings SET status = @status, updatedat = @updatedat WHERE id = @id";
-                }
-                else
-                {
-                    // Normal path: ensure organization match
-                    sql = "UPDATE bookings SET status = @status, updatedat = @updatedat WHERE id = @id AND organizationid = @organizationId";
+                    fetchcmd.Parameters.AddWithValue("@id", id);
+                    fetchcmd.Parameters.AddWithValue("@organizationId", orgId);
+
+                    using var reader = await fetchcmd.ExecuteReaderAsync();
+                    if (await reader.ReadAsync())
+                    {
+                        currentBooking = new Booking
+                        {
+                            HallId = reader["hallid"].ToString() ?? string.Empty,
+                            EventDate = Convert.ToDateTime(reader["eventdate"]),
+                            TimeSlot = reader["timeslot"].ToString() ?? string.Empty
+                        };
+                    }
                 }
 
+                if (status == "confirmed" && currentBooking != null)
+                {
+                    var cancelsql = @"
+                UPDATE bookings
+                SET status = 'cancelled', updatedat = @updatedat
+                WHERE hallid = @hallId
+                  AND eventdate = @eventDate
+                  AND timeslot = @timeSlot
+                  AND id <> @id
+                  AND organizationid = @organizationId
+                  AND status IN ('pending', 'confirmed')";
+                    using var cancelcmd = new NpgsqlCommand(cancelsql, connection);
+                    cancelcmd.Parameters.AddWithValue("@hallId", currentBooking.HallId);
+                    cancelcmd.Parameters.AddWithValue("@eventDate", currentBooking.EventDate);
+                    cancelcmd.Parameters.AddWithValue("@timeSlot", currentBooking.TimeSlot);
+                    cancelcmd.Parameters.AddWithValue("@id", id);
+                    cancelcmd.Parameters.AddWithValue("@organizationId", orgId);
+                    cancelcmd.Parameters.AddWithValue("@updatedat", DateTime.UtcNow);
+                    var cancelledCount = await cancelcmd.ExecuteNonQueryAsync();
+                    Console.WriteLine($"[BookingDataService] Auto-cancelled {cancelledCount} conflicting bookings.");
+                }
+
+                string sql = "UPDATE bookings SET status = @status, updatedat = @updatedat WHERE id = @id AND organizationid = @organizationId";
                 using var command = new NpgsqlCommand(sql, connection);
                 command.Parameters.AddWithValue("@id", id);
                 command.Parameters.AddWithValue("@status", status);
                 command.Parameters.AddWithValue("@updatedat", DateTime.UtcNow);
-
-                if (!string.IsNullOrEmpty(orgId))
-                {
-                    command.Parameters.AddWithValue("@organizationId", orgId);
-                }
+                command.Parameters.AddWithValue("@organizationId", orgId);
 
                 var rowsAffected = await command.ExecuteNonQueryAsync();
                 return rowsAffected > 0;
+
             }
-            catch (Exception ex)
+            catch (Exception error)
             {
-                Console.WriteLine($"Error updating booking status: {ex.Message}");
+                Console.WriteLine($"Error updating booking status: {error.Message}");
                 return false;
             }
         }
@@ -320,10 +389,10 @@ namespace Momantza.Services
 
                 if (booking.CreatedAt == default)
                 {
-                    booking.CreatedAt = DateTime.UtcNow;
+                    booking.CreatedAt = DateTime.Now;
                 }
 
-                booking.UpdatedAt = DateTime.UtcNow;
+                booking.UpdatedAt = DateTime.Now;
 
                 var success = await CreateAsync(booking);
                 if (!success) throw new Exception("Failed to create booking");

@@ -128,6 +128,7 @@ namespace Momantza.Controllers
         }
 
         [HttpGet("{id}/available-slots")]
+        [HttpGet("{id}/timeslots")]
         public async Task<IActionResult> GetAvailableTimeSlots(string id, [FromQuery] DateTime date)
         {
             try

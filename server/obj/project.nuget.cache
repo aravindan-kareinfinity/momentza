@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "qYEm8e0dQks=",
+  "dgSpecHash": "N87plfpmuWI=",
   "success": true,
   "projectFilePath": "C:\\Momentza\\momentza\\server\\MomantzaApp.csproj",
   "expectedPackageFiles": [
@@ -59,6 +59,7 @@
     "C:\\Users\\Roshan\\.nuget\\packages\\newtonsoft.json.bson\\1.0.2\\newtonsoft.json.bson.1.0.2.nupkg.sha512",
     "C:\\Users\\Roshan\\.nuget\\packages\\npgsql\\8.0.7\\npgsql.8.0.7.nupkg.sha512",
     "C:\\Users\\Roshan\\.nuget\\packages\\npgsql.entityframeworkcore.postgresql\\8.0.11\\npgsql.entityframeworkcore.postgresql.8.0.11.nupkg.sha512",
+    "C:\\Users\\Roshan\\.nuget\\packages\\openai\\2.7.0\\openai.2.7.0.nupkg.sha512",
     "C:\\Users\\Roshan\\.nuget\\packages\\pipelines.sockets.unofficial\\2.2.8\\pipelines.sockets.unofficial.2.2.8.nupkg.sha512",
     "C:\\Users\\Roshan\\.nuget\\packages\\stackexchange.redis\\2.7.27\\stackexchange.redis.2.7.27.nupkg.sha512",
     "C:\\Users\\Roshan\\.nuget\\packages\\swashbuckle.aspnetcore\\8.1.4\\swashbuckle.aspnetcore.8.1.4.nupkg.sha512",
@@ -67,6 +68,7 @@
     "C:\\Users\\Roshan\\.nuget\\packages\\swashbuckle.aspnetcore.swaggergen\\8.1.4\\swashbuckle.aspnetcore.swaggergen.8.1.4.nupkg.sha512",
     "C:\\Users\\Roshan\\.nuget\\packages\\swashbuckle.aspnetcore.swaggerui\\8.1.4\\swashbuckle.aspnetcore.swaggerui.8.1.4.nupkg.sha512",
     "C:\\Users\\Roshan\\.nuget\\packages\\system.buffers\\4.6.0\\system.buffers.4.6.0.nupkg.sha512",
+    "C:\\Users\\Roshan\\.nuget\\packages\\system.clientmodel\\1.8.1\\system.clientmodel.1.8.1.nupkg.sha512",
     "C:\\Users\\Roshan\\.nuget\\packages\\system.codedom\\4.4.0\\system.codedom.4.4.0.nupkg.sha512",
     "C:\\Users\\Roshan\\.nuget\\packages\\system.collections\\4.0.11\\system.collections.4.0.11.nupkg.sha512",
     "C:\\Users\\Roshan\\.nuget\\packages\\system.collections.immutable\\6.0.0\\system.collections.immutable.6.0.0.nupkg.sha512",
@@ -85,6 +87,8 @@
     "C:\\Users\\Roshan\\.nuget\\packages\\system.io\\4.1.0\\system.io.4.1.0.nupkg.sha512",
     "C:\\Users\\Roshan\\.nuget\\packages\\system.io.pipelines\\6.0.3\\system.io.pipelines.6.0.3.nupkg.sha512",
     "C:\\Users\\Roshan\\.nuget\\packages\\system.linq\\4.1.0\\system.linq.4.1.0.nupkg.sha512",
+    "C:\\Users\\Roshan\\.nuget\\packages\\system.memory.data\\8.0.1\\system.memory.data.8.0.1.nupkg.sha512",
+    "C:\\Users\\Roshan\\.nuget\\packages\\system.net.serversentevents\\9.0.9\\system.net.serversentevents.9.0.9.nupkg.sha512",
     "C:\\Users\\Roshan\\.nuget\\packages\\system.reflection\\4.1.0\\system.reflection.4.1.0.nupkg.sha512",
     "C:\\Users\\Roshan\\.nuget\\packages\\system.reflection.extensions\\4.0.1\\system.reflection.extensions.4.0.1.nupkg.sha512",
     "C:\\Users\\Roshan\\.nuget\\packages\\system.reflection.metadata\\6.0.1\\system.reflection.metadata.6.0.1.nupkg.sha512",

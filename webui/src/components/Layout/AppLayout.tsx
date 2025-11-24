@@ -24,11 +24,11 @@ export function AppLayout({ children }: AppLayoutProps) {
         // Use async method for API mode
         await authService.logout();
       }
-      navigate('/');
+      navigate('/login');
     } catch (error) {
       console.error('Logout error:', error);
       // Even if logout fails, navigate to home
-      navigate('/');
+      // navigate('/');
     }
   };
 

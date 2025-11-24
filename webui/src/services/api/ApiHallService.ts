@@ -9,7 +9,7 @@ export class ApiHallService implements IHallService {
 
   async getById(id: string): Promise<Hall | null> {
     try {
-      return await apiClient.get<Hall>(`/api/halls/1752588534882`);
+      return await apiClient.get<Hall>(`/api/halls/${id}`);
     } catch (error) {
       if (error.status === 404) {
         return null;
@@ -44,10 +44,32 @@ export class ApiHallService implements IHallService {
     return apiClient.get<Hall[]>(`/api/halls/organizations/${organizationId}/accessible?${queryParams}`);
   }
 
-  async getAvailableTimeSlots(hallId: string, date: Date): Promise<Array<{value: string, label: string, price: number}>> {
+  async getAvailableTimeSlots(hallId: string, date: string | Date): Promise<Array<{value: string, label: string, price: number}>> {
     try {
-      const dateStr = date.toISOString().split('T')[0];
-      const response = await apiClient.get<Array<{value: string, label: string, price: number}>>(`/api/halls/${hallId}/timeslots?date=${dateStr}`);
+      const normalizeDateParam = (input: string | Date): string => {
+        if (input instanceof Date) {
+          if (isNaN(input.getTime())) {
+            throw new Error('Invalid date provided');
+          }
+          return input.toISOString().split('T')[0];
+        }
+
+        if (/^\d{4}-\d{2}-\d{2}$/.test(input)) {
+          return input;
+        }
+
+        const parsed = new Date(input);
+        if (!isNaN(parsed.getTime())) {
+          return parsed.toISOString().split('T')[0];
+        }
+
+        throw new Error(`Invalid date format: ${input}`);
+      };
+
+      const dateStr = normalizeDateParam(date);
+      const response = await apiClient.get<Array<{value: string, label: string, price: number}>>(
+        `/api/halls/${hallId}/available-slots?date=${encodeURIComponent(dateStr)}`
+      );
       
       // If API returns data, use it
       if (response && Array.isArray(response)) {
