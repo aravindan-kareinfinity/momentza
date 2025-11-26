@@ -19,7 +19,7 @@ export class ApiTicketService implements ITicketService {
   }
 
   async create(data: Omit<TicketItem, 'id'>): Promise<TicketItem> {
-    return apiClient.post<TicketItem>('/api/ticket', data);
+    return apiClient.post<TicketItem>('/api/tickets', data);
   }
 
   async update(id: string, data: Partial<TicketItem>): Promise<TicketItem> {
@@ -36,7 +36,7 @@ export class ApiTicketService implements ITicketService {
   }
 
   async getTicketsByBookingId(bookingId: string): Promise<TicketItem[]> {
-    return apiClient.get<TicketItem[]>(`/api/ticket/bookings/${bookingId}/tickets`);
+    return apiClient.get<TicketItem[]>(`/api/tickets/bookings/${bookingId}/tickets`);
   }
 
   async updateTicketStatus(id: string, status: 'open' | 'in-progress' | 'completed'): Promise<TicketItem> {

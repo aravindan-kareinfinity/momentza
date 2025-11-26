@@ -10,6 +10,7 @@ import { ArrowLeft } from 'lucide-react';
 import { bookingService, hallService } from '@/services/ServiceFactory';
 import { useToast } from '@/hooks/use-toast';
 import { Booking } from '@/types';
+import { AnimatedPage } from '@/components/Layout/AnimatedPage';
 
 const BookingEdit = () => {
   const { bookingId } = useParams<{ bookingId: string }>();
@@ -408,7 +409,7 @@ const BookingEdit = () => {
   // Show loading state
   if (loading) {
     return (
-      <div className="space-y-6">
+      <AnimatedPage className="space-y-6">
         <div className="animate-pulse">
           <div className="h-8 bg-gray-200 rounded w-1/4 mb-4"></div>
           <div className="space-y-4">
@@ -417,14 +418,14 @@ const BookingEdit = () => {
             <div className="h-32 bg-gray-200 rounded"></div>
           </div>
         </div>
-      </div>
+      </AnimatedPage>
     );
   }
 
   // Show error state
   if (error || !booking) {
     return (
-      <div className="space-y-6">
+      <AnimatedPage className="space-y-6">
         <div className="bg-red-50 border border-red-200 rounded-md p-4">
           <div className="flex">
             <div className="flex-shrink-0">
@@ -442,12 +443,12 @@ const BookingEdit = () => {
             </div>
           </div>
         </div>
-      </div>
+      </AnimatedPage>
     );
   }
 
   return (
-    <div className="space-y-6">
+    <AnimatedPage className="space-y-6">
       <div className="flex items-center justify-between">
         <Button 
           variant="outline" 
@@ -677,7 +678,7 @@ const BookingEdit = () => {
           </Button>
         </div>
       </form>
-    </div>
+    </AnimatedPage>
   );
 };
 

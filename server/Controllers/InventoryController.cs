@@ -120,5 +120,20 @@ namespace Momantza.Controllers
                 return StatusCode(500, new { error = ex.Message });
             }
         }
+
+        //new
+        [HttpGet("bookings/{bookingId}/inventory")]
+        public async Task<ActionResult<List<InventoryItem>>> GetByBookingId(string bookingId)
+        {
+            try
+            {
+                var inventory = await _inventoryService.GetInventoryByBookingIdAsync(bookingId);
+                return Ok(inventory);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = ex.Message });
+            }
+        }
     }
-} 
+}

@@ -11,6 +11,7 @@ import { ArrowLeft, Plus, Trash2 } from 'lucide-react';
 import { hallService, galleryService, authService } from '@/services/ServiceFactory';
 import { useToast } from '@/hooks/use-toast';
 import { HallFeature } from '@/types';
+import { AnimatedPage } from '@/components/Layout/AnimatedPage';
 
 const AddHall = () => {
   const navigate = useNavigate();
@@ -112,7 +113,7 @@ const AddHall = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <AnimatedPage className="space-y-6">
       <div className="flex items-center justify-between">
         <Button 
           variant="outline" 
@@ -321,7 +322,7 @@ const AddHall = () => {
           </Button>
         </div>
       </form>
-    </div>
+    </AnimatedPage>
   );
 };
 

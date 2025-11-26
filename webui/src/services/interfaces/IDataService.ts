@@ -1,6 +1,6 @@
 // Import types from existing files
 import { 
-  Booking, Hall, User, Review, Organization, CarouselItem 
+  Booking, Hall, User, Review, Organization, CarouselItem, PaymentsItem 
 } from '../../types';
 import { 
   MasterDataItem, ServiceItem, InventoryItem, TicketItem, 
@@ -104,6 +104,7 @@ export interface IInventoryService extends IDataService<InventoryItem> {
   createInventoryItem(item: Omit<InventoryItem, 'id'>): Promise<InventoryItem>;
   updateInventoryItem(id: string, updates: Partial<InventoryItem>): Promise<InventoryItem>;
   deleteInventoryItem(id: string): Promise<boolean>;
+  getInventoryByBookingId(bookingId: string): Promise<InventoryItem[]>;
 }
 
 export interface ITicketService extends IDataService<TicketItem> {
@@ -206,3 +207,9 @@ export interface IMicrositeService {
   reorderComponents(organizationId: string, componentIds: string[]): Promise<void>;
   toggleComponent(id: string, isActive: boolean): Promise<MicrositeComponent>;
 } 
+
+
+//
+export interface IPaymentService extends IDataService<PaymentsItem>{
+  getPaymentsByBookingId(bookingId: string): Promise<PaymentsItem[]>;
+}

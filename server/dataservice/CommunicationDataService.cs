@@ -28,7 +28,7 @@ namespace Momantza.Services
         private void EnsureTableExists()
         {
             var createTableSql = @"
-                CREATE TABLE IF NOT EXISTS communications (
+                CREATE TABLE IF NOT EXISTS communication (
                     id VARCHAR(50) PRIMARY KEY,
                     booking_id VARCHAR(50) NOT NULL,
                     date TIMESTAMP WITH TIME ZONE NOT NULL,
@@ -50,7 +50,7 @@ namespace Momantza.Services
         public override async Task<List<Communication>> GetAllAsync()
         {
             var orgId = GetCurrentOrganizationId();
-            var sql = "SELECT * FROM communications WHERE organizationid = @organizationId ORDER BY created_at DESC";
+            var sql = "SELECT * FROM communication WHERE organizationid = @organizationId ORDER BY created_at DESC";
             using var connection = await GetConnectionAsync();
             using var command = new NpgsqlCommand(sql, connection);
             command.Parameters.AddWithValue("@organizationId", orgId);
@@ -87,7 +87,7 @@ namespace Momantza.Services
             //communication.created_at = DateTime.UtcNow;
 
             var sql = @"
-                INSERT INTO communications (id, booking_id, date, time, from_Person, to_Person, detail, created_at,type)
+                INSERT INTO communication (id, booking_id, date, time, from_Person, to_Person, detail, created_at,type)
                 VALUES (@id, @bookingId, @date, @time, @fromPerson, @toPerson, @detail, @createdAt,'lead')";
 
             using var connection = new NpgsqlConnection(_connectionString);
@@ -109,7 +109,7 @@ namespace Momantza.Services
         public async Task<Communication> UpdateAsync(string id, Communication communication)
         {
             var sql = @"
-                UPDATE communications 
+                UPDATE communication
                 SET booking_id = @bookingId, date = @date, time = @time, 
                     from_person = @fromPerson, to_person = @toPerson, detail = @detail,crate_at=createdAt
                 WHERE id = @id";
@@ -137,7 +137,7 @@ namespace Momantza.Services
 
         public async Task<bool> DeleteAsync(string id)
         {
-            var sql = "DELETE FROM communications WHERE id = @id";
+            var sql = "DELETE FROM communication WHERE id = @id";
 
             using var connection = new NpgsqlConnection(_connectionString);
             await connection.OpenAsync();
@@ -151,7 +151,7 @@ namespace Momantza.Services
         public async Task<List<Communication>> GetCommunicationsByBookingIdAsync(string bookingId)
         {
             var communications = new List<Communication>();
-            var sql = "SELECT * FROM communications WHERE booking_id = @bookingId ORDER BY created_at DESC";
+            var sql = "SELECT * FROM communication WHERE booking_id = @bookingId ORDER BY created_at DESC";
 
             using var connection = new NpgsqlConnection(_connectionString);
             await connection.OpenAsync();
@@ -190,7 +190,7 @@ namespace Momantza.Services
 
         protected override (string sql, Dictionary<string, object?> parameters, List<string> jsonFields) GenerateInsertSql(Communication entity)
         {
-            var sql = @"INSERT INTO communications (id, booking_id, date, time, from_person, to_person, detail, organizationid, createdat) VALUES (@id, @bookingid, @date, @time, @fromperson, @toperson, @detail, @organizationid, @createdat)";
+            var sql = @"INSERT INTO communication (id, booking_id, date, time, from_person, to_person, detail, organizationid, createdat) VALUES (@id, @bookingid, @date, @time, @fromperson, @toperson, @detail, @organizationid, @createdat)";
             var parameters = new Dictionary<string, object?>
             {
                 ["@id"] = entity.Id,
@@ -208,7 +208,7 @@ namespace Momantza.Services
 
         protected override (string sql, Dictionary<string, object?> parameters, List<string> jsonFields) GenerateUpdateSql(Communication entity)
         {
-            var sql = @"UPDATE communications SET booking_id = @bookingid, date = @date, time = @time, from_person = @fromperson, to_person = @toperson, detail = @detail, organizationid = @organizationid, createdat = @createdat WHERE id = @id";
+            var sql = @"UPDATE communication SET booking_id = @bookingid, date = @date, time = @time, from_person = @fromperson, to_person = @toperson, detail = @detail, organizationid = @organizationid, createdat = @createdat WHERE id = @id";
             var parameters = new Dictionary<string, object?>
             {
                 ["@id"] = entity.Id,

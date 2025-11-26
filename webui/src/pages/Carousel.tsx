@@ -10,6 +10,7 @@ import { carouselService, authService, galleryService } from '@/services/Service
 import { useToast } from '@/hooks/use-toast';
 import { CarouselItem } from '@/types';
 import { GalleryImage } from '@/services/mockData';
+import { AnimatedPage } from '@/components/Layout/AnimatedPage';
 
 const Carousel = () => {
   const { toast } = useToast();
@@ -283,7 +284,7 @@ const Carousel = () => {
   // Loading state
   if (loading) {
     return (
-      <div className="space-y-6">
+      <AnimatedPage className="space-y-6">
         <div className="animate-pulse">
           <div className="h-8 bg-gray-200 rounded w-1/4 mb-4"></div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -292,14 +293,14 @@ const Carousel = () => {
             ))}
           </div>
         </div>
-      </div>
+      </AnimatedPage>
     );
   }
 
   // Error state
   if (error || !currentUser) {
     return (
-      <div className="space-y-6">
+      <AnimatedPage className="space-y-6">
         <div className="bg-red-50 border border-red-200 rounded-md p-4">
           <div className="flex">
             <div className="flex-shrink-0">
@@ -317,14 +318,14 @@ const Carousel = () => {
             </div>
           </div>
         </div>
-      </div>
+      </AnimatedPage>
     );
   }
 
   const items = Array.isArray(carouselItems) ? carouselItems : [];
 
   return (
-    <div className="space-y-6">
+    <AnimatedPage className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold">Carousel Management</h1>
@@ -502,7 +503,7 @@ const Carousel = () => {
           </CardContent>
         </Card>
       )}
-    </div>
+    </AnimatedPage>
   );
 };
 

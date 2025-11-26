@@ -142,12 +142,22 @@ export interface InventoryItem {
   returnedAt?: string;
 }
 
+export interface Handover {
+  advanceAmount: number;
+  ebReading: number;
+  handOverDate: string;
+  personName: string;
+}
+
 export interface HandOverImage {
   id: string;
   bookingId: string;
-  imageUrl: string;
-  description: string;
+  organizationId: string;
+  category: string;
+  description?: string;
+  url?: string;
   uploadedAt: string;
+  createdAt: string;
 }
 
 export interface Inventoryitem{
@@ -161,4 +171,28 @@ export interface Inventoryitem{
   createdat:string;
   updatedat:string;
   notes:string;
+}
+
+export interface PaymentsItem{
+  id: string;
+  date: string;
+  paymentMode :'cash'| 'card' | 'upi' | 'bank transfer';
+  amount:number;
+  personName:string;
+  notes:string;
+  bookingId?: string,
+  organizationId: string,
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface FeatureItem {
+  id: string;
+  name: string;
+  quantity: number;      
+  price: number;         
+  createdAt: string;     
+  updatedAt: string;     
+  organizationId: string;
+  bookingId?: string;
 }

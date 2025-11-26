@@ -14,6 +14,7 @@ import { useServiceMutation } from '@/hooks/useService';
 import { useOrganization } from '@/hooks/useOrganization';
 import { BillingSettings, ServiceItem, MasterDataItem } from '@/services/mockData';
 import { useToast } from '@/hooks/use-toast';
+import { AnimatedPage } from '@/components/Layout/AnimatedPage';
 
 const Settings = () => {
   const { toast } = useToast();
@@ -494,7 +495,7 @@ const Settings = () => {
   // Loading state
   if (orgLoading || loading) {
     return (
-      <div className="space-y-8">
+      <AnimatedPage className="space-y-8">
         <div className="animate-pulse">
           <div className="h-8 bg-gray-200 rounded w-1/4 mb-4"></div>
           <div className="space-y-6">
@@ -505,14 +506,14 @@ const Settings = () => {
             </div>
           </div>
         </div>
-      </div>
+      </AnimatedPage>
     );
   }
 
   // Error state
   if (orgError || error) {
     return (
-      <div className="space-y-8">
+      <AnimatedPage className="space-y-8">
         <div className="bg-red-50 border border-red-200 rounded-md p-4">
           <div className="flex">
             <div className="flex-shrink-0">
@@ -530,7 +531,7 @@ const Settings = () => {
             </div>
           </div>
         </div>
-      </div>
+      </AnimatedPage>
     );
   }
 
@@ -568,7 +569,7 @@ const Settings = () => {
   );
 
   return (
-    <div className="space-y-6">
+    <AnimatedPage className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold">Settings</h1>
         <p className="text-gray-600">Manage organization settings and master data</p>
@@ -959,7 +960,7 @@ const Settings = () => {
           </div>
         </DialogContent>
       </Dialog>
-    </div>
+    </AnimatedPage>
   );
 };
 

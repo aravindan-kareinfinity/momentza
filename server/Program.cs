@@ -5,6 +5,7 @@ using System.Text.Json;
 using Momantza.Services;
 using Momantza.Middleware;
 using MomantzaApp.dataservice;
+using MomantzaApp.DataService;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -80,6 +81,8 @@ builder.Services.AddScoped<IInventoryDataService, InventoryDataService>();
 builder.Services.AddScoped<IStatisticsDataService, StatisticsDataService>();
 builder.Services.AddScoped<IHandoverDataService, HandoverDataService>();
 builder.Services.AddScoped<IChatBotDataService, ChatBotDataService>();
+builder.Services.AddScoped<IPaymentDataService, PaymentDataService>();
+builder.Services.AddScoped<IFeatureDataService, FeatureDataService>();
 builder.Services.AddHttpContextAccessor();
 
 var app = builder.Build();

@@ -10,6 +10,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { ArrowLeft, Calendar, MapPin, Users, Clock } from 'lucide-react';
 import { hallService, bookingService, servicesService } from '@/services/ServiceFactory';
 import { Hall, Booking } from '@/types';
+import { AnimatedPage } from '@/components/Layout/AnimatedPage';
 
 const BookingForm = () => {
   const { hallId } = useParams<{ hallId: string }>();
@@ -199,7 +200,7 @@ const BookingForm = () => {
   // Show loading state
   if (loading) {
     return (
-      <div className="min-h-screen bg-background">
+      <AnimatedPage className="min-h-screen bg-background">
         <div className="container mx-auto px-4 py-8">
           <div className="animate-pulse">
             <div className="h-8 bg-gray-200 rounded w-1/4 mb-4"></div>
@@ -211,14 +212,14 @@ const BookingForm = () => {
             </div>
           </div>
         </div>
-      </div>
+      </AnimatedPage>
     );
   }
 
   // Show error state
   if (error || !hall) {
     return (
-      <div className="min-h-screen bg-background">
+      <AnimatedPage className="min-h-screen bg-background">
         <div className="container mx-auto px-4 py-8">
           <div className="bg-red-50 border border-red-200 rounded-md p-4">
             <div className="flex">
@@ -238,12 +239,12 @@ const BookingForm = () => {
             </div>
           </div>
         </div>
-      </div>
+      </AnimatedPage>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <AnimatedPage className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8">
         <Button 
           variant="outline" 
@@ -472,7 +473,7 @@ const BookingForm = () => {
           </div>
         </div>
       </div>
-    </div>
+    </AnimatedPage>
   );
 };
 

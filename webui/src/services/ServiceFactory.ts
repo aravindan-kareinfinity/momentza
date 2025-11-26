@@ -37,6 +37,9 @@ import { ApiCarouselService } from './api/ApiCarouselService';
 import { ApiStatisticsService } from './api/ApiStatisticsService';
 import { ApiAuthService } from './api/ApiAuthService';
 import { ApiMicrositeService } from './api/ApiMicrositeService';
+import { ApiHandoverService } from './api/ApiHandOverService';
+import { ApiPaymentService } from '../services/api/ApiPaymentService';
+import { ApiFeatureService } from "./api/ApiFeatureService";
 
 export class ServiceFactory {
   static createBookingService() {
@@ -93,6 +96,10 @@ export class ServiceFactory {
     } else {
       return new ApiServicesService();
     }
+  }
+
+  static addService(){
+    return new ApiServicesService();
   }
 
   static createInventoryService() {
@@ -183,7 +190,7 @@ export const userService = ServiceFactory.createUserService();
 export const reviewService = ServiceFactory.createReviewService();
 export const organizationService = ServiceFactory.createOrganizationService();
 export const settingsService = ServiceFactory.createSettingsService();
-export const servicesService = ServiceFactory.createServicesService();
+export const servicesServices = ServiceFactory.createServicesService();
 export const inventoryService = ServiceFactory.createInventoryService();
 export const ticketService = ServiceFactory.createTicketService();
 export const communicationService = ServiceFactory.createCommunicationService();
@@ -193,4 +200,8 @@ export const galleryService = ServiceFactory.createGalleryService();
 export const carouselService = ServiceFactory.createCarouselService();
 export const authService = ServiceFactory.createAuthService();
 export const statisticsService = ServiceFactory.createStatisticsService();
-export const micrositeService = ServiceFactory.createMicrositeService(); 
+export const micrositeService = ServiceFactory.createMicrositeService();
+export const handoverService = new ApiHandoverService();
+export const paymentService = new ApiPaymentService();
+export const servicesService = ServiceFactory.addService(); 
+export const featureService = new ApiFeatureService();

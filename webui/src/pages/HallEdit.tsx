@@ -12,6 +12,7 @@ import { hallService, galleryService, authService } from '@/services/ServiceFact
 import { useToast } from '@/hooks/use-toast';
 import { HallFeature, Hall } from '@/types';
 import { GalleryImage } from '@/services/mockData';
+import { AnimatedPage } from '@/components/Layout/AnimatedPage';
 
 const HallEdit = () => {
   const { hallId } = useParams<{ hallId: string }>();
@@ -113,11 +114,11 @@ const HallEdit = () => {
   }, [fetchHall, fetchGalleryImages]);
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <AnimatedPage className="space-y-6">Loading...</AnimatedPage>;
   }
 
   if (!hall) {
-    return <div>Hall not found</div>;
+    return <AnimatedPage className="space-y-6">Hall not found</AnimatedPage>;
   }
 
   const handleAddFeature = () => {
@@ -184,7 +185,7 @@ const HallEdit = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <AnimatedPage className="space-y-6">
       <div className="flex items-center justify-between">
         <Button 
           variant="outline" 
@@ -432,7 +433,7 @@ const HallEdit = () => {
           </Button>
         </div>
       </form>
-    </div>
+    </AnimatedPage>
   );
 };
 

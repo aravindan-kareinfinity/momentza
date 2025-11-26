@@ -18,6 +18,17 @@ export interface ServiceItem {
   isActive: boolean;
 }
 
+export interface Services{
+  id:string;
+  name:string;
+  directPay:boolean;
+  price:number;
+  bookingId?: string;
+  //organizationId?:string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
 export interface InventoryItem {
   id: string;
   name: string;
@@ -62,6 +73,8 @@ export interface BillingSettings {
 }
 
 export interface CustomerClick {
+  contentType: any;
+  imageBytes: any;
   id: string;
   customerId: string;
   hallId: string;

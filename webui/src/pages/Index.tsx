@@ -7,6 +7,7 @@ import { MicrositePreview } from '@/components/Microsite/MicrositePreview';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { AnimatedPage } from '@/components/Layout/AnimatedPage';
 
 const Index = () => {
   const { organizationId } = useParams<{ organizationId: string }>();
@@ -195,7 +196,7 @@ const Index = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <AnimatedPage className="min-h-screen bg-gray-50">
         <div className="container mx-auto px-4 py-8">
           <div className="animate-pulse space-y-6">
             <div className="h-64 bg-gray-200 rounded-lg"></div>
@@ -203,13 +204,13 @@ const Index = () => {
             <div className="h-64 bg-gray-200 rounded-lg"></div>
           </div>
         </div>
-      </div>
+      </AnimatedPage>
     );
   }
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <AnimatedPage className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-gray-800 mb-4">Unable to Load Page</h1>
           <p className="text-gray-600 mb-4">{error}</p>
@@ -220,12 +221,12 @@ const Index = () => {
             Try Again
           </Button>
         </div>
-      </div>
+      </AnimatedPage>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <AnimatedPage className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-8">
         {components.length > 0 ? (
           // Render dynamic microsite components
@@ -235,7 +236,7 @@ const Index = () => {
           renderFallbackContent()
         )}
       </div>
-    </div>
+    </AnimatedPage>
   );
 };
 

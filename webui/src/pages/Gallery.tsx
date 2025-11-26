@@ -10,6 +10,7 @@ import { Plus, Upload, Edit, Trash2 } from 'lucide-react';
 import { galleryService, settingsService, authService } from '@/services/ServiceFactory';
 import { useToast } from '@/hooks/use-toast';
 import { GalleryImage } from '@/services/mockData';
+import { AnimatedPage } from '@/components/Layout/AnimatedPage';
 
 const Gallery = () => {
   const [currentUser, setCurrentUser] = useState<any>(null);
@@ -82,7 +83,11 @@ const Gallery = () => {
   }, [filePreview]);
 
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <AnimatedPage className="space-y-6">
+        <div>Loading...</div>
+      </AnimatedPage>
+    );
   }
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -198,7 +203,7 @@ const Gallery = () => {
   const safeCategories = Array.isArray(categories) ? categories : [];
 
   return (
-    <div className="space-y-6">
+    <AnimatedPage className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold">Gallery Management</h1>
@@ -380,7 +385,7 @@ const Gallery = () => {
           </div>
         </DialogContent>
       </Dialog>
-    </div>
+    </AnimatedPage>
   );
 };
 

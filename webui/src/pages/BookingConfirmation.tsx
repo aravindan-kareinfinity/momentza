@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { CheckCircle, Home, Calendar, MapPin, Users, Clock } from 'lucide-react';
+import { AnimatedPage } from '@/components/Layout/AnimatedPage';
 
 const BookingConfirmation = () => {
   const navigate = useNavigate();
@@ -26,7 +27,7 @@ const BookingConfirmation = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 flex items-center justify-center p-4">
+    <AnimatedPage className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 flex items-center justify-center p-4">
       <Card className="w-full max-w-2xl shadow-xl">
         <CardHeader className="text-center pb-6">
           <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
@@ -129,7 +130,7 @@ const BookingConfirmation = () => {
           </div>
         </CardContent>
       </Card>
-    </div>
+    </AnimatedPage>
   );
 };
 

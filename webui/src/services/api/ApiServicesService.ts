@@ -1,5 +1,5 @@
 import { IServicesService } from '../interfaces/IDataService';
-import { ServiceItem } from '../mockData';
+import { ServiceItem, Services } from '../mockData';
 import { apiClient } from '../http/ApiClient';
 
 export class ApiServicesService implements IServicesService {
@@ -54,5 +54,13 @@ export class ApiServicesService implements IServicesService {
     } catch (error) {
       return false;
     }
+  }
+
+  async addService(data: Omit<Services, 'id'>): Promise<Services> {
+    return apiClient.post<Services>('/api/Services/Service', data);
+  }
+
+  async getServiceByBookingId(bookingId: string): Promise<ServiceItem[]> {
+    return apiClient.get<ServiceItem[]>(`/api/Services/bookings/${bookingId}/services`);
   }
 } 

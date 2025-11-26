@@ -77,6 +77,11 @@ class InventoryService {
     }
     return Promise.resolve(false);
   }
+
+  async getInventoryByBookingId(bookingId: string) {
+    console.warn("Mock getInventoryByBookingId called. Returning empty array.");
+    return [];
+  }
 }
 
 export const inventoryService = new InventoryService();

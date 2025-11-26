@@ -9,6 +9,7 @@ import { TopNavigation } from '@/components/Layout/TopNavigation';
 import { PublicFooter } from '@/components/Home/PublicFooter';
 import { HallDetailCalendar } from '@/components/HallDetail/HallDetailCalendar';
 import { HallDetailReviews } from '@/components/HallDetail/HallDetailReviews';
+import { AnimatedPage } from '@/components/Layout/AnimatedPage';
 
 const HallDetail = () => {
   const { hallId } = useParams<{ hallId: string }>();
@@ -53,7 +54,7 @@ const HallDetail = () => {
   // Show loading state
   if (loading) {
     return (
-      <div className="min-h-screen bg-background">
+      <AnimatedPage className="min-h-screen bg-background">
         <TopNavigation />
         <div className="container mx-auto px-4 py-8">
           <div className="animate-pulse">
@@ -73,14 +74,14 @@ const HallDetail = () => {
           </div>
         </div>
         <PublicFooter />
-      </div>
+      </AnimatedPage>
     );
   }
 
   // Show error state
   if (error || !hall) {
     return (
-      <div className="min-h-screen bg-background">
+      <AnimatedPage className="min-h-screen bg-background">
         <TopNavigation />
         <div className="container mx-auto px-4 py-8">
           <div className="bg-red-50 border border-red-200 rounded-md p-4">
@@ -102,7 +103,7 @@ const HallDetail = () => {
           </div>
         </div>
         <PublicFooter />
-      </div>
+      </AnimatedPage>
     );
   }
 
@@ -118,7 +119,7 @@ const HallDetail = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <AnimatedPage className="min-h-screen bg-background">
       <TopNavigation />
       
       <div className="container mx-auto px-4 py-8">
@@ -226,7 +227,7 @@ const HallDetail = () => {
       </div>
 
       <PublicFooter />
-    </div>
+    </AnimatedPage>
   );
 };
 

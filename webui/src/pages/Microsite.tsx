@@ -37,6 +37,7 @@ import { MicrositePreview } from '@/components/Microsite/MicrositePreview';
 import { micrositeService, authService } from '@/services/ServiceFactory';
 import { MicrositeComponent } from '@/services/interfaces/IDataService';
 import { useToast } from '@/hooks/use-toast';
+import { AnimatedPage } from '@/components/Layout/AnimatedPage';
 
 const componentTypes = [
   { type: 'carousel', label: 'Carousel', icon: ImageIcon, description: 'Hero carousel with images' },
@@ -356,7 +357,7 @@ const Microsite = () => {
 
   if (loading) {
     return (
-      <div className="space-y-6">
+      <AnimatedPage className="space-y-6">
         <div className="flex justify-between items-center">
           <div>
             <h1 className="text-3xl font-bold">Microsite Builder</h1>
@@ -371,13 +372,13 @@ const Microsite = () => {
             ))}
           </div>
         </div>
-      </div>
+      </AnimatedPage>
     );
   }
 
   if (showPreview) {
     return (
-      <div>
+      <AnimatedPage className="space-y-0">
         <div className="flex justify-between items-center p-6 bg-white border-b">
           <h1 className="text-2xl font-bold">Microsite Preview</h1>
           <button 
@@ -388,12 +389,12 @@ const Microsite = () => {
           </button>
         </div>
         <MicrositePreview components={components} />
-      </div>
+      </AnimatedPage>
     );
   }
 
   return (
-    <div className="space-y-6">
+    <AnimatedPage className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold">Microsite Builder</h1>
@@ -482,7 +483,7 @@ const Microsite = () => {
         currentConfig={configComponent?.config}
         onSave={handleConfigSave}
       />
-    </div>
+    </AnimatedPage>
   );
 };
 

@@ -10,6 +10,7 @@ import { bookingService, hallService, authService, servicesService } from '@/ser
 import { useServiceMutation } from '@/hooks/useService';
 import { useNavigate } from 'react-router-dom';
 import { Booking } from '@/types';
+import { AnimatedPage } from '@/components/Layout/AnimatedPage';
 
 const Happening = () => {
   const navigate = useNavigate();
@@ -109,7 +110,7 @@ const Happening = () => {
   // Loading state
   if (loading) {
     return (
-      <div className="space-y-6">
+      <AnimatedPage className="space-y-6">
         <div className="animate-pulse">
           <div className="h-8 bg-gray-200 rounded w-1/4 mb-4"></div>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -118,14 +119,14 @@ const Happening = () => {
             ))}
           </div>
         </div>
-      </div>
+      </AnimatedPage>
     );
   }
 
   // Error state
   if (error || !currentUser) {
     return (
-      <div className="space-y-6">
+      <AnimatedPage className="space-y-6">
         <div className="bg-red-50 border border-red-200 rounded-md p-4">
           <div className="flex">
             <div className="flex-shrink-0">
@@ -143,12 +144,12 @@ const Happening = () => {
             </div>
           </div>
         </div>
-      </div>
+      </AnimatedPage>
     );
   }
 
   return (
-    <div className="space-y-6">
+    <AnimatedPage className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold">Happening Now</h1>
@@ -390,7 +391,7 @@ const Happening = () => {
           </div>
         </DialogContent>
       </Dialog>
-    </div>
+    </AnimatedPage>
   );
 };
 

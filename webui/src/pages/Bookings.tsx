@@ -19,6 +19,7 @@ import { StatusChangeDialog } from '@/components/Bookings/StatusChangeDialog';
 import { Booking, User as UserType } from '@/types';
 import { useNavigate } from 'react-router-dom';
 import { ServerErrorDialog } from '@/components/ui/ServerErrorDialog';
+import { AnimatedPage } from '@/components/Layout/AnimatedPage';
 
 const Bookings = () => {
   const navigate = useNavigate();
@@ -311,7 +312,7 @@ const Bookings = () => {
   // Loading state
   if (loading) {
     return (
-      <div className="space-y-6">
+      <AnimatedPage className="space-y-6">
         <div className="animate-pulse">
           <div className="h-8 bg-gray-200 rounded w-1/4 mb-4"></div>
           <div className="space-y-3">
@@ -320,14 +321,14 @@ const Bookings = () => {
             ))}
           </div>
         </div>
-      </div>
+      </AnimatedPage>
     );
   }
 
   // Error state
   if (error) {
     return (
-      <div className="space-y-6">
+      <AnimatedPage className="space-y-6">
         <div className="bg-red-50 border border-red-200 rounded-md p-4">
           <div className="flex">
             <div className="flex-shrink-0">
@@ -346,12 +347,12 @@ const Bookings = () => {
             </div>
           </div>
         </div>
-      </div>
+      </AnimatedPage>
     );
   }
 
   return (
-    <div className="space-y-6">
+    <AnimatedPage className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold">Bookings Management</h1>
@@ -656,7 +657,7 @@ const Bookings = () => {
         title="Bookings Service Error"
         message={error?.message || 'Unable to load bookings data. Please try again.'}
       />
-    </div>
+    </AnimatedPage>
   );
 };
 

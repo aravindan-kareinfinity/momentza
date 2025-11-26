@@ -5,6 +5,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, PieCha
 import { TrendingUp, Users, Calendar, DollarSign, Building, Star, Activity } from 'lucide-react';
 import { statisticsService } from '@/services/ServiceFactory';
 import { useOrganization } from '@/hooks/useOrganization';
+import { AnimatedPage } from '@/components/Layout/AnimatedPage';
 
 const Statistics = () => {
   // Get current organization using singleton pattern
@@ -46,7 +47,7 @@ const Statistics = () => {
   // Loading state
   if (orgLoading || statsLoading) {
     return (
-      <div className="space-y-8">
+      <AnimatedPage className="space-y-8">
         <div className="animate-pulse">
           <div className="h-8 bg-gray-200 rounded w-1/4 mb-4"></div>
           <div className="space-y-6">
@@ -67,14 +68,14 @@ const Statistics = () => {
             </div>
           </div>
         </div>
-      </div>
+      </AnimatedPage>
     );
   }
 
   // Error state
   if (orgError || statsError) {
     return (
-      <div className="space-y-8">
+      <AnimatedPage className="space-y-8">
         <div className="bg-red-50 border border-red-200 rounded-md p-4">
           <div className="flex">
             <div className="flex-shrink-0">
@@ -92,14 +93,14 @@ const Statistics = () => {
             </div>
           </div>
         </div>
-      </div>
+      </AnimatedPage>
     );
   }
 
   // If no stats data, show empty state
   if (!stats) {
     return (
-      <div className="space-y-8">
+      <AnimatedPage className="space-y-8">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Business Statistics</h1>
           <p className="text-muted-foreground">
@@ -109,7 +110,7 @@ const Statistics = () => {
         <div className="text-center py-12">
           <p className="text-gray-500">No statistics available</p>
         </div>
-      </div>
+      </AnimatedPage>
     );
   }
 
@@ -148,7 +149,7 @@ const Statistics = () => {
   const safeChartConfig = chartConfig && typeof chartConfig === 'object' ? chartConfig : {};
 
   return (
-    <div className="space-y-8">
+    <AnimatedPage className="space-y-8">
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Business Statistics</h1>
         <p className="text-muted-foreground">
@@ -452,7 +453,7 @@ const Statistics = () => {
           </CardContent>
         </Card>
       </div>
-    </div>
+    </AnimatedPage>
   );
 };
 

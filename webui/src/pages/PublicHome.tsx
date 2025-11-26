@@ -16,6 +16,7 @@ import {
   customerClicksService, 
   reviewService 
 } from '@/services/ServiceFactory';
+import { AnimatedPage } from '@/components/Layout/AnimatedPage';
 
 // Page-level context data
 interface PublicHomeData {
@@ -145,7 +146,7 @@ const PublicHome = () => {
   // Loading state
   if (loading) {
     return (
-      <div className="min-h-screen bg-background">
+      <AnimatedPage className="min-h-screen bg-background">
         <TopNavigation organization={null} />
         <main>
           <div className="animate-pulse">
@@ -161,14 +162,14 @@ const PublicHome = () => {
           </div>
         </main>
         <div className="h-32 bg-gray-900"></div>
-      </div>
+      </AnimatedPage>
     );
   }
 
   // Error state
   if (error || !pageData.organization) {
     return (
-      <div className="min-h-screen bg-background">
+      <AnimatedPage className="min-h-screen bg-background">
         <TopNavigation organization={null} />
         <main>
           <div className="container mx-auto px-4 py-12">
@@ -187,34 +188,32 @@ const PublicHome = () => {
           title="Page Data Error"
           message={error?.message || 'Unable to load page data. Please try again.'}
         />
-      </div>
+      </AnimatedPage>
     );
   }
 
   return (
-    <>
-      <div className="min-h-screen bg-background">
-        <TopNavigation organization={pageData.organization} />
-        <main>
-          <PublicHomeCarousel 
-            organization={pageData.organization}
-            carouselItems={pageData.carouselItems}
-            galleryImages={pageData.galleryImages}
-          />
-          <PublicHallsSection 
-            halls={pageData.halls}
-          />
-          <CustomerClicksSection 
-            customerClicks={pageData.customerClicks}
-          />
-          <PublicReviewsSection 
-            organization={pageData.organization}
-          />
-        </main>
-        <PublicFooter 
+    <AnimatedPage className="min-h-screen bg-background">
+      <TopNavigation organization={pageData.organization} />
+      <main>
+        <PublicHomeCarousel 
+          organization={pageData.organization}
+          carouselItems={pageData.carouselItems}
+          galleryImages={pageData.galleryImages}
+        />
+        <PublicHallsSection 
+          halls={pageData.halls}
+        />
+        <CustomerClicksSection 
+          customerClicks={pageData.customerClicks}
+        />
+        <PublicReviewsSection 
           organization={pageData.organization}
         />
-      </div>
+      </main>
+      <PublicFooter 
+        organization={pageData.organization}
+      />
 
       <ServerErrorDialog
         isOpen={showErrorDialog}
@@ -224,7 +223,7 @@ const PublicHome = () => {
         title="Page Data Error"
         message={error?.message || 'Unable to load page data. Please try again.'}
       />
-    </>
+    </AnimatedPage>
   );
 };
 

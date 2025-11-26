@@ -10,6 +10,7 @@ import { Plus, Edit, Trash2, Upload } from 'lucide-react';
 import { customerClicksService, hallService, authService } from '@/services/ServiceFactory';
 import { CustomerClick } from '@/services/mockData';
 import { format } from 'date-fns';
+import { AnimatedPage } from '@/components/Layout/AnimatedPage';
 
 // Extended interface for the form data
 interface CustomerClickFormData {
@@ -258,7 +259,7 @@ const CustomerClicks = () => {
   // Show loading state
   if (loading) {
     return (
-      <div className="min-h-screen bg-background">
+      <AnimatedPage className="min-h-screen bg-background">
         <div className="container mx-auto px-4 py-8">
           <div className="animate-pulse">
             <div className="h-8 bg-gray-200 rounded w-1/4 mb-4"></div>
@@ -269,14 +270,14 @@ const CustomerClicks = () => {
             </div>
           </div>
         </div>
-      </div>
+      </AnimatedPage>
     );
   }
 
   // Show error state
   if (error) {
     return (
-      <div className="min-h-screen bg-background">
+      <AnimatedPage className="min-h-screen bg-background">
         <div className="container mx-auto px-4 py-8">
           <div className="bg-red-50 border border-red-200 rounded-md p-4">
             <div className="flex">
@@ -296,7 +297,7 @@ const CustomerClicks = () => {
             </div>
           </div>
         </div>
-      </div>
+      </AnimatedPage>
     );
   }
 
@@ -305,7 +306,7 @@ const CustomerClicks = () => {
   // Show add form view
   if (showAddForm) {
     return (
-      <div className="min-h-screen bg-background">
+      <AnimatedPage className="min-h-screen bg-background">
         <div className="container mx-auto px-4 py-8">
           <div className="flex items-center mb-6">
             <Button 
@@ -436,13 +437,13 @@ const CustomerClicks = () => {
             </div>
           </div>
         </div>
-      </div>
+      </AnimatedPage>
     );
   }
 
   // Show main list view
   return (
-    <div className="min-h-screen bg-background">
+    <AnimatedPage className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8">
         <div className="flex justify-between items-center mb-6">
           <div>
@@ -462,7 +463,7 @@ const CustomerClicks = () => {
               <Card key={click.id} className="overflow-hidden">
                 <div className="aspect-[4/3] relative">
                   <img
-                    src={customerClicksService.getImageUrl(click.id)}
+                    src={`data:${click.contentType};base64,${click.imageBytes}`}
                     alt={click.eventType}
                     className="w-full h-full object-cover"
                   />
@@ -496,7 +497,7 @@ const CustomerClicks = () => {
           })}
         </div>
       </div>
-    </div>
+    </AnimatedPage>
   );
 };
 

@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Npgsql;
 using Momantza.Models;
 using Microsoft.AspNetCore.Http;
+using System.Diagnostics;
 
 namespace Momantza.Services
 {
@@ -31,19 +32,19 @@ namespace Momantza.Services
         private void EnsureTableExists()
         {
             var createTableSql = @"
-                CREATE TABLE IF NOT EXISTS tickets (
-                    id VARCHAR(50) PRIMARY KEY,
-                    title VARCHAR(200) NOT NULL,
-                    description TEXT NOT NULL,
-                    category VARCHAR(100) NOT NULL,
-                    status VARCHAR(20) NOT NULL,
-                    assigned_to VARCHAR(100) NOT NULL,
-                    priority VARCHAR(20) NOT NULL,
-                    booking_id VARCHAR(50),
-                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                    organizationid VARCHAR(50);
-                );";
+        CREATE TABLE IF NOT EXISTS tickets (
+            id VARCHAR(50) PRIMARY KEY,
+            title VARCHAR(200) NOT NULL,
+            description TEXT NOT NULL,
+            category VARCHAR(100) NOT NULL,
+            status VARCHAR(20) NOT NULL,
+            assigned_to VARCHAR(100) NOT NULL,
+            priority VARCHAR(20) NOT NULL,
+            booking_id VARCHAR(50),
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            organizationid VARCHAR(50)
+        );";
 
             using var connection = GetConnectionAsync().Result;
             using var command = new NpgsqlCommand(createTableSql, connection);
@@ -90,6 +91,9 @@ namespace Momantza.Services
             ticket.CreatedAt = DateTime.UtcNow;
             ticket.UpdatedAt = DateTime.UtcNow;
 
+            ticket.OrganizationId = GetCurrentOrganizationId();
+            Console.WriteLine("ORG FROM CREATE: " + ticket.OrganizationId);
+
             var sql = @"
                 INSERT INTO tickets (id, title, description, category, status, assigned_to, priority, booking_id, created_at, updated_at,organizationid)
                 VALUES (@id, @title, @description, @category, @status, @assignedTo, @priority, @bookingId, @createdAt, @updatedAt,@organizationId)";
@@ -114,13 +118,22 @@ namespace Momantza.Services
 
         public async Task<TicketItem> UpdateAsync(string id, TicketItem ticket)
         {
-            ticket.UpdatedAt = DateTime.UtcNow;
+            var existing = await GetByIdAsync(id);
+            if (existing == null)
+                throw new Exception("Ticket not found");
 
+            // Preserve bookingId
+            ticket.BookingId = existing.BookingId;
+
+            // Preserve organization
+            ticket.OrganizationId = existing.OrganizationId;
+
+            ticket.UpdatedAt = DateTime.UtcNow;
             var sql = @"
                 UPDATE tickets 
                 SET title = @title, description = @description, category = @category, 
                     status = @status, assigned_to = @assignedTo, priority = @priority, 
-                    booking_id = @bookingId, updated_at = @updatedAt , organizationid = @organizationId,
+                    booking_id = @bookingId, updated_at = @updatedAt , organizationid = @organizationId
                 WHERE id = @id";
 
             using var connection = await GetConnectionAsync();
@@ -147,7 +160,7 @@ namespace Momantza.Services
 
         public async Task<bool> DeleteAsync(string id)
         {
-            var sql = "DELETE FROM tickets WHERE id = @id";
+            var sql = "DELETE FROM tickets WHERE id = @id AND organizationid = @organizationId";
 
             using var connection = await GetConnectionAsync();
             using var command = new NpgsqlCommand(sql, connection);
@@ -161,7 +174,11 @@ namespace Momantza.Services
         {
             var orgId = GetCurrentOrganizationId();
             var tickets = new List<TicketItem>();
-            var sql = "SELECT * FROM tickets WHERE booking_id = @bookingId OR organizationid = @organizationId ORDER BY created_at DESC";
+
+            Console.WriteLine($"bookingId: {bookingId}, orgId: {orgId}");
+
+            var sql = "SELECT * FROM tickets WHERE booking_id = @bookingId AND organizationid = @organizationId ORDER BY created_at DESC";
+
 
             using var connection = await GetConnectionAsync();
             using var command = new NpgsqlCommand(sql, connection);

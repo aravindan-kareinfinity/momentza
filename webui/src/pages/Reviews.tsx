@@ -13,6 +13,7 @@ import { Review, Hall } from '@/types';
 import { reviewService, authService, hallService } from '@/services/ServiceFactory';
 import { useServiceMutation } from '@/hooks/useService';
 import { useToast } from '@/hooks/use-toast';
+import { AnimatedPage } from '@/components/Layout/AnimatedPage';
 
 const Reviews = () => {
   const { toast } = useToast();
@@ -219,7 +220,7 @@ const Reviews = () => {
   // Loading state
   if (loading) {
     return (
-      <div className="space-y-6">
+      <AnimatedPage className="space-y-6">
         <div className="animate-pulse">
           <div className="h-8 bg-gray-200 rounded w-1/4 mb-4"></div>
           <div className="space-y-4">
@@ -228,14 +229,14 @@ const Reviews = () => {
             ))}
           </div>
         </div>
-      </div>
+      </AnimatedPage>
     );
   }
 
   // Error state
   if (error || !currentUser) {
     return (
-      <div className="space-y-6">
+      <AnimatedPage className="space-y-6">
         <div className="bg-red-50 border border-red-200 rounded-md p-4">
           <div className="flex">
             <div className="flex-shrink-0">
@@ -253,7 +254,7 @@ const Reviews = () => {
             </div>
           </div>
         </div>
-      </div>
+      </AnimatedPage>
     );
   }
 
@@ -261,7 +262,7 @@ const Reviews = () => {
   const safeReviews = Array.isArray(reviews) ? reviews : [];
 
   return (
-    <div className="space-y-6">
+    <AnimatedPage className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold">Reviews Management</h1>
@@ -487,7 +488,7 @@ const Reviews = () => {
           </DialogContent>
         </Dialog>
       )}
-    </div>
+    </AnimatedPage>
   );
 };
 
