@@ -38,21 +38,28 @@ import {
   settingsService, 
   inventoryService, 
   ticketService, 
+  paymentService,
   communicationService, 
   billingService,
   hallService,
-  servicesService
+  servicesService,
+  handoverService,
+  featureService
 } from '../services/ServiceFactory';
-import { TicketItem, Communication } from '../services/mockData';
+import { TicketItem, Communication,PaymentsItem,Services } from '../services/mockData';
+import { FeatureItem } from '@/types';
+import { ApiPaymentService } from '../services/api/ApiPaymentService';
 
-interface Payment {
-  id: string;
-  date: string;
-  mode: 'cash' | 'card' | 'upi' | 'bank-transfer';
-  amount: number;
-  personName: string;
-  notes: string;
-}
+// interface PaymentsItem {
+//   id: string;
+//   date: string;
+//   paymentMode: 'cash' | 'card' | 'upi' | 'bank-transfer';
+//   amount: number;
+//   personName: string;
+//   notes: string;
+//   createdAt?: string;
+//   updatedAt?: string;
+// }
 
 interface Feature {
   id: string;
@@ -61,12 +68,12 @@ interface Feature {
   quantity: number;
 }
 
-interface Service {
-  id: string;
-  name: string;
-  price: number;
-  directPay: boolean;
-}
+// interface Service {
+//   id: string;
+//   name: string;
+//   price: number;
+//   directPay: boolean;
+// }
 
 interface InventoryItem {
   id: string;
@@ -76,11 +83,22 @@ interface InventoryItem {
   notes: string;
 }
 
-interface HandoverImage {
+// interface HandoverImage {
+//   id: string;
+//   url: string;
+//   category: string;
+//   description: string;
+// }
+
+interface HandOverImage {
   id: string;
-  url: string;
+  bookingId: string;
+  organizationId: string;
   category: string;
-  description: string;
+  description?: string;
+  url: string;
+  uploadedAt: string;
+  createdAt: string;
 }
 
 // Page-level data interface
@@ -88,11 +106,15 @@ interface BookingManagementData {
   bookings: any[];
   eventTypes: any[];
   employees: any[];
+  inventoryCatalog: any[];
   inventoryItems: any[];
   ticketCategories: any[];
+  servicesCategories: any[];
   hall: any;
+  features: any[];
   services: any[];
   tickets: any[];
+  payments:any[];
   communication: any[];
   billingSettings: any;
   currentBooking: any;
@@ -116,15 +138,21 @@ const BookingManagement = () => {
     bookings: [],
     eventTypes: [],
     employees: [],
+    inventoryCatalog: [],
     inventoryItems: [],
     ticketCategories: [],
+    servicesCategories: [],
     hall: null,
+    features:[],
     services: [],
     tickets: [],
+    payments:[],
     communication: [],
     billingSettings: null,
     currentBooking: null
   });
+
+
 
   // Single loading and error state for entire page
   const [loading, setLoading] = useState(true);
@@ -132,28 +160,40 @@ const BookingManagement = () => {
   const [showErrorDialog, setShowErrorDialog] = useState(false);
 
   // State for all functionality
-  const [selectedFeatures, setSelectedFeatures] = useState<Feature[]>([
-    { id: 'feature-1', name: 'Stage', price: 500, quantity: 1 },
-    { id: 'feature-2', name: 'Lighting', price: 300, quantity: 1 },
-  ]);
+  // const [selectedFeatures, setSelectedFeatures] = useState<Feature[]>([
+  //   { id: 'feature-1', name: 'Stage', price: 500, quantity: 1 },
+  //   { id: 'feature-2', name: 'Lighting', price: 300, quantity: 1 },
+  // ]);
   
-  const [selectedServices, setSelectedServices] = useState<Service[]>([
-    { id: 'service-1', name: 'Catering', price: 2000, directPay: false },
-    { id: 'service-2', name: 'Decoration', price: 1500, directPay: false },
-  ]);
+  // const [selectedServices, setSelectedServices] = useState<Services[]>([
+  //   { id: 'service-1', name: 'Catering', price: 2000, directPay: false},
+  //   { id: 'service-2', name: 'Decoration', price: 1500, directPay: false},
+  // ]);
   
-  const [payments, setPayments] = useState<Payment[]>([
-    { id: 'payment-1', date: new Date().toISOString(), mode: 'cash', amount: 2000, personName: 'John Doe', notes: 'Initial payment' },
-  ]);
+  // const [payments, setPayments] = useState<PaymentsItem[]>([
+  //   { id: 'payment-1', date: new Date().toISOString(), paymentMode: 'cash', amount:1000, personName: 'John Doe', notes: 'Initial payment',bookingId:'234678',createdAt:'2341524', updatedAt:'324551' },
+  // ]);
   
-  const [handoverImages, setHandoverImages] = useState<HandoverImage[]>([
-    { id: 'img-1', url: '/placeholder.svg', category: 'Before Event', description: 'Hall setup before event' },
-  ]);
+  // const [handoverImages, setHandoverImages] = useState<HandoverImage[]>([
+  //   { id: 'img-1', url: '/placeholder.svg', category: 'Before Event', description: 'Hall setup before event' },
+  // ]);
 
   const [discount, setDiscount] = useState(0);
   const [discountReason, setDiscountReason] = useState('');
   const [invoiceNumber, setInvoiceNumber] = useState('');
   const [invoiceDate, setInvoiceDate] = useState(new Date().toISOString().split('T')[0]);
+
+  //
+  const [handoverImages, setHandoverImages] = useState<HandOverImage[]>([]);
+  useEffect(() => {
+    const fetchHandoverImages = async () => {
+      if (bookingId) {
+        const images = await handoverService.getImages(bookingId);
+        setHandoverImages(images);
+      }
+    };
+    fetchHandoverImages();
+  }, [bookingId]);
 
   // Billing information state
   const [billingName, setBillingName] = useState('');
@@ -176,12 +216,13 @@ const BookingManagement = () => {
   const [statusChangeDialog, setStatusChangeDialog] = useState({ open: false, bookingId: '', newStatus: '', reason: '' });
 
   // Form states
-  const [newFeature, setNewFeature] = useState({ name: '', quantity: 1 });
+  const [newFeature, setNewFeature] = useState({ name: '', quantity: 1 ,price:0});
   const [newService, setNewService] = useState({ name: '', directPay: false });
-  const [newPayment, setNewPayment] = useState({ date: new Date().toISOString(), mode: 'cash' as Payment['mode'], amount: 0, personName: '', notes: '' });
+  const [newPayment, setNewPayment] = useState({ date: new Date().toISOString(), mode: 'cash' as PaymentsItem['paymentMode'], amount: 0, personName: '', notes: '' });
   const [newTicket, setNewTicket] = useState({ title: '', description: '', category: '', assignedTo: '', priority: 'medium' as 'low' | 'medium' | 'high', status: 'open' as 'open' | 'in-progress' | 'completed' });
-  const [newInventoryItem, setNewInventoryItem] = useState({ name: '', quantity: 1, price: 0, notes: '' });
+  const [newInventoryItem, setNewInventoryItem] = useState({ name: '',description:'', quantity: 1, price: 0, notes: '' });
   const [newHandoverImage, setNewHandoverImage] = useState({ category: '', description: '' });
+  const [selectedHandoverFile, setSelectedHandoverFile] = useState<File | null>(null);
   const [newCommunication, setNewCommunication] = useState({ 
     date: new Date().toISOString().split('T')[0], 
     fromPerson: '', 
@@ -325,9 +366,9 @@ const BookingManagement = () => {
       const bookings = getOrDefault<any[]>(0, []);
       const eventTypes = getOrDefault<any[]>(1, []);
       const employees = getOrDefault<any[]>(2, []);
-      const inventoryItems = getOrDefault<any[]>(3, []);
+      const inventoryCatalog = getOrDefault<any[]>(3, []);
       const ticketCategories = getOrDefault<any[]>(4, []);
-      const services = getOrDefault<any[]>(5, []);
+      const servicesCategories = getOrDefault<any[]>(5, []);
       const billingSettings = getOrDefault<any>(6, null);
 
       // Find current booking
@@ -359,19 +400,34 @@ const BookingManagement = () => {
 
       // Fetch booking-specific data
       const bookingIdSafe = currentBooking?.id || bookingId || '1';
-      const [ticketsRes, commsRes] = await Promise.allSettled([
+      const [featureRes,servicesRes,inventoryRes, ticketsRes,paymentRes, commsRes] = await Promise.allSettled([
+        featureService.getById(bookingIdSafe),
+        servicesService.getServiceByBookingId(bookingIdSafe),
+        inventoryService.getInventoryByBookingId(bookingIdSafe),
         ticketService.getTicketsByBookingId(bookingIdSafe),
+        paymentService.getPaymentsByBookingId(bookingIdSafe),
         communicationService.getCommunicationsByBookingId(bookingIdSafe)
       ]);
 
       // Normalize tickets and communications so they are always arrays
+      const featuresRaw = featureRes.status === 'fulfilled' ? featureRes.value : [];
+      const servicesRaw = servicesRes.status === 'fulfilled' ? servicesRes.value : [];
+      const inventoryRaw = inventoryRes.status === 'fulfilled' ? inventoryRes.value : [];
       const ticketsRaw = ticketsRes.status === 'fulfilled' ? ticketsRes.value : [];
+      const paymentRaw= paymentRes.status === 'fulfilled' ? paymentRes.value : [];
       const communicationsRaw = commsRes.status === 'fulfilled' ? commsRes.value : [];
 
+      const features = Array.isArray(featuresRaw) ? featuresRaw : (featuresRaw ? [featuresRaw] : []);
+      const services = Array.isArray(servicesRaw) ? servicesRaw : (servicesRaw ? [servicesRaw] : []);
+      const inventory = Array.isArray(inventoryRaw) ? inventoryRaw : (inventoryRaw ? [inventoryRaw] : []);
       const tickets = Array.isArray(ticketsRaw) ? ticketsRaw : (ticketsRaw ? [ticketsRaw] : []);
+      const payments = Array.isArray(paymentRaw) ? paymentRaw : (paymentRaw ? [paymentRaw] : []);
       const communications = Array.isArray(communicationsRaw) ? communicationsRaw : (communicationsRaw ? [communicationsRaw] : []);
 
+      if (servicesRes.status === 'rejected') console.warn('[BookingManagement] Failed fetching tickets:', servicesRes.reason);
+      if (inventoryRes.status === 'rejected') console.warn('[BookingManagement] Failed fetching tickets:', inventoryRes.reason);
       if (ticketsRes.status === 'rejected') console.warn('[BookingManagement] Failed fetching tickets:', ticketsRes.reason);
+      if (paymentRes.status === 'rejected') console.warn('[BookingManagement] Failed fetching tickets:', paymentRes.reason);
       if (commsRes.status === 'rejected') console.warn('[BookingManagement] Failed fetching communications:', commsRes.reason);
 
       // Set time slot and calculate base amount from current booking
@@ -406,11 +462,15 @@ const BookingManagement = () => {
         bookings,
         eventTypes,
         employees,
-        inventoryItems,
+        inventoryCatalog,
+        inventoryItems: inventory,
+        features,
         services,
+        servicesCategories,
         ticketCategories,
         hall,
         tickets,
+        payments,
         communication: communications,
         billingSettings,
         currentBooking
@@ -522,21 +582,28 @@ const BookingManagement = () => {
   // Extract data for easier access
   const {
     currentBooking: booking,
-    eventTypes,
+    eventTypes:availableFeatureCatalog,
     employees,
-    inventoryItems: availableInventoryItems,
+    inventoryCatalog,
+    inventoryItems: bookingInventoryItems,
     ticketCategories: availableTicketCategories,
     hall,
-    services: availableServices,
+    servicesCategories :availableServiceCategories,
+    features:featuresList,
+    services:servicesList,
     tickets: ticketsList,
     communication: communicationsList,
     billingSettings
   } = pageData;
 
+const availableInventoryItems = Array.isArray(inventoryCatalog) ? inventoryCatalog : (inventoryCatalog ? [inventoryCatalog] : []);
+const availableServiceItem = Array.isArray(availableServiceCategories) ? availableServiceCategories : (availableServiceCategories ? [availableServiceCategories] : []);
+const availableFeatureItem = Array.isArray(availableFeatureCatalog) ? availableFeatureCatalog : (availableFeatureCatalog ? [availableFeatureCatalog] : []);
   // Defensive normalization for render-time lists
   const ticketsArray = Array.isArray(ticketsList) ? ticketsList : (ticketsList ? [ticketsList] : []);
-  const servicesArray = Array.isArray(availableServices) ? availableServices : (availableServices ? [availableServices] : []);
-
+  const servicesArray = Array.isArray(servicesList) ? servicesList : (servicesList ? [servicesList] : []);
+  const bookingInventoryArray = Array.isArray(bookingInventoryItems) ? bookingInventoryItems : (bookingInventoryItems ? [bookingInventoryItems] : []);
+  const featureArray = Array.isArray(featuresList) ?featuresList : (featuresList ? [featuresList] : []);
   const masterFeatures = hall?.features || [];
   
   // Use the calculated baseAmount from state
@@ -548,13 +615,13 @@ const BookingManagement = () => {
 
   // Calculate totals - use the baseAmount from state
   const safeBookingTotal = baseAmount;
-  const featuresTotal = selectedFeatures.reduce((sum, f) => sum + (Number(f.price || 0) * Number(f.quantity || 0)), 0);
-  const servicesTotal = selectedServices.filter(s => !s.directPay).reduce((sum, s) => sum + Number(s.price || 0), 0);
-  const inventoryTotal = availableInventoryItems.reduce((sum, item) => sum + (Number(item.price || 0) * Number(item.quantity || 0)), 0);
+  const featuresTotal = featureArray.reduce((sum, f) => sum + (Number( f.price ) * Number(f.quantity || 0)), 0);
+  const servicesTotal = servicesArray.filter(s => !s.directPay).reduce((sum, s) => sum + Number(s.price || 0), 0);
+  const inventoryTotal = bookingInventoryArray.reduce((sum, item) => sum + (Number(item.price || 0) * Number(item.quantity || 0)), 0);
   const safeDiscount = Number(discount || 0);
   const totalCharges = safeBookingTotal + featuresTotal + servicesTotal + inventoryTotal - safeDiscount;
 
-  const totalPayments = payments.reduce((sum, payment) => sum + Number(payment.amount || 0), 0);
+  const totalPayments = pageData.payments.reduce((sum, payment) => sum + Number(payment.amount || 0), 0);
 
   const gstPercentage = Number(billingSettings?.taxPercentage || 0);
   const taxAmount = Math.round((totalCharges * gstPercentage) / 100);
@@ -583,81 +650,313 @@ const BookingManagement = () => {
     await fetchPageData();
   };
 
-  // Feature handlers
-  const handleAddFeature = () => {
-    const masterFeature = masterFeatures.find(f => f.name === newFeature.name);
-    if (masterFeature) {
-      const feature: Feature = {
-        id: Date.now().toString(),
-        name: newFeature.name,
-        price: masterFeature.charge,
-        quantity: newFeature.quantity
-      };
-      setSelectedFeatures([...selectedFeatures, feature]);
-      setNewFeature({ name: '', quantity: 1 });
-      setShowFeatureDialog(false);
-    }
-  };
+ // Feature handlers
+ const handleAddFeature = async () => {
+  try {
+    const featureData = {
+      name: newFeature.name,
+      quantity: newFeature.quantity,
+      price:newFeature.price ,
+      organizationId: pageData.currentBooking?.organizationId
+    };
 
-  const handleEditFeature = (feature: Feature) => {
-    setEditingItem(feature);
-    setNewFeature({ name: feature.name, quantity: feature.quantity });
-    setShowFeatureDialog(true);
-  };
+    const created = await featureService.create(featureData);
 
-  const handleDeleteFeature = (featureId: string, reason: string) => {
-    setSelectedFeatures(prev => prev.filter(f => f.id !== featureId));
-    console.log(`Feature deleted. Reason: ${reason}`);
-  };
+    setPageData(prev => ({
+      ...prev,
+      features: [...prev.features, created]
+    }));
+
+    setNewFeature({ name: "", quantity: 1, price: 0 });
+    setShowFeatureDialog(false);
+  } catch (err) {
+    console.error("Failed to create feature", err);
+  }
+};
+
+// Update the feature selection handler
+const handleFeatureSelect = (featureName: string) => {
+  const selectedFeature = masterFeatures.find(f => f.name === featureName);
+  if (selectedFeature) {
+    setNewFeature({
+      ...newFeature,
+      name: featureName,
+      price: selectedFeature.charge || 0
+    });
+  }
+};
+
+const handleEditFeature = (feature: any) => {
+  setEditingItem(feature);
+  setNewFeature({
+    name: feature.name,
+    quantity: feature.quantity,
+    price: feature.price
+  });
+  setShowFeatureDialog(true);
+};
+
+const handleUpdateFeature = async () => {
+  try {
+    const updated = await featureService.update(editingItem.id, {
+      name: newFeature.name,
+      quantity: newFeature.quantity,
+      price: newFeature.price
+    });
+
+    setPageData(prev => ({
+      ...prev,
+      features: prev.features.map(f =>
+        f.id === updated.id ? updated : f
+      )
+    }));
+
+    setEditingItem(null);
+    setShowFeatureDialog(false);
+  } catch (err) {
+    console.error("Failed to update feature", err);
+  }
+};
+
+
+
+const handleDeleteFeature = async (id: string, reason: string) => {
+  try {
+    const ok = await featureService.delete(id);
+    if (!ok) return;
+
+    setPageData(prev => ({
+      ...prev,
+      features: prev.features.filter(f => f.id !== id)
+    }));
+  } catch (err) {
+    console.error("Failed to delete feature", err);
+  }
+};
 
   // Service handlers
-  const handleAddService = () => {
-    const service = availableServices.find(s => s.name === newService.name);
+const handleAddService = async () => {
+  try {
+    const service = availableServiceCategories.find(s => s.name === newService.name);
     if (service) {
-      const newServiceItem: Service = {
-        id: service.id,
+      const serviceData: Omit<Services, 'id'> = {
         name: service.name,
         price: service.basePrice,
-        directPay: newService.directPay
+        directPay: Boolean(newService.directPay), 
+        bookingId: bookingId,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
       };
-      setSelectedServices([...selectedServices, newServiceItem]);
+      
+      // Actually create the service
+      const createdService = await servicesService.addService(serviceData);
+      
+      // Update local state
+      setPageData(prev => ({
+        ...prev,
+        services: [...prev.services, createdService]
+      }));
+      
+      // Reset form
       setNewService({ name: '', directPay: false });
       setShowServiceDialog(false);
     }
-  };
+  } catch (error) {
+    console.error('Error adding service:', error);
+    alert('Failed to add service');
+  }
+};
 
-  const handleEditService = (service: Service) => {
-    setEditingItem(service);
-    setNewService({ name: service.name, directPay: service.directPay });
-    setShowServiceDialog(true);
-  };
+const handleEditService = (service: Services) => {
+  setEditingItem(service);
+  setNewService({ 
+    name: service.name, 
+    directPay: service.directPay 
+  });
+  setShowServiceDialog(true);
+};
 
-  const handleDeleteService = (serviceId: string, reason: string) => {
-    setSelectedServices(prev => prev.filter(s => s.id !== serviceId));
-    console.log(`Service deleted. Reason: ${reason}`);
-  };
+const handleUpdateService = async () => {
+  if (!editingItem) return;
+  
+  try {
+    const service = availableServiceCategories.find(s => s.name === newService.name);
+    if (service) {
+      const updatedServiceData = {
+        name: service.name,
+        price: service.basePrice,
+        directPay: Boolean(newService.directPay),
+        bookingId: bookingId,
+        updatedAt: new Date().toISOString()
+      };
+      
+      const updatedService = await servicesService.updateService(editingItem.id, updatedServiceData);
+      
+      // Update local state immediately
+      setPageData(prev => ({
+        ...prev,
+        services: prev.services.map(service => 
+          service.id === updatedService.id ? updatedService : service
+        )
+      }));
+      
+      // Reset form and close dialog
+      setEditingItem(null);
+      setNewService({ name: '', directPay: false });
+      setShowServiceDialog(false);
+      
+      console.log('Service updated successfully');
+    }
+  } catch (error) {
+    console.error('Error updating service:', error);
+    alert('Failed to update service. Please try again.');
+  }
+};
 
-  // Payment handlers
-  const handleAddPayment = () => {
-    const payment: Payment = { ...newPayment, id: Date.now().toString() };
-    setPayments([...payments, payment]);
-    setNewPayment({ date: new Date().toISOString(), mode: 'cash', amount: 0, personName: '', notes: '' });
-    setShowPaymentDialog(false);
-  };
+const handleDeleteService = async (serviceId: string, reason: string) => {
+  if (!reason) {
+    alert('Please provide a reason for deletion.');
+    return;
+  }
 
-  const handleEditPayment = (payment: Payment) => {
+  if (!confirm(`Are you sure you want to delete this service? Reason: ${reason}`)) {
+    return;
+  }
+
+  try {
+    const success = await servicesService.deleteService(serviceId);
+    if (success) {
+      // Update local state immediately
+      setPageData(prev => ({
+        ...prev,
+        services: prev.services.filter(service => service.id !== serviceId)
+      }));
+      console.log('Service deleted successfully');
+    } else {
+      alert('Failed to delete service. Please try again.');
+    }
+  } catch (error) {
+    console.error('Error deleting service:', error);
+    alert('Failed to delete service. Please try again.');
+  }
+};
+ // import { ApiPaymentService } from '../services/ApiPaymentService';
+
+  // In your component
+ //const paymentService = new ApiPaymentService();
+  
+  // Updated handlers using the service
+  const handleAddPayment = async () => {
+    try {
+      const paymentData: Omit<PaymentsItem, 'id'> = {
+        paymentMode: newPayment.mode, // Map 'mode' to 'paymentMode'
+        amount: newPayment.amount,
+        personName: newPayment.personName,
+        notes: newPayment.notes,
+        date: newPayment.date,
+        bookingId: bookingId,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+        // Add any other required properties from PaymentsItem
+      };
+      
+      const createdPayment = await paymentService.create(paymentData);
+      
+      // Update local state immediately
+     // setPayments(prev => [createdPayment, ...prev]);
+      
+      // Reset form
+      setNewPayment({ 
+        date: new Date().toISOString(), 
+        mode: 'cash', 
+        amount: 0, 
+        personName: '', 
+        notes: '' 
+      });
+      setShowPaymentDialog(false);
+      
+      console.log('Payment created successfully');
+    } catch (error) {
+      console.error('Error creating payment:', error);
+      alert('Failed to create payment. Please try again.');
+    }
+  };
+  
+  const handleEditPayment = (payment: PaymentsItem) => {
     setEditingItem(payment);
-    setNewPayment(payment);
+    // Map PaymentsItem properties back to your form state
+    setNewPayment({ 
+      date: payment.date,
+      mode: payment.paymentMode as any, // Cast if paymentMode is compatible with your mode type
+      amount: payment.amount,
+      personName: payment.personName,
+      notes: payment.notes
+    });
     setShowPaymentDialog(true);
   };
-
-  const handleDeletePayment = (paymentId: string, reason: string) => {
-    setPayments(prev => prev.filter(p => p.id !== paymentId));
-    console.log(`Payment deleted. Reason: ${reason}`);
+  
+  const handleUpdatePayment = async () => {
+    if (!editingItem) return;
+    
+    try {
+      const updatedPayment = await paymentService.update(editingItem.id, {
+        paymentMode: newPayment.mode, // Map 'mode' to 'paymentMode'
+        amount: newPayment.amount,
+        personName: newPayment.personName,
+        notes: newPayment.notes,
+        date: newPayment.date
+      });
+      
+      // Update local state immediately
+      // setPayments(prev => prev.map(payment => 
+      //   payment.id === updatedPayment.id ? updatedPayment : payment
+      // ));
+      
+      // Reset form and close dialog
+      setEditingItem(null);
+      setNewPayment({ 
+        date: new Date().toISOString(), 
+        mode: 'cash', 
+        amount: 0, 
+        personName: '', 
+        notes: '' 
+      });
+      setShowPaymentDialog(false);
+      
+      console.log('Payment updated successfully');
+    } catch (error) {
+      console.error('Error updating payment:', error);
+      alert('Failed to update payment. Please try again.');
+    }
   };
 
+  const handleDeletePayment = async (paymentId: string, reason: string) => {
+    if (!reason) {
+      alert('Please provide a reason for deletion.');
+      return;
+    }
+  
+    if (!confirm(`Are you sure you want to delete this payment? Reason: ${reason}`)) {
+      return;
+    }
+  
+    try {
+      const success = await paymentService.delete(paymentId);
+      if (success) {
+       // setPayments(prev => prev.filter(payment => payment.id !== paymentId));
+        console.log('Payment deleted successfully');
+      } else {
+        alert('Failed to delete payment. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error deleting payment:', error);
+      alert('Failed to delete payment. Please try again.');
+    }
+  }
+  
+  
+
   // Ticket handlers
-  // Ticket handlers - FIXED VERSION
 const handleAddTicket = async () => {
   try {
     const ticketData: Omit<TicketItem, 'id'> = {
@@ -667,7 +966,7 @@ const handleAddTicket = async () => {
       assignedTo: newTicket.assignedTo,
       priority: newTicket.priority,
       status: newTicket.status,
-      bookingId: bookingId || '1',
+      bookingId: bookingId,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     };
@@ -780,72 +1079,133 @@ const handleDeleteTicket = async (ticketId: string, reason: string) => {
 };
 
   // Inventory handlers
-  const handleAddInventoryItem = async () => {
+const handleAddInventoryItem = async () => {
+  try {
     const orgId = pageData.currentBooking?.organizationId || pageData.bookings?.[0]?.organizationId || '';
 
-    await inventoryService.create({
+    const newItem = await inventoryService.create({
       name: newInventoryItem.name,
       description: newInventoryItem.notes || '',
       quantity: Number(newInventoryItem.quantity) || 0,
-     // unit: 'pcs',
       price: Number(newInventoryItem.price) || 0,
       organizationid: orgId,
       createdat: new Date().toISOString(),
       updatedat: new Date().toISOString(),
-      notes: newInventoryItem.notes || ''
+      notes: newInventoryItem.notes || '',
+      bookingId: bookingId,
     } as any);
-    await fetchPageData();
-    setNewInventoryItem({ name: '', quantity: 1, price: 0, notes: '' });
+
+    // Update local state immediately
+    setPageData(prev => ({
+      ...prev,
+      inventoryItems: [...prev.inventoryItems, newItem]
+    }));
+
+    // Reset form and close dialog
+    setNewInventoryItem({ name: '',description:'', quantity: 1, price: 0, notes: '' });
     setShowInventoryDialog(false);
-  };
+    
+    console.log('Inventory item added successfully');
+  } catch (error) {
+    console.error('Error adding inventory item:', error);
+    alert('Failed to add inventory item. Please try again.');
+  }
+};
 
-  const handleEditInventory = (item: InventoryItem) => {
-    setEditingItem(item);
-    setNewInventoryItem({ 
-      name: item.name, 
-      quantity: item.quantity, 
-      price: item.price, 
-      notes: item.notes 
+const handleEditInventory = (item: InventoryItem) => {
+  setEditingItem(item);
+  setNewInventoryItem({ 
+    name: item.name, 
+    description:item.notes,
+    quantity: item.quantity, 
+    price: item.price, 
+    notes: item.notes 
+  });
+  setShowEditInventoryDialog(true);
+};
+
+const handleUpdateInventory = async () => {
+  if (!editingItem) return;
+
+  try {
+    const updatedItem = await inventoryService.update(editingItem.id, {
+      ...editingItem,
+      name: newInventoryItem.name,
+      description:newInventoryItem.notes || '',
+      quantity: Number(newInventoryItem.quantity) || 0,
+      price: Number(newInventoryItem.price) || 0,
+      notes: newInventoryItem.notes
     });
-    setShowEditInventoryDialog(true);
-  };
 
-  const handleUpdateInventory = async () => {
-    if (editingItem) {
-      const updatedInventoryItem = {
-        ...editingItem,
-        name: newInventoryItem.name,
-        quantity: Number(newInventoryItem.quantity) || 0,
-        price: Number(newInventoryItem.price) || 0,
-        notes: newInventoryItem.notes
-      };
-      await inventoryService.update(editingItem.id, updatedInventoryItem);
-      await fetchPageData();
-      setEditingItem(null);
-      setNewInventoryItem({ name: '', quantity: 1, price: 0, notes: '' });
-      setShowEditInventoryDialog(false);
+    // Update local state immediately
+    setPageData(prev => ({
+      ...prev,
+      inventoryItems: prev.inventoryItems.map(item => 
+        item.id === updatedItem.id ? updatedItem : item
+      )
+    }));
+
+    // Reset form and close dialog
+    setEditingItem(null);
+    setNewInventoryItem({ name: '',description:'', quantity: 1, price: 0, notes: '' });
+    setShowEditInventoryDialog(false);
+    
+    console.log('Inventory item updated successfully');
+  } catch (error) {
+    console.error('Error updating inventory item:', error);
+    alert('Failed to update inventory item. Please try again.');
+  }
+};
+
+const handleDeleteInventory = async (itemId: string, reason: string) => {
+  if (!reason) {
+    alert('Please provide a reason for deletion.');
+    return;
+  }
+
+  if (!confirm(`Are you sure you want to delete this inventory item? Reason: ${reason}`)) {
+    return;
+  }
+
+  try {
+    const success = await inventoryService.delete(itemId);
+    if (success) {
+      // Update local state immediately
+      setPageData(prev => ({
+        ...prev,
+        inventoryItems: prev.inventoryItems.filter(item => item.id !== itemId)
+      }));
+      console.log('Inventory item deleted successfully');
+    } else {
+      alert('Failed to delete inventory item. Please try again.');
     }
-  };
-
-  const handleDeleteInventory = async (itemId: string, reason: string) => {
-    await inventoryService.delete(itemId);
-    await fetchPageData();
-    console.log(`Inventory item deleted. Reason: ${reason}`);
-  };
-
+  } catch (error) {
+    console.error('Error deleting inventory item:', error);
+    alert('Failed to delete inventory item. Please try again.');
+  }
+};
   // Handover image handlers
-  const handleAddHandoverImage = () => {
-    const image: HandoverImage = {
-      id: Date.now().toString(),
-      url: '/placeholder.svg',
-      category: newHandoverImage.category,
-      description: newHandoverImage.description
-    };
-    setHandoverImages([...handoverImages, image]);
-    setNewHandoverImage({ category: '', description: '' });
+  const handleAddHandoverImage = async () => {
+    if (!selectedHandoverFile) return alert("Please choose a file");
+  
+    const orgId = pageData.currentBooking?.organizationId;
+    if (!orgId) return alert("Missing organization id");
+  
+    const formData = new FormData();
+    formData.append("file", selectedHandoverFile);
+    formData.append("category", newHandoverImage.category);
+    formData.append("description", newHandoverImage.description);
+    formData.append("organizationId", orgId); // 🔥 ADD THIS
+    formData.append("bookingId", bookingId!); // optional
+  
+    await handoverService.uploadImage(bookingId!, formData);
+  
+    const images = await handoverService.getImages(bookingId!);
+    setHandoverImages(images);
+  
+    setSelectedHandoverFile(null);
     setShowHandoverImageDialog(false);
   };
-
   // Inventory item selection handler
   const handleInventoryItemSelect = (itemName: string) => {
     const selectedItem = availableInventoryItems.find(item => item.name === itemName);
@@ -917,7 +1277,7 @@ const handleDeleteTicket = async (ticketId: string, reason: string) => {
   const viewInvoicePDF = async () => {
     if (!booking) return;
     await handleSaveBillingInfo();
-    navigate(`/invoice/${booking.id}?invoiceNo=${invoiceNumber}&invoiceDate=${invoiceDate}`);
+    navigate(`/admin/invoice/${booking.id}?invoiceNo=${invoiceNumber}&invoiceDate=${invoiceDate}`);
   };
 
   return (
@@ -1061,7 +1421,7 @@ const handleDeleteTicket = async (ticketId: string, reason: string) => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {selectedFeatures.map((feature) => (
+                  {featureArray.map((feature) => (
                     <div key={feature.id} className="flex justify-between items-center p-3 bg-gray-50 rounded">
                       <div>
                         <span className="font-medium">{feature.name}</span>
@@ -1083,95 +1443,128 @@ const handleDeleteTicket = async (ticketId: string, reason: string) => {
                     </div>
                   ))}
                 </div>
-                <div className="mt-4 p-3 bg-blue-50 rounded">
+                {/* <div className="mt-4 p-3 bg-blue-50 rounded">
                   <div className="flex justify-between font-semibold">
                     <span>Total Features Amount:</span>
                     <span>₹{featuresTotal.toLocaleString()}</span>
                   </div>
-                </div>
+                </div> */}
               </CardContent>
             </Card>
           </TabsContent>
 
           <TabsContent value="services">
-            <Card>
-              <CardHeader>
-                <div className="flex justify-between items-center">
-                  <CardTitle>Services Management</CardTitle>
-                  <Button onClick={() => setShowServiceDialog(true)}>
-                    <Plus className="h-4 w-4 mr-2" />
-                    Add Service 
-                  </Button>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {selectedServices.map((service) => (
-                    <div key={service.id} className="flex justify-between items-center p-3 bg-gray-50 rounded">
-                      <div>
-                        <span className="font-medium">{service.name}</span>
-                        <Badge variant={service.directPay ? "secondary" : "default"} className="ml-2">
-                          {service.directPay ? "Direct Pay" : "Include in Bill"}
-                        </Badge>
-                      </div>
-                      <div className="flex gap-2 items-center">
-                        <span className="font-semibold">₹{service.price.toLocaleString()}</span>
-                        <Button variant="outline" size="sm" onClick={() => handleEditService(service)}>
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button variant="outline" size="sm" onClick={() => {
-                          const reason = prompt('Please provide reason for deletion:');
-                          if (reason) handleDeleteService(service.id, reason);
-                        }}>
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
+  <Card>
+    <CardHeader>
+      <div className="flex justify-between items-center">
+        <CardTitle>Services Management</CardTitle>
+        <Button onClick={() => setShowServiceDialog(true)}>
+          <Plus className="h-4 w-4 mr-2" />
+          Add Service
+        </Button>
+      </div>
+    </CardHeader>
+    <CardContent>
+      <div className="space-y-3">
+        {servicesArray.map((service) => (
+          <div key={service.id} className="flex justify-between items-center p-3 bg-gray-50 rounded">
+            <div>
+              <span className="font-medium">{service.name}</span>
+              <Badge variant={service.directPay ? "secondary" : "default"} className="ml-2">
+                {service.directPay ? "Direct Pay" : "Include in Bill"}
+              </Badge>
+              {service.notes && <p className="text-sm text-gray-600 mt-1">{service.notes}</p>}
+            </div>
+            <div className="flex gap-2 items-center">
+              <span className="font-semibold">₹{service.price.toLocaleString()}</span>
+              <Button variant="outline" size="sm" onClick={() => handleEditService(service)}>
+                <Edit className="h-4 w-4" />
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => {
+                const reason = prompt('Please provide reason for deletion:');
+                if (reason) handleDeleteService(service.id, reason);
+              }}>
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        ))}
+        {servicesArray.length === 0 && (
+          <div className="text-center py-8 text-gray-500">
+            <p>No services added to this booking.</p>
+            <p className="text-sm">Click "Add Service" to add services.</p>
+          </div>
+        )}
+      </div>
+      
+      {/* Services Total */}
+      {/* {servicesArray.length > 0 && (
+        <div className="mt-4 p-3 bg-blue-50 rounded">
+          <div className="flex justify-between font-semibold">
+            <span>Total Services Amount:</span>
+            <span>₹{servicesArray.reduce((sum, service) => sum + (service.price || 0), 0).toLocaleString()}</span>
+          </div>
+        </div>
+      )} */}
+    </CardContent>
+  </Card>
+</TabsContent>
 
           <TabsContent value="inventory">
-            <Card>
-              <CardHeader>
-                <div className="flex justify-between items-center">
-                  <CardTitle>Inventory Management</CardTitle>
-                  <Button onClick={() => setShowInventoryDialog(true)}>
-                    <Plus className="h-4 w-4 mr-2" />
-                    Add Item
-                  </Button>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {availableInventoryItems.map((item) => (
-                    <div key={item.id} className="flex justify-between items-center p-3 bg-gray-50 rounded">
-                      <div>
-                        <span className="font-medium">{item.name}</span>
-                        <span className="text-gray-500 ml-2">Qty: {item.quantity}</span>
-                        <span className="text-gray-500 ml-2">₹{item.price} each</span>
-                        {item.notes && <p className="text-sm text-gray-600">{item.notes}</p>}
-                      </div>
-                      <div className="flex gap-2 items-center">
-                        <span className="font-semibold">₹{(item.price * item.quantity).toLocaleString()}</span>
-                        <Button variant="outline" size="sm" onClick={() => handleEditInventory(item)}>
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button variant="outline" size="sm" onClick={() => {
-                          const reason = prompt('Please provide reason for deletion:');
-                          if (reason) handleDeleteInventory(item.id, reason);
-                        }}>
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
+  <Card>
+    <CardHeader>
+      <div className="flex justify-between items-center">
+        <CardTitle>Inventory Management</CardTitle>
+        <Button onClick={() => setShowInventoryDialog(true)}>
+          <Plus className="h-4 w-4 mr-2" />
+          Add Item
+        </Button>
+      </div>
+    </CardHeader>
+    <CardContent>
+      <div className="space-y-3">
+          {bookingInventoryArray.map((item) => (
+          <div key={item.id} className="flex justify-between items-center p-3 bg-gray-50 rounded">
+            <div>
+              <span className="font-medium">{item.name}</span>
+              <span className="text-gray-500 ml-2">Qty: {item.quantity}</span>
+              <span className="text-gray-500 ml-2">₹{item.charge} each</span>
+              {item.notes && <p className="text-sm text-gray-600">{item.notes}</p>}
+            </div>
+            <div className="flex gap-2 items-center">
+              <span className="font-semibold">₹{(item.price * item.quantity).toLocaleString()}</span>
+              <Button variant="outline" size="sm" onClick={() => handleEditInventory(item)}>
+                <Edit className="h-4 w-4" />
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => {
+                const reason = prompt('Please provide reason for deletion:');
+                if (reason) handleDeleteInventory(item.id, reason);
+              }}>
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        ))}
+        {bookingInventoryArray.length === 0 && (
+          <div className="text-center py-8 text-gray-500">
+            <p>No inventory items found.</p>
+            <p className="text-sm">Click "Add Item" to add inventory items.</p>
+          </div>
+        )}
+      </div>
+      
+      {/* Inventory Total
+      {bookingInventoryArray.length > 0 && (
+        <div className="mt-4 p-3 bg-blue-50 rounded">
+          <div className="flex justify-between font-semibold">
+            <span>Total Inventory Amount:</span>
+            <span>₹{bookingInventoryArray.reduce((sum, item) => sum + (item.price * item.quantity), 0).toLocaleString()}</span>
+          </div>
+        </div>
+      )} */}
+    </CardContent>
+  </Card>
+</TabsContent>
 
           <TabsContent value="payments">
             <Card>
@@ -1186,11 +1579,11 @@ const handleDeleteTicket = async (ticketId: string, reason: string) => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {payments.map((payment) => (
+                  {pageData.payments.map((payment) => (
                     <div key={payment.id} className="flex justify-between items-center p-3 bg-gray-50 rounded">
                       <div>
                         <span className="font-medium">{new Date(payment.date).toLocaleDateString()}</span>
-                        <span className="text-gray-500 ml-2">{payment.mode.toUpperCase()}</span>
+                        <span className="text-gray-500 ml-2">{payment.paymentMode.toUpperCase()}</span>
                         <span className="text-gray-500 ml-2">{payment.personName}</span>
                         {payment.notes && <p className="text-sm text-gray-600">{payment.notes}</p>}
                       </div>
@@ -1338,10 +1731,10 @@ const handleDeleteTicket = async (ticketId: string, reason: string) => {
                       </div>
                       <div className="flex items-center gap-2 text-sm mb-2">
                         <span className="font-medium text-blue-600">From:</span>
-                        <span>{communication.fromPerson}</span>
+                        <span>{communication.from_Person}</span>
                         <span className="text-gray-400">→</span>
                         <span className="font-medium text-green-600">To:</span>
-                        <span>{communication.toPerson}</span>
+                        <span>{communication.to_Person}</span>
                       </div>
                       <p className="text-sm text-gray-700">{communication.detail}</p>
                     </div>
@@ -1448,20 +1841,19 @@ const handleDeleteTicket = async (ticketId: string, reason: string) => {
                 
                 <div>
                   <Label>Billing Name</Label>
-                  <Input
-                    value={billingName}
-                    onChange={(e) => setBillingName(e.target.value)}
-                    placeholder="Enter billing name"
-                    required
+                  <Input type="text"
+                    value={billingSettings.companyName} readOnly
+                    // onChange={(e) => setBillingName(e.target.value)}
+                    // placeholder="Enter billing name"
+                   
                   />
                 </div>
 
                 <div>
                   <Label>Billing Address</Label>
                   <Textarea
-                    value={billingAddress}
-                    onChange={(e) => setBillingAddress(e.target.value)}
-                    placeholder="Enter complete billing address"
+                    //value={billingAddress}
+                    value={billingSettings.address} readOnly
                     rows={3}
                   />
                 </div>
@@ -1469,10 +1861,10 @@ const handleDeleteTicket = async (ticketId: string, reason: string) => {
                 <div>
                   <Label>GST Number</Label>
                   <Input
-                    value={billingGST}
-                    onChange={(e) => setBillingGST(e.target.value)}
-                    placeholder="Enter GST number (optional)"
+                    value={billingSettings.gstNumber} readOnly
+                    //placeholder="Enter GST number (optional)"
                   />
+                  
                 </div>
 
               </div>
@@ -1514,56 +1906,7 @@ const handleDeleteTicket = async (ticketId: string, reason: string) => {
         </div>
       </div>
 
-      {/* Status Change Dialog */}
-      <Dialog open={statusChangeDialog.open} onOpenChange={(open) => setStatusChangeDialog(prev => ({...prev, open}))}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Change Booking Status</DialogTitle>
-            <DialogDescription>
-              Update the status for {booking?.customerName}'s booking
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <Label>New Status</Label>
-              <Select 
-                value={statusChangeDialog.newStatus} 
-                onValueChange={(value) => setStatusChangeDialog(prev => ({...prev, newStatus: value}))}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="pending">Pending</SelectItem>
-                  <SelectItem value="confirmed">Confirmed</SelectItem>
-                  <SelectItem value="cancelled">Cancelled</SelectItem>
-                  <SelectItem value="completed">Completed</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label>Reason for Change (Optional)</Label>
-              <Textarea
-                value={statusChangeDialog.reason}
-                onChange={(e) => setStatusChangeDialog(prev => ({...prev, reason: e.target.value}))}
-                placeholder="Enter reason for status change..."
-              />
-            </div>
-            <Button 
-              onClick={() => handleStatusChange(
-                statusChangeDialog.bookingId, 
-                statusChangeDialog.newStatus, 
-                statusChangeDialog.reason
-              )}
-              className="w-full"
-            >
-              Update Status
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* All other dialogs remain the same */}
+      {/* Feature Dialog */}
       <Dialog open={showFeatureDialog} onOpenChange={setShowFeatureDialog}>
         <DialogContent>
           <DialogHeader>
@@ -1577,17 +1920,12 @@ const handleDeleteTicket = async (ticketId: string, reason: string) => {
                   <SelectValue placeholder="Select feature" />
                 </SelectTrigger>
                 <SelectContent>
-    {Array.isArray(hall.features) && hall.features.length > 0 ? 
-      hall.features.map((feature, index) => (
-        <SelectItem key={feature.id || index} value={feature.name}>
-          {feature.name} - ₹{feature.charge || 0}
-        </SelectItem>
-      )) :
-      <SelectItem value="no-features" disabled>
-        No features available
-      </SelectItem>
-    }
-  </SelectContent>
+                  {masterFeatures.map(feature => (
+                    <SelectItem key={feature.name} value={feature.name}>
+                      {feature.name} - ₹{feature.price}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
               </Select>
             </div>
             <div>
@@ -1598,9 +1936,19 @@ const handleDeleteTicket = async (ticketId: string, reason: string) => {
                 onChange={(e) => setNewFeature({...newFeature, quantity: parseInt(e.target.value)})}
               />
             </div>
-            <Button onClick={handleAddFeature} className="w-full">
-              {editingItem ? 'Update Feature' : 'Add Feature'}
-            </Button>
+            <div>
+        <Label>Price per Unit</Label>
+        <Input
+          type="number"
+          value={newFeature.price}  // ✅ CORRECT - using feature price
+          onChange={(e) => setNewFeature({...newFeature, price: Number(e.target.value) || 0})}  // ✅ CORRECT
+          min="0"
+          step="0.01"
+        />
+      </div>
+            <Button onClick={editingItem ? handleUpdateFeature : handleAddFeature} className="w-full">
+  {editingItem ? 'Update Feature' : 'Add Feature'}
+</Button>
           </div>
         </DialogContent>
       </Dialog>
@@ -1619,7 +1967,7 @@ const handleDeleteTicket = async (ticketId: string, reason: string) => {
                   <SelectValue placeholder="Select service" />
                 </SelectTrigger>
                 <SelectContent>
-  {servicesArray.map(service => (
+  {availableServiceItem.map(service => (
     <SelectItem key={service.id} value={service.name}>
       {service.name} - ₹{service.basePrice || 0}
     </SelectItem>
@@ -1635,9 +1983,9 @@ const handleDeleteTicket = async (ticketId: string, reason: string) => {
               />
               <Label htmlFor="directPay">Direct Pay (won't be included in charges breakdown)</Label>
             </div>
-            <Button onClick={handleAddService} className="w-full">
-              {editingItem ? 'Update Service' : 'Add Service'}
-            </Button>
+            <Button onClick={editingItem ? handleUpdateService : handleAddService} className="w-full">
+  {editingItem ? 'Update Service' : 'Add Service'}
+</Button>
           </div>
         </DialogContent>
       </Dialog>
@@ -1659,7 +2007,7 @@ const handleDeleteTicket = async (ticketId: string, reason: string) => {
             </div>
             <div>
               <Label>Payment Mode</Label>
-              <Select value={newPayment.mode} onValueChange={(value: Payment['mode']) => setNewPayment({...newPayment, mode: value})}>
+              <Select value={newPayment.mode} onValueChange={(value: PaymentsItem['paymentMode']) => setNewPayment({...newPayment, mode: value})}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -1904,46 +2252,67 @@ const handleDeleteTicket = async (ticketId: string, reason: string) => {
       </Dialog>
 
       {/* Handover Image Dialog */}
-      <Dialog open={showHandoverImageDialog} onOpenChange={setShowHandoverImageDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Add Handover Image</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <Label>Category</Label>
-              <Select value={newHandoverImage.category} onValueChange={(value) => setNewHandoverImage({...newHandoverImage, category: value})}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select category" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Before Event">Before Event</SelectItem>
-                  <SelectItem value="During Event">During Event</SelectItem>
-                  <SelectItem value="After Event">After Event</SelectItem>
-                  <SelectItem value="Damage Report">Damage Report</SelectItem>
-                  <SelectItem value="Setup">Setup</SelectItem>
-                  <SelectItem value="Cleanup">Cleanup</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label>Description</Label>
-              <Textarea
-                value={newHandoverImage.description}
-                onChange={(e) => setNewHandoverImage({...newHandoverImage, description: e.target.value})}
-                placeholder="Describe the image"
-              />
-            </div>
-            <div>
-              <Label>Upload Image</Label>
-              <Input type="file" accept="image/*" />
-            </div>
-            <Button onClick={handleAddHandoverImage} className="w-full">
-              Add Image
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+<Dialog open={showHandoverImageDialog} onOpenChange={setShowHandoverImageDialog}>
+  <DialogContent>
+    <DialogHeader>
+      <DialogTitle>Add Handover Image</DialogTitle>
+    </DialogHeader>
+    <div className="space-y-4">
+      <div>
+        <Label>Category</Label>
+        <Select 
+          value={newHandoverImage.category} 
+          onValueChange={(value) => setNewHandoverImage({...newHandoverImage, category: value})}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Select category" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="Before Event">Before Event</SelectItem>
+            <SelectItem value="During Event">During Event</SelectItem>
+            <SelectItem value="After Event">After Event</SelectItem>
+            <SelectItem value="Damage Report">Damage Report</SelectItem>
+            <SelectItem value="Setup">Setup</SelectItem>
+            <SelectItem value="Cleanup">Cleanup</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+      <div>
+        <Label>Description</Label>
+        <Textarea
+          value={newHandoverImage.description}
+          onChange={(e) => setNewHandoverImage({...newHandoverImage, description: e.target.value})}
+          placeholder="Describe the image"
+        />
+      </div>
+      <div>
+        <Label>Upload Image</Label>
+        <Input 
+          type="file" 
+          accept="image/*" 
+          onChange={(e) => {
+            const file = e.target.files?.[0];
+            if (file) {
+              setSelectedHandoverFile(file);
+            }
+          }}
+        />
+        {selectedHandoverFile && (
+          <p className="text-sm text-green-600 mt-1">
+            Selected: {selectedHandoverFile.name}
+          </p>
+        )}
+      </div>
+      <Button 
+        onClick={handleAddHandoverImage} 
+        className="w-full"
+        disabled={!selectedHandoverFile || !newHandoverImage.category}
+      >
+        Add Image
+      </Button>
+    </div>
+  </DialogContent>
+</Dialog>
 
       {/* Communication Dialog */}
       <Dialog open={showCommunicationDialog} onOpenChange={setShowCommunicationDialog}>

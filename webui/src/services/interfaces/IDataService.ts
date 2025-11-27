@@ -6,7 +6,7 @@ import {
   MasterDataItem, ServiceItem, InventoryItem, TicketItem, 
   Communication, BillingSettings, CustomerClick, GalleryImage, 
   StatusData, HallUtilization, MonthlyData, 
-  GrowthMetrics, CustomerInsights 
+  GrowthMetrics, CustomerInsights ,PaymentsItem,Services
 } from '../mockData';
 
 // Base interfaces for all services
@@ -92,9 +92,13 @@ export interface ISettingsService {
 
 export interface IServicesService extends IDataService<ServiceItem> {
   getAllServices(): Promise<ServiceItem[]>;
+  getServiceByBookingId(bookingId: string): Promise<ServiceItem[]>; 
   createService(service: Omit<ServiceItem, 'id'>): Promise<ServiceItem>;
   updateService(id: string, updates: Partial<ServiceItem>): Promise<ServiceItem>;
   deleteService(id: string): Promise<boolean>;
+ // addService(): Promise<Services[]>;
+  //addServicesService(service: Omit<ServiceItem, 'id'>): Promise<ServiceItem>;
+ 
 }
 
 export interface IInventoryService extends IDataService<InventoryItem> {
@@ -104,6 +108,15 @@ export interface IInventoryService extends IDataService<InventoryItem> {
   createInventoryItem(item: Omit<InventoryItem, 'id'>): Promise<InventoryItem>;
   updateInventoryItem(id: string, updates: Partial<InventoryItem>): Promise<InventoryItem>;
   deleteInventoryItem(id: string): Promise<boolean>;
+  getInventoryByBookingId(bookingId: string): Promise<InventoryItem[]>;
+}
+//new
+export interface IPaymentService extends IDataService<PaymentsItem>{
+  getPaymentsByBookingId(bookingId: string): Promise<PaymentsItem[]>;
+ // updateTicketStatus(amount: number): Promise<PaymentsItem>;
+// createPayment(data: Omit<PaymentsItem,'id'>): Promise<PaymentsItem>;
+// updateTicket(id: string, data: Partial<PaymentsItem>): Promise<PaymentsItem>;
+// deleteTicket(id: string): Promise<boolean>;
 }
 
 export interface ITicketService extends IDataService<TicketItem> {

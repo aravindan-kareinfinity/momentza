@@ -74,34 +74,18 @@ namespace Momantza.Controllers
             }
         }
 
+
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(string id, [FromBody] ServiceItem serviceData)
+        public async Task<IActionResult> Update(string id, ServiceItem serviceData)
         {
             try
             {
-                // Create a new ServiceItem with the ID from route
-                var updatedService = new ServiceItem
-                {
-                    Id = id, // Use the ID from URL route
-                    Name = serviceData.Name,
-                    HsnCode = serviceData.HsnCode,
-                    TaxPercentage = serviceData.TaxPercentage,
-                    BasePrice = serviceData.BasePrice,
-                   // IsActive = serviceData.IsActive,
-                    // Add other properties if needed
-                   // UserId = serviceData.UserId // Make sure to include this if your model requires it
-                };
-
-                var success = await _servicesDataService.UpdateAsync(updatedService);
-                if (!success)
-                {
-                    return NotFound(new { message = "Service not found" });
-                }
-                return Ok(await _servicesDataService.GetByIdAsync(id));
+                var updated = await _servicesDataService.UpdateBookingServiceAsync(id, serviceData);
+                return Ok(updated);
             }
-            catch (Exception ex)
+            catch
             {
-                return StatusCode(500, new { message = "Internal server error", error = ex.Message });
+                return NotFound(new { message = "Service not found" });
             }
         }
 
@@ -151,19 +135,59 @@ namespace Momantza.Controllers
             }
         }
 
-        /*[HttpGet("/bookings/{bookingId}/services")]
+        [HttpGet("bookings/{bookingId}/services")]
 
-        public async Task<ActionResult<List<ServiceItem>>> GetByBookingId(string bookingId)
+        public async Task<ActionResult<List<ServiceItem>>> GetServicesByBookingIdAsync(string bookingId)
         {
             try
             {
-                var tickets = await _servicesDataService.GetServicesByBookingIdAsync(bookingId);
-                return Ok(tickets);
+                var services = await _servicesDataService.GetServicesByBookingIdAsync(bookingId);
+                return Ok(services);
             }
             catch (Exception ex)
             {
                 return StatusCode(500, new { error = ex.Message });
             }
-        }*/
+        }
+        //new
+        [HttpPost("Service")]
+        public async Task<ActionResult<ServiceItem>> CreateService(ServiceItem service)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                var serviceItem = await _servicesDataService.CreateAsyncs(service);
+                return CreatedAtAction(nameof(GetById), new { id = serviceItem.Id }, serviceItem);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = ex.Message });
+            }
+        }
+
+        [HttpDelete("delete/{id}")]
+        public async Task<ActionResult> Deletes(string id)
+        {
+            try
+            {
+                var deleted = await _servicesDataService.DeleteAsync(id);
+                if (!deleted)
+                {
+                    return NotFound(new { error = "Services not found" });
+                }
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = ex.Message });
+            }
+
+            //
+
+        }
     }
-} 
+}

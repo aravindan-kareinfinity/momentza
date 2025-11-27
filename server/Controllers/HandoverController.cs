@@ -127,5 +127,116 @@ namespace Momantza.Controllers
                 return StatusCode(500, new { message = "Internal server error", error = ex.Message });
             }
         }
+
+        //// Handover images controller part
+
+        [HttpPost("images")]
+        public async Task<IActionResult> UploadHandoverImage(
+    string bookingId,
+    [FromForm] HandoverImageUploadDto dto)
+        {
+            try
+            {
+                _logger.LogInformation("Uploading handover image for booking: {BookingId}", bookingId);
+
+                // Ensure correct bookingId is applied
+                dto.BookingId = bookingId;
+
+                // Validate booking exists
+                var booking = await _bookingDataService.GetByIdAsync(bookingId);
+                if (booking == null)
+                    return NotFound(new { message = "Booking not found" });
+
+                // Validate image file
+                if (dto.File == null || dto.File.Length == 0)
+                    return BadRequest(new { message = "Image file is required" });
+
+                // Get organization ID from context (middleware fills this)
+                var orgId = dto.OrganizationId;
+
+                if (string.IsNullOrEmpty(orgId))
+                {
+                    orgId = HttpContext.Items["OrganizationId"]?.ToString();
+                }
+
+                if (string.IsNullOrEmpty(orgId))
+                {
+                    return BadRequest(new { message = "Missing organization id" });
+                }
+
+                dto.OrganizationId = orgId;
+
+                var id = await _handoverDataService.UploadHandoverImageAsync(dto);
+
+                if (id == null)
+                    return StatusCode(500, new { message = "Failed to upload image" });
+
+                return Ok(new { message = "Image uploaded successfully", id });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error uploading handover image");
+                return StatusCode(500, new { message = "Internal server error", error = ex.Message });
+            }
+        }
+
+        [HttpGet("images")]
+        public async Task<IActionResult> GetHandoverImages(string bookingId)
+        {
+            try
+            {
+                var booking = await _bookingDataService.GetByIdAsync(bookingId);
+                if (booking == null)
+                    return NotFound(new { message = "Booking not found" });
+
+                var images = await _handoverDataService.GetImagesByBookingIdAsync(bookingId);
+                return Ok(images);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error fetching images for booking: {BookingId}", bookingId);
+                return StatusCode(500, new { message = "Internal server error", error = ex.Message });
+            }
+        }
+
+        [HttpGet("images/{imageId}")]
+        public async Task<IActionResult> GetHandoverImage(string bookingId, string imageId)
+        {
+            try
+            {
+                var img = await _handoverDataService.GetImageByIdAsync(imageId);
+
+                if (img == null)
+                    return NotFound(new { message = "Image not found" });
+
+                if (img.ImageBytes == null)
+                    return NotFound(new { message = "No image data" });
+
+                return File(img.ImageBytes, img.ContentType ?? "application/octet-stream");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error fetching image file");
+                return StatusCode(500, new { message = "Internal server error", error = ex.Message });
+            }
+        }
+
+        [HttpDelete("images/{imageId}")]
+        public async Task<IActionResult> DeleteHandoverImage(string bookingId, string imageId)
+        {
+            try
+            {
+                var deleted = await _handoverDataService.DeleteHandoverImageAsync(imageId);
+                if (!deleted)
+                    return NotFound(new { message = "Image not found" });
+
+                return Ok(new { message = "Image deleted successfully" });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error deleting handover image");
+                return StatusCode(500, new { message = "Internal server error", error = ex.Message });
+            }
+        }
     }
 }

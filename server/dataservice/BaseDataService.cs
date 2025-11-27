@@ -350,6 +350,13 @@ namespace Momantza.Services
             }
         }
 
+        // Add this method inside the `BaseDataService<T>` class (near other public CRUD methods)
+        public virtual async Task<bool> CreateServiceAsync(T entity)
+        {
+            // Delegate to the existing CreateAsync implementation so the interface member is satisfied.
+            return await CreateAsync(entity);
+        }
+
         public virtual async Task<bool> UpdateAsync(T entity)
         {
             try

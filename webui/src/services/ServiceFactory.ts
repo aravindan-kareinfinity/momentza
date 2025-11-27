@@ -1,5 +1,4 @@
 import { shouldUseMockData } from '../config/environment';
-
 // Import existing services from mock folder
 import { bookingService as mockBookingService } from './mock/bookingService';
 import { hallService as mockHallService } from './mock/hallService';
@@ -10,6 +9,7 @@ import { settingsService as mockSettingsService } from './mock/settingsService';
 import { servicesService as mockServicesService } from './mock/servicesService';
 import { inventoryService as mockInventoryService } from './mock/inventoryService';
 import { ticketService as mockTicketService } from './mock/ticketService';
+//import { paymentService as mockPaymentService } from './mock/paymentService';
 import { communicationService as mockCommunicationService } from './mock/communicationService';
 import { billingService as mockBillingService } from './mock/billingService';
 import { customerClicksService as mockCustomerClicksService } from './mock/customerClicksService';
@@ -29,6 +29,10 @@ import { ApiSettingsService } from './api/ApiSettingsService';
 import { ApiServicesService } from './api/ApiServicesService';
 import { ApiInventoryService } from './api/ApiInventoryService';
 import { ApiTicketService } from './api/ApiTicketService';
+//new
+import { ApiPaymentService } from './api/ApiPaymentService';
+import { ApiHandoverService } from './api/ApiHandoverService';
+
 import { ApiCommunicationService } from './api/ApiCommunicationService';
 import { ApiBillingService } from './api/ApiBillingService';
 import { ApiCustomerClicksService } from './api/ApiCustomerClicksService';
@@ -37,6 +41,8 @@ import { ApiCarouselService } from './api/ApiCarouselService';
 import { ApiStatisticsService } from './api/ApiStatisticsService';
 import { ApiAuthService } from './api/ApiAuthService';
 import { ApiMicrositeService } from './api/ApiMicrositeService';
+import { ApiFeatureService } from './api/ApiFeatureService';
+
 
 export class ServiceFactory {
   static createBookingService() {
@@ -95,6 +101,15 @@ export class ServiceFactory {
     }
   }
 
+  //new
+  static addService(){
+    return new ApiServicesService();
+  }
+
+  // static createFeaturesService(){
+  //   return new ApiFeatureService();
+  // }
+
   static createInventoryService() {
     if (shouldUseMockData()) {
       return mockInventoryService;
@@ -109,6 +124,10 @@ export class ServiceFactory {
     } else {
       return new ApiTicketService();
     }
+  }
+
+  static createPayment(){
+    return new ApiPaymentService();  
   }
 
   static createCommunicationService() {
@@ -183,9 +202,13 @@ export const userService = ServiceFactory.createUserService();
 export const reviewService = ServiceFactory.createReviewService();
 export const organizationService = ServiceFactory.createOrganizationService();
 export const settingsService = ServiceFactory.createSettingsService();
-export const servicesService = ServiceFactory.createServicesService();
+export const featureService =new  ApiFeatureService();
+export const servicesService = ServiceFactory.addService();
+export const servicesServices = ServiceFactory.createServicesService();
+
 export const inventoryService = ServiceFactory.createInventoryService();
 export const ticketService = ServiceFactory.createTicketService();
+export const paymentService = ServiceFactory.createPayment();
 export const communicationService = ServiceFactory.createCommunicationService();
 export const billingService = ServiceFactory.createBillingService();
 export const customerClicksService = ServiceFactory.createCustomerClicksService();
@@ -193,4 +216,5 @@ export const galleryService = ServiceFactory.createGalleryService();
 export const carouselService = ServiceFactory.createCarouselService();
 export const authService = ServiceFactory.createAuthService();
 export const statisticsService = ServiceFactory.createStatisticsService();
+export const handoverService = new ApiHandoverService();
 export const micrositeService = ServiceFactory.createMicrositeService(); 

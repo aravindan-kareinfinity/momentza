@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Printer, Download, AlertCircle } from 'lucide-react';
 import { bookingService, hallService, billingService } from '@/services/ServiceFactory';
 import { runtimeConfig, loadRuntimeConfig } from '@/config/runtimeConfig';
+//import { AnimatedPage } from '@/components/Layout/AnimatedPage';
 
 const Invoice = () => {
   const { bookingId } = useParams<{ bookingId: string }>();
@@ -43,37 +44,30 @@ const Invoice = () => {
   // Fetch data after config is loaded
   useEffect(() => {
     const fetchData = async () => {
-      if (!configLoaded) return;
+      if (!configLoaded || !bookingId) return;
 
       try {
         setLoading(true);
         setError(null);
-        
-        // Fetch all data in parallel
-        const [bookingsData, billingData] = await Promise.all([
-          bookingService.getBookingsByOrganization('org-123'),
-          billingService.getBillingSettings()
-        ]);
-        
-        setBookings(bookingsData || []);
+
+        // 1️⃣ Fetch booking directly by ID
+        const bookingData = await bookingService.getById(bookingId);
+
+        // 2️⃣ Fetch billing settings
+        const billingData = await billingService.getBillingSettings();
+
+        setBookings([bookingData]);
         setBillingSettings(billingData);
-        
-        // Get the specific booking
-        const booking = bookingsData?.find((b: any) => b.id === bookingId);
-        
-        // Fetch hall data if booking exists
-        if (booking?.hallId) {
-          try {
-            const hallData = await hallService.getHallById(booking.hallId);
-            setHall(hallData);
-          } catch (err) {
-            console.error('Failed to load hall data:', err);
-            setError('Failed to load hall data');
-          }
+
+        // 3️⃣ Fetch hall
+        if (bookingData?.hallId) {
+          const hallData = await hallService.getHallById(bookingData.hallId);
+          setHall(hallData);
         }
+
       } catch (err) {
-        console.error('Failed to load invoice data:', err);
-        setError('Failed to load invoice data');
+        console.error("Failed to load invoice data:", err);
+        setError("Failed to load invoice data");
       } finally {
         setLoading(false);
       }
@@ -81,6 +75,7 @@ const Invoice = () => {
 
     fetchData();
   }, [configLoaded, bookingId]);
+
 
   const booking = bookings?.find((b: any) => b.id === bookingId) || null;
 
@@ -117,21 +112,21 @@ const Invoice = () => {
   // Configuration loading state
   if (!configLoaded) {
     return (
-      <div className="min-h-screen bg-white p-8">
+     // <AnimatedPage className="min-h-screen bg-white p-8">
         <Card>
           <CardContent className="text-center py-8">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
             <p className="text-gray-500">Loading application configuration...</p>
           </CardContent>
         </Card>
-      </div>
+      //</AnimatedPage>
     );
   }
 
   // Configuration error state
   if (configError) {
     return (
-      <div className="min-h-screen bg-white p-8">
+      //<AnimatedPage className="min-h-screen bg-white p-8">
         <Card>
           <CardContent className="text-center py-8">
             <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
@@ -140,8 +135,8 @@ const Invoice = () => {
             <p className="text-sm text-gray-500">
               API Base URL: {runtimeConfig.VITE_API_BASE_URL}
             </p>
-            <Button 
-              onClick={() => window.location.reload()} 
+            <Button
+              onClick={() => window.location.reload()}
               className="mt-4"
               variant="outline"
             >
@@ -149,14 +144,14 @@ const Invoice = () => {
             </Button>
           </CardContent>
         </Card>
-      </div>
+     // </AnimatedPage>
     );
   }
 
   // Data loading state
   if (loading) {
     return (
-      <div className="min-h-screen bg-white p-8">
+      //<AnimatedPage className="min-h-screen bg-white p-8">
         <Card>
           <CardContent className="text-center py-8">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
@@ -166,14 +161,14 @@ const Invoice = () => {
             </p>
           </CardContent>
         </Card>
-      </div>
+     // </AnimatedPage>
     );
   }
 
   // Data error state
   if (error || !booking || !billingSettings) {
     return (
-      <div className="min-h-screen bg-white p-8">
+     // <AnimatedPage className="min-h-screen bg-white p-8">
         <Card>
           <CardContent className="text-center py-8">
             <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
@@ -185,8 +180,8 @@ const Invoice = () => {
             <p className="text-sm text-gray-500 mt-4">
               API Base URL: {runtimeConfig.VITE_API_BASE_URL}
             </p>
-            <Button 
-              onClick={() => window.location.reload()} 
+            <Button
+              onClick={() => window.location.reload()}
               className="mt-4"
               variant="outline"
             >
@@ -194,12 +189,13 @@ const Invoice = () => {
             </Button>
           </CardContent>
         </Card>
-      </div>
+      //</AnimatedPage>
     );
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    //<AnimatedPage className="min-h-screen bg-white">
+    <div>
       {/* Print Controls - Hidden during print */}
       <div className="no-print p-4 bg-gray-50 border-b">
         <div className="max-w-4xl mx-auto flex gap-4">
@@ -352,6 +348,7 @@ const Invoice = () => {
         </div>
       </div>
     </div>
+    
   );
 };
 

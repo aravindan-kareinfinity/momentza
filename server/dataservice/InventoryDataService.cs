@@ -1,11 +1,12 @@
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
+using Momantza.Models;
+using Npgsql;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Net.Sockets;
 using System.Threading.Tasks;
-using Npgsql;
-using Momantza.Models;
-using Microsoft.Extensions.Configuration;
-using Microsoft.AspNetCore.Http;
 
 namespace Momantza.Services
 {
@@ -15,6 +16,8 @@ namespace Momantza.Services
         Task<InventoryItem?> GetByIdAsync(string id);
         Task<InventoryItem> CreateAsync(InventoryItem item);
         Task<InventoryItem> UpdateAsync(string id, InventoryItem item);
+
+        Task<List<InventoryItem>> GetInventoryByBookingIdAsync(string bookingId);
         Task<bool> DeleteAsync(string id);
         Task<InventoryItem?> GetByNameAsync(string name);
     }
@@ -82,8 +85,8 @@ namespace Momantza.Services
         {
             item.Id = Guid.NewGuid().ToString();
             var sql = @"
-        INSERT INTO inventory_items (id, name, quantity, description, price, notes, organizationid)
-        VALUES (@id, @name, @quantity, @description, @price, @notes, @organizationid)";
+        INSERT INTO inventory_items (id, name, quantity, description, price, notes, organizationid,booking_id)
+        VALUES (@id, @name, @quantity, @description, @price, @notes, @organizationid, @bookingid)";
 
             using var connection = await GetConnectionAsync();
             using var command = new NpgsqlCommand(sql, connection);
@@ -95,6 +98,7 @@ namespace Momantza.Services
             command.Parameters.AddWithValue("@price", item.Price);
             command.Parameters.AddWithValue("@notes", item.Notes ?? "");
             command.Parameters.AddWithValue("@organizationid", item.orgId);
+            command.Parameters.AddWithValue("@bookingid", item.BookingId ?? (object)DBNull.Value);
 
             await command.ExecuteNonQueryAsync();
             return item;
@@ -103,25 +107,39 @@ namespace Momantza.Services
         public async Task<InventoryItem> UpdateAsync(string id, InventoryItem item)
         {
             var sql = @"
-                UPDATE inventory_items 
-                SET name = @name, quantity = @quantity, price = @price, notes = @notes, updated_at = CURRENT_TIMESTAMP
-                WHERE id = @id";
+        UPDATE inventory_items 
+        SET name = @name, description = @description, quantity = @quantity, 
+            price = @price, notes = @notes, updated_at = CURRENT_TIMESTAMP
+        WHERE id = @id
+        RETURNING id, name, description, quantity, price, notes, created_at, updated_at";
 
             using var connection = await GetConnectionAsync();
             using var command = new NpgsqlCommand(sql, connection);
             command.Parameters.AddWithValue("@id", id);
-            command.Parameters.AddWithValue("@name", item.Name);
+            command.Parameters.AddWithValue("@name", item.Name ?? "");
+            command.Parameters.AddWithValue("@description", item.Description ?? "");
             command.Parameters.AddWithValue("@quantity", item.Quantity);
             command.Parameters.AddWithValue("@price", item.Price);
             command.Parameters.AddWithValue("@notes", item.Notes ?? "");
 
-            var rowsAffected = await command.ExecuteNonQueryAsync();
-            if (rowsAffected == 0)
+            using var reader = await command.ExecuteReaderAsync();
+
+            if (await reader.ReadAsync())
             {
-                throw new Exception("Inventory item not found");
+                return new InventoryItem
+                {
+                    Id = reader.GetString(reader.GetOrdinal("id")),
+                    Name = reader.IsDBNull(reader.GetOrdinal("name")) ? "" : reader.GetString(reader.GetOrdinal("name")),
+                    Description = reader.IsDBNull(reader.GetOrdinal("description")) ? "" : reader.GetString(reader.GetOrdinal("description")),
+                    Quantity = reader.GetInt32(reader.GetOrdinal("quantity")),
+                    Price = reader.GetDecimal(reader.GetOrdinal("price")),
+                    Notes = reader.IsDBNull(reader.GetOrdinal("notes")) ? "" : reader.GetString(reader.GetOrdinal("notes")),
+                    CreatedAt = reader.GetDateTime(reader.GetOrdinal("created_at")),
+                    UpdatedAt = reader.GetDateTime(reader.GetOrdinal("updated_at"))
+                };
             }
 
-            return await GetByIdAsync(id) ?? throw new Exception("Inventory item not found after update");
+            throw new Exception($"Inventory item with id {id} not found");
         }
 
         public async Task<bool> DeleteAsync(string id)
@@ -161,7 +179,8 @@ namespace Momantza.Services
                 Quantity = Convert.ToInt32(reader["quantity"]),
                 Price = Convert.ToDecimal(reader["price"]),
                 Notes = reader["notes"]?.ToString() ?? "",
-                orgId = reader["organizationid"]?.ToString() ?? ""
+                orgId = reader["organizationid"]?.ToString() ?? "",
+                BookingId = reader["booking_id"]?.ToString() ?? ""
             };
         }
 
@@ -172,8 +191,8 @@ namespace Momantza.Services
 
         protected override (string sql, Dictionary<string, object?> parameters, List<string> jsonFields) GenerateInsertSql(InventoryItem entity)
         {
-            var sql = @"INSERT INTO inventory_items (id, name, quantity, price, notes, organizationid, created_at, updated_at) 
-                VALUES (@id, @name, @quantity, @price, @notes, @organizationid, @created_at, @updated_at)";
+            var sql = @"INSERT INTO inventory_items (id, name, quantity, price, notes, organizationid,booking_id, created_at, updated_at) 
+                VALUES (@id, @name, @quantity, @price, @notes, @organizationid,@bookingid, @created_at, @updated_at)";
             var parameters = new Dictionary<string, object?>
             {
                 ["@id"] = entity.Id,
@@ -182,6 +201,7 @@ namespace Momantza.Services
                 ["@price"] = entity.Price,
                 ["@notes"] = entity.Notes ?? "",
                 ["@organizationid"] = entity.orgId,
+                ["@bookingid"] = entity.BookingId,
                 ["@created_at"] = DateTime.UtcNow,
                 ["@updated_at"] = DateTime.UtcNow
             };
@@ -203,6 +223,27 @@ namespace Momantza.Services
                 ["@updated_at"] = DateTime.UtcNow
             };
             return (sql, parameters, new List<string>());
+        }
+
+        //new
+        public async Task<List<InventoryItem>> GetInventoryByBookingIdAsync(string bookingId)
+        {
+            var orgId = GetCurrentOrganizationId();
+            var inventory = new List<InventoryItem>();
+            var sql = "SELECT * FROM inventory_items WHERE booking_id = @bookingId OR organizationid = @organizationId ORDER BY created_at DESC";
+
+            using var connection = await GetConnectionAsync();
+            using var command = new NpgsqlCommand(sql, connection);
+            command.Parameters.AddWithValue("@bookingId", bookingId);
+            command.Parameters.AddWithValue("@organizationId", orgId);
+
+            using var reader = await command.ExecuteReaderAsync();
+            while (await reader.ReadAsync())
+            {
+                inventory.Add(MapFromReader(reader));
+            }
+
+            return inventory;
         }
     }
 }

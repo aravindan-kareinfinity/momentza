@@ -539,24 +539,24 @@ const BookingEdit = () => {
             </div>
             
             <div className="grid grid-cols-3 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="eventType">Event Type</Label>
-                <Select 
-                  value={eventType} 
-                  onValueChange={handleEventTypeChange}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select event type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {availableEventTypes.map((type) => (
-                      <SelectItem key={type} value={type}>
-                        {type}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+            <div className="space-y-2">
+  <Label htmlFor="eventType">Event Type</Label>
+  <Select 
+    value={eventType} 
+    onValueChange={handleEventTypeChange}
+  >
+    <SelectTrigger>
+      <SelectValue placeholder={eventType ? undefined : "Select event type"} />
+    </SelectTrigger>
+    <SelectContent>
+      {availableEventTypes.map((type) => (
+        <SelectItem key={type} value={type}>
+          {type}
+        </SelectItem>
+      ))}
+    </SelectContent>
+  </Select>
+</div>
               
               {/* Time Slot Select with dynamic pricing */}
               <div className="space-y-2">
@@ -646,6 +646,7 @@ const BookingEdit = () => {
                   type="date"
                   value={lastContactDate}
                   onChange={(e) => setLastContactDate(e.target.value)}
+                  required
                 />
               </div>
             </div>

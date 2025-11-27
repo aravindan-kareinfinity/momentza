@@ -234,5 +234,150 @@ namespace Momantza.Services
         {
             throw new NotImplementedException();
         }
+
+        //
+        // HandOver images
+        public async Task<string?> UploadHandoverImageAsync(HandoverImageUploadDto dto)
+        {
+            try
+            {
+                using var connection = await GetConnectionAsync();
+
+                var id = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds().ToString();
+                byte[]? imageBytes = null;
+                string? contentType = null;
+
+                if (dto.File != null)
+                {
+                    using var ms = new MemoryStream();
+                    await dto.File.CopyToAsync(ms);
+                    imageBytes = ms.ToArray();
+                    contentType = dto.File.ContentType;
+                }
+
+                var sql = @"
+     INSERT INTO handover_images 
+     (id, bookingid, organizationid, category, description, imagebytes, contenttype, uploadedat, createdat)
+     VALUES 
+     (@id, @bookingid, @organizationid, @category, @description, @imagebytes, @contenttype, NOW(), NOW())";
+
+                using var cmd = new NpgsqlCommand(sql, connection);
+
+                cmd.Parameters.AddWithValue("@id", id);
+                cmd.Parameters.AddWithValue("@bookingid", dto.BookingId);
+                cmd.Parameters.AddWithValue("@organizationid", dto.OrganizationId);
+                cmd.Parameters.AddWithValue("@category", dto.Category);
+                cmd.Parameters.AddWithValue("@description", dto.Description ?? "");
+
+                cmd.Parameters.AddWithValue("@imagebytes", (object?)imageBytes ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@contenttype", (object?)contentType ?? DBNull.Value);
+
+                await cmd.ExecuteNonQueryAsync();
+
+                return id;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to upload handover image");
+                return null;
+            }
+        }
+
+        public async Task<List<HandoverImage>> GetImagesByBookingIdAsync(string bookingId)
+        {
+            var images = new List<HandoverImage>();
+
+            try
+            {
+                using var connection = await GetConnectionAsync();
+
+                var sql = "SELECT * FROM handover_images WHERE bookingid = @bookingid ORDER BY uploadedat DESC";
+                using var cmd = new NpgsqlCommand(sql, connection);
+                cmd.Parameters.AddWithValue("@bookingid", bookingId);
+
+                using var reader = await cmd.ExecuteReaderAsync();
+
+                while (await reader.ReadAsync())
+                {
+                    images.Add(new HandoverImage
+                    {
+                        Id = reader["id"].ToString(),
+                        BookingId = reader["bookingid"].ToString(),
+                        OrganizationId = reader["organizationid"].ToString(),
+                        Category = reader["category"].ToString(),
+                        Description = reader["description"].ToString(),
+                        Url = reader["url"]?.ToString(),
+                        ImageBytes = reader["imagebytes"] as byte[],
+                        ContentType = reader["contenttype"]?.ToString(),
+                        UploadedAt = Convert.ToDateTime(reader["uploadedat"]),
+                        CreatedAt = Convert.ToDateTime(reader["createdat"])
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to fetch handover images");
+            }
+
+            return images;
+        }
+
+        public async Task<HandoverImage?> GetImageByIdAsync(string id)
+        {
+            try
+            {
+                using var connection = await GetConnectionAsync();
+                var sql = "SELECT * FROM handover_images WHERE id = @id";
+
+                using var cmd = new NpgsqlCommand(sql, connection);
+                cmd.Parameters.AddWithValue("@id", id);
+
+                using var reader = await cmd.ExecuteReaderAsync();
+
+                if (await reader.ReadAsync())
+                {
+                    return new HandoverImage
+                    {
+                        Id = reader["id"].ToString(),
+                        BookingId = reader["bookingid"].ToString(),
+                        OrganizationId = reader["organizationid"].ToString(),
+                        Category = reader["category"].ToString(),
+                        Description = reader["description"].ToString(),
+                        Url = reader["url"]?.ToString(),
+                        ImageBytes = reader["imagebytes"] as byte[],
+                        ContentType = reader["contenttype"]?.ToString(),
+                        UploadedAt = Convert.ToDateTime(reader["uploadedat"]),
+                        CreatedAt = Convert.ToDateTime(reader["createdat"])
+                    };
+                }
+
+                return null;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error fetching image");
+                return null;
+            }
+        }
+
+        public async Task<bool> DeleteHandoverImageAsync(string id)
+        {
+            try
+            {
+                using var connection = await GetConnectionAsync();
+                var sql = "DELETE FROM handover_images WHERE id = @id";
+
+                using var cmd = new NpgsqlCommand(sql, connection);
+                cmd.Parameters.AddWithValue("@id", id);
+
+                var rows = await cmd.ExecuteNonQueryAsync();
+                return rows > 0;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to delete handover image");
+                return false;
+            }
+        }
     }
 }

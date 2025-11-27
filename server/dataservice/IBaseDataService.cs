@@ -9,6 +9,9 @@ namespace Momantza.Services
         Task<List<T>> GetAllAsync();
         Task<List<T>> GetByOrganizationIdAsync(string organizationId);
         Task<bool> CreateAsync(T entity);
+       // Task<bool> CreateAsyncs(T entity);
+
+        Task<bool> CreateServiceAsync(T entity);
         Task<bool> UpdateAsync(T entity);
         Task<bool> DeleteAsync(string id);
         Task<bool> ExistsAsync(string id);

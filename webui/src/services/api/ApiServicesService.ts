@@ -1,5 +1,5 @@
 import { IServicesService } from '../interfaces/IDataService';
-import { ServiceItem } from '../mockData';
+import { ServiceItem, Services } from '../mockData';
 import { apiClient } from '../http/ApiClient';
 
 export class ApiServicesService implements IServicesService {
@@ -17,9 +17,9 @@ export class ApiServicesService implements IServicesService {
       throw error;
     }
   }
-  async getServicesByBookingId(bookingId: string): Promise<ServiceItem[]> {
-    return apiClient.get<ServiceItem[]>(`/api/services/bookings/${bookingId}/Services`);
-  }
+  // async getServicesByBookingId(bookingId: string): Promise<ServiceItem[]> {
+  //   return apiClient.get<ServiceItem[]>(`/api/services/bookings/${bookingId}/Services`);
+  // }
 
   async create(data: Omit<ServiceItem, 'id'>): Promise<ServiceItem> {
     return apiClient.post<ServiceItem>('/api/services', data);
@@ -58,4 +58,20 @@ export class ApiServicesService implements IServicesService {
       return false;
     }
   }
-} 
+
+
+  //new
+
+  async addService(data: Omit<Services, 'id'>): Promise<Services> {
+    return apiClient.post<Services>('/api/Services/Service', data);
+  }
+
+  async getServiceByBookingId(bookingId: string): Promise<ServiceItem[]> {
+    return apiClient.get<ServiceItem[]>(`/api/Services/bookings/${bookingId}/services`);
+  }
+
+  // async addService(data: Omit<ServiceItem, 'id'>): Promise<ServiceItem> {
+  //   return apiClient.post<ServiceItem>('/api/services/service', data);
+  // }
+
+}

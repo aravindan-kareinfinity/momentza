@@ -77,4 +77,10 @@ export class ApiInventoryService implements IInventoryService {
       return false;
     }
   }
+
+  //new
+  async getInventoryByBookingId(bookingId: string): Promise<InventoryItem[]> {
+    return apiClient.get<InventoryItem[]>(`/api/inventory/bookings/${bookingId}/inventory`);
+  }
+
 } 

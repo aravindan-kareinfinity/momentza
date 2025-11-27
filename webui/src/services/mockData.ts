@@ -18,12 +18,35 @@ export interface ServiceItem {
   isActive: boolean;
 }
 
+export interface Services{
+  id:string;
+  name:string;
+  directPay:boolean;
+  price:number;
+  bookingId?: string;
+  //organizationId?:string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
 export interface InventoryItem {
   id: string;
   name: string;
   quantity: number;
   price: number;
   notes: string;
+}
+//new
+export interface PaymentsItem{
+  id: string;
+  date: string;
+  paymentMode :'cash'| 'card' | 'upi' | 'bank transfer';
+  amount:number;
+  personName:string;
+  notes:string;
+  bookingId?: string,
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface TicketItem {
@@ -492,8 +515,8 @@ export const mockServices: ServiceItem[] = [
   { id: '1', name: 'Decoration Service', hsnCode: '998711', taxPercentage: 18, basePrice: 5000 ,isActive:true},
   { id: '2', name: 'Catering Service', hsnCode: '996331', taxPercentage: 5, basePrice: 800 ,isActive:true},
   { id: '3', name: 'Photography Service', hsnCode: '998212', taxPercentage: 18, basePrice: 15000,isActive:true },
-  { id: '4', name: 'DJ Service', hsnCode: '998213', taxPercentage: 18, basePrice: 8000,isActive:true },
-  { id: '5', name: 'Security Service', hsnCode: '997122', taxPercentage: 18, basePrice: 2000,isActive:true },
+  { id: '4', name: 'DJ Service', hsnCode: '998213', taxPercentage: 18, basePrice: 8000,isActive:true},
+  { id: '5', name: 'Security Service', hsnCode: '997122', taxPercentage: 18, basePrice: 2000,isActive:true},
 ];
 
 // Inventory Items (for booking management)
@@ -517,6 +540,15 @@ export const mockTickets: TicketItem[] = [
     updatedAt: new Date().toISOString()
   }
 ];
+
+//payment
+// export const mockPayment: PaymentItem[]=[
+//   {
+ 
+//  //   id:'345678789',
+
+//   }
+// ]
 
 // Communications
 export const mockCommunications: Communication[] = [
@@ -716,3 +748,11 @@ export const mockCustomerInsights: CustomerInsights = {
   repeatCustomers: 32,
   customerSatisfaction: 4.5
 };
+
+export const mockServicesService: Services={
+   id:'2345',
+   name:'Raja',
+   directPay:false,
+   price:10000,
+
+}

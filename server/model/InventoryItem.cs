@@ -29,6 +29,8 @@ namespace Momantza.Models
         public string Notes { get; set; } = string.Empty;
 
         public string orgId { get; set; } = string.Empty;
+
+        public string BookingId { get; set; } = string.Empty;
             
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         

@@ -77,6 +77,16 @@ class InventoryService {
     }
     return Promise.resolve(false);
   }
+
+  async getInventoryByBookingId(bookingId: string): Promise<InventoryItem[]> {
+    // Mock data doesn't track booking IDs yet, so return all items for now
+    return Promise.resolve(
+      mockBookingInventoryItems.filter(item => {
+        const inventoryWithBooking = item as InventoryItem & { bookingId?: string };
+        return !inventoryWithBooking.bookingId || inventoryWithBooking.bookingId === bookingId;
+      })
+    );
+  }
 }
 
 export const inventoryService = new InventoryService();

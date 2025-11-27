@@ -1,9 +1,10 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using Momantza.Middleware;
+using Momantza.Services;
+using MomantzaApp.DataService;
 using System.Text;
 using System.Text.Json;
-using Momantza.Services;
-using Momantza.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -76,8 +77,10 @@ builder.Services.AddScoped<IGalleryDataService, GalleryDataService>();
 builder.Services.AddScoped<ICommunicationDataService, CommunicationDataService>();
 builder.Services.AddScoped<ITicketDataService, TicketDataService>();
 builder.Services.AddScoped<IInventoryDataService, InventoryDataService>();
-builder.Services.AddScoped<IStatisticsDataService, StatisticsDataService>();
+builder.Services.AddScoped<IStatisticsDataService, StatisticsDataService>(); 
 builder.Services.AddScoped<IHandoverDataService, HandoverDataService>();
+builder.Services.AddScoped<IPaymentDataService, PaymentDataService>();
+builder.Services.AddScoped<IFeatureDataService, FeatureDataService>();
 builder.Services.AddHttpContextAccessor();
 
 var app = builder.Build();

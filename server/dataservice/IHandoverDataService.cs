@@ -13,5 +13,10 @@ namespace Momantza.Services
         Task<Handover?> GetByIdAsync(string id);
         Task<bool> DeleteAsync(string id);
         Task<List<Handover>> GetByOrganizationIdAsync(string organizationId);
+
+        Task<string?> UploadHandoverImageAsync(HandoverImageUploadDto dto);
+        Task<List<HandoverImage>> GetImagesByBookingIdAsync(string bookingId);
+        Task<HandoverImage?> GetImageByIdAsync(string id);
+        Task<bool> DeleteHandoverImageAsync(string id);
     }
 }
