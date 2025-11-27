@@ -91,8 +91,8 @@ namespace Momantza.Middleware
                 // Handle subdomain rerouting directly in middleware
                 if (!string.IsNullOrEmpty(subdomain) && context.Request.Path.Value == "/")
                 {
-                    var frontendUrl = $"http://{subdomain}.localhost:8080/{org.OrganizationId}";
-                    Console.WriteLine($"Subdomain '{subdomain}' resolved to organization '{org.OrganizationId}'");
+                    var frontendUrl = $"http://localhost:8080/{org.OrganizationId}";
+                    //Console.WriteLine($"Subdomain '{subdomain}' resolved to organization '{org.OrganizationId}'");
                     Console.WriteLine($"Redirecting to: {frontendUrl}");
                     context.Response.Redirect(frontendUrl);
                     return; // Stop processing, don't call _next

@@ -13,12 +13,26 @@
             <h3 class="mb-0 fw-bold text-dark">Momantza</h3>
         </div>
         <div class="d-flex align-items-center gap-3">
-            <button class="btn btn-outline-primary btn-sm">Sign up</button>
-            <button class="btn btn-primary btn-sm">Log in</button>
-            <button class="btn btn-link text-dark">Menu</button>
+            @* <button class="btn btn-outline-primary btn-sm">Sign up</button> *@
+            <button class="btn btn-primary btn-sm" onclick="window.location.href='http://localhost:8080/login'">Log in</button>
+            @* <button class="btn btn-link text-dark">Menu</button> *@
         </div>
     </div>
 </header>
+
+<script>
+    // Simple login navigation
+    document.addEventListener('DOMContentLoaded', function() {
+        const loginButton = document.querySelector('.btn-primary.btn-sm');
+
+        if (loginButton && loginButton.textContent.includes('Log in')) {
+            loginButton.addEventListener('click', function() {
+                window.location.href = 'http://localhost:8080/login';
+            });
+        }
+    });
+</script>
+
 
 <div class="container-fluid py-5">
   
@@ -1108,7 +1122,7 @@ function selectDate(hallId, date, statusClass) {
     }
     
     // Redirect to booking page with hall ID and selected date
-    window.location.href = `http://192.168.29.69:8080/booking/${hallId}?date=${date}`;
+    window.location.href = `http://localhost:8080/booking/${hallId}?date=${date}`;
 }
 
 // Filter functionality
