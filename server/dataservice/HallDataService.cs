@@ -108,6 +108,21 @@ namespace Momantza.Services
             return results;
         }
 
+        public override async Task<List<Hall>> GetAllAsyncs()
+        {
+            var orgId = GetCurrentOrganizationId();
+            var sql = "SELECT * FROM halls WHERE  isactive = true";
+            using var connection = await GetConnectionAsync();
+            using var command = new NpgsqlCommand(sql, connection);
+            using var reader = await command.ExecuteReaderAsync();
+            var results = new List<Hall>();
+            while (await reader.ReadAsync())
+            {
+                results.Add(MapFromReader(reader));
+            }
+            return results;
+        }
+
         public override async Task<Hall?> GetByIdAsync(string id)
         {
             var orgId = GetCurrentOrganizationId();

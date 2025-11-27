@@ -657,7 +657,8 @@ const availableFeatureItem = Array.isArray(availableFeatureCatalog) ? availableF
       name: newFeature.name,
       quantity: newFeature.quantity,
       price:newFeature.price ,
-      organizationId: pageData.currentBooking?.organizationId
+      organizationId: pageData.currentBooking?.organizationId,
+      bookingId:pageData.currentBooking?.bookingId
     };
 
     const created = await featureService.create(featureData);
@@ -691,7 +692,8 @@ const handleEditFeature = (feature: any) => {
   setNewFeature({
     name: feature.name,
     quantity: feature.quantity,
-    price: feature.price
+    price: feature.price,
+   // bookingId:pageData.currentBooking?.bookingId
   });
   setShowFeatureDialog(true);
 };

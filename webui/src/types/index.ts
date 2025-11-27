@@ -177,7 +177,8 @@ export interface FeatureItem {
   id: string;
   name: string;
   quantity: number;      
-  price: number;         
+  price: number;   
+  bookingId:string;      
   createdAt: string;     
   updatedAt: string;     
   organizationId: string;

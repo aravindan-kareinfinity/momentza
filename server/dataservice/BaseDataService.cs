@@ -294,6 +294,30 @@ namespace Momantza.Services
             }
         }
 
+        //new
+        public virtual async Task<List<T>> GetAllAsyncs()
+        {
+            try
+            {
+                using var connection = await GetConnectionAsync();
+                var sql = $"SELECT * FROM {_tableName}";
+                using var command = new NpgsqlCommand(sql, connection);
+
+                using var reader = await command.ExecuteReaderAsync();
+                var results = new List<T>();
+                while (await reader.ReadAsync())
+                {
+                    results.Add(MapFromReader(reader));
+                }
+                return results;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error getting all {_tableName}: {ex.Message}");
+                return new List<T>();
+            }
+        }
+
         public virtual async Task<List<T>> GetByOrganizationIdAsync(string organizationId)
         {
             try

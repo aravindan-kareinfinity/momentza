@@ -7,6 +7,8 @@ namespace Momantza.Services
         Task<bool> CreateTableAsync();
         Task<T?> GetByIdAsync(string id);
         Task<List<T>> GetAllAsync();
+
+        Task<List<T>> GetAllAsyncs();
         Task<List<T>> GetByOrganizationIdAsync(string organizationId);
         Task<bool> CreateAsync(T entity);
        // Task<bool> CreateAsyncs(T entity);
