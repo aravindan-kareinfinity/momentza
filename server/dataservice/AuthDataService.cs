@@ -79,13 +79,9 @@ namespace Momantza.Services
             try
             {
                 var orgId = GetCurrentOrganizationId();
-                if (string.IsNullOrEmpty(orgId))
-                {
-                    Console.WriteLine("No organization ID found in context");
-                    return null;
-                }
+         
 
-                var user = await _userDataService.GetByEmailAndOrganizationAsync(email, orgId);
+                var user = await _userDataService.GetByEmailAndOrganizationLoginAsync(email);
 
                 if (user != null)
                 {

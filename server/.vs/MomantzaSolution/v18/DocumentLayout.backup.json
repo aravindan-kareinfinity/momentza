@@ -3,6 +3,18 @@
   "WorkspaceRootPath": "C:\\Users\\dhine\\OneDrive\\Desktop\\Momentza01\\momentza\\server\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{E622D273-3207-4422-AC9B-67DF4E645BF5}|MomantzaApp.csproj|c:\\users\\dhine\\onedrive\\desktop\\momentza01\\momentza\\server\\dataservice\\userdataservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E622D273-3207-4422-AC9B-67DF4E645BF5}|MomantzaApp.csproj|solutionrelative:dataservice\\userdataservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E622D273-3207-4422-AC9B-67DF4E645BF5}|MomantzaApp.csproj|c:\\users\\dhine\\onedrive\\desktop\\momentza01\\momentza\\server\\dataservice\\authdataservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E622D273-3207-4422-AC9B-67DF4E645BF5}|MomantzaApp.csproj|solutionrelative:dataservice\\authdataservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E622D273-3207-4422-AC9B-67DF4E645BF5}|MomantzaApp.csproj|c:\\users\\dhine\\onedrive\\desktop\\momentza01\\momentza\\server\\controllers\\usercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E622D273-3207-4422-AC9B-67DF4E645BF5}|MomantzaApp.csproj|solutionrelative:controllers\\usercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{E622D273-3207-4422-AC9B-67DF4E645BF5}|MomantzaApp.csproj|c:\\users\\dhine\\onedrive\\desktop\\momentza01\\momentza\\server\\controllers\\authcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{E622D273-3207-4422-AC9B-67DF4E645BF5}|MomantzaApp.csproj|solutionrelative:controllers\\authcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
@@ -58,7 +70,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 1,
+          "SelectedChildIndex": 3,
           "Children": [
             {
               "$type": "Bookmark",
@@ -66,33 +78,72 @@
             },
             {
               "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "UserController.cs",
+              "DocumentMoniker": "C:\\Users\\dhine\\OneDrive\\Desktop\\Momentza01\\momentza\\server\\Controllers\\UserController.cs",
+              "RelativeDocumentMoniker": "Controllers\\UserController.cs",
+              "ToolTip": "C:\\Users\\dhine\\OneDrive\\Desktop\\Momentza01\\momentza\\server\\Controllers\\UserController.cs",
+              "RelativeToolTip": "Controllers\\UserController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-27T11:48:33.771Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "AuthDataService.cs",
+              "DocumentMoniker": "C:\\Users\\dhine\\OneDrive\\Desktop\\Momentza01\\momentza\\server\\dataservice\\AuthDataService.cs",
+              "RelativeDocumentMoniker": "dataservice\\AuthDataService.cs",
+              "ToolTip": "C:\\Users\\dhine\\OneDrive\\Desktop\\Momentza01\\momentza\\server\\dataservice\\AuthDataService.cs*",
+              "RelativeToolTip": "dataservice\\AuthDataService.cs*",
+              "ViewState": "AgIAAEoAAAAAAAAAAAAmwFMAAABVAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-27T11:27:26.172Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
               "DocumentIndex": 0,
+              "Title": "UserDataService.cs",
+              "DocumentMoniker": "C:\\Users\\dhine\\OneDrive\\Desktop\\Momentza01\\momentza\\server\\dataservice\\UserDataService.cs",
+              "RelativeDocumentMoniker": "dataservice\\UserDataService.cs",
+              "ToolTip": "C:\\Users\\dhine\\OneDrive\\Desktop\\Momentza01\\momentza\\server\\dataservice\\UserDataService.cs",
+              "RelativeToolTip": "dataservice\\UserDataService.cs",
+              "ViewState": "AgIAADIBAAAAAAAAAADwvzwBAABFAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-27T11:27:26.271Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
               "Title": "AuthController.cs",
               "DocumentMoniker": "C:\\Users\\dhine\\OneDrive\\Desktop\\Momentza01\\momentza\\server\\Controllers\\AuthController.cs",
               "RelativeDocumentMoniker": "Controllers\\AuthController.cs",
               "ToolTip": "C:\\Users\\dhine\\OneDrive\\Desktop\\Momentza01\\momentza\\server\\Controllers\\AuthController.cs",
               "RelativeToolTip": "Controllers\\AuthController.cs",
-              "ViewState": "AgIAAA4AAAAAAAAAAAAAwB0AAAA6AAAAAAAAAA==",
+              "ViewState": "AgIAABEAAAAAAAAAAAAcwB0AAAAQAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-11-27T11:08:38.831Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 4,
               "Title": "OrganizationResolverMiddleware.cs",
               "DocumentMoniker": "C:\\Users\\dhine\\OneDrive\\Desktop\\Momentza01\\momentza\\server\\Middleware\\OrganizationResolverMiddleware.cs",
               "RelativeDocumentMoniker": "Middleware\\OrganizationResolverMiddleware.cs",
               "ToolTip": "C:\\Users\\dhine\\OneDrive\\Desktop\\Momentza01\\momentza\\server\\Middleware\\OrganizationResolverMiddleware.cs",
               "RelativeToolTip": "Middleware\\OrganizationResolverMiddleware.cs",
-              "ViewState": "AgIAAFAAAAAAAAAAAAAQwF0AAAAvAAAAAAAAAA==",
+              "ViewState": "AgIAACAAAAAAAAAAAAAkwCcAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-11-27T10:16:12.864Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 8,
+              "DocumentIndex": 11,
               "Title": "IBaseDataService.cs",
               "DocumentMoniker": "C:\\Users\\dhine\\OneDrive\\Desktop\\Momentza01\\momentza\\server\\dataservice\\IBaseDataService.cs",
               "RelativeDocumentMoniker": "dataservice\\IBaseDataService.cs",
@@ -100,12 +151,11 @@
               "RelativeToolTip": "dataservice\\IBaseDataService.cs",
               "ViewState": "AgIAAAMAAAAAAAAAAAAuwAQAAAAVAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-27T09:47:19.942Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-11-27T09:47:19.942Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 7,
+              "DocumentIndex": 10,
               "Title": "BaseDataService.cs",
               "DocumentMoniker": "C:\\Users\\dhine\\OneDrive\\Desktop\\Momentza01\\momentza\\server\\dataservice\\BaseDataService.cs",
               "RelativeDocumentMoniker": "dataservice\\BaseDataService.cs",
@@ -113,12 +163,11 @@
               "RelativeToolTip": "dataservice\\BaseDataService.cs",
               "ViewState": "AgIAAAYBAAAAAAAAAAAQwBIBAAAIAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-27T09:47:35.24Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-11-27T09:47:35.24Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
+              "DocumentIndex": 9,
               "Title": "HallController.cs",
               "DocumentMoniker": "C:\\Users\\dhine\\OneDrive\\Desktop\\Momentza01\\momentza\\server\\Controllers\\HallController.cs",
               "RelativeDocumentMoniker": "Controllers\\HallController.cs",
@@ -126,12 +175,11 @@
               "RelativeToolTip": "Controllers\\HallController.cs",
               "ViewState": "AgIAACkAAAAAAAAAAAAgwHQAAAA5AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-27T09:34:22.661Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-11-27T09:34:22.661Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 5,
               "Title": "BookingController.cs",
               "DocumentMoniker": "C:\\Users\\dhine\\OneDrive\\Desktop\\Momentza01\\momentza\\server\\Controllers\\BookingController.cs",
               "RelativeDocumentMoniker": "Controllers\\BookingController.cs",
@@ -144,7 +192,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 6,
               "Title": "Index.cshtml",
               "DocumentMoniker": "C:\\Users\\dhine\\OneDrive\\Desktop\\Momentza01\\momentza\\server\\Views\\exploreorganisation\\Index.cshtml",
               "RelativeDocumentMoniker": "Views\\exploreorganisation\\Index.cshtml",
@@ -152,12 +200,11 @@
               "RelativeToolTip": "Views\\exploreorganisation\\Index.cshtml",
               "ViewState": "AgIAAAMAAAAAAAAAAAAAABEAAABGAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-11-27T10:21:52.353Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-11-27T10:21:52.353Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 7,
               "Title": "Index.cshtml",
               "DocumentMoniker": "C:\\Users\\dhine\\OneDrive\\Desktop\\Momentza01\\momentza\\server\\Views\\Home\\Index.cshtml",
               "RelativeDocumentMoniker": "Views\\Home\\Index.cshtml",
@@ -165,12 +212,11 @@
               "RelativeToolTip": "Views\\Home\\Index.cshtml",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAYAAAAqAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-11-27T10:21:20.891Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-11-27T10:21:20.891Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 8,
               "Title": "BookingDataService.cs",
               "DocumentMoniker": "C:\\Users\\dhine\\OneDrive\\Desktop\\Momentza01\\momentza\\server\\dataservice\\BookingDataService.cs",
               "RelativeDocumentMoniker": "dataservice\\BookingDataService.cs",
@@ -178,12 +224,11 @@
               "RelativeToolTip": "dataservice\\BookingDataService.cs",
               "ViewState": "AgIAAAYAAAAAAAAAAAAAAA0AAAAIAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-27T09:33:12.146Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-11-27T09:33:12.146Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 9,
+              "DocumentIndex": 12,
               "Title": "HallDataService.cs",
               "DocumentMoniker": "C:\\Users\\dhine\\OneDrive\\Desktop\\Momentza01\\momentza\\server\\dataservice\\HallDataService.cs",
               "RelativeDocumentMoniker": "dataservice\\HallDataService.cs",
@@ -195,7 +240,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 11,
+              "DocumentIndex": 14,
               "Title": "FeatureController.cs",
               "DocumentMoniker": "C:\\Users\\dhine\\OneDrive\\Desktop\\Momentza01\\momentza\\server\\Controllers\\FeatureController.cs",
               "RelativeDocumentMoniker": "Controllers\\FeatureController.cs",
@@ -207,7 +252,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 10,
+              "DocumentIndex": 13,
               "Title": "FeatureDataService.cs",
               "DocumentMoniker": "C:\\Users\\dhine\\OneDrive\\Desktop\\Momentza01\\momentza\\server\\dataservice\\FeatureDataService.cs",
               "RelativeDocumentMoniker": "dataservice\\FeatureDataService.cs",
