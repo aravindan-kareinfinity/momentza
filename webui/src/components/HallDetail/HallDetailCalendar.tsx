@@ -3,14 +3,13 @@ import { Calendar } from '@/components/ui/calendar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Sun, Moon, X } from 'lucide-react';
-import { format } from 'date-fns';
+import { format, isSameDay } from 'date-fns';
 import { bookingService, hallService } from '@/services/ServiceFactory';
 import { ServerErrorDialog } from '@/components/ui/ServerErrorDialog';
 import { cn } from '@/lib/utils';
 
 interface HallDetailCalendarProps {
   hallId: string;
-  // accept the parent's selected date and setter
   selectedDate: Date | null;
   onDateSelect: React.Dispatch<React.SetStateAction<Date | null>>;
 }
@@ -41,6 +40,7 @@ export function HallDetailCalendar({
         throw new Error('Hall not found');
       }
       const data = await bookingService.getBookingsByHall(hallId, hall.organizationId);
+      console.log('[HallDetailCalendar] Bookings data:', data);
       setBookings(Array.isArray(data) ? data : []);
       setShowErrorDialog(false);
     } catch (err) {
@@ -63,6 +63,113 @@ export function HallDetailCalendar({
   const handleCloseErrorDialog = () => {
     setShowErrorDialog(false);
   };
+
+  // Ensure bookings is always an array
+  const safeBookings = Array.isArray(bookings) ? bookings : [];
+
+  // Get booked dates - FIXED: Proper date comparison
+  const getBookingStatus = (date: Date) => {
+    const dateStr = format(date, 'yyyy-MM-dd');
+    console.log(`Checking date: ${dateStr}`);
+    
+    const dayBookings = safeBookings.filter(booking => {
+      // Handle both string and Date formats for eventDate
+      const bookingDateStr = booking.eventDate instanceof Date 
+        ? format(booking.eventDate, 'yyyy-MM-dd')
+        : booking.eventDate?.split('T')[0]; // Handle ISO string
+      
+      console.log(`Booking date: ${bookingDateStr}, status: ${booking.status}`);
+      return bookingDateStr === dateStr && 
+             (booking.status === 'confirmed' || booking.status === 'active');
+    });
+
+    console.log(`Found ${dayBookings.length} bookings for ${dateStr}`);
+
+    const hasFullDay = dayBookings.some(b => b.timeSlot === 'fullday');
+    const hasMorning = dayBookings.some(b => b.timeSlot === 'morning');
+    const hasEvening = dayBookings.some(b => b.timeSlot === 'evening');
+
+    let status = 'available';
+    
+    if (hasFullDay || (hasMorning && hasEvening)) {
+      status = 'full';
+    } else if (hasMorning) {
+      status = 'morning-booked';
+    } else if (hasEvening) {
+      status = 'evening-booked';
+    }
+
+    console.log(`Date ${dateStr} status: ${status}`);
+    return status;
+  };
+
+  // Disable dates that are fully booked or in the past
+  const isDateDisabled = (date: Date) => {
+    const status = getBookingStatus(date);
+    const isPastDate = date < new Date(new Date().setHours(0, 0, 0, 0));
+    return status === 'full' || isPastDate;
+  };
+
+  const renderDay = (day: Date) => {
+    const status = getBookingStatus(day);
+    const dayNumber = day.getDate();
+    const isSelected = selectedDate && isSameDay(selectedDate, day);
+    const isDisabled = isDateDisabled(day);
+
+    return (
+      <div className={cn(
+        "relative w-full h-full flex flex-col items-center justify-center p-1 rounded-md cursor-pointer",
+        isSelected && "bg-primary text-primary-foreground",
+        isDisabled && "opacity-50 cursor-not-allowed"
+      )}>
+        <span className="text-sm font-medium">{dayNumber}</span>
+
+        {/* Red cross mark for disabled days */}
+        {isDisabled && (
+          <div className="absolute top-0 right-0">
+            <X className="h-3 w-3 text-red-500" />
+          </div>
+        )}
+
+        <div className="flex gap-1 mt-1">
+          {status === 'full' && (
+            <X className="h-2 w-2 text-red-500" />
+          )}
+          {status === 'morning-booked' && (
+            <>
+              <X className="h-1.5 w-1.5 text-red-400" />
+              <Moon className="h-1.5 w-1.5 text-green-500" />
+            </>
+          )}
+          {status === 'evening-booked' && (
+            <>
+              <Sun className="h-1.5 w-1.5 text-green-500" />
+              <X className="h-1.5 w-1.5 text-red-400" />
+            </>
+          )}
+          {status === 'available' && (
+            <>
+              <Sun className="h-1.5 w-1.5 text-green-500" />
+              <Moon className="h-1.5 w-1.5 text-green-500" />
+            </>
+          )}
+        </div>
+      </div>
+    );
+  };
+
+  // Get selected date bookings - FIXED: Proper date comparison
+  const selectedDateBookings = selectedDate
+    ? safeBookings.filter(booking => {
+        // Handle both string and Date formats for eventDate
+        const bookingDate = booking.eventDate instanceof Date 
+          ? booking.eventDate 
+          : new Date(booking.eventDate);
+        
+        return isSameDay(bookingDate, selectedDate) && 
+               (booking.status === 'confirmed' || booking.status === 'active');
+      })
+    : [];
 
   // Loading state
   if (loading) {
@@ -107,98 +214,6 @@ export function HallDetailCalendar({
     );
   }
 
-  // Ensure bookings is always an array
-  const safeBookings = Array.isArray(bookings) ? bookings : [];
-
-  // Get booked dates
-  const bookedDates = safeBookings
-    .filter(booking => booking.status === 'confirmed' || booking.status === 'active')
-    .map(booking => new Date(booking.eventDate));
-
-  // Disable booked dates
-  const disabledDates = {
-    before: new Date(),
-    after: new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
-    dates: bookedDates
-  };
-
-  const getBookingStatus = (date: Date) => {
-    const dateStr = format(date, 'yyyy-MM-dd');
-    const dayBookings = safeBookings.filter(booking =>
-      booking.eventDate === dateStr &&
-      (booking.status === 'confirmed' || booking.status === 'active')
-    );
-
-    const hasFullDay = dayBookings.some(b => b.timeSlot === 'fullday');
-    const hasMorning = dayBookings.some(b => b.timeSlot === 'morning');
-    const hasEvening = dayBookings.some(b => b.timeSlot === 'evening');
-
-    if (hasFullDay || (hasMorning && hasEvening)) {
-      return 'full';
-    } else if (hasMorning) {
-      return 'morning-booked';
-    } else if (hasEvening) {
-      return 'evening-booked';
-    }
-    return 'available';
-  };
-
-  const renderDay = (day: Date) => {
-    const status = getBookingStatus(day);
-    const dayNumber = day.getDate();
-    const isSelected = selectedDate && format(selectedDate, 'yyyy-MM-dd') === format(day, 'yyyy-MM-dd');
-    const isDisabled = status === 'full' || day < new Date();
-
-    return (
-      <div className={cn(
-        "relative w-full h-full flex flex-col items-center justify-center p-1 rounded-md cursor-pointer",
-        isSelected && "bg-primary text-primary-foreground",
-        isDisabled && "opacity-50 cursor-not-allowed"
-      )}>
-        <span className="text-sm font-medium">{dayNumber}</span>
-
-        {/* Red cross mark for disabled days */}
-        {isDisabled && (
-          <div className="absolute top-0 right-0">
-            <X className="h-3 w-3 text-red-500" />
-          </div>
-        )}
-
-        <div className="flex gap-1 mt-1">
-          {status === 'full' && (
-            <X className="h-2 w-2 text-red-500" />
-          )}
-          {status === 'morning-booked' && (
-            <>
-              <X className="h-1.5 w-1.5 text-red-400" />
-              <Moon className="h-1.5 w-1.5 text-green-500" />
-            </>
-          )}
-          {status === 'evening-booked' && (
-            <>
-              <Sun className="h-1.5 w-1.5 text-green-500" />
-              <X className="h-1.5 w-1.5 text-red-400" />
-            </>
-          )}
-          {status === 'available' && (
-            <>
-              <Sun className="h-1.5 w-1.5 text-green-500" />
-              <Moon className="h-1.5 w-1.5 text-green-500" />
-            </>
-          )}
-        </div>
-      </div>
-    );
-  };
-
-  // Get selected date bookings
-  const selectedDateBookings = selectedDate
-    ? safeBookings.filter(booking => {
-        const bookingDate = new Date(booking.eventDate);
-        return bookingDate.toDateString() === selectedDate.toDateString();
-      })
-    : [];
-
   return (
     <Card>
       <CardHeader>
@@ -225,7 +240,7 @@ export function HallDetailCalendar({
             mode="single"
             selected={selectedDate}
             onSelect={onDateSelect}
-            disabled={disabledDates}
+            disabled={isDateDisabled}
             className="w-full"
             classNames={{
               months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0 w-full",
@@ -241,7 +256,7 @@ export function HallDetailCalendar({
                 <button
                   {...props}
                   className="h-14 w-full flex flex-col items-center justify-center hover:bg-accent rounded-md transition-colors"
-                  disabled={getBookingStatus(date) === 'full' || date < new Date()}
+                  disabled={isDateDisabled(date)}
                   onClick={() => onDateSelect(date)}
                 >
                   {renderDay(date)}
@@ -253,7 +268,7 @@ export function HallDetailCalendar({
           {selectedDate && (
             <div className="mt-4">
               <h4 className="font-medium mb-2">
-                Bookings for {selectedDate.toLocaleDateString()}
+                Bookings for {format(selectedDate, 'MMMM dd, yyyy')}
               </h4>
               {selectedDateBookings.length > 0 ? (
                 <div className="space-y-2">
@@ -261,7 +276,9 @@ export function HallDetailCalendar({
                     <div key={booking.id} className="flex items-center justify-between p-2 bg-gray-50 rounded">
                       <div>
                         <p className="font-medium">{booking.customerName}</p>
-                        <p className="text-sm text-gray-600">{booking.eventType}</p>
+                        <p className="text-sm text-gray-600">
+                          {booking.eventType} • {booking.timeSlot}
+                        </p>
                       </div>
                       <Badge variant={booking.status === 'confirmed' ? 'default' : 'secondary'}>
                         {booking.status}
@@ -270,7 +287,7 @@ export function HallDetailCalendar({
                   ))}
                 </div>
               ) : (
-                <p className="text-gray-500">No bookings for this date</p>
+                <p className="text-gray-500">No confirmed bookings for this date</p>
               )}
             </div>
           )}

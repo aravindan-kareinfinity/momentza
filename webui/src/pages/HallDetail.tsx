@@ -3,13 +3,12 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { MapPin, Users, Star, ArrowLeft } from 'lucide-react';
-import { hallService } from '@/services/ServiceFactory';
+import { MapPin, Users, Star, ArrowLeft, Image as ImageIcon } from 'lucide-react';
+import { hallService, galleryService } from '@/services/ServiceFactory';
 import { TopNavigation } from '@/components/Layout/TopNavigation';
 import { PublicFooter } from '@/components/Home/PublicFooter';
 import { HallDetailCalendar } from '@/components/HallDetail/HallDetailCalendar';
 import { HallDetailReviews } from '@/components/HallDetail/HallDetailReviews';
-import { AnimatedPage } from '@/components/Layout/AnimatedPage';
 
 const HallDetail = () => {
   const { hallId } = useParams<{ hallId: string }>();
@@ -30,7 +29,9 @@ const HallDetail = () => {
         setLoading(true);
         setError(null);
         
-        const hallData = await hallService.getById(hallId);
+        const hallData = await hallService.getHallById(hallId);
+        console.log('Hall data:', hallData);
+        console.log('Hall gallery:', hallData?.gallery);
         setHall(hallData);
       } catch (err) {
         console.error('Failed to load hall detail:', err);
@@ -43,18 +44,33 @@ const HallDetail = () => {
     fetchData();
   }, [hallId]);
 
-  // Mock image data with titles and descriptions
+  // Get image URL - using the same logic as HallPreview
+  const getImageUrl = (imageIdentifier: string) => {
+    if (!imageIdentifier) return '';
+    
+    // If it's already a full URL, return it
+    if (imageIdentifier.startsWith('http')) {
+      return imageIdentifier;
+    }
+    
+    // If it's an image ID, construct URL using galleryService
+    return galleryService.getImageUrl(imageIdentifier);
+  };
+
+  // Image titles and descriptions
   const imageDetails = [
     { title: 'Main Hall', description: 'Spacious main hall perfect for large celebrations' },
     { title: 'Dining Area', description: 'Elegant dining space with modern amenities' },
     { title: 'Stage Area', description: 'Beautiful stage setup for ceremonies and performances' },
-    { title: 'Garden View', description: 'Scenic garden area for outdoor photography' }
+    { title: 'Garden View', description: 'Scenic garden area for outdoor photography' },
+    { title: 'Reception Area', description: 'Welcoming reception space for guests' },
+    { title: 'Exterior View', description: 'Beautiful building exterior and entrance' }
   ];
 
   // Show loading state
   if (loading) {
     return (
-      <AnimatedPage className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background">
         <TopNavigation />
         <div className="container mx-auto px-4 py-8">
           <div className="animate-pulse">
@@ -74,14 +90,14 @@ const HallDetail = () => {
           </div>
         </div>
         <PublicFooter />
-      </AnimatedPage>
+      </div>
     );
   }
 
   // Show error state
   if (error || !hall) {
     return (
-      <AnimatedPage className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background">
         <TopNavigation />
         <div className="container mx-auto px-4 py-8">
           <div className="bg-red-50 border border-red-200 rounded-md p-4">
@@ -101,9 +117,17 @@ const HallDetail = () => {
               </div>
             </div>
           </div>
+          <Button 
+            variant="outline" 
+            onClick={() => navigate(-1)}
+            className="mt-4"
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back
+          </Button>
         </div>
         <PublicFooter />
-      </AnimatedPage>
+      </div>
     );
   }
 
@@ -119,7 +143,7 @@ const HallDetail = () => {
   };
 
   return (
-    <AnimatedPage className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background">
       <TopNavigation />
       
       <div className="container mx-auto px-4 py-8">
@@ -133,24 +157,68 @@ const HallDetail = () => {
         </Button>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+          {/* Gallery Section - Updated with HallPreview logic */}
           <div className="space-y-4">
-            <div className="grid grid-cols-1 gap-4">
-              {hall.gallery.slice(0, 4).map((image, index) => (
-                <div key={index} className="space-y-2">
-                  <img
-                    src={`https://images.unsplash.com/${image}?auto=format&fit=crop&w=600&q=80`}
-                    alt={imageDetails[index]?.title || `${hall.name} - Image ${index + 1}`}
-                    className="w-full h-64 object-cover rounded-lg"
-                  />
-                  <div className="px-2">
-                    <h4 className="font-semibold text-lg">{imageDetails[index]?.title || `Gallery Image ${index + 1}`}</h4>
-                    <p className="text-gray-600 text-sm">{imageDetails[index]?.description || 'Beautiful venue space'}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
+            <h2 className="text-xl font-semibold mb-4">Hall Gallery</h2>
+            
+            {hall.gallery && hall.gallery.length > 0 ? (
+              <div className="grid grid-cols-1 gap-4">
+                {hall.gallery.map((imageIdentifier: string, index: number) => {
+                  const imageUrl = getImageUrl(imageIdentifier);
+                  console.log(`Image ${index}:`, imageIdentifier, 'URL:', imageUrl);
+                  
+                  return (
+                    <Card key={index} className="overflow-hidden">
+                      <div className="w-full h-64 bg-gray-100 flex items-center justify-center">
+                        {imageUrl ? (
+                          <img
+                            src={imageUrl}
+                            alt={`${hall.name} - ${imageDetails[index]?.title || `Image ${index + 1}`}`}
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              // If image fails to load, show placeholder
+                              const target = e.target as HTMLImageElement;
+                              target.style.display = 'none';
+                            }}
+                          />
+                        ) : null}
+                        
+                        {/* Fallback when no image or image fails to load */}
+                        {!imageUrl && (
+                          <div className="flex flex-col items-center justify-center text-gray-400">
+                            <ImageIcon className="h-12 w-12 mb-2" />
+                            <span className="text-sm">No Image Available</span>
+                          </div>
+                        )}
+                      </div>
+                      <CardContent className="p-4">
+                        <div className="flex items-center justify-between mb-2">
+                          <h4 className="font-semibold text-lg">
+                            {imageDetails[index]?.title || `Image ${index + 1}`}
+                          </h4>
+                          <Badge variant="secondary">
+                            {imageDetails[index] ? imageDetails[index].title.split(' ')[0] : 'General'}
+                          </Badge>
+                        </div>
+                        <p className="text-gray-600 text-sm">
+                          {imageDetails[index]?.description || 'Beautiful venue space'}
+                        </p>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+            ) : (
+              <Card>
+                <CardContent className="p-6 text-center">
+                  <ImageIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                  <p className="text-gray-600">No images available for this hall</p>
+                </CardContent>
+              </Card>
+            )}
           </div>
 
+          {/* Hall Details Section */}
           <div className="space-y-6">
             <div>
               <div className="flex items-center justify-between mb-2">
@@ -177,15 +245,15 @@ const HallDetail = () => {
               <CardContent className="space-y-3">
                 <div className="flex justify-between">
                   <span>Morning Rate:</span>
-                  <span className="font-semibold">₹{hall.rateCard.morningRate.toLocaleString()}</span>
+                  <span className="font-semibold">₹{hall.rateCard?.morningRate?.toLocaleString() || '0'}</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Evening Rate:</span>
-                  <span className="font-semibold">₹{hall.rateCard.eveningRate.toLocaleString()}</span>
+                  <span className="font-semibold">₹{hall.rateCard?.eveningRate?.toLocaleString() || '0'}</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Full Day Rate:</span>
-                  <span className="font-semibold">₹{hall.rateCard.fullDayRate.toLocaleString()}</span>
+                  <span className="font-semibold">₹{hall.rateCard?.fullDayRate?.toLocaleString() || '0'}</span>
                 </div>
               </CardContent>
             </Card>
@@ -195,14 +263,20 @@ const HallDetail = () => {
                 <CardTitle>Features & Add-ons</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-1 gap-3">
-                  {hall.features.map((feature, index) => (
-                    <div key={index} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                      <span>{feature.name}</span>
-                      <Badge variant="secondary">+₹{feature.charge.toLocaleString()}</Badge>
-                    </div>
-                  ))}
-                </div>
+                {hall.features && hall.features.length > 0 ? (
+                  <div className="grid grid-cols-1 gap-3">
+                    {hall.features.map((feature: any, index: number) => (
+                      <div key={index} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                        <span>{feature.name}</span>
+                        <Badge variant="secondary">
+                          +₹{feature.charge?.toLocaleString() || '0'}
+                        </Badge>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-gray-500 text-center py-4">No features available</p>
+                )}
               </CardContent>
             </Card>
 
@@ -227,7 +301,7 @@ const HallDetail = () => {
       </div>
 
       <PublicFooter />
-    </AnimatedPage>
+    </div>
   );
 };
 
