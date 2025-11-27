@@ -201,6 +201,29 @@ namespace Momantza.Services
             }
         }
 
+        public async Task<Users?> GetByEmailAndOrganizationLoginAsync(string email)
+        {
+            try
+            {
+                using var connection = await GetConnectionAsync();
+                var sql = "SELECT * FROM users WHERE email = @email";
+                using var command = new NpgsqlCommand(sql, connection);
+                command.Parameters.AddWithValue("@email", email);
+
+                using var reader = await command.ExecuteReaderAsync();
+                if (await reader.ReadAsync())
+                {
+                    return MapFromReader(reader);
+                }
+                return null;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error getting user by email and organization: {ex.Message}");
+                return null;
+            }
+        }
+
         public async Task<Users?> GetByIdAndOrganizationAsync(string id, string organizationId)
         {
             try
@@ -291,6 +314,7 @@ namespace Momantza.Services
     {
         Task<Users?> GetByEmailAsync(string email);
         Task<Users?> GetByEmailAndOrganizationAsync(string email, string organizationId);
+        Task<Users?> GetByEmailAndOrganizationLoginAsync(string email);
         Task<Users?> GetByIdAndOrganizationAsync(string id, string organizationId);
         Task<List<Users>> GetByRoleAsync(string role);
         Task<List<Users>> GetUsersByOrganizationAsync(string organizationId);

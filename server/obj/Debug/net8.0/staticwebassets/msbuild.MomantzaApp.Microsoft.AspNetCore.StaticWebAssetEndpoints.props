@@ -1684,13 +1684,13 @@
       <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\MomantzaApp.izi2xsigpx.bundle.scp.css'))</AssetFile>
       <Selectors><![CDATA[[]]]></Selectors>
       <EndpointProperties><![CDATA[[{"Name":"integrity","Value":"sha256-YmLWFQMps9upNV7rcH5nEZzA6/U/1iMdkW638p3X04Y="}]]]></EndpointProperties>
-      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"no-cache"},{"Name":"Content-Length","Value":"1129"},{"Name":"Content-Type","Value":"text/css"},{"Name":"ETag","Value":"\u0022YmLWFQMps9upNV7rcH5nEZzA6/U/1iMdkW638p3X04Y=\u0022"},{"Name":"Last-Modified","Value":"Wed, 05 Nov 2025 07:52:48 GMT"}]]]></ResponseHeaders>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"no-cache"},{"Name":"Content-Length","Value":"1129"},{"Name":"Content-Type","Value":"text/css"},{"Name":"ETag","Value":"\u0022YmLWFQMps9upNV7rcH5nEZzA6/U/1iMdkW638p3X04Y=\u0022"},{"Name":"Last-Modified","Value":"Thu, 27 Nov 2025 12:03:45 GMT"}]]]></ResponseHeaders>
     </StaticWebAssetEndpoint>
     <StaticWebAssetEndpoint Include="_content/MomantzaApp/MomantzaApp.izi2xsigpx.bundle.scp.css">
       <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\MomantzaApp.izi2xsigpx.bundle.scp.css'))</AssetFile>
       <Selectors><![CDATA[[]]]></Selectors>
       <EndpointProperties><![CDATA[[{"Name":"fingerprint","Value":"izi2xsigpx"},{"Name":"integrity","Value":"sha256-YmLWFQMps9upNV7rcH5nEZzA6/U/1iMdkW638p3X04Y="},{"Name":"label","Value":"_content/MomantzaApp/MomantzaApp.bundle.scp.css"}]]]></EndpointProperties>
-      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"1129"},{"Name":"Content-Type","Value":"text/css"},{"Name":"ETag","Value":"\u0022YmLWFQMps9upNV7rcH5nEZzA6/U/1iMdkW638p3X04Y=\u0022"},{"Name":"Last-Modified","Value":"Wed, 05 Nov 2025 07:52:48 GMT"}]]]></ResponseHeaders>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"1129"},{"Name":"Content-Type","Value":"text/css"},{"Name":"ETag","Value":"\u0022YmLWFQMps9upNV7rcH5nEZzA6/U/1iMdkW638p3X04Y=\u0022"},{"Name":"Last-Modified","Value":"Thu, 27 Nov 2025 12:03:45 GMT"}]]]></ResponseHeaders>
     </StaticWebAssetEndpoint>
     <StaticWebAssetEndpoint Include="_content/MomantzaApp/placeholder.svg">
       <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\placeholder.svg'))</AssetFile>

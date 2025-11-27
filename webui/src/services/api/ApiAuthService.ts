@@ -61,9 +61,9 @@ export class ApiAuthService implements IAuthService {
         expectedBackend: `http://${orgId}.localhost:5212` // What it should be
       });
 
-      if (!orgId) {
-        throw new Error('Please access via organization subdomain (e.g., jk.localhost:8080)');
-      }
+      // if (!orgId) {
+      //   throw new Error('Please access via organization subdomain (e.g., jk.localhost:8080)');
+      // }
 
       const resp = await fetch(`${backendUrl}/api/auth/login`, {
         method: 'POST',

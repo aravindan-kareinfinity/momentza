@@ -299,7 +299,7 @@ namespace Momantza.Controllers
             try
             {
                 // Get all halls and all bookings
-                var halls = await _hallDataService.GetAllAsync();
+                var halls = await _hallDataService.GetAllAsyncs();
                 var allBookings = await _bookingDataService.GetAllAsync();
                 var hallsWithBookings = new List<object>();
 
