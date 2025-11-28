@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Momantza.Middleware;
 using Momantza.Services;
+using System.IO;
 
 namespace Momantza.Controllers
 {
@@ -15,11 +16,23 @@ namespace Momantza.Controllers
 
         public IActionResult Index()
         {
+            // Serve the webui/index.html for SPA
+            var webuiIndexPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "webui", "index.html");
+            if (System.IO.File.Exists(webuiIndexPath))
+            {
+                return PhysicalFile(webuiIndexPath, "text/html");
+            }
             return View();
         }
 
         public IActionResult Landing()
         {
+            // Serve the webui/index.html for SPA
+            var webuiIndexPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "webui", "index.html");
+            if (System.IO.File.Exists(webuiIndexPath))
+            {
+                return PhysicalFile(webuiIndexPath, "text/html");
+            }
             return View();
         }
 
