@@ -5551,23 +5551,23 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\Roshan\\.nuget\\packages\\": {},
+    "C:\\Users\\aravi\\.nuget\\packages\\": {},
     "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Momentza\\momentza\\server\\MomantzaApp.csproj",
+      "projectUniqueName": "E:\\chitahapu\\momentza\\server\\MomantzaApp.csproj",
       "projectName": "MomantzaApp",
-      "projectPath": "C:\\Momentza\\momentza\\server\\MomantzaApp.csproj",
-      "packagesPath": "C:\\Users\\Roshan\\.nuget\\packages\\",
-      "outputPath": "C:\\Momentza\\momentza\\server\\obj\\",
+      "projectPath": "E:\\chitahapu\\momentza\\server\\MomantzaApp.csproj",
+      "packagesPath": "C:\\Users\\aravi\\.nuget\\packages\\",
+      "outputPath": "E:\\chitahapu\\momentza\\server\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
       ],
       "configFilePaths": [
-        "C:\\Users\\Roshan\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\aravi\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
@@ -5576,6 +5576,7 @@
       ],
       "sources": {
         "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+        "C:\\Program Files\\dotnet\\library-packs": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
@@ -5593,8 +5594,7 @@
         "enableAudit": "true",
         "auditLevel": "low",
         "auditMode": "direct"
-      },
-      "SdkAnalysisLevel": "9.0.100"
+      }
     },
     "frameworks": {
       "net8.0": {
@@ -5714,7 +5714,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.103/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.202/PortableRuntimeIdentifierGraph.json"
       }
     }
   }

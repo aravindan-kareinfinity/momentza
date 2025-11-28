@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("MomantzaApp")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c4f5dcc28540965abc8cc98b5960afa368b60880")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+adc87f33d30eefdb4659f1d0cc3dbc4799a9ab58")]
 [assembly: System.Reflection.AssemblyProductAttribute("MomantzaApp")]
 [assembly: System.Reflection.AssemblyTitleAttribute("MomantzaApp")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

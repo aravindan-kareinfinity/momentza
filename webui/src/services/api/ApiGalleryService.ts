@@ -1,7 +1,7 @@
 import { IGalleryService } from '../interfaces/IDataService';
 import { GalleryImage } from '../mockData';
 import { apiClient } from '../http/ApiClient';
-import { runtimeConfig } from '@/config/runtimeConfig';
+import { buildApiUrl } from '@/environment';
 
 export class ApiGalleryService implements IGalleryService {
   async getAll(): Promise<GalleryImage[]> {
@@ -67,7 +67,6 @@ export class ApiGalleryService implements IGalleryService {
 
   // Get image URL using the API endpoint
   getImageUrl(id: string): string {
-    const baseUrl = runtimeConfig.VITE_API_BASE_URL || 'http://localhost:5000';
-    return `${baseUrl}/api/gallery/${id}/image`;
+    return buildApiUrl(`/api/gallery/${id}/image`);
   }
 } 

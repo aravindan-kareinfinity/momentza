@@ -1,7 +1,7 @@
 import { ICustomerClicksService, CustomerClickUploadRequest } from '../interfaces/IDataService';
 import { CustomerClick } from '../mockData';
 import { apiClient } from '../http/ApiClient';
-import { runtimeConfig } from '@/config/runtimeConfig';
+import { buildApiUrl } from '@/environment';
 
 export class ApiCustomerClicksService implements ICustomerClicksService {
   async getAll(): Promise<CustomerClick[]> {
@@ -67,7 +67,6 @@ export class ApiCustomerClicksService implements ICustomerClicksService {
   }
 
   getImageUrl(id: string): string {
-    const baseUrl = runtimeConfig.VITE_API_BASE_URL || 'http://localhost:5000';
-    return `${baseUrl}/api/customer-clicks/${id}/image`;
+    return buildApiUrl(`/api/customer-clicks/${id}/image`);
   }
 } 

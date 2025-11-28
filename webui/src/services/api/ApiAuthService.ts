@@ -1,3 +1,4 @@
+import { buildApiUrl, getApiBaseUrl } from '@/environment';
 import { IAuthService } from '../interfaces/IDataService';
 import { User } from '../../types';
 
@@ -6,15 +7,7 @@ export class ApiAuthService implements IAuthService {
   private currentUser: User | null = null;
 
   private getBackendBaseUrl(): string {
-    const { hostname } = window.location;
-    
-    // 🎯 CRITICAL FIX: Use the same subdomain but backend port (5212)
-    if (hostname.includes('.localhost')) {
-      return `http://${hostname}:5212`; // Backend runs on port 5212
-    }
-    
-    // For production: company.yourapp.com -> api.yourapp.com
-    return 'http://localhost:5212'; // Fallback to direct backend
+    return getApiBaseUrl();
   }
 
   private getOrganizationId(): string {
@@ -52,6 +45,7 @@ export class ApiAuthService implements IAuthService {
     try {
       const orgId = this.getOrganizationId();
       const backendUrl = this.getBackendBaseUrl();
+      const loginUrl = buildApiUrl('/api/auth/login');
       
       // Debug logging
       console.log('🚀 Login request details:', {
@@ -65,7 +59,7 @@ export class ApiAuthService implements IAuthService {
       //   throw new Error('Please access via organization subdomain (e.g., jk.localhost:8080)');
       // }
 
-      const resp = await fetch(`${backendUrl}/api/auth/login`, {
+      const resp = await fetch(loginUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -113,10 +107,11 @@ export class ApiAuthService implements IAuthService {
   async logout(): Promise<void> {
     try {
       const backendUrl = this.getBackendBaseUrl();
+      const logoutUrl = buildApiUrl('/api/auth/logout');
       const token = this.getAuthToken();
       
       if (token) {
-        await fetch(`${backendUrl}/api/auth/logout`, {
+        await fetch(logoutUrl, {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -159,13 +154,14 @@ export class ApiAuthService implements IAuthService {
     // Try to validate with server
     try {
       const backendUrl = this.getBackendBaseUrl();
+      const meUrl = buildApiUrl('/api/auth/me');
       const token = this.getAuthToken();
       
       if (!token) {
         return null;
       }
 
-      const resp = await fetch(`${backendUrl}/api/auth/me`, {
+      const resp = await fetch(meUrl, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -199,12 +195,13 @@ export class ApiAuthService implements IAuthService {
   async refreshToken(): Promise<string> {
     try {
       const backendUrl = this.getBackendBaseUrl();
+      const refreshUrl = buildApiUrl('/api/auth/refresh');
       const token = this.getAuthToken();
       if (!token) {
         throw new Error('No token available for refresh');
       }
 
-      const resp = await fetch(`${backendUrl}/api/auth/refresh`, {
+      const resp = await fetch(refreshUrl, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
