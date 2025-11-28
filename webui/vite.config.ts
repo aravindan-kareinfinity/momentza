@@ -29,7 +29,7 @@ export default defineConfig(({ mode }: { mode: string }) => ({
     // ADD PROXY CONFIGURATION HERE
     proxy: {
       '/api': {
-        target: 'http://localhost:5212', // Your backend URL
+        target: 'http://localhost:5000', // Your backend URL
         changeOrigin: true,
         secure: false,
         configure: (proxy, _options) => {

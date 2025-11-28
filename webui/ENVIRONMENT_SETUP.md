@@ -23,7 +23,7 @@ VITE_APP_VERSION=1.0.0
 #### `.env.production` (Production)
 ```bash
 # API Configuration
-VITE_API_BASE_URL=http://localhost:5212
+VITE_API_BASE_URL=http://localhost:5000
 
 # Environment
 NODE_ENV=production
@@ -125,6 +125,6 @@ VITE_APP_TITLE=Wedding Hub Manager (Staging)
 
 ### Production
 ```bash
-VITE_API_BASE_URL=http://localhost:5212
+VITE_API_BASE_URL=http://localhost:5000
 VITE_APP_TITLE=Wedding Hub Manager
 ``` 

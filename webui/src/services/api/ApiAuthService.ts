@@ -52,7 +52,7 @@ export class ApiAuthService implements IAuthService {
         frontendUrl: window.location.href,
         organization: orgId || '(empty)',
         backendUrl: backendUrl,
-        expectedBackend: `http://${orgId}.localhost:5212` // What it should be
+        expectedBackend: `http://${orgId}.localhost:5000` // What it should be
       });
 
       // if (!orgId) {
