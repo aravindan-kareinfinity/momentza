@@ -16,40 +16,24 @@ namespace Momantza.Controllers
 
         public IActionResult Index()
         {
-            // Default: Serve server-side Views
-            return View();
-        }
-
-        public IActionResult Landing()
-        {
-            // Default: Serve server-side Views
-            return View();
-        }
-
-        [HttpGet]
-        public IActionResult App()
-        {
-            // Serve the React app (webui/index.html) for login/booking
+            // Serve the webui/index.html for SPA
             var webuiIndexPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "webui", "index.html");
             if (System.IO.File.Exists(webuiIndexPath))
             {
                 return PhysicalFile(webuiIndexPath, "text/html");
             }
-            return NotFound("WebUI not found");
+            return View();
         }
 
-        [HttpGet]
-        public IActionResult Login()
+        public IActionResult Landing()
         {
-            // Redirect to React app for login
-            return RedirectToAction("App");
-        }
-
-        [HttpGet]
-        public IActionResult Booking()
-        {
-            // Redirect to React app for booking
-            return RedirectToAction("App");
+            // Serve the webui/index.html for SPA
+            var webuiIndexPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "webui", "index.html");
+            if (System.IO.File.Exists(webuiIndexPath))
+            {
+                return PhysicalFile(webuiIndexPath, "text/html");
+            }
+            return View();
         }
 
         [HttpGet]
