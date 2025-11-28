@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using System.Text.Json;
+using System.IO;
 using Momantza.Services;
 using Momantza.Middleware;
 using MomantzaApp.dataservice;
@@ -90,6 +91,22 @@ var app = builder.Build();
 // Middleware ordering: resolve organization BEFORE authentication/authorization
 app.UseStaticFiles();
 
+// Serve webui assets at root /assets path
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new Microsoft.Extensions.FileProviders.PhysicalFileProvider(
+        Path.Combine(builder.Environment.ContentRootPath, "wwwroot", "webui", "assets")),
+    RequestPath = "/assets"
+});
+
+// Also serve webui static files directly from /webui path (for favicon, etc.)
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new Microsoft.Extensions.FileProviders.PhysicalFileProvider(
+        Path.Combine(builder.Environment.ContentRootPath, "wwwroot", "webui")),
+    RequestPath = "/webui"
+});
+
 app.UseCors("AllowAll");
 
 // <-- run resolver early so HttpContext.Items["Organization"] is set for controllers/services
@@ -118,4 +135,68 @@ app.MapControllerRoute(
 
 // Keep API routes for backward compatibility
 app.MapControllers();
+
+// Serve webui config.json at /config.json
+app.MapGet("/config.json", async context =>
+{
+    var configPath = Path.Combine(builder.Environment.ContentRootPath, "wwwroot", "webui", "config.json");
+    if (File.Exists(configPath))
+    {
+        context.Response.ContentType = "application/json";
+        await context.Response.SendFileAsync(configPath);
+    }
+    else
+    {
+        // Fallback to root config.json
+        var rootConfigPath = Path.Combine(builder.Environment.ContentRootPath, "wwwroot", "config.json");
+        if (File.Exists(rootConfigPath))
+        {
+            context.Response.ContentType = "application/json";
+            await context.Response.SendFileAsync(rootConfigPath);
+        }
+        else
+        {
+            context.Response.StatusCode = 404;
+        }
+    }
+});
+
+// Serve webui favicon at /favicon.ico
+app.MapGet("/favicon.ico", async context =>
+{
+    var faviconPath = Path.Combine(builder.Environment.ContentRootPath, "wwwroot", "webui", "favicon.ico");
+    if (File.Exists(faviconPath))
+    {
+        context.Response.ContentType = "image/x-icon";
+        await context.Response.SendFileAsync(faviconPath);
+    }
+    else
+    {
+        context.Response.StatusCode = 404;
+    }
+});
+
+// SPA catch-all route: serve webui/index.html for all non-API routes
+app.MapFallback(async context =>
+{
+    // Skip if it's an API route
+    if (context.Request.Path.Value?.StartsWith("/api", StringComparison.OrdinalIgnoreCase) == true)
+    {
+        context.Response.StatusCode = 404;
+        return;
+    }
+
+    // Serve webui/index.html for SPA routing
+    var webuiIndexPath = Path.Combine(builder.Environment.ContentRootPath, "wwwroot", "webui", "index.html");
+    if (File.Exists(webuiIndexPath))
+    {
+        await context.Response.SendFileAsync(webuiIndexPath);
+    }
+    else
+    {
+        context.Response.StatusCode = 404;
+        await context.Response.WriteAsync("WebUI not found");
+    }
+});
+
 app.Run();
