@@ -40,7 +40,7 @@ const BookingConfirmation = () => {
     loadData();
   }, [hallName, bookingId]);
 
-  const handleGoHome = () => navigate("/");
+  // const handleGoHome = () => navigate("/");
 
   if (loading) {
     return (
@@ -134,11 +134,19 @@ const BookingConfirmation = () => {
                 </div>
               </div>
 
-              <div className="flex items-center space-x-3">
+              {/* <div className="flex items-center space-x-3">
                 <MapPin className="w-5 h-5 text-gray-500" />
                 <div>
                   <p className="text-sm text-gray-500">Hall</p>
                   <p className="font-medium">{hall?.name}</p>
+                </div>
+              </div> */}
+
+              <div className="flex items-center space-x-3">
+                <MapPin className="w-5 h-5 text-gray-500" />
+                <div>
+                  <p className="text-sm text-gray-500">Event Type</p>
+                  <p className="font-medium">{booking.eventType}</p>
                 </div>
               </div>
 
@@ -164,13 +172,24 @@ const BookingConfirmation = () => {
             </p>
           </div>
 
+          {/* Next Steps */}
+          <div className="bg-yellow-50 rounded-lg p-4">
+            <h4 className="font-semibold text-yellow-800 mb-2">What's Next?</h4>
+            <ul className="text-sm text-yellow-700 space-y-1">
+              <li>• You'll receive a confirmation email shortly</li>
+              <li>• Our team will contact you within 24 hours</li>
+              <li>• Please review the booking details carefully</li>
+              <li>• Contact us if you need any changes</li>
+            </ul>
+          </div>
+
           {/* Buttons */}
-          <div className="flex flex-col sm:flex-row gap-3 pt-4">
+          {/* <div className="flex flex-col sm:flex-row gap-3 pt-4">
             <Button onClick={handleGoHome} className="flex-1 bg-green-600 hover:bg-green-700">
               <Home className="w-4 h-4 mr-2" />
               Go to Home
             </Button>
-          </div>
+          </div> */}
 
         </CardContent>
       </Card>
