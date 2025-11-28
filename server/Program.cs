@@ -117,9 +117,16 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 // Configure MVC routing
+// Default route serves Views (server-side)
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Landing}/{id?}");
+
+// Route for React app (login/booking)
+app.MapControllerRoute(
+    name: "app",
+    pattern: "app/{*path}",
+    defaults: new { controller = "Home", action = "App" });
 
 // Add subdomain route for frontend serving
 app.MapControllerRoute(
@@ -176,17 +183,10 @@ app.MapGet("/favicon.ico", async context =>
     }
 });
 
-// SPA catch-all route: serve webui/index.html for all non-API routes
-app.MapFallback(async context =>
+// SPA catch-all route: serve webui/index.html only for /app routes and sub-paths
+app.MapFallback("/app/{*path}", async context =>
 {
-    // Skip if it's an API route
-    if (context.Request.Path.Value?.StartsWith("/api", StringComparison.OrdinalIgnoreCase) == true)
-    {
-        context.Response.StatusCode = 404;
-        return;
-    }
-
-    // Serve webui/index.html for SPA routing
+    // Serve webui/index.html for SPA routing under /app
     var webuiIndexPath = Path.Combine(builder.Environment.ContentRootPath, "wwwroot", "webui", "index.html");
     if (File.Exists(webuiIndexPath))
     {
