@@ -89,7 +89,7 @@ export function TopNavigation({ organization }: TopNavigationProps) {
           />
           <h1 className="text-xl font-bold text-gray-900">{organization?.name}</h1>
         </div>
-        <div className="flex justify-end">
+        {/* <div className="flex justify-end">
           <Button 
             variant="outline" 
             size="sm" 
@@ -99,7 +99,7 @@ export function TopNavigation({ organization }: TopNavigationProps) {
             <LogIn className="h-4 w-4" />
             Login
           </Button>
-        </div>
+        </div> */}
       </div>
     </nav>
   );

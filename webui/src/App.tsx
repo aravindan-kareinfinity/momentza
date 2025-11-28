@@ -33,6 +33,7 @@ import Statistics from "./pages/Statistics";
 import NotFound from "./pages/NotFound";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { AIChatBot } from "@/components/AIChatBot/AIChatBot";
+import BookingPreview from "./pages/BookingPreview";
 
 const queryClient = new QueryClient();
 
@@ -50,8 +51,9 @@ const App = () => {
               <Route path="/:orgId" element={<PublicHome />} />
               <Route path="/hall/:hallId" element={<HallDetail />} />
               <Route path="/booking/:hallId" element={<BookingForm />} />
-              <Route path="/booking-confirmation" element={<BookingConfirmation />} />
+              {/* <Route path="/booking-confirmation" element={<BookingConfirmation />} /> */}
               <Route path="/login" element={<Login />} />
+              <Route path="/:hallName/:bookingId" element={<BookingConfirmation />} />
               <Route
                 path="/admin/*"
                 element={

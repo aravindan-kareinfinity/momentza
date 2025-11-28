@@ -7,10 +7,10 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Calendar, User, MapPin, Users, Plus, MessageCircle, Edit, Settings, Search } from 'lucide-react';
-import { 
-  bookingService, 
-  hallService, 
-  authService 
+import {
+  bookingService,
+  hallService,
+  authService
 } from '@/services/ServiceFactory';
 import { useServiceMutation } from '@/hooks/useService';
 import { AddBookingDialog } from '@/components/Bookings/AddBookingDialog';
@@ -23,7 +23,7 @@ import { AnimatedPage } from '@/components/Layout/AnimatedPage';
 
 const Bookings = () => {
   const navigate = useNavigate();
-  
+
   // State for data
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [halls, setHalls] = useState<any[]>([]);
@@ -38,22 +38,22 @@ const Bookings = () => {
       try {
         setLoading(true);
         setError(null);
-        
+
         // Get current user first
         const user = await authService.getCurrentUser();
         setCurrentUser(user);
-        
+
         if (!user?.organizationId) {
           setLoading(false);
           return;
         }
-        
+
         console.log('[Bookings] Fetching bookings and halls data...');
         const [bookingsData, hallsData] = await Promise.all([
           bookingService.getBookingsByOrganization(user.organizationId),
           hallService.getAllHalls()
         ]);
-        
+
         setBookings(Array.isArray(bookingsData) ? bookingsData : []);
         setHalls(Array.isArray(hallsData) ? hallsData : []);
         setIsSearchActive(false); // Ensure we start with no search active
@@ -75,21 +75,21 @@ const Bookings = () => {
     // Reset and refetch data
     setLoading(true);
     setError(null);
-    
+
     try {
       const user = await authService.getCurrentUser();
       setCurrentUser(user);
-      
+
       if (!user?.organizationId) {
         setLoading(false);
         return;
       }
-      
+
       const [bookingsData, hallsData] = await Promise.all([
         bookingService.getBookingsByOrganization(user.organizationId),
         hallService.getAllHalls()
       ]);
-      
+
       setBookings(Array.isArray(bookingsData) ? bookingsData : []);
       setHalls(Array.isArray(hallsData) ? hallsData : []);
       setIsSearchActive(false); // Ensure we start with no search active
@@ -111,7 +111,7 @@ const Bookings = () => {
     if (!currentUser?.organizationId) {
       return;
     }
-    
+
     try {
       const bookingsData = await bookingService.getBookingsByOrganization(currentUser.organizationId);
       setBookings(Array.isArray(bookingsData) ? bookingsData : []);
@@ -133,17 +133,17 @@ const Bookings = () => {
 
   // Mutation hooks
   const updateBookingStatusMutation = useServiceMutation(
-    (data: { id: string; status: Booking['status']; reason?: string }) => 
+    (data: { id: string; status: Booking['status']; reason?: string }) =>
       bookingService.updateBookingStatus(data.id, data.status, data.reason)
   );
 
   const updateBookingCommunicationMutation = useServiceMutation(
-    (data: { id: string; lastContactDate: string; customerResponse: string }) => 
+    (data: { id: string; lastContactDate: string; customerResponse: string }) =>
       bookingService.updateBookingCommunication(data.id, data.lastContactDate, data.customerResponse)
   );
 
   const toggleBookingActiveMutation = useServiceMutation(
-    (data: { id: string; isActive: boolean }) => 
+    (data: { id: string; isActive: boolean }) =>
       bookingService.toggleBookingActive(data.id, data.isActive)
   );
 
@@ -189,7 +189,7 @@ const Bookings = () => {
 
   const handleStatusChange = async (bookingId: string, newStatus: Booking['status'], reason?: string) => {
     await updateBookingStatusMutation.execute({ id: bookingId, status: newStatus, reason });
-    
+
     if (reason) {
       await updateBookingCommunicationMutation.execute({
         id: bookingId,
@@ -197,7 +197,7 @@ const Bookings = () => {
         customerResponse: `Status changed to ${newStatus}. Reason: ${reason}`
       });
     }
-    
+
     await refreshBookings();
   };
 
@@ -439,10 +439,10 @@ const Bookings = () => {
               />
             </div>
           </div>
-          
+
           <div className="mt-4 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Button 
+              <Button
                 onClick={() => handleSearch()}
                 disabled={isSearching}
                 className="min-w-[120px]"
@@ -459,10 +459,10 @@ const Bookings = () => {
                   </>
                 )}
               </Button>
-              
+
               {(searchTerm || dateFrom || dateTo || statusFilter !== 'all') && (
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   size="sm"
                   onClick={async () => {
                     setSearchTerm('');
@@ -470,7 +470,7 @@ const Bookings = () => {
                     setDateTo('');
                     setStatusFilter('all');
                     setIsSearchActive(false);
-                    
+
                     // Reset to show all bookings
                     if (currentUser?.organizationId) {
                       try {
@@ -486,9 +486,9 @@ const Bookings = () => {
                 </Button>
               )}
             </div>
-            
+
             <span className="text-sm text-gray-600">
-              {isSearchActive 
+              {isSearchActive
                 ? `Found ${filteredBookings.length} booking(s) matching your search`
                 : `Showing ${filteredBookings.length} booking(s)`
               }
@@ -517,23 +517,23 @@ const Bookings = () => {
                 </div>
               </div>
             </CardHeader>
-            
+
             <CardContent className="space-y-3">
               <div className="flex items-center text-sm text-gray-600">
                 <MapPin className="h-4 w-4 mr-2" />
                 {getHallName(booking.hallId)}
               </div>
-              
+
               <div className="flex items-center text-sm text-gray-600">
                 <Calendar className="h-4 w-4 mr-2" />
                 {formatDateDDMMYYYY(booking.eventDate)} - {booking.timeSlot}
               </div>
-              
+
               <div className="flex items-center text-sm text-gray-600">
                 <Users className="h-4 w-4 mr-2" />
                 {booking.guestCount} guests
               </div>
-              
+
               <div className="flex items-center text-sm text-gray-600">
                 <User className="h-4 w-4 mr-2" />
                 {booking.customerEmail} • {booking.customerPhone}
@@ -550,7 +550,7 @@ const Bookings = () => {
                   <strong>Response:</strong> {booking.customerResponse}
                 </div>
               )}
-              
+
               {statusFilter === 'upcoming' && booking.status === 'confirmed' && (
                 <div className="flex items-center space-x-2 pt-2 border-t">
                   <Label htmlFor={`active-${booking.id}`} className="text-sm">
@@ -574,29 +574,48 @@ const Bookings = () => {
                   <span className="font-semibold">₹{booking.totalAmount.toLocaleString()}</span>
                 </div>
               </div>
-              
+
               <div className="flex justify-between items-center pt-2">
                 <div className="flex gap-2">
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     size="sm"
                     onClick={() => setCommunicationBooking(booking)}
                   >
                     <MessageCircle className="h-4 w-4 mr-2" />
                     Communication
                   </Button>
-                  
-                  <Button 
-                    variant="outline" 
+
+                  <Button
+                    variant="outline"
                     size="sm"
                     onClick={() => setStatusChangeBooking(booking)}
                   >
                     Change Status
                   </Button>
+
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      const hall = halls.find(h => h.id === booking.hallId);
+                      const hallNameSlug = hall?.name
+                        ?.toLowerCase()
+                        ?.replace(/\s+/g, "-")
+                        ?.replace(/[^a-z0-9-]/g, "") || "hall";
+
+                      const url = `${window.location.origin}/${hallNameSlug}/${booking.id}`;
+                      navigator.clipboard.writeText(url);
+
+                      // Optional: UI notification
+                      alert("Link copied: " + url);
+                    }}
+                  >
+                    Copy Link
+                  </Button>
                 </div>
-                
+
                 {booking.status === 'completed' && (
-                  <Button 
+                  <Button
                     size="sm"
                     onClick={() => handleManageBooking(booking)}
                   >
@@ -618,10 +637,10 @@ const Bookings = () => {
               {isSearchActive ? "No Search Results Found" : "No Bookings Found"}
             </h3>
             <p className="text-gray-500">
-              {isSearchActive 
+              {isSearchActive
                 ? "No bookings match your search criteria. Try adjusting your search terms or filters."
-                : bookings?.length === 0 
-                  ? "No bookings available." 
+                : bookings?.length === 0
+                  ? "No bookings available."
                   : "No bookings match your current filters. Try adjusting your search criteria."
               }
             </p>
