@@ -170,16 +170,40 @@ const Invoice = () => {
   const taxAmount = (subtotal * billingSettings.taxPercentage) / 100;
   const totalAmount = subtotal + taxAmount;
 
+
+
   // ------------------------------
   // Render Invoice
   // ------------------------------
 
   return (
     <AnimatedPage className="min-h-screen bg-white">
+      <style>
+        {`
+          @media print {
+            body * {
+              visibility: hidden !important;
+            }
+            #invoicetab, #invoicetab * {
+              visibility: visible !important;
+            }
+            #invoicetab {
+              position: absolute;
+              top: 0;
+              left: 0;
+              width: 100%;
+            }
+            .no-print {
+              display: none !important;
+            }
+          }
+        `}
+      </style>
+
       <div className="no-print p-4 bg-gray-50 border-b">
         <div className="max-w-4xl mx-auto flex gap-4">
           <Button onClick={() => window.print()}><Printer className="h-4 w-4" />Print Invoice</Button>
-          <Button variant="outline" onClick={() => {
+          {/* <Button variant="outline" onClick={() => {
             const htmlContent = document.documentElement.outerHTML;
             const blob = new Blob([htmlContent], { type: "text/html" });
             const url = URL.createObjectURL(blob);
@@ -190,12 +214,12 @@ const Invoice = () => {
             URL.revokeObjectURL(url);
           }}>
             <Download className="h-4 w-4" />Download HTML
-          </Button>
+          </Button> */}
         </div>
       </div>
 
       {/* ------------ Invoice Layout ------------ */}
-      <div className="max-w-4xl mx-auto p-8 bg-white">
+      <div className="max-w-4xl mx-auto p-8 bg-white" id='invoicetab'>
 
         {/* Header */}
         <div className="flex justify-between mb-8">

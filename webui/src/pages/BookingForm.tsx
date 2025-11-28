@@ -17,7 +17,7 @@ const BookingForm = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const firstInputRef = useRef<HTMLInputElement>(null);
-  
+
   const selectedDate = searchParams.get('date');
 
   // State for data
@@ -34,13 +34,13 @@ const BookingForm = () => {
       try {
         setLoading(true);
         setError(null);
-        
+
         // Fetch all data in parallel
         const [hallData, servicesData] = await Promise.all([
           hallService.getById(hallId),
           servicesService.getAllServices()
         ]);
-        
+
         setHall(hallData);
         setServices(servicesData || []);
       } catch (err) {
@@ -53,10 +53,10 @@ const BookingForm = () => {
 
     fetchData();
   }, [hallId]);
-  
+
   // Mock event types from settings
   const eventTypes = ['Wedding', 'Birthday Party', 'Corporate Event', 'Conference'];
-  
+
   const [formData, setFormData] = useState({
     customerName: '',
     customerEmail: '',
@@ -70,7 +70,7 @@ const BookingForm = () => {
     selectedServices: [] as string[]
   });
 
-  const [availableTimeSlots, setAvailableTimeSlots] = useState<Array<{value: string, label: string, price: number}>>([]);
+  const [availableTimeSlots, setAvailableTimeSlots] = useState<Array<{ value: string, label: string, price: number }>>([]);
   const [totalAmount, setTotalAmount] = useState(0);
 
   // Focus first input on mount
@@ -105,7 +105,7 @@ const BookingForm = () => {
     if (!hall || !formData.timeSlot) return;
 
     let amount = 0;
-    
+
     switch (formData.timeSlot) {
       case 'morning':
         amount += hall.rateCard.morningRate;
@@ -141,7 +141,7 @@ const BookingForm = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!hall) return;
 
     try {
@@ -161,7 +161,7 @@ const BookingForm = () => {
       });
 
       console.log('Booking created:', booking);
-      
+
       // Navigate to confirmation page with booking details
       const params = new URLSearchParams({
         bookingId: booking.id || 'N/A',
@@ -172,8 +172,9 @@ const BookingForm = () => {
         guestCount: formData.guestCount,
         totalAmount: totalAmount.toString()
       });
-      
-      navigate(`/booking-confirmation?${params.toString()}`);
+
+      // navigate(`/booking-confirmation?${params.toString()}`);
+      navigate(`/${hall.name}/${booking.id}`);
     } catch (error) {
       console.error('Error creating booking:', error);
     }
@@ -182,7 +183,7 @@ const BookingForm = () => {
   const handleFeatureChange = (featureName: string, checked: boolean) => {
     setFormData(prev => ({
       ...prev,
-      selectedFeatures: checked 
+      selectedFeatures: checked
         ? [...prev.selectedFeatures, featureName]
         : prev.selectedFeatures.filter(f => f !== featureName)
     }));
@@ -191,7 +192,7 @@ const BookingForm = () => {
   const handleServiceChange = (serviceId: string, checked: boolean) => {
     setFormData(prev => ({
       ...prev,
-      selectedServices: checked 
+      selectedServices: checked
         ? [...prev.selectedServices, serviceId]
         : prev.selectedServices.filter(s => s !== serviceId)
     }));
@@ -246,8 +247,8 @@ const BookingForm = () => {
   return (
     <AnimatedPage className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8">
-        <Button 
-          variant="outline" 
+        <Button
+          variant="outline"
           onClick={() => navigate(-1)}
           className="mb-6"
         >
