@@ -14,7 +14,7 @@ export class ApiAuthService implements IAuthService {
     }
     
     // For production: company.yourapp.com -> api.yourapp.com
-    return 'http://localhost:5212'; // Fallback to direct backend
+    return 'http://localhost:5000'; // Fallback to direct backend
   }
 
   private getOrganizationId(): string {

@@ -3,8 +3,11 @@ import { requestManager } from '../RequestManager';
 
 export class ApiClient {
   private get baseUrl() {
-    //return runtimeConfig.VITE_API_BASE_URL || 'http://localhost:5212';
-   return 'http://localhost:5212'
+    // Use runtime config API base URL, fallback to default
+    const apiUrl = runtimeConfig.VITE_API_BASE_URL || 'http://localhost:5000';
+    // If it's a relative path (starts with /), return as-is
+    // Otherwise return the full URL
+    return apiUrl;
   }
   private headers: HeadersInit;
   private defaultTimeout: number = 10000; // 10 seconds default timeout

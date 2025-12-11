@@ -1,3 +1,5 @@
+import { runtimeConfig } from './runtimeConfig';
+
 // Environment configuration utility
 export const config = {
   // API Configuration
@@ -25,6 +27,23 @@ export const getApiUrl = (endpoint: string): string => {
   const baseUrl = config.apiBaseUrl.replace(/\/$/, ''); // Remove trailing slash
   const cleanEndpoint = endpoint.replace(/^\//, ''); // Remove leading slash
   return `${baseUrl}/${cleanEndpoint}`;
+};
+
+// Helper function to get base URL from runtime config (normalized with leading slash, no trailing slash)
+// Base URL is configured in public/config.json - just change it there!
+export const getBaseUrl = (): string => {
+  const base = runtimeConfig.VITE_BASE_URL || '';
+  // Ensure it starts with / and doesn't end with /
+  if (!base) return '';
+  const normalized = base.startsWith('/') ? base : `/${base}`;
+  return normalized.endsWith('/') ? normalized.slice(0, -1) : normalized;
+};
+
+// Helper function to create a path with base URL
+export const getPath = (path: string): string => {
+  const base = getBaseUrl();
+  const cleanPath = path.startsWith('/') ? path : `/${path}`;
+  return base ? `${base}${cleanPath}` : cleanPath;
 };
 
 // Helper function to check if running in development
