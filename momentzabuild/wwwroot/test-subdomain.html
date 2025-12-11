@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subdomain Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        .test-section { margin: 20px 0; padding: 20px; border: 1px solid #ddd; border-radius: 5px; }
+        .result { margin: 10px 0; padding: 10px; background: #f5f5f5; border-radius: 3px; }
+        .error { background: #ffebee; color: #c62828; }
+        .success { background: #e8f5e8; color: #2e7d32; }
+        button { padding: 10px 20px; margin: 5px; background: #007bff; color: white; border: none; border-radius: 3px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+    </style>
+</head>
+<body>
+    <h1>Subdomain Testing</h1>
+    
+    <div class="test-section">
+        <h2>Current Host Information</h2>
+        <div class="result">
+            <strong>Host:</strong> <span id="currentHost"></span><br>
+            <strong>Subdomain:</strong> <span id="extractedSubdomain"></span>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test Organization Resolution</h2>
+        <button onclick="testOrganizationResolution()">Test Organization Resolution</button>
+        <div id="orgResult" class="result" style="display: none;"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test Frontend Redirect</h2>
+        <button onclick="testFrontendRedirect()">Test Frontend Redirect</button>
+        <div id="redirectResult" class="result" style="display: none;"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test API Endpoints</h2>
+        <button onclick="testSubdomainAPI()">Test /subdomain API</button>
+        <button onclick="testFrontendAPI()">Test /frontend API</button>
+        <button onclick="testSubdomainDirectAPI()">Test /subdomain/{subdomain} API</button>
+        <div id="apiResult" class="result" style="display: none;"></div>
+    </div>
+
+    <script>
+        // Display current host information
+        document.getElementById('currentHost').textContent = window.location.host;
+        
+        // Extract subdomain
+        function extractSubdomain(host) {
+            if (host.includes('localhost') || host.includes('127.0.0.1') || host.includes('192.168.')) {
+                return 'default';
+            }
+            const parts = host.split('.');
+            if (parts.length >= 3) {
+                return parts[0];
+            }
+            return host;
+        }
+        
+        const subdomain = extractSubdomain(window.location.host);
+        document.getElementById('extractedSubdomain').textContent = subdomain;
+
+        async function testOrganizationResolution() {
+            const resultDiv = document.getElementById('orgResult');
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = 'Testing organization resolution...';
+            
+            try {
+                const response = await fetch('/api/organizations/current');
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.className = 'result success';
+                    resultDiv.innerHTML = `
+                        <strong>Success!</strong><br>
+                        <strong>Organization ID:</strong> ${data.id}<br>
+                        <strong>Name:</strong> ${data.name}<br>
+                        <strong>Custom Domain:</strong> ${data.customDomain || 'None'}<br>
+                        <strong>Default Domain:</strong> ${data.defaultDomain || 'None'}
+                    `;
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.innerHTML = `<strong>Error:</strong> ${data.message || 'Unknown error'}`;
+                }
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = `<strong>Error:</strong> ${error.message}`;
+            }
+        }
+
+        async function testFrontendRedirect() {
+            const resultDiv = document.getElementById('redirectResult');
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = 'Testing frontend redirect...';
+            
+            try {
+                const response = await fetch('/frontend', { method: 'GET', redirect: 'manual' });
+                
+                if (response.status === 302) {
+                    const redirectUrl = response.headers.get('Location');
+                    resultDiv.className = 'result success';
+                    resultDiv.innerHTML = `
+                        <strong>Success!</strong><br>
+                        <strong>Redirect URL:</strong> ${redirectUrl}<br>
+                        <a href="${redirectUrl}" target="_blank">Open Frontend (192.168.1.21:8080)</a>
+                    `;
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.innerHTML = `<strong>Unexpected Status:</strong> ${response.status}`;
+                }
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = `<strong>Error:</strong> ${error.message}`;
+            }
+        }
+
+        async function testSubdomainAPI() {
+            const resultDiv = document.getElementById('apiResult');
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = 'Testing /subdomain API...';
+            
+            try {
+                const response = await fetch('/subdomain');
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.className = 'result success';
+                    resultDiv.innerHTML = `
+                        <strong>/subdomain API Success!</strong><br>
+                        <strong>Organization ID:</strong> ${data.organizationId}<br>
+                        <strong>Name:</strong> ${data.organizationName}<br>
+                        <strong>Custom Domain:</strong> ${data.customDomain || 'None'}<br>
+                        <strong>Subdomain:</strong> ${data.subdomain}
+                    `;
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.innerHTML = `<strong>Error:</strong> ${data.error || 'Unknown error'}`;
+                }
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = `<strong>Error:</strong> ${error.message}`;
+            }
+        }
+
+        async function testFrontendAPI() {
+            const resultDiv = document.getElementById('apiResult');
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = 'Testing /frontend API...';
+            
+            try {
+                const response = await fetch('/frontend', { method: 'GET', redirect: 'manual' });
+                
+                if (response.status === 302) {
+                    const redirectUrl = response.headers.get('Location');
+                    resultDiv.className = 'result success';
+                    resultDiv.innerHTML = `
+                        <strong>/frontend API Success!</strong><br>
+                        <strong>Redirect URL:</strong> ${redirectUrl}<br>
+                        <a href="${redirectUrl}" target="_blank">Open Frontend (192.168.1.21:8080)</a>
+                    `;
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.innerHTML = `<strong>Unexpected Status:</strong> ${response.status}`;
+                }
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = `<strong>Error:</strong> ${error.message}`;
+            }
+        }
+
+        async function testSubdomainDirectAPI() {
+            const resultDiv = document.getElementById('apiResult');
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = 'Testing /subdomain/{subdomain} API...';
+            
+            try {
+                // Test with a sample subdomain
+                const testSubdomain = 'abc';
+                const response = await fetch(`/subdomain/${testSubdomain}`, { method: 'GET', redirect: 'manual' });
+                
+                if (response.status === 302) {
+                    const redirectUrl = response.headers.get('Location');
+                    resultDiv.className = 'result success';
+                    resultDiv.innerHTML = `
+                        <strong>/subdomain/{subdomain} API Success!</strong><br>
+                        <strong>Test Subdomain:</strong> ${testSubdomain}<br>
+                        <strong>Redirect URL:</strong> ${redirectUrl}<br>
+                        <a href="${redirectUrl}" target="_blank">Open Frontend (192.168.1.21:8080)</a>
+                    `;
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.innerHTML = `<strong>Unexpected Status:</strong> ${response.status}`;
+                }
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = `<strong>Error:</strong> ${error.message}`;
+            }
+        }
+    </script>
+</body>
+</html>
