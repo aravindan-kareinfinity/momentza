@@ -116,7 +116,7 @@ app.UseSession();
 app.UseAuthentication();
 app.UseAuthorization();
 
-// Configure MVC routing
+// Always map MVC routes first (these take precedence)
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Landing}/{id?}");
@@ -136,6 +136,7 @@ app.MapControllerRoute(
 // Keep API routes for backward compatibility
 app.MapControllers();
 
+<<<<<<< HEAD
 // Serve webui config.json at /config.json
 app.MapGet("/config.json", async context =>
 {
@@ -198,5 +199,10 @@ app.MapFallback(async context =>
         await context.Response.WriteAsync("WebUI not found");
     }
 });
+=======
+// Fallback to index.html for SPA routing (must be last)
+// This handles all client-side routes like /hall/:id, /booking/:id, etc.
+app.MapFallbackToFile("index.html");
+>>>>>>> dafd703 (ui)
 
 app.Run();

@@ -50,7 +50,7 @@ namespace Momantza.Controllers
             try
             {
                 using var httpClient = new HttpClient();
-                var response = await httpClient.GetAsync("http://localhost:5212/api/halls");
+                var response = await httpClient.GetAsync("http://localhost:5000/api/halls");
                 
                 if (response.IsSuccessStatusCode)
                 {
@@ -71,7 +71,7 @@ namespace Momantza.Controllers
             try
             {
                 using var httpClient = new HttpClient();
-                var response = await httpClient.GetAsync("http://localhost:5212/api/bookings/search");
+                var response = await httpClient.GetAsync("http://localhost:5000/api/bookings/search");
                 
                 if (response.IsSuccessStatusCode)
                 {
