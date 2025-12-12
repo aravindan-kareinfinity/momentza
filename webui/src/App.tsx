@@ -34,17 +34,25 @@ import NotFound from "./pages/NotFound";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { AIChatBot } from "@/components/AIChatBot/AIChatBot";
 import BookingPreview from "./pages/BookingPreview";
+import { getBaseUrl } from "@/config/environment";
 
 const queryClient = new QueryClient();
 
 const App = () => {
+  // Get base URL from runtime config (configure in public/config.json)
+  // React Router basename should NOT have trailing slash
+  let baseUrl = getBaseUrl();
+  if (baseUrl && baseUrl.endsWith('/')) {
+    baseUrl = baseUrl.slice(0, -1);
+  }
+  
   return (
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
         <TooltipProvider>
           <Toaster />
           <Sonner />
-          <BrowserRouter>
+          <BrowserRouter basename={baseUrl}>
             <Routes>
               <Route path="/" element={<PublicHome />} />
               <Route path="/org/:orgId" element={<PublicHome />} />

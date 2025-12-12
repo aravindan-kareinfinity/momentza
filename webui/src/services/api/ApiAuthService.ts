@@ -7,7 +7,19 @@ export class ApiAuthService implements IAuthService {
   private currentUser: User | null = null;
 
   private getBackendBaseUrl(): string {
+<<<<<<< HEAD
     return getApiBaseUrl();
+=======
+    const { hostname } = window.location;
+    
+    // 🎯 CRITICAL FIX: Use the same subdomain but backend port (5212)
+    if (hostname.includes('.localhost')) {
+      return `http://${hostname}:5212`; // Backend runs on port 5212
+    }
+    
+    // For production: company.yourapp.com -> api.yourapp.com
+    return 'http://localhost:5000'; // Fallback to direct backend
+>>>>>>> 5dfd0c9 (appalert)
   }
 
   private getOrganizationId(): string {
