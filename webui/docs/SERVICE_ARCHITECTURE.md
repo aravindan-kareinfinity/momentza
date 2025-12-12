@@ -297,7 +297,7 @@ REACT_APP_DEBUG=true
 ```bash
 # .env.production
 REACT_APP_USE_MOCK_DATA=false
-REACT_APP_API_BASE_URL=http://localhost:5212
+REACT_APP_API_BASE_URL=http://localhost:5000
 REACT_APP_ENVIRONMENT=production
 REACT_APP_DEBUG=false
 ```

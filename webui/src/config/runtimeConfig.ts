@@ -1,4 +1,6 @@
 export type RuntimeConfig = {
+  VITE_BASE_URL?: string;
+  VITE_PORT?: number;
   VITE_API_BASE_URL: string;
   VITE_APP_TITLE: string;
   VITE_APP_VERSION: string;
@@ -7,6 +9,8 @@ export type RuntimeConfig = {
 };
 
 export let runtimeConfig: RuntimeConfig = {
+  VITE_BASE_URL: '', // default to empty (root)
+  VITE_PORT: 8080, // default port
   VITE_API_BASE_URL: 'http://localhost:5000', // default fallback
   VITE_APP_TITLE: 'Wedding Hub Manager',
   VITE_APP_VERSION: '1.0.0',
@@ -52,8 +56,11 @@ export async function loadRuntimeConfig() {
     }
 
     // Fallback: fetch config.json with timeout
-    console.log('Loading runtime config from /config.json...');
-    const res = await fetchWithTimeout('/config.json', 5000); // 5 second timeout
+    // Try to get base URL from environment variable (for build-time) or use root
+    const baseUrl = (import.meta.env.VITE_BASE_URL as string) || '';
+    const configPath = baseUrl ? `${baseUrl}/config.json` : '/config.json';
+    console.log('Loading runtime config from', configPath);
+    const res = await fetchWithTimeout(configPath, 5000); // 5 second timeout
     
     if (res.ok) {
       const config = await res.json();

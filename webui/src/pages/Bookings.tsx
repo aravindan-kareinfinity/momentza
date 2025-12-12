@@ -20,6 +20,7 @@ import { Booking, User as UserType } from '@/types';
 import { useNavigate } from 'react-router-dom';
 import { ServerErrorDialog } from '@/components/ui/ServerErrorDialog';
 import { AnimatedPage } from '@/components/Layout/AnimatedPage';
+import { getPath } from '@/config/environment';
 
 const Bookings = () => {
   const navigate = useNavigate();
@@ -603,7 +604,8 @@ const Bookings = () => {
                         ?.replace(/\s+/g, "-")
                         ?.replace(/[^a-z0-9-]/g, "") || "hall";
 
-                      const url = `${window.location.origin}/${hallNameSlug}/${booking.id}`;
+                      const path = getPath(`/${hallNameSlug}/${booking.id}`);
+                      const url = `${window.location.origin}${path}`;
                       navigator.clipboard.writeText(url);
 
                       // Optional: UI notification

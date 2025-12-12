@@ -2,6 +2,8 @@
 declare global {
   interface Window {
     runtimeConfig?: {
+      VITE_BASE_URL?: string;
+      VITE_PORT?: number;
       VITE_API_BASE_URL?: string;
       VITE_APP_TITLE?: string;
       VITE_APP_VERSION?: string;
