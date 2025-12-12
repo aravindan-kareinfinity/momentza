@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Momantza.Services;
 using Momantza.Models;
+using Microsoft.Extensions.Logging;
 
 namespace Momantza.Controllers
 {
@@ -11,11 +12,13 @@ namespace Momantza.Controllers
     {
         private readonly IBookingDataService _bookingDataService;
         private readonly IHallDataService _hallDataService;
+        private readonly ILogger<BookingController> _logger;
 
-        public BookingController(IBookingDataService bookingDataService, IHallDataService hallDataService)
+        public BookingController(IBookingDataService bookingDataService, IHallDataService hallDataService, ILogger<BookingController> logger)
         {
             _bookingDataService = bookingDataService;
             _hallDataService = hallDataService;
+            _logger = logger;
         }
 
         [HttpGet]
@@ -298,15 +301,29 @@ namespace Momantza.Controllers
         {
             try
             {
+                _logger.LogInformation("Getting all halls with bookings");
+                
                 // Get all halls and all bookings
                 var halls = await _hallDataService.GetAllAsyncs();
+                _logger.LogInformation("Retrieved {Count} halls", halls?.Count ?? 0);
+                
                 var allBookings = await _bookingDataService.GetAllAsync();
+                _logger.LogInformation("Retrieved {Count} bookings", allBookings?.Count ?? 0);
+                
                 var hallsWithBookings = new List<object>();
 
-                foreach (var hall in halls)
+                foreach (var hall in halls ?? new List<Hall>())
                 {
+                    if (hall == null || string.IsNullOrEmpty(hall.Id))
+                    {
+                        _logger.LogWarning("Skipping null or invalid hall");
+                        continue;
+                    }
+
                     // Filter bookings for this specific hall
-                    var bookings = allBookings.Where(b => b.HallId == hall.Id).ToList();
+                    var bookings = (allBookings ?? new List<Booking>())
+                        .Where(b => b != null && !string.IsNullOrEmpty(b.HallId) && b.HallId == hall.Id)
+                        .ToList();
 
                     var hallWithBookings = new
                     {
@@ -315,11 +332,12 @@ namespace Momantza.Controllers
                         BookingSummary = new
                         {
                             TotalBookings = bookings.Count,
-                            ConfirmedBookings = bookings.Count(b => b.Status == "confirmed"),
-                            ActiveBookings = bookings.Count(b => b.Status == "active"),
-                            PendingBookings = bookings.Count(b => b.Status == "pending"),
-                            CancelledBookings = bookings.Count(b => b.Status == "cancelled"),
+                            ConfirmedBookings = bookings.Count(b => b?.Status == "confirmed"),
+                            ActiveBookings = bookings.Count(b => b?.Status == "active"),
+                            PendingBookings = bookings.Count(b => b?.Status == "pending"),
+                            CancelledBookings = bookings.Count(b => b?.Status == "cancelled"),
                             BookedDates = bookings
+                                .Where(b => b != null)
                                 .Select(b => new
                                 {
                                     Date = b.EventDate,
@@ -341,11 +359,14 @@ namespace Momantza.Controllers
                     hallsWithBookings.Add(hallWithBookings);
                 }
 
+                _logger.LogInformation("Returning {Count} halls with bookings", hallsWithBookings.Count);
                 return Ok(hallsWithBookings);
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { message = "Internal server error", error = ex.Message });
+                _logger.LogError(ex, "Error getting halls with bookings: {Message}", ex.Message);
+                _logger.LogError("Stack trace: {StackTrace}", ex.StackTrace);
+                return StatusCode(500, new { message = "Internal server error", error = ex.Message, stackTrace = ex.StackTrace });
             }
         }
 

@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Momantza.Services;
 
 namespace Momantza.Controllers
@@ -7,13 +8,16 @@ namespace Momantza.Controllers
     {
         private readonly IOrganizationsDataService _organizationsDataService;
         private readonly IHallDataService _hallDataService;
+        private readonly IConfiguration _configuration;
 
         public ExploreOrganisationController(
             IOrganizationsDataService organizationsDataService,
-            IHallDataService hallDataService)
+            IHallDataService hallDataService,
+            IConfiguration configuration)
         {
             _organizationsDataService = organizationsDataService;
             _hallDataService = hallDataService;
+            _configuration = configuration;
         }
 
         [HttpGet]
@@ -49,8 +53,9 @@ namespace Momantza.Controllers
         {
             try
             {
+                var baseUrl = GetApiBaseUrl();
                 using var httpClient = new HttpClient();
-                var response = await httpClient.GetAsync("http://localhost:5212/api/halls");
+                var response = await httpClient.GetAsync($"{baseUrl}/api/halls");
                 
                 if (response.IsSuccessStatusCode)
                 {
@@ -70,8 +75,9 @@ namespace Momantza.Controllers
         {
             try
             {
+                var baseUrl = GetApiBaseUrl();
                 using var httpClient = new HttpClient();
-                var response = await httpClient.GetAsync("http://localhost:5212/api/bookings/search");
+                var response = await httpClient.GetAsync($"{baseUrl}/api/bookings/search");
                 
                 if (response.IsSuccessStatusCode)
                 {
@@ -104,6 +110,19 @@ namespace Momantza.Controllers
             {
                 return NotFound();
             }
+        }
+
+        private string GetApiBaseUrl()
+        {
+            var configured = _configuration["ApiBaseUrl"] ?? Environment.GetEnvironmentVariable("API_BASE_URL");
+            if (!string.IsNullOrWhiteSpace(configured))
+            {
+                return configured.TrimEnd('/');
+            }
+
+            // Default to current host (e.g., https://momentza.com)
+            var requestBase = $"{Request.Scheme}://{Request.Host}";
+            return requestBase.TrimEnd('/');
         }
     }
 }

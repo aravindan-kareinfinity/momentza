@@ -1,8 +1,8 @@
 {
   "VITE_BASE_URL": "",
   "VITE_PORT": 8082,
-  "VITE_API_BASE_URL": "http://localhost:5000",
+  "VITE_API_BASE_URL": "https://momentza.com",
   "VITE_APP_TITLE": "Wedding Hub Manager",
   "VITE_APP_VERSION": "1.0.0",
-  "VITE_ENVIRONMENT": "development"
+  "VITE_ENVIRONMENT": "production"
 } 

@@ -1,7 +1,7 @@
 import { Handover } from "@/types";
 import { HandOverImage } from "@/types";
 import { apiClient } from "../http/ApiClient";
-import { runtimeConfig } from "@/config/runtimeConfig";
+import { buildApiUrl } from "@/environment";
 
 
 export class ApiHandoverService {
@@ -39,7 +39,6 @@ export class ApiHandoverService {
     }
   
     getImageUrl(bookingId: string, imageId: string) {
-      const baseUrl = runtimeConfig.VITE_API_BASE_URL || "http://localhost:5000";
-      return `${baseUrl}/api/bookings/${bookingId}/handover/images/${imageId}`;
+      return buildApiUrl(`/api/bookings/${bookingId}/handover/images/${imageId}`);
     }
   }

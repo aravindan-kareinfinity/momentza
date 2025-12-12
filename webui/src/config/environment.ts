@@ -3,7 +3,7 @@ import { runtimeConfig } from './runtimeConfig';
 // Environment configuration utility
 export const config = {
   // API Configuration
-  apiBaseUrl: import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000',
+  apiBaseUrl: import.meta.env.VITE_API_BASE_URL || (typeof window !== 'undefined' ? window.location.origin : 'https://momentza.com'),
   
   // App Configuration
   appTitle: import.meta.env.VITE_APP_TITLE || 'Wedding Hub Manager',

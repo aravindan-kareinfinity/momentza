@@ -2,7 +2,7 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { Organization } from '@/types';
-import { LogIn } from 'lucide-react';
+import { LogIn, Home } from 'lucide-react';
 import { galleryService } from '@/services/ServiceFactory';
 
 interface TopNavigationProps {

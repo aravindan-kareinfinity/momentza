@@ -1,14 +1,7 @@
-import { runtimeConfig } from '@/config/runtimeConfig';
+import { buildApiUrl } from '@/environment';
 import { requestManager } from '../RequestManager';
 
 export class ApiClient {
-  private get baseUrl() {
-    // Use runtime config API base URL, fallback to default
-    const apiUrl = runtimeConfig.VITE_API_BASE_URL || 'http://localhost:5000';
-    // If it's a relative path (starts with /), return as-is
-    // Otherwise return the full URL
-    return apiUrl;
-  }
   private headers: HeadersInit;
   private defaultTimeout: number = 10000; // 10 seconds default timeout
   
@@ -101,7 +94,7 @@ export class ApiClient {
       endpoint,
       async () => {
         this.updateHeaders();
-        const response = await this.fetchWithTimeout(`${this.baseUrl}${endpoint}`, {
+        const response = await this.fetchWithTimeout(buildApiUrl(endpoint), {
           method: 'GET',
           headers: this.headers
         }, timeoutMs);
@@ -116,7 +109,7 @@ export class ApiClient {
       endpoint,
       async () => {
         this.updateHeaders();
-        const response = await this.fetchWithTimeout(`${this.baseUrl}${endpoint}`, {
+        const response = await this.fetchWithTimeout(buildApiUrl(endpoint), {
           method: 'POST',
           headers: this.headers,
           body: JSON.stringify(data)
@@ -133,7 +126,7 @@ export class ApiClient {
       endpoint,
       async () => {
         this.updateHeaders();
-        const response = await this.fetchWithTimeout(`${this.baseUrl}${endpoint}`, {
+        const response = await this.fetchWithTimeout(buildApiUrl(endpoint), {
           method: 'PUT',
           headers: this.headers,
           body: JSON.stringify(data)
@@ -150,7 +143,7 @@ export class ApiClient {
       endpoint,
       async () => {
         this.updateHeaders();
-        const response = await this.fetchWithTimeout(`${this.baseUrl}${endpoint}`, {
+        const response = await this.fetchWithTimeout(buildApiUrl(endpoint), {
           method: 'PATCH',
           headers: this.headers,
           body: JSON.stringify(data)
@@ -167,7 +160,7 @@ export class ApiClient {
       endpoint,
       async () => {
         this.updateHeaders();
-        const response = await this.fetchWithTimeout(`${this.baseUrl}${endpoint}`, {
+        const response = await this.fetchWithTimeout(buildApiUrl(endpoint), {
           method: 'DELETE',
           headers: this.headers
         }, timeoutMs);
@@ -185,7 +178,7 @@ export class ApiClient {
         const headers = { ...this.headers };
         delete headers['Content-Type']; // Let browser set content-type for FormData
         
-        const response = await this.fetchWithTimeout(`${this.baseUrl}${endpoint}`, {
+        const response = await this.fetchWithTimeout(buildApiUrl(endpoint), {
           method: 'POST',
           headers,
           body: formData
