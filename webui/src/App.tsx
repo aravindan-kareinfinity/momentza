@@ -96,7 +96,7 @@ const App = () => {
             </Routes>
           </BrowserRouter>
           <RequestMonitor />
-          <AIChatBot />
+          {/* <AIChatBot /> */}
         </TooltipProvider>
       </QueryClientProvider>
     </ErrorBoundary>

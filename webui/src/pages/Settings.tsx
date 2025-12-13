@@ -174,7 +174,8 @@ const Settings = () => {
 
   const updateServiceMutation = useServiceMutation(
     (data: { id: string; service: Omit<ServiceItem, 'id'> }) => 
-      Promise.resolve(servicesService.updateService(data.id, data.service))
+      // Promise.resolve(servicesService.updateService(data.id, data.service))
+      Promise.resolve(servicesService.updateSettingsService(data.id, data.service as any))
   );
 
   const updateServiceStatusMutation = useServiceMutation(
@@ -183,7 +184,8 @@ const Settings = () => {
   );
 
   const deleteServiceMutation = useServiceMutation(
-    (id: string) => Promise.resolve(servicesService.deleteService(id))
+    // (id: string) => Promise.resolve(servicesService.deleteService(id))
+    (id: string) => Promise.resolve(servicesService.delete(id))
   );
 
   const addMasterDataMutation = useServiceMutation(
