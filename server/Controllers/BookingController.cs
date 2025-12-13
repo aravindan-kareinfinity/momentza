@@ -12,12 +12,14 @@ namespace Momantza.Controllers
     {
         private readonly IBookingDataService _bookingDataService;
         private readonly IHallDataService _hallDataService;
+        private readonly IOrganizationsDataService _organizationsDataService;
         private readonly ILogger<BookingController> _logger;
 
-        public BookingController(IBookingDataService bookingDataService, IHallDataService hallDataService, ILogger<BookingController> logger)
+        public BookingController(IBookingDataService bookingDataService, IHallDataService hallDataService, IOrganizationsDataService organizationsDataService, ILogger<BookingController> logger)
         {
             _bookingDataService = bookingDataService;
             _hallDataService = hallDataService;
+            _organizationsDataService = organizationsDataService;
             _logger = logger;
         }
 
@@ -310,6 +312,30 @@ namespace Momantza.Controllers
                 var allBookings = await _bookingDataService.GetAllAsync();
                 _logger.LogInformation("Retrieved {Count} bookings", allBookings?.Count ?? 0);
                 
+                // Get unique organization IDs and fetch their defaultdomain
+                var organizationIds = halls?
+                    .Where(h => h != null && !string.IsNullOrEmpty(h.OrganizationId))
+                    .Select(h => h.OrganizationId)
+                    .Distinct()
+                    .ToList() ?? new List<string>();
+                
+                var organizationDomainMap = new Dictionary<string, string>();
+                foreach (var orgId in organizationIds)
+                {
+                    try
+                    {
+                        var organization = await _organizationsDataService.GetByIdAsync(orgId);
+                        if (organization != null && !string.IsNullOrEmpty(organization.DefaultDomain))
+                        {
+                            organizationDomainMap[orgId] = organization.DefaultDomain;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogWarning(ex, "Error fetching organization {OrgId}: {Message}", orgId, ex.Message);
+                    }
+                }
+                
                 var hallsWithBookings = new List<object>();
 
                 foreach (var hall in halls ?? new List<Hall>())
@@ -325,9 +351,15 @@ namespace Momantza.Controllers
                         .Where(b => b != null && !string.IsNullOrEmpty(b.HallId) && b.HallId == hall.Id)
                         .ToList();
 
+                    // Get defaultdomain for this hall's organization
+                    var defaultDomain = organizationDomainMap.ContainsKey(hall.OrganizationId) 
+                        ? organizationDomainMap[hall.OrganizationId] 
+                        : string.Empty;
+
                     var hallWithBookings = new
                     {
                         Hall = hall,
+                        DefaultDomain = defaultDomain,
                         Bookings = bookings,
                         BookingSummary = new
                         {

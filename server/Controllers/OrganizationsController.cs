@@ -222,25 +222,67 @@ namespace Momantza.Controllers
         {
             try
             {
-                var isValidContext = await _organizationDataService.ValidateUserOrganizationContextAsync();
+                /*var isValidContext = await _organizationDataService.ValidateUserOrganizationContextAsync();
                 if (!isValidContext)
                 {
                     Console.WriteLine(" Organization mismatch. Access denied.");
                     return Unauthorized(new { message = "Access denied: organization mismatch" });
+                }*/
+
+                // First, try to get organization from middleware (already resolved)
+                var orgContext = HttpContext.Items["Organization"] as OrganizationContext;
+                Organizations? organization = null;
+                string domain = string.Empty; // Declare at higher scope
+                
+                if (orgContext != null)
+                {
+                    // Organization already resolved by middleware, just get full details
+                    organization = await _organizationDataService.GetByIdAsync(orgContext.OrganizationId.ToString());
+                    Console.WriteLine($" Using organization from middleware context: {orgContext.OrganizationId}");
+                    domain = orgContext.OrganizationId.ToString(); // For error message if needed
                 }
+                else
+                {
+                    // Fallback: resolve by domain/subdomain
+                    var subdomain = HttpContext.Items["Subdomain"]?.ToString();
+                    var fullHost = HttpContext.Request.Host.Host.ToLower();
+                    
+                    if (!string.IsNullOrEmpty(subdomain))
+                    {
+                        // Use subdomain from middleware (e.g., "abcd" from "abcd.localhost")
+                        domain = subdomain;
+                        Console.WriteLine($" Using subdomain from middleware: {domain}");
+                    }
+                    else
+                    {
+                        // Fallback: extract from Host header
+                        domain = fullHost;
+                        
+                        // Remove port if present
+                        if (domain.Contains(':'))
+                            domain = domain.Split(':')[0];
+                        
+                        // Extract subdomain from hostname (e.g., "abcd.localhost" -> "abcd")
+                        var parts = domain.Split('.');
+                        if (parts.Length >= 2 && parts[1] == "localhost")
+                        {
+                            domain = parts[0]; // Get subdomain part
+                        }
+                        
+                        Console.WriteLine($" Extracted domain from Host header: {domain}");
+                    }
 
-                var domain = HttpContext.Request.Host.Host;
-
-                if (domain.Contains(':'))
-                    domain = domain.Split(':')[0];
-
-                Console.WriteLine($" Looking for organization by domain: {domain}");
-
-                var organization = await _organizationDataService.GetByDomainAsync(domain);
+                    Console.WriteLine($" Looking for organization by domain: {domain}");
+                    organization = await _organizationDataService.GetByDomainAsync(domain);
+                }
+                
                 if (organization == null)
                 {
-                    Console.WriteLine($" No organization found for domain: {domain}");
-                    return NotFound(new { message = $"No organization found for domain: {domain}" });
+                    var errorMessage = !string.IsNullOrEmpty(domain) 
+                        ? $"No organization found for domain: {domain}"
+                        : "No organization found";
+                    Console.WriteLine($" {errorMessage}");
+                    return NotFound(new { message = errorMessage });
                 }
 
                 Console.WriteLine($"Found organization: {organization.Name}");

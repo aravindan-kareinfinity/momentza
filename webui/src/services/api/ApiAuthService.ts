@@ -8,9 +8,9 @@ export class ApiAuthService implements IAuthService {
   private getBackendBaseUrl(): string {
     const { hostname } = window.location;
     
-    // 🎯 CRITICAL FIX: Use the same subdomain but backend port (5212)
+    // 🎯 CRITICAL FIX: Use the same subdomain but backend port (5000)
     if (hostname.includes('.localhost')) {
-      return `http://${hostname}:5000`; // Backend runs on port 5212
+      return `http://${hostname}:5000`; // Preserve subdomain, use backend port 5000
     }
     
     // For production: company.yourapp.com -> api.yourapp.com
