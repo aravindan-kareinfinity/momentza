@@ -13,10 +13,12 @@ namespace Momantza.Services
         Task<List<ServiceItem>> GetActiveAsync();
         Task<List<ServiceItem>> GetServicesByBookingIdAsync(string bookingId);
         Task<ServiceItem> UpdateBookingServiceAsync(string id, ServiceItem updates);
-
+        Task<ServiceItem> UpdateSettingsServiceAsync(string id, ServiceItem updates);
         Task<ServiceItem> CreateAsyncs(ServiceItem service);
         //Task<ServiceItem> UpdateBookingServiceAsync(string id, ServiceItem updates);
         Task<bool> DeleteAsync(string id);
+
+        Task<bool> SettingsServiceDelete(string id);
     }
 
     public class ServicesDataService : BaseDataService<ServiceItem>, IServicesDataService
@@ -284,11 +286,26 @@ namespace Momantza.Services
 
         public async Task<bool> DeleteAsync(string id)
         {
+            
             var sql = "DELETE FROM services WHERE id = @id";
 
             using var connection = await GetConnectionAsync();
             using var command = new NpgsqlCommand(sql, connection);
             command.Parameters.AddWithValue("@id", id);
+
+            var rowsAffected = await command.ExecuteNonQueryAsync();
+            return rowsAffected > 0;
+        }
+
+        public async Task<bool> SettingsServiceDelete(string id)
+        {
+            var orgId = GetCurrentOrganizationId();
+            var sql = "DELETE FROM serviceitem WHERE id = @id AND organizationid = @organizationId";
+
+            using var connection = await GetConnectionAsync();
+            using var command = new NpgsqlCommand(sql, connection);
+            command.Parameters.AddWithValue("@id", id);
+            command.Parameters.AddWithValue("@organizationId", orgId);
 
             var rowsAffected = await command.ExecuteNonQueryAsync();
             return rowsAffected > 0;
@@ -324,7 +341,41 @@ namespace Momantza.Services
             throw new Exception("Service not found");
         }
 
+        public async Task<ServiceItem> UpdateSettingsServiceAsync(string id, ServiceItem updates)
+        {
+            var orgId = GetCurrentOrganizationId();
 
+            var sql = @"
+        UPDATE serviceitem
+        SET name = @name,
+            hsncode = @hsncode,
+            taxpercentage = @taxpercentage,
+            baseprice = @baseprice,
+            updatedat = @updatedat
+        WHERE id = @id AND organizationid = @organizationId
+        RETURNING *;
+    ";
+
+            using var connection = await GetConnectionAsync();
+            using var command = new NpgsqlCommand(sql, connection);
+
+            command.Parameters.AddWithValue("@id", id);
+            command.Parameters.AddWithValue("@name", updates.Name);
+            command.Parameters.AddWithValue("@hsncode", updates.HsnCode);
+            command.Parameters.AddWithValue("@taxpercentage", updates.TaxPercentage);
+            command.Parameters.AddWithValue("@baseprice", updates.BasePrice);
+            command.Parameters.AddWithValue("@updatedat", DateTime.UtcNow);
+            command.Parameters.AddWithValue("@organizationId", orgId);
+
+            using var reader = await command.ExecuteReaderAsync();
+            if (await reader.ReadAsync())
+            {
+                // CORRECT MAPPER
+                return MapFromReader(reader);
+            }
+
+            throw new Exception("Service not found");
+        }
 
 
     }

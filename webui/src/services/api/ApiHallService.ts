@@ -137,8 +137,14 @@ export class ApiHallService implements IHallService {
     return apiClient.get<Hall[]>('/api/halls');
   }
 
-  async getHallsByOrganization(organizationId: string): Promise<Hall[]> {
-    return apiClient.get<Hall[]>(`/api/halls/organizations/${organizationId}`);
+  // async getHallsByOrganization(organizationId: string): Promise<Hall[]> {
+  //   return apiClient.get<Hall[]>(`/api/halls/organizations/${organizationId}`);
+  // }
+
+  async getHallsByOrganization(orgId: string): Promise<Hall[]> {
+    return apiClient.get<Hall[]>(
+      `/api/halls/organization/${orgId}`
+    );
   }
 
   async createHall(hall: Omit<Hall, 'id'>): Promise<Hall> {

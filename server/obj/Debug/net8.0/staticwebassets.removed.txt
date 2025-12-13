@@ -1,6 +1,0 @@
-C:\Momentza\momantza\server\wwwroot\assets\index-CNbFbh4x.css
-C:\Momentza\momantza\server\wwwroot\assets\index-DG0fTm4o.js
-C:\Momentza\momantza\server\wwwroot\assets\index-DG0fTm4o.js.map
-C:\Momentza\momantza\server\wwwroot\assets\index-JNlUe9VY.js
-C:\Momentza\momantza\server\wwwroot\assets\index-JNlUe9VY.js.map
-C:\Momentza\momantza\server\wwwroot\assets\index-wb5tOqzz.css

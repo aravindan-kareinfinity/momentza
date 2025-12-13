@@ -4205,6 +4205,27 @@
     ]
   },
   {
+    "ContainingType": "Momantza.Controllers.ServicesController",
+    "Method": "UpdateSettings",
+    "RelativePath": "api/Services/update/{id}",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.String",
+        "IsRequired": true
+      },
+      {
+        "Name": "serviceData",
+        "Type": "Momantza.Models.ServiceItem",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
     "ContainingType": "Momantza.Controllers.SettingsController",
     "Method": "GetAll",
     "RelativePath": "api/Settings",

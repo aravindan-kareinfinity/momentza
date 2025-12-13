@@ -190,10 +190,35 @@ namespace Momantza.Services
             return await GetAllAsync();
         }
 
+        //public async Task<List<Hall>> GetHallsByOrganizationAsync(string organizationId)
+        //{
+        //    return await GetByOrganizationIdAsync(organizationId);
+        //}
+
         public async Task<List<Hall>> GetHallsByOrganizationAsync(string organizationId)
         {
-            return await GetByOrganizationIdAsync(organizationId);
+            using var connection = await GetConnectionAsync();
+            var sql = @"
+        SELECT *
+        FROM halls
+        WHERE organizationid = @organizationId
+          AND isactive = true
+    ";
+
+            using var command = new NpgsqlCommand(sql, connection);
+            command.Parameters.AddWithValue("@organizationId", organizationId);
+
+            using var reader = await command.ExecuteReaderAsync();
+            var results = new List<Hall>();
+
+            while (await reader.ReadAsync())
+            {
+                results.Add(MapFromReader(reader));
+            }
+
+            return results;
         }
+
 
         public async Task<List<Hall>> GetAccessibleHallsAsync(string organizationId, List<string> accessibleHallIds)
         {

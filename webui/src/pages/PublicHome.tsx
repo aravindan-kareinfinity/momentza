@@ -104,7 +104,7 @@ const PublicHome = () => {
         customerClicks,
         reviews
       ] = await Promise.all([
-        hallService.getAllHalls(),
+        hallService.getHallsByOrganization(organization.id),
         carouselService.getCarouselItems(organization.id),
         galleryService.getImagesByOrganization(organization.id),
         customerClicksService.getAll(),
