@@ -47,9 +47,13 @@ export class ApiServicesService implements IServicesService {
     return apiClient.put<ServiceItem>(`/api/services/${id}`, updates);
   }
 
+  async updateSettingsService(id: string, updates: Partial<ServiceItem>): Promise<ServiceItem> {
+    return apiClient.put<ServiceItem>(`/api/services/update/${id}`, updates);
+  }
+
   async deleteService(id: string): Promise<boolean> {
     try {
-      await apiClient.delete(`/api/services/${id}`);
+      await apiClient.delete(`/api/services/delete/${id}`);
       return true;
     } catch (error) {
       return false;

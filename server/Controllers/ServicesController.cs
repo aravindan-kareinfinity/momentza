@@ -89,12 +89,27 @@ namespace Momantza.Controllers
             }
         }
 
+        [HttpPut("update/{id}")]
+        public async Task<IActionResult> UpdateSettings(string id, ServiceItem serviceData)
+        {
+            try
+            {
+                var updated = await _servicesDataService.UpdateSettingsServiceAsync(id, serviceData);
+                return Ok(updated);
+            }
+            catch
+            {
+                return NotFound(new { message = "Service not found" });
+            }
+        }
+
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(string id)
         {
             try
             {
-                var success = await _servicesDataService.DeleteAsync(id);
+                //var success = await _servicesDataService.DeleteAsync(id);
+                var success = await _servicesDataService.SettingsServiceDelete(id);
                 if (!success)
                 {
                     return NotFound(new { message = "Service not found" });
