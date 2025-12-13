@@ -22,10 +22,10 @@ namespace Momantza.Controllers
             // If subdomain exists, serve SPA (for subdomain-based multi-tenant routing)
             if (!string.IsNullOrEmpty(subdomain))
             {
-                var webuiIndexPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "webui", "index.html");
-                if (System.IO.File.Exists(webuiIndexPath))
+                var indexPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "index.html");
+                if (System.IO.File.Exists(indexPath))
                 {
-                    return PhysicalFile(webuiIndexPath, "text/html");
+                    return PhysicalFile(indexPath, "text/html");
                 }
             }
             
@@ -41,10 +41,10 @@ namespace Momantza.Controllers
             // If subdomain exists, serve SPA (for subdomain-based multi-tenant routing)
             if (!string.IsNullOrEmpty(subdomain))
             {
-                var webuiIndexPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "webui", "index.html");
-                if (System.IO.File.Exists(webuiIndexPath))
+                var indexPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "index.html");
+                if (System.IO.File.Exists(indexPath))
                 {
-                    return PhysicalFile(webuiIndexPath, "text/html");
+                    return PhysicalFile(indexPath, "text/html");
                 }
             }
             

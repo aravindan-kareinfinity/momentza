@@ -90,7 +90,36 @@ builder.Services.AddHttpContextAccessor();
 var app = builder.Build();
 
 // Middleware ordering: resolve organization BEFORE authentication/authorization
-app.UseStaticFiles();
+// Configure static files to serve from wwwroot
+// This ensures assets in wwwroot/assets/ are accessible at /assets/
+app.UseStaticFiles(new StaticFileOptions
+{
+    OnPrepareResponse = ctx =>
+    {
+        // Add cache headers for static assets (1 year for hashed assets, no cache for HTML)
+        var path = ctx.File.Name.ToLower();
+        var requestPath = ctx.Context.Request.Path.Value?.ToLower() ?? "";
+        
+        // Log static file requests for debugging
+        if (requestPath.Contains("/assets/"))
+        {
+            Console.WriteLine($"[StaticFiles] Serving: {requestPath} -> {ctx.File.PhysicalPath}");
+        }
+        
+        if (path.EndsWith(".html"))
+        {
+            // No cache for HTML files to ensure fresh content
+            ctx.Context.Response.Headers.Append("Cache-Control", "no-cache, no-store, must-revalidate");
+            ctx.Context.Response.Headers.Append("Pragma", "no-cache");
+            ctx.Context.Response.Headers.Append("Expires", "0");
+        }
+        else if (requestPath.Contains("/assets/"))
+        {
+            // Long cache for hashed assets (they have content hashes in filename)
+            ctx.Context.Response.Headers.Append("Cache-Control", "public, max-age=31536000, immutable");
+        }
+    }
+});
 
 // Serve webui assets at root /assets path
 //app.UseStaticFiles(new StaticFileOptions
@@ -178,7 +207,7 @@ app.MapGet("/favicon.ico", async context =>
     }
 });
 
-// SPA catch-all route: serve webui/index.html for all non-API routes (only when subdomain exists)
+// SPA catch-all route: serve wwwroot/index.html for all non-API routes (only when subdomain exists)
 app.MapFallback(async context =>
 {
     // Skip if it's an API route
@@ -197,16 +226,60 @@ app.MapFallback(async context =>
         return;
     }
 
-    // Serve webui/index.html for SPA routing (when subdomain exists)
-    var webuiIndexPath = Path.Combine(builder.Environment.ContentRootPath, "wwwroot", "webui", "index.html");
-    if (File.Exists(webuiIndexPath))
+    // Serve wwwroot/index.html for SPA routing (when subdomain exists)
+    var indexPath = Path.Combine(builder.Environment.ContentRootPath, "wwwroot", "index.html");
+    
+    // Log for debugging
+    Console.WriteLine($"[SPA Fallback] ContentRootPath: {builder.Environment.ContentRootPath}");
+    Console.WriteLine($"[SPA Fallback] Looking for index.html at: {indexPath}");
+    Console.WriteLine($"[SPA Fallback] File exists: {File.Exists(indexPath)}");
+    
+    if (File.Exists(indexPath))
     {
-        await context.Response.SendFileAsync(webuiIndexPath);
+        context.Response.ContentType = "text/html; charset=utf-8";
+        // Add no-cache headers to prevent stale HTML from being served
+        context.Response.Headers.Append("Cache-Control", "no-cache, no-store, must-revalidate");
+        context.Response.Headers.Append("Pragma", "no-cache");
+        context.Response.Headers.Append("Expires", "0");
+        await context.Response.SendFileAsync(indexPath);
     }
     else
     {
-        context.Response.StatusCode = 404;
-        await context.Response.WriteAsync("WebUI not found");
+        // Try alternative paths
+        var altPaths = new[]
+        {
+            Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "index.html"),
+            Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "wwwroot", "index.html"),
+            Path.Combine(AppContext.BaseDirectory, "wwwroot", "index.html")
+        };
+        
+        string? foundPath = null;
+        foreach (var altPath in altPaths)
+        {
+            Console.WriteLine($"[SPA Fallback] Trying alternative path: {altPath}");
+            if (File.Exists(altPath))
+            {
+                foundPath = altPath;
+                Console.WriteLine($"[SPA Fallback] Found index.html at: {altPath}");
+                break;
+            }
+        }
+        
+        if (foundPath != null)
+        {
+            context.Response.ContentType = "text/html; charset=utf-8";
+            context.Response.Headers.Append("Cache-Control", "no-cache, no-store, must-revalidate");
+            context.Response.Headers.Append("Pragma", "no-cache");
+            context.Response.Headers.Append("Expires", "0");
+            await context.Response.SendFileAsync(foundPath);
+        }
+        else
+        {
+            context.Response.StatusCode = 404;
+            var errorMsg = $"SPA index.html not found. Tried:\n- {indexPath}\n" + string.Join("\n- ", altPaths);
+            Console.WriteLine($"[SPA Fallback] ERROR: {errorMsg}");
+            await context.Response.WriteAsync(errorMsg);
+        }
     }
 });
 

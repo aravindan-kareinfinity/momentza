@@ -95,15 +95,9 @@ namespace Momantza.Middleware
                 // ensure a simple string id is always available
                 context.Items["OrganizationId"] = org.OrganizationId.ToString();
 
-                // Handle subdomain rerouting directly in middleware
-                if (!string.IsNullOrEmpty(subdomain) && context.Request.Path.Value == "/")
-                {
-                    var frontendUrl = $"http://{subdomain}.localhost:8082/{org.OrganizationId}";
-                    Console.WriteLine($"Subdomain '{subdomain}' resolved to organization '{org.OrganizationId}'");
-                    Console.WriteLine($"Redirecting to: {frontendUrl}");
-                    context.Response.Redirect(frontendUrl);
-                    return; // Stop processing, don't call _next
-                }
+                // Don't redirect - let the fallback route in Program.cs serve the SPA
+                // The SPA will be served by the MapFallback route when subdomain exists
+                Console.WriteLine($"Subdomain '{subdomain}' resolved to organization '{org.OrganizationId}'");
             }
 
             await _next(context);
@@ -145,7 +139,7 @@ namespace Momantza.Middleware
                         return new OrganizationContext
                         {
                             OrganizationId = Guid.Parse(reader.GetString(0)),
-                            Domain = reader.GetString(1)
+                            Domain = reader.IsDBNull(1) ? string.Empty : reader.GetString(1)
                         };
                     }
                 }
@@ -175,7 +169,7 @@ namespace Momantza.Middleware
                         return new OrganizationContext
                         {
                             OrganizationId = Guid.Parse(reader.GetString(0)),
-                            Domain = reader.GetString(1)
+                            Domain = reader.IsDBNull(1) ? string.Empty : reader.GetString(1)
                         };
                     }
                 }
