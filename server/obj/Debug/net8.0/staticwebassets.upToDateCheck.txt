@@ -70,12 +70,6 @@ wwwroot\admin\placeholder.svg
 wwwroot\admin\robots.txt
 wwwroot\admin\setup.html
 wwwroot\admin\test-runtime-config.html
-wwwroot\assets\index-CNbFbh4x.css
-wwwroot\assets\index-DG0fTm4o.js
-wwwroot\assets\index-DG0fTm4o.js.map
-wwwroot\assets\index-JNlUe9VY.js
-wwwroot\assets\index-JNlUe9VY.js.map
-wwwroot\assets\index-wb5tOqzz.css
 wwwroot\config.json
 wwwroot\css\site.css
 wwwroot\favicon.ico
@@ -146,3 +140,9 @@ wwwroot\setup\assets\index-e4c67011.js
 wwwroot\setup\index.html
 wwwroot\test-runtime-config.html
 wwwroot\test-subdomain.html
+wwwroot\webui\assets\index-CNbFbh4x.css
+wwwroot\webui\assets\index-DG0fTm4o.js
+wwwroot\webui\assets\index-DG0fTm4o.js.map
+wwwroot\webui\assets\index-JNlUe9VY.js
+wwwroot\webui\assets\index-JNlUe9VY.js.map
+wwwroot\webui\assets\index-wb5tOqzz.css

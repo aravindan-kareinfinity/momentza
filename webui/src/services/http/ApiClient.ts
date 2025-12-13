@@ -2,16 +2,6 @@ import { buildApiUrl } from '@/environment';
 import { requestManager } from '../RequestManager';
 
 export class ApiClient {
-<<<<<<< HEAD
-=======
-  private get baseUrl() {
-    // Use runtime config API base URL, fallback to default
-    const apiUrl = runtimeConfig.VITE_API_BASE_URL || 'http://localhost:5000';
-    // If it's a relative path (starts with /), return as-is
-    // Otherwise return the full URL
-    return apiUrl;
-  }
->>>>>>> 5dfd0c9 (appalert)
   private headers: HeadersInit;
   private defaultTimeout: number = 10000; // 10 seconds default timeout
   

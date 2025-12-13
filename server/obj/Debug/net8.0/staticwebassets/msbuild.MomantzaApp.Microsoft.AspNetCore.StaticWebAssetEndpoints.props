@@ -864,89 +864,17 @@
       <EndpointProperties><![CDATA[[{"Name":"fingerprint","Value":"zeu8wclmfu"},{"Name":"integrity","Value":"sha256-\u002B\u002Bumd7BkFfNfXCMiiy3W2AWiCKPscgbiwD3TKeKK18E="},{"Name":"label","Value":"_content/MomantzaApp/admin/test-runtime-config.html"}]]]></EndpointProperties>
       <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"3890"},{"Name":"Content-Type","Value":"text/html"},{"Name":"ETag","Value":"\u0022\u002B\u002Bumd7BkFfNfXCMiiy3W2AWiCKPscgbiwD3TKeKK18E=\u0022"},{"Name":"Last-Modified","Value":"Mon, 27 Oct 2025 07:50:27 GMT"}]]]></ResponseHeaders>
     </StaticWebAssetEndpoint>
-    <StaticWebAssetEndpoint Include="_content/MomantzaApp/assets/index-CNbFbh4x.css">
-      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\assets\index-CNbFbh4x.css'))</AssetFile>
-      <Selectors><![CDATA[[]]]></Selectors>
-      <EndpointProperties><![CDATA[[{"Name":"integrity","Value":"sha256-rpn4IARpMOvV8JMUBMCciHbPcLdP55wll3aG7Z1991g="}]]]></EndpointProperties>
-      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"no-cache"},{"Name":"Content-Length","Value":"68238"},{"Name":"Content-Type","Value":"text/css"},{"Name":"ETag","Value":"\u0022rpn4IARpMOvV8JMUBMCciHbPcLdP55wll3aG7Z1991g=\u0022"},{"Name":"Last-Modified","Value":"Mon, 27 Oct 2025 07:50:27 GMT"}]]]></ResponseHeaders>
-    </StaticWebAssetEndpoint>
-    <StaticWebAssetEndpoint Include="_content/MomantzaApp/assets/index-CNbFbh4x.mnouy7b4pi.css">
-      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\assets\index-CNbFbh4x.css'))</AssetFile>
-      <Selectors><![CDATA[[]]]></Selectors>
-      <EndpointProperties><![CDATA[[{"Name":"fingerprint","Value":"mnouy7b4pi"},{"Name":"integrity","Value":"sha256-rpn4IARpMOvV8JMUBMCciHbPcLdP55wll3aG7Z1991g="},{"Name":"label","Value":"_content/MomantzaApp/assets/index-CNbFbh4x.css"}]]]></EndpointProperties>
-      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"68238"},{"Name":"Content-Type","Value":"text/css"},{"Name":"ETag","Value":"\u0022rpn4IARpMOvV8JMUBMCciHbPcLdP55wll3aG7Z1991g=\u0022"},{"Name":"Last-Modified","Value":"Mon, 27 Oct 2025 07:50:27 GMT"}]]]></ResponseHeaders>
-    </StaticWebAssetEndpoint>
-    <StaticWebAssetEndpoint Include="_content/MomantzaApp/assets/index-DG0fTm4o.js">
-      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\assets\index-DG0fTm4o.js'))</AssetFile>
-      <Selectors><![CDATA[[]]]></Selectors>
-      <EndpointProperties><![CDATA[[{"Name":"integrity","Value":"sha256-ZdEl8y6vb3iX53MPE3U2i0ot5ZcHrDZusJyq44aMi0Y="}]]]></EndpointProperties>
-      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"no-cache"},{"Name":"Content-Length","Value":"1219095"},{"Name":"Content-Type","Value":"text/javascript"},{"Name":"ETag","Value":"\u0022ZdEl8y6vb3iX53MPE3U2i0ot5ZcHrDZusJyq44aMi0Y=\u0022"},{"Name":"Last-Modified","Value":"Mon, 27 Oct 2025 07:50:27 GMT"}]]]></ResponseHeaders>
-    </StaticWebAssetEndpoint>
-    <StaticWebAssetEndpoint Include="_content/MomantzaApp/assets/index-DG0fTm4o.js.5apzsd5qmo.map">
-      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\assets\index-DG0fTm4o.js.map'))</AssetFile>
-      <Selectors><![CDATA[[]]]></Selectors>
-      <EndpointProperties><![CDATA[[{"Name":"fingerprint","Value":"5apzsd5qmo"},{"Name":"integrity","Value":"sha256-vSrV4Yr5i3A/yKkjItwmp5LWSeT15CTEAreIKTOmwRE="},{"Name":"label","Value":"_content/MomantzaApp/assets/index-DG0fTm4o.js.map"}]]]></EndpointProperties>
-      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"5100449"},{"Name":"Content-Type","Value":"text/plain"},{"Name":"ETag","Value":"\u0022vSrV4Yr5i3A/yKkjItwmp5LWSeT15CTEAreIKTOmwRE=\u0022"},{"Name":"Last-Modified","Value":"Mon, 27 Oct 2025 07:50:27 GMT"}]]]></ResponseHeaders>
-    </StaticWebAssetEndpoint>
-    <StaticWebAssetEndpoint Include="_content/MomantzaApp/assets/index-DG0fTm4o.js.map">
-      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\assets\index-DG0fTm4o.js.map'))</AssetFile>
-      <Selectors><![CDATA[[]]]></Selectors>
-      <EndpointProperties><![CDATA[[{"Name":"integrity","Value":"sha256-vSrV4Yr5i3A/yKkjItwmp5LWSeT15CTEAreIKTOmwRE="}]]]></EndpointProperties>
-      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"no-cache"},{"Name":"Content-Length","Value":"5100449"},{"Name":"Content-Type","Value":"text/plain"},{"Name":"ETag","Value":"\u0022vSrV4Yr5i3A/yKkjItwmp5LWSeT15CTEAreIKTOmwRE=\u0022"},{"Name":"Last-Modified","Value":"Mon, 27 Oct 2025 07:50:27 GMT"}]]]></ResponseHeaders>
-    </StaticWebAssetEndpoint>
-    <StaticWebAssetEndpoint Include="_content/MomantzaApp/assets/index-DG0fTm4o.npoqvwvlia.js">
-      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\assets\index-DG0fTm4o.js'))</AssetFile>
-      <Selectors><![CDATA[[]]]></Selectors>
-      <EndpointProperties><![CDATA[[{"Name":"fingerprint","Value":"npoqvwvlia"},{"Name":"integrity","Value":"sha256-ZdEl8y6vb3iX53MPE3U2i0ot5ZcHrDZusJyq44aMi0Y="},{"Name":"label","Value":"_content/MomantzaApp/assets/index-DG0fTm4o.js"}]]]></EndpointProperties>
-      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"1219095"},{"Name":"Content-Type","Value":"text/javascript"},{"Name":"ETag","Value":"\u0022ZdEl8y6vb3iX53MPE3U2i0ot5ZcHrDZusJyq44aMi0Y=\u0022"},{"Name":"Last-Modified","Value":"Mon, 27 Oct 2025 07:50:27 GMT"}]]]></ResponseHeaders>
-    </StaticWebAssetEndpoint>
-    <StaticWebAssetEndpoint Include="_content/MomantzaApp/assets/index-JNlUe9VY.js">
-      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\assets\index-JNlUe9VY.js'))</AssetFile>
-      <Selectors><![CDATA[[]]]></Selectors>
-      <EndpointProperties><![CDATA[[{"Name":"integrity","Value":"sha256-D2CS68YFTwThLvYksVvANuK40CXnIwMxwj6ZQr3HizI="}]]]></EndpointProperties>
-      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"no-cache"},{"Name":"Content-Length","Value":"1193727"},{"Name":"Content-Type","Value":"text/javascript"},{"Name":"ETag","Value":"\u0022D2CS68YFTwThLvYksVvANuK40CXnIwMxwj6ZQr3HizI=\u0022"},{"Name":"Last-Modified","Value":"Mon, 27 Oct 2025 07:50:27 GMT"}]]]></ResponseHeaders>
-    </StaticWebAssetEndpoint>
-    <StaticWebAssetEndpoint Include="_content/MomantzaApp/assets/index-JNlUe9VY.js.2xhclskphu.map">
-      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\assets\index-JNlUe9VY.js.map'))</AssetFile>
-      <Selectors><![CDATA[[]]]></Selectors>
-      <EndpointProperties><![CDATA[[{"Name":"fingerprint","Value":"2xhclskphu"},{"Name":"integrity","Value":"sha256-torXAgc/vqxBIrg5\u002BG\u002Btsex5zqaqsG7olZQWTdITXTI="},{"Name":"label","Value":"_content/MomantzaApp/assets/index-JNlUe9VY.js.map"}]]]></EndpointProperties>
-      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"5071036"},{"Name":"Content-Type","Value":"text/plain"},{"Name":"ETag","Value":"\u0022torXAgc/vqxBIrg5\u002BG\u002Btsex5zqaqsG7olZQWTdITXTI=\u0022"},{"Name":"Last-Modified","Value":"Mon, 27 Oct 2025 07:50:27 GMT"}]]]></ResponseHeaders>
-    </StaticWebAssetEndpoint>
-    <StaticWebAssetEndpoint Include="_content/MomantzaApp/assets/index-JNlUe9VY.js.map">
-      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\assets\index-JNlUe9VY.js.map'))</AssetFile>
-      <Selectors><![CDATA[[]]]></Selectors>
-      <EndpointProperties><![CDATA[[{"Name":"integrity","Value":"sha256-torXAgc/vqxBIrg5\u002BG\u002Btsex5zqaqsG7olZQWTdITXTI="}]]]></EndpointProperties>
-      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"no-cache"},{"Name":"Content-Length","Value":"5071036"},{"Name":"Content-Type","Value":"text/plain"},{"Name":"ETag","Value":"\u0022torXAgc/vqxBIrg5\u002BG\u002Btsex5zqaqsG7olZQWTdITXTI=\u0022"},{"Name":"Last-Modified","Value":"Mon, 27 Oct 2025 07:50:27 GMT"}]]]></ResponseHeaders>
-    </StaticWebAssetEndpoint>
-    <StaticWebAssetEndpoint Include="_content/MomantzaApp/assets/index-JNlUe9VY.xsqhuowbu5.js">
-      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\assets\index-JNlUe9VY.js'))</AssetFile>
-      <Selectors><![CDATA[[]]]></Selectors>
-      <EndpointProperties><![CDATA[[{"Name":"fingerprint","Value":"xsqhuowbu5"},{"Name":"integrity","Value":"sha256-D2CS68YFTwThLvYksVvANuK40CXnIwMxwj6ZQr3HizI="},{"Name":"label","Value":"_content/MomantzaApp/assets/index-JNlUe9VY.js"}]]]></EndpointProperties>
-      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"1193727"},{"Name":"Content-Type","Value":"text/javascript"},{"Name":"ETag","Value":"\u0022D2CS68YFTwThLvYksVvANuK40CXnIwMxwj6ZQr3HizI=\u0022"},{"Name":"Last-Modified","Value":"Mon, 27 Oct 2025 07:50:27 GMT"}]]]></ResponseHeaders>
-    </StaticWebAssetEndpoint>
-    <StaticWebAssetEndpoint Include="_content/MomantzaApp/assets/index-wb5tOqzz.css">
-      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\assets\index-wb5tOqzz.css'))</AssetFile>
-      <Selectors><![CDATA[[]]]></Selectors>
-      <EndpointProperties><![CDATA[[{"Name":"integrity","Value":"sha256-d8ZDSh3smTnbfYtuGpcxmj\u002BjEHxcHBFZ0BKHVcF2NLY="}]]]></EndpointProperties>
-      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"no-cache"},{"Name":"Content-Length","Value":"68161"},{"Name":"Content-Type","Value":"text/css"},{"Name":"ETag","Value":"\u0022d8ZDSh3smTnbfYtuGpcxmj\u002BjEHxcHBFZ0BKHVcF2NLY=\u0022"},{"Name":"Last-Modified","Value":"Mon, 27 Oct 2025 07:50:27 GMT"}]]]></ResponseHeaders>
-    </StaticWebAssetEndpoint>
-    <StaticWebAssetEndpoint Include="_content/MomantzaApp/assets/index-wb5tOqzz.dngxvyqai6.css">
-      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\assets\index-wb5tOqzz.css'))</AssetFile>
-      <Selectors><![CDATA[[]]]></Selectors>
-      <EndpointProperties><![CDATA[[{"Name":"fingerprint","Value":"dngxvyqai6"},{"Name":"integrity","Value":"sha256-d8ZDSh3smTnbfYtuGpcxmj\u002BjEHxcHBFZ0BKHVcF2NLY="},{"Name":"label","Value":"_content/MomantzaApp/assets/index-wb5tOqzz.css"}]]]></EndpointProperties>
-      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"68161"},{"Name":"Content-Type","Value":"text/css"},{"Name":"ETag","Value":"\u0022d8ZDSh3smTnbfYtuGpcxmj\u002BjEHxcHBFZ0BKHVcF2NLY=\u0022"},{"Name":"Last-Modified","Value":"Mon, 27 Oct 2025 07:50:27 GMT"}]]]></ResponseHeaders>
-    </StaticWebAssetEndpoint>
     <StaticWebAssetEndpoint Include="_content/MomantzaApp/config.json">
       <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\config.json'))</AssetFile>
       <Selectors><![CDATA[[]]]></Selectors>
       <EndpointProperties><![CDATA[[{"Name":"integrity","Value":"sha256-g4TtyklIc86tZwzCKsIy1D\u002BcSsQNTHF4pAdEKADi1FQ="}]]]></EndpointProperties>
-      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"no-cache"},{"Name":"Content-Length","Value":"167"},{"Name":"Content-Type","Value":"application/json"},{"Name":"ETag","Value":"\u0022g4TtyklIc86tZwzCKsIy1D\u002BcSsQNTHF4pAdEKADi1FQ=\u0022"},{"Name":"Last-Modified","Value":"Mon, 27 Oct 2025 07:50:27 GMT"}]]]></ResponseHeaders>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"no-cache"},{"Name":"Content-Length","Value":"167"},{"Name":"Content-Type","Value":"application/json"},{"Name":"ETag","Value":"\u0022g4TtyklIc86tZwzCKsIy1D\u002BcSsQNTHF4pAdEKADi1FQ=\u0022"},{"Name":"Last-Modified","Value":"Sat, 13 Dec 2025 05:41:09 GMT"}]]]></ResponseHeaders>
     </StaticWebAssetEndpoint>
     <StaticWebAssetEndpoint Include="_content/MomantzaApp/config.p5nx4xif8i.json">
       <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\config.json'))</AssetFile>
       <Selectors><![CDATA[[]]]></Selectors>
       <EndpointProperties><![CDATA[[{"Name":"fingerprint","Value":"p5nx4xif8i"},{"Name":"integrity","Value":"sha256-g4TtyklIc86tZwzCKsIy1D\u002BcSsQNTHF4pAdEKADi1FQ="},{"Name":"label","Value":"_content/MomantzaApp/config.json"}]]]></EndpointProperties>
-      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"167"},{"Name":"Content-Type","Value":"application/json"},{"Name":"ETag","Value":"\u0022g4TtyklIc86tZwzCKsIy1D\u002BcSsQNTHF4pAdEKADi1FQ=\u0022"},{"Name":"Last-Modified","Value":"Mon, 27 Oct 2025 07:50:27 GMT"}]]]></ResponseHeaders>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"167"},{"Name":"Content-Type","Value":"application/json"},{"Name":"ETag","Value":"\u0022g4TtyklIc86tZwzCKsIy1D\u002BcSsQNTHF4pAdEKADi1FQ=\u0022"},{"Name":"Last-Modified","Value":"Sat, 13 Dec 2025 05:41:09 GMT"}]]]></ResponseHeaders>
     </StaticWebAssetEndpoint>
     <StaticWebAssetEndpoint Include="_content/MomantzaApp/css/site.90sz6q4uzo.css">
       <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\css\site.css'))</AssetFile>
@@ -976,13 +904,13 @@
       <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\index.html'))</AssetFile>
       <Selectors><![CDATA[[]]]></Selectors>
       <EndpointProperties><![CDATA[[{"Name":"fingerprint","Value":"ao2bcykina"},{"Name":"integrity","Value":"sha256-tgleKixJWyOr5ZHQNMhwDIHMRu9TEvdIOkFFs9D6B30="},{"Name":"label","Value":"_content/MomantzaApp/index.html"}]]]></EndpointProperties>
-      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"1033"},{"Name":"Content-Type","Value":"text/html"},{"Name":"ETag","Value":"\u0022tgleKixJWyOr5ZHQNMhwDIHMRu9TEvdIOkFFs9D6B30=\u0022"},{"Name":"Last-Modified","Value":"Mon, 27 Oct 2025 07:50:27 GMT"}]]]></ResponseHeaders>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"1033"},{"Name":"Content-Type","Value":"text/html"},{"Name":"ETag","Value":"\u0022tgleKixJWyOr5ZHQNMhwDIHMRu9TEvdIOkFFs9D6B30=\u0022"},{"Name":"Last-Modified","Value":"Sat, 13 Dec 2025 05:41:09 GMT"}]]]></ResponseHeaders>
     </StaticWebAssetEndpoint>
     <StaticWebAssetEndpoint Include="_content/MomantzaApp/index.html">
       <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\index.html'))</AssetFile>
       <Selectors><![CDATA[[]]]></Selectors>
       <EndpointProperties><![CDATA[[{"Name":"integrity","Value":"sha256-tgleKixJWyOr5ZHQNMhwDIHMRu9TEvdIOkFFs9D6B30="}]]]></EndpointProperties>
-      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"no-cache"},{"Name":"Content-Length","Value":"1033"},{"Name":"Content-Type","Value":"text/html"},{"Name":"ETag","Value":"\u0022tgleKixJWyOr5ZHQNMhwDIHMRu9TEvdIOkFFs9D6B30=\u0022"},{"Name":"Last-Modified","Value":"Mon, 27 Oct 2025 07:50:27 GMT"}]]]></ResponseHeaders>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"no-cache"},{"Name":"Content-Length","Value":"1033"},{"Name":"Content-Type","Value":"text/html"},{"Name":"ETag","Value":"\u0022tgleKixJWyOr5ZHQNMhwDIHMRu9TEvdIOkFFs9D6B30=\u0022"},{"Name":"Last-Modified","Value":"Sat, 13 Dec 2025 05:41:09 GMT"}]]]></ResponseHeaders>
     </StaticWebAssetEndpoint>
     <StaticWebAssetEndpoint Include="_content/MomantzaApp/js/site.js">
       <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\site.js'))</AssetFile>
@@ -1684,13 +1612,13 @@
       <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\MomantzaApp.izi2xsigpx.bundle.scp.css'))</AssetFile>
       <Selectors><![CDATA[[]]]></Selectors>
       <EndpointProperties><![CDATA[[{"Name":"integrity","Value":"sha256-YmLWFQMps9upNV7rcH5nEZzA6/U/1iMdkW638p3X04Y="}]]]></EndpointProperties>
-      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"no-cache"},{"Name":"Content-Length","Value":"1129"},{"Name":"Content-Type","Value":"text/css"},{"Name":"ETag","Value":"\u0022YmLWFQMps9upNV7rcH5nEZzA6/U/1iMdkW638p3X04Y=\u0022"},{"Name":"Last-Modified","Value":"Thu, 27 Nov 2025 12:03:45 GMT"}]]]></ResponseHeaders>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"no-cache"},{"Name":"Content-Length","Value":"1129"},{"Name":"Content-Type","Value":"text/css"},{"Name":"ETag","Value":"\u0022YmLWFQMps9upNV7rcH5nEZzA6/U/1iMdkW638p3X04Y=\u0022"},{"Name":"Last-Modified","Value":"Sat, 13 Dec 2025 06:04:40 GMT"}]]]></ResponseHeaders>
     </StaticWebAssetEndpoint>
     <StaticWebAssetEndpoint Include="_content/MomantzaApp/MomantzaApp.izi2xsigpx.bundle.scp.css">
       <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\MomantzaApp.izi2xsigpx.bundle.scp.css'))</AssetFile>
       <Selectors><![CDATA[[]]]></Selectors>
       <EndpointProperties><![CDATA[[{"Name":"fingerprint","Value":"izi2xsigpx"},{"Name":"integrity","Value":"sha256-YmLWFQMps9upNV7rcH5nEZzA6/U/1iMdkW638p3X04Y="},{"Name":"label","Value":"_content/MomantzaApp/MomantzaApp.bundle.scp.css"}]]]></EndpointProperties>
-      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"1129"},{"Name":"Content-Type","Value":"text/css"},{"Name":"ETag","Value":"\u0022YmLWFQMps9upNV7rcH5nEZzA6/U/1iMdkW638p3X04Y=\u0022"},{"Name":"Last-Modified","Value":"Thu, 27 Nov 2025 12:03:45 GMT"}]]]></ResponseHeaders>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"1129"},{"Name":"Content-Type","Value":"text/css"},{"Name":"ETag","Value":"\u0022YmLWFQMps9upNV7rcH5nEZzA6/U/1iMdkW638p3X04Y=\u0022"},{"Name":"Last-Modified","Value":"Sat, 13 Dec 2025 06:04:40 GMT"}]]]></ResponseHeaders>
     </StaticWebAssetEndpoint>
     <StaticWebAssetEndpoint Include="_content/MomantzaApp/placeholder.svg">
       <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\placeholder.svg'))</AssetFile>
@@ -1787,6 +1715,78 @@
       <Selectors><![CDATA[[]]]></Selectors>
       <EndpointProperties><![CDATA[[{"Name":"integrity","Value":"sha256-eZRVFjBfX5/eeoEied2WFZ/\u002BJy\u002BNQ5sGx7wJgls92dk="}]]]></EndpointProperties>
       <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"no-cache"},{"Name":"Content-Length","Value":"9544"},{"Name":"Content-Type","Value":"text/html"},{"Name":"ETag","Value":"\u0022eZRVFjBfX5/eeoEied2WFZ/\u002BJy\u002BNQ5sGx7wJgls92dk=\u0022"},{"Name":"Last-Modified","Value":"Mon, 27 Oct 2025 07:50:27 GMT"}]]]></ResponseHeaders>
+    </StaticWebAssetEndpoint>
+    <StaticWebAssetEndpoint Include="_content/MomantzaApp/webui/assets/index-CNbFbh4x.css">
+      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\webui\assets\index-CNbFbh4x.css'))</AssetFile>
+      <Selectors><![CDATA[[]]]></Selectors>
+      <EndpointProperties><![CDATA[[{"Name":"integrity","Value":"sha256-rpn4IARpMOvV8JMUBMCciHbPcLdP55wll3aG7Z1991g="}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"no-cache"},{"Name":"Content-Length","Value":"68238"},{"Name":"Content-Type","Value":"text/css"},{"Name":"ETag","Value":"\u0022rpn4IARpMOvV8JMUBMCciHbPcLdP55wll3aG7Z1991g=\u0022"},{"Name":"Last-Modified","Value":"Mon, 27 Oct 2025 07:50:27 GMT"}]]]></ResponseHeaders>
+    </StaticWebAssetEndpoint>
+    <StaticWebAssetEndpoint Include="_content/MomantzaApp/webui/assets/index-CNbFbh4x.mnouy7b4pi.css">
+      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\webui\assets\index-CNbFbh4x.css'))</AssetFile>
+      <Selectors><![CDATA[[]]]></Selectors>
+      <EndpointProperties><![CDATA[[{"Name":"fingerprint","Value":"mnouy7b4pi"},{"Name":"integrity","Value":"sha256-rpn4IARpMOvV8JMUBMCciHbPcLdP55wll3aG7Z1991g="},{"Name":"label","Value":"_content/MomantzaApp/webui/assets/index-CNbFbh4x.css"}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"68238"},{"Name":"Content-Type","Value":"text/css"},{"Name":"ETag","Value":"\u0022rpn4IARpMOvV8JMUBMCciHbPcLdP55wll3aG7Z1991g=\u0022"},{"Name":"Last-Modified","Value":"Mon, 27 Oct 2025 07:50:27 GMT"}]]]></ResponseHeaders>
+    </StaticWebAssetEndpoint>
+    <StaticWebAssetEndpoint Include="_content/MomantzaApp/webui/assets/index-DG0fTm4o.js">
+      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\webui\assets\index-DG0fTm4o.js'))</AssetFile>
+      <Selectors><![CDATA[[]]]></Selectors>
+      <EndpointProperties><![CDATA[[{"Name":"integrity","Value":"sha256-ZdEl8y6vb3iX53MPE3U2i0ot5ZcHrDZusJyq44aMi0Y="}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"no-cache"},{"Name":"Content-Length","Value":"1219095"},{"Name":"Content-Type","Value":"text/javascript"},{"Name":"ETag","Value":"\u0022ZdEl8y6vb3iX53MPE3U2i0ot5ZcHrDZusJyq44aMi0Y=\u0022"},{"Name":"Last-Modified","Value":"Mon, 27 Oct 2025 07:50:27 GMT"}]]]></ResponseHeaders>
+    </StaticWebAssetEndpoint>
+    <StaticWebAssetEndpoint Include="_content/MomantzaApp/webui/assets/index-DG0fTm4o.js.5apzsd5qmo.map">
+      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\webui\assets\index-DG0fTm4o.js.map'))</AssetFile>
+      <Selectors><![CDATA[[]]]></Selectors>
+      <EndpointProperties><![CDATA[[{"Name":"fingerprint","Value":"5apzsd5qmo"},{"Name":"integrity","Value":"sha256-vSrV4Yr5i3A/yKkjItwmp5LWSeT15CTEAreIKTOmwRE="},{"Name":"label","Value":"_content/MomantzaApp/webui/assets/index-DG0fTm4o.js.map"}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"5100449"},{"Name":"Content-Type","Value":"text/plain"},{"Name":"ETag","Value":"\u0022vSrV4Yr5i3A/yKkjItwmp5LWSeT15CTEAreIKTOmwRE=\u0022"},{"Name":"Last-Modified","Value":"Mon, 27 Oct 2025 07:50:27 GMT"}]]]></ResponseHeaders>
+    </StaticWebAssetEndpoint>
+    <StaticWebAssetEndpoint Include="_content/MomantzaApp/webui/assets/index-DG0fTm4o.js.map">
+      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\webui\assets\index-DG0fTm4o.js.map'))</AssetFile>
+      <Selectors><![CDATA[[]]]></Selectors>
+      <EndpointProperties><![CDATA[[{"Name":"integrity","Value":"sha256-vSrV4Yr5i3A/yKkjItwmp5LWSeT15CTEAreIKTOmwRE="}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"no-cache"},{"Name":"Content-Length","Value":"5100449"},{"Name":"Content-Type","Value":"text/plain"},{"Name":"ETag","Value":"\u0022vSrV4Yr5i3A/yKkjItwmp5LWSeT15CTEAreIKTOmwRE=\u0022"},{"Name":"Last-Modified","Value":"Mon, 27 Oct 2025 07:50:27 GMT"}]]]></ResponseHeaders>
+    </StaticWebAssetEndpoint>
+    <StaticWebAssetEndpoint Include="_content/MomantzaApp/webui/assets/index-DG0fTm4o.npoqvwvlia.js">
+      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\webui\assets\index-DG0fTm4o.js'))</AssetFile>
+      <Selectors><![CDATA[[]]]></Selectors>
+      <EndpointProperties><![CDATA[[{"Name":"fingerprint","Value":"npoqvwvlia"},{"Name":"integrity","Value":"sha256-ZdEl8y6vb3iX53MPE3U2i0ot5ZcHrDZusJyq44aMi0Y="},{"Name":"label","Value":"_content/MomantzaApp/webui/assets/index-DG0fTm4o.js"}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"1219095"},{"Name":"Content-Type","Value":"text/javascript"},{"Name":"ETag","Value":"\u0022ZdEl8y6vb3iX53MPE3U2i0ot5ZcHrDZusJyq44aMi0Y=\u0022"},{"Name":"Last-Modified","Value":"Mon, 27 Oct 2025 07:50:27 GMT"}]]]></ResponseHeaders>
+    </StaticWebAssetEndpoint>
+    <StaticWebAssetEndpoint Include="_content/MomantzaApp/webui/assets/index-JNlUe9VY.js">
+      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\webui\assets\index-JNlUe9VY.js'))</AssetFile>
+      <Selectors><![CDATA[[]]]></Selectors>
+      <EndpointProperties><![CDATA[[{"Name":"integrity","Value":"sha256-D2CS68YFTwThLvYksVvANuK40CXnIwMxwj6ZQr3HizI="}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"no-cache"},{"Name":"Content-Length","Value":"1193727"},{"Name":"Content-Type","Value":"text/javascript"},{"Name":"ETag","Value":"\u0022D2CS68YFTwThLvYksVvANuK40CXnIwMxwj6ZQr3HizI=\u0022"},{"Name":"Last-Modified","Value":"Mon, 27 Oct 2025 07:50:27 GMT"}]]]></ResponseHeaders>
+    </StaticWebAssetEndpoint>
+    <StaticWebAssetEndpoint Include="_content/MomantzaApp/webui/assets/index-JNlUe9VY.js.2xhclskphu.map">
+      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\webui\assets\index-JNlUe9VY.js.map'))</AssetFile>
+      <Selectors><![CDATA[[]]]></Selectors>
+      <EndpointProperties><![CDATA[[{"Name":"fingerprint","Value":"2xhclskphu"},{"Name":"integrity","Value":"sha256-torXAgc/vqxBIrg5\u002BG\u002Btsex5zqaqsG7olZQWTdITXTI="},{"Name":"label","Value":"_content/MomantzaApp/webui/assets/index-JNlUe9VY.js.map"}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"5071036"},{"Name":"Content-Type","Value":"text/plain"},{"Name":"ETag","Value":"\u0022torXAgc/vqxBIrg5\u002BG\u002Btsex5zqaqsG7olZQWTdITXTI=\u0022"},{"Name":"Last-Modified","Value":"Mon, 27 Oct 2025 07:50:27 GMT"}]]]></ResponseHeaders>
+    </StaticWebAssetEndpoint>
+    <StaticWebAssetEndpoint Include="_content/MomantzaApp/webui/assets/index-JNlUe9VY.js.map">
+      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\webui\assets\index-JNlUe9VY.js.map'))</AssetFile>
+      <Selectors><![CDATA[[]]]></Selectors>
+      <EndpointProperties><![CDATA[[{"Name":"integrity","Value":"sha256-torXAgc/vqxBIrg5\u002BG\u002Btsex5zqaqsG7olZQWTdITXTI="}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"no-cache"},{"Name":"Content-Length","Value":"5071036"},{"Name":"Content-Type","Value":"text/plain"},{"Name":"ETag","Value":"\u0022torXAgc/vqxBIrg5\u002BG\u002Btsex5zqaqsG7olZQWTdITXTI=\u0022"},{"Name":"Last-Modified","Value":"Mon, 27 Oct 2025 07:50:27 GMT"}]]]></ResponseHeaders>
+    </StaticWebAssetEndpoint>
+    <StaticWebAssetEndpoint Include="_content/MomantzaApp/webui/assets/index-JNlUe9VY.xsqhuowbu5.js">
+      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\webui\assets\index-JNlUe9VY.js'))</AssetFile>
+      <Selectors><![CDATA[[]]]></Selectors>
+      <EndpointProperties><![CDATA[[{"Name":"fingerprint","Value":"xsqhuowbu5"},{"Name":"integrity","Value":"sha256-D2CS68YFTwThLvYksVvANuK40CXnIwMxwj6ZQr3HizI="},{"Name":"label","Value":"_content/MomantzaApp/webui/assets/index-JNlUe9VY.js"}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"1193727"},{"Name":"Content-Type","Value":"text/javascript"},{"Name":"ETag","Value":"\u0022D2CS68YFTwThLvYksVvANuK40CXnIwMxwj6ZQr3HizI=\u0022"},{"Name":"Last-Modified","Value":"Mon, 27 Oct 2025 07:50:27 GMT"}]]]></ResponseHeaders>
+    </StaticWebAssetEndpoint>
+    <StaticWebAssetEndpoint Include="_content/MomantzaApp/webui/assets/index-wb5tOqzz.css">
+      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\webui\assets\index-wb5tOqzz.css'))</AssetFile>
+      <Selectors><![CDATA[[]]]></Selectors>
+      <EndpointProperties><![CDATA[[{"Name":"integrity","Value":"sha256-d8ZDSh3smTnbfYtuGpcxmj\u002BjEHxcHBFZ0BKHVcF2NLY="}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"no-cache"},{"Name":"Content-Length","Value":"68161"},{"Name":"Content-Type","Value":"text/css"},{"Name":"ETag","Value":"\u0022d8ZDSh3smTnbfYtuGpcxmj\u002BjEHxcHBFZ0BKHVcF2NLY=\u0022"},{"Name":"Last-Modified","Value":"Mon, 27 Oct 2025 07:50:27 GMT"}]]]></ResponseHeaders>
+    </StaticWebAssetEndpoint>
+    <StaticWebAssetEndpoint Include="_content/MomantzaApp/webui/assets/index-wb5tOqzz.dngxvyqai6.css">
+      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\webui\assets\index-wb5tOqzz.css'))</AssetFile>
+      <Selectors><![CDATA[[]]]></Selectors>
+      <EndpointProperties><![CDATA[[{"Name":"fingerprint","Value":"dngxvyqai6"},{"Name":"integrity","Value":"sha256-d8ZDSh3smTnbfYtuGpcxmj\u002BjEHxcHBFZ0BKHVcF2NLY="},{"Name":"label","Value":"_content/MomantzaApp/webui/assets/index-wb5tOqzz.css"}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"68161"},{"Name":"Content-Type","Value":"text/css"},{"Name":"ETag","Value":"\u0022d8ZDSh3smTnbfYtuGpcxmj\u002BjEHxcHBFZ0BKHVcF2NLY=\u0022"},{"Name":"Last-Modified","Value":"Mon, 27 Oct 2025 07:50:27 GMT"}]]]></ResponseHeaders>
     </StaticWebAssetEndpoint>
   </ItemGroup>
 </Project>
