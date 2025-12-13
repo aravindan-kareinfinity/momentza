@@ -12,14 +12,21 @@ const normalizeUrl = (value?: string): string | undefined => {
  * and finally falling back to the default provided in config.
  * 
  * For production (momentza.com), uses relative URLs (empty string = same origin).
- * For localhost development, uses http://localhost:5000.
+ * For localhost development, preserves subdomain and uses port 5000.
  */
 export const getApiBaseUrl = (): string => {
-  // Check if we're running on localhost (development)
-  const isLocalhost = typeof window !== 'undefined' && 
-    (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+  // PRIORITY 1: Check if we're on a subdomain - ALWAYS preserve subdomain regardless of config
+  if (typeof window !== 'undefined') {
+    const hostname = window.location.hostname;
+    
+    // Preserve subdomain for .localhost domains (e.g., appointza.localhost -> http://appointza.localhost:5000)
+    if (hostname.includes('.localhost')) {
+      console.log(`[getApiBaseUrl] Preserving subdomain: ${hostname} -> http://${hostname}:5000`);
+      return `http://${hostname}:5000`;
+    }
+  }
   
-  // Check candidates first (runtime config, env vars, config file)
+  // PRIORITY 2: Check candidates (runtime config, env vars, config file)
   const candidates = [
     normalizeUrl(runtimeConfig?.VITE_API_BASE_URL),
     normalizeUrl(import.meta?.env?.VITE_API_BASE_URL),
@@ -38,9 +45,14 @@ export const getApiBaseUrl = (): string => {
     return resolved;
   }
   
-  // Fallback: use localhost:5000 for local development, relative URL for production
-  if (isLocalhost) {
-    return 'http://localhost:5000';
+  // PRIORITY 3: Fallback for direct localhost (no subdomain)
+  if (typeof window !== 'undefined') {
+    const hostname = window.location.hostname;
+    
+    // Direct localhost or 127.0.0.1
+    if (hostname === 'localhost' || hostname === '127.0.0.1') {
+      return 'http://localhost:5000';
+    }
   }
   
   // Production: use relative URLs (empty string means same origin)

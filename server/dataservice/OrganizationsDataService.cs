@@ -153,7 +153,8 @@ namespace Momantza.Services
             {
                 using var connection = await GetConnectionAsync();
                 
-                var sql = "SELECT * FROM organization WHERE defaultdomain = @domain OR customdomain = @domain LIMIT 1";
+                // First try exact match
+                var sql = "SELECT * FROM organization WHERE lower(defaultdomain) = lower(@domain) OR lower(customdomain) = lower(@domain) LIMIT 1";
                 using var command = new NpgsqlCommand(sql, connection);
                 command.Parameters.AddWithValue("@domain", domain);
                 
@@ -161,6 +162,18 @@ namespace Momantza.Services
                 if (await reader.ReadAsync())
                 {
                     return MapFromReader(reader);
+                }
+                
+                // If exact match fails, try pattern match (like middleware does)
+                // This handles cases where domain is "appointza" but DB has "appointza.localhost"
+                sql = "SELECT * FROM organization WHERE lower(defaultdomain) LIKE lower(@domainPattern) OR lower(customdomain) LIKE lower(@domainPattern) LIMIT 1";
+                using var command2 = new NpgsqlCommand(sql, connection);
+                command2.Parameters.AddWithValue("@domainPattern", $"{domain}%");
+                
+                using var reader2 = await command2.ExecuteReaderAsync();
+                if (await reader2.ReadAsync())
+                {
+                    return MapFromReader(reader2);
                 }
                 
                 return null;

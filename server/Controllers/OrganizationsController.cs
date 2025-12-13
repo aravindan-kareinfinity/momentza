@@ -222,36 +222,47 @@ namespace Momantza.Controllers
         {
             try
             {
-                /*var isValidContext = await _organizationDataService.ValidateUserOrganizationContextAsync();
-                if (!isValidContext)
-                {
-                    Console.WriteLine(" Organization mismatch. Access denied.");
-                    return Unauthorized(new { message = "Access denied: organization mismatch" });
-                }*/
-
-                // First, try to get organization from middleware (already resolved)
+                // Log request details for debugging
+                var fullHost = HttpContext.Request.Host.Host.ToLower();
+                var requestPath = HttpContext.Request.Path.Value;
+                Console.WriteLine($"============== GetCurrentOrganization DEBUG ==============");
+                Console.WriteLine($"Request Host: {fullHost}");
+                Console.WriteLine($"Request Path: {requestPath}");
+                
+                // Check middleware context first
                 var orgContext = HttpContext.Items["Organization"] as OrganizationContext;
+                var subdomain = HttpContext.Items["Subdomain"]?.ToString();
+                Console.WriteLine($"Middleware Subdomain: {subdomain ?? "(null)"}");
+                Console.WriteLine($"Middleware Organization Context: {(orgContext != null ? orgContext.OrganizationId.ToString() : "(null)")}");
+                
+                // Skip validation for now to allow subdomain-based resolution
+                // var isValidContext = await _organizationDataService.ValidateUserOrganizationContextAsync();
+                // if (!isValidContext)
+                // {
+                //     Console.WriteLine(" Organization mismatch. Access denied.");
+                //     return Unauthorized(new { message = "Access denied: organization mismatch" });
+                // }
+
                 Organizations? organization = null;
-                string domain = string.Empty; // Declare at higher scope
+                string domain = string.Empty;
                 
                 if (orgContext != null)
                 {
                     // Organization already resolved by middleware, just get full details
                     organization = await _organizationDataService.GetByIdAsync(orgContext.OrganizationId.ToString());
-                    Console.WriteLine($" Using organization from middleware context: {orgContext.OrganizationId}");
-                    domain = orgContext.OrganizationId.ToString(); // For error message if needed
+                    Console.WriteLine($"✅ Using organization from middleware context: {orgContext.OrganizationId}");
+                    domain = orgContext.OrganizationId.ToString();
                 }
                 else
                 {
                     // Fallback: resolve by domain/subdomain
-                    var subdomain = HttpContext.Items["Subdomain"]?.ToString();
-                    var fullHost = HttpContext.Request.Host.Host.ToLower();
+                    Console.WriteLine($"⚠️ Organization context not found in middleware, resolving by subdomain/domain...");
                     
                     if (!string.IsNullOrEmpty(subdomain))
                     {
-                        // Use subdomain from middleware (e.g., "abcd" from "abcd.localhost")
+                        // Use subdomain from middleware (e.g., "appointza" from "appointza.localhost")
                         domain = subdomain;
-                        Console.WriteLine($" Using subdomain from middleware: {domain}");
+                        Console.WriteLine($" Using subdomain from middleware: '{domain}'");
                     }
                     else
                     {
@@ -262,18 +273,30 @@ namespace Momantza.Controllers
                         if (domain.Contains(':'))
                             domain = domain.Split(':')[0];
                         
-                        // Extract subdomain from hostname (e.g., "abcd.localhost" -> "abcd")
+                        // Extract subdomain from hostname (e.g., "appointza.localhost" -> "appointza")
                         var parts = domain.Split('.');
                         if (parts.Length >= 2 && parts[1] == "localhost")
                         {
                             domain = parts[0]; // Get subdomain part
+                            Console.WriteLine($" Extracted subdomain from Host header: '{domain}'");
                         }
-                        
-                        Console.WriteLine($" Extracted domain from Host header: {domain}");
+                        else
+                        {
+                            Console.WriteLine($" Using full hostname as domain: '{domain}'");
+                        }
                     }
 
-                    Console.WriteLine($" Looking for organization by domain: {domain}");
+                    Console.WriteLine($"🔍 Looking for organization by domain/subdomain: '{domain}'");
                     organization = await _organizationDataService.GetByDomainAsync(domain);
+                    
+                    if (organization != null)
+                    {
+                        Console.WriteLine($"✅ Found organization: {organization.Name} (ID: {organization.Id}, DefaultDomain: {organization.DefaultDomain})");
+                    }
+                    else
+                    {
+                        Console.WriteLine($"❌ No organization found for domain: '{domain}'");
+                    }
                 }
                 
                 if (organization == null)
