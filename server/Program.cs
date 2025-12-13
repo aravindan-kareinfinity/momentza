@@ -178,7 +178,7 @@ app.MapGet("/favicon.ico", async context =>
     }
 });
 
-// SPA catch-all route: serve webui/index.html for all non-API routes
+// SPA catch-all route: serve webui/index.html for all non-API routes (only when subdomain exists)
 app.MapFallback(async context =>
 {
     // Skip if it's an API route
@@ -188,7 +188,16 @@ app.MapFallback(async context =>
         return;
     }
 
-    // Serve webui/index.html for SPA routing
+    // Only serve SPA if there's a subdomain (for subdomain-based multi-tenant routing)
+    var subdomain = context.Items["Subdomain"]?.ToString();
+    if (string.IsNullOrEmpty(subdomain))
+    {
+        // No subdomain - let MVC handle it (return 404 so MVC can handle it)
+        context.Response.StatusCode = 404;
+        return;
+    }
+
+    // Serve webui/index.html for SPA routing (when subdomain exists)
     var webuiIndexPath = Path.Combine(builder.Environment.ContentRootPath, "wwwroot", "webui", "index.html");
     if (File.Exists(webuiIndexPath))
     {
@@ -201,9 +210,8 @@ app.MapFallback(async context =>
     }
 });
 
-// Fallback to index.html for SPA routing (must be last)
-// This handles all client-side routes like /hall/:id, /booking/:id, etc.
-app.MapFallbackToFile("index.html");
+// Note: MapFallbackToFile removed - we only want SPA fallback for subdomain routes
+// MVC routes should be handled by MVC routing, not fallback to index.html
 
 
 app.Run();

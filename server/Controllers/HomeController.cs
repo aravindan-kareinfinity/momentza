@@ -16,23 +16,39 @@ namespace Momantza.Controllers
 
         public IActionResult Index()
         {
-            // Serve the webui/index.html for SPA
-            var webuiIndexPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "webui", "index.html");
-            if (System.IO.File.Exists(webuiIndexPath))
+            // Check if there's a subdomain - if yes, serve SPA; if no, serve MVC view
+            var subdomain = HttpContext.Items["Subdomain"]?.ToString();
+            
+            // If subdomain exists, serve SPA (for subdomain-based multi-tenant routing)
+            if (!string.IsNullOrEmpty(subdomain))
             {
-                return PhysicalFile(webuiIndexPath, "text/html");
+                var webuiIndexPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "webui", "index.html");
+                if (System.IO.File.Exists(webuiIndexPath))
+                {
+                    return PhysicalFile(webuiIndexPath, "text/html");
+                }
             }
+            
+            // No subdomain - serve MVC view
             return View();
         }
 
         public IActionResult Landing()
         {
-            // Serve the webui/index.html for SPA
-            var webuiIndexPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "webui", "index.html");
-            if (System.IO.File.Exists(webuiIndexPath))
+            // Check if there's a subdomain - if yes, serve SPA; if no, serve MVC view
+            var subdomain = HttpContext.Items["Subdomain"]?.ToString();
+            
+            // If subdomain exists, serve SPA (for subdomain-based multi-tenant routing)
+            if (!string.IsNullOrEmpty(subdomain))
             {
-                return PhysicalFile(webuiIndexPath, "text/html");
+                var webuiIndexPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "webui", "index.html");
+                if (System.IO.File.Exists(webuiIndexPath))
+                {
+                    return PhysicalFile(webuiIndexPath, "text/html");
+                }
             }
+            
+            // No subdomain - serve MVC view
             return View();
         }
 

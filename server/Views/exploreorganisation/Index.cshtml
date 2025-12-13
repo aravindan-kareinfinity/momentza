@@ -860,7 +860,27 @@ function createHallCard(hall) {
           <!-- Action Buttons -->
             <div class="mt-3 pt-3 border-top">
                 ${defaultDomain ? `
-                <button class="btn btn-outline-primary w-100 py-3 fw-semibold" onclick="window.open('http://${defaultDomain}.localhost:8082', '_blank')">
+                <button class="btn btn-outline-primary w-100 py-3 fw-semibold" onclick="(function() {
+                    const hostname = window.location.hostname;
+                    const port = window.location.port;
+                    const protocol = window.location.protocol;
+                    let orgUrl;
+                    
+                    if (hostname === 'localhost' || hostname === '127.0.0.1') {
+                        // Development: use subdomain.localhost with current port
+                        orgUrl = protocol + '//' + '${defaultDomain}' + '.localhost' + (port ? ':' + port : ':5000');
+                    } else if (hostname.includes('momentza.com')) {
+                        // Production: use subdomain.momentza.com
+                        orgUrl = protocol + '//' + '${defaultDomain}' + '.momentza.com';
+                    } else {
+                        // Other domains: use subdomain with current domain
+                        const domainParts = hostname.split('.');
+                        const baseDomain = domainParts.slice(-2).join('.'); // Get last 2 parts (e.g., momentza.com)
+                        orgUrl = protocol + '//' + '${defaultDomain}' + '.' + baseDomain;
+                    }
+                    
+                    window.open(orgUrl, '_blank');
+                })()">
                     <i class="fas fa-external-link-alt me-2"></i>View Organization
                         </button>
                 ` : ''}

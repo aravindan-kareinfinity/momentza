@@ -1,10 +1,6 @@
 {
   "Version": 1,
-<<<<<<< HEAD
-  "Hash": "TYCkcnwthMbDrwjVFJ5uxFmCCiRhoMTqGLL1OIPENJk=",
-=======
   "Hash": "h8i/qiR0wcxzsBwXhpbuvuvFpjdKZFIhN9rFbYqW/UM=",
->>>>>>> dafd703 (ui)
   "Source": "MomantzaApp",
   "BasePath": "_content/MomantzaApp",
   "Mode": "Default",
@@ -268,8 +264,6 @@
       "OriginalItemSpec": "wwwroot\\admin\\js\\site.js"
     },
     {
-<<<<<<< HEAD
-=======
       "Identity": "E:\\chitahapu\\momentza\\server\\wwwroot\\admin\\lib\\bootstrap\\dist\\css\\bootstrap.css",
       "SourceId": "MomantzaApp",
       "SourceType": "Discovered",
@@ -422,7 +416,6 @@
       "OriginalItemSpec": "wwwroot\\admin\\lib\\bootstrap\\dist\\css\\bootstrap.rtl.min.css.map"
     },
     {
->>>>>>> dafd703 (ui)
       "Identity": "E:\\chitahapu\\momentza\\server\\wwwroot\\admin\\lib\\bootstrap\\dist\\css\\bootstrap-grid.css",
       "SourceId": "MomantzaApp",
       "SourceType": "Discovered",
@@ -879,161 +872,6 @@
       "OriginalItemSpec": "wwwroot\\admin\\lib\\bootstrap\\dist\\css\\bootstrap-utilities.rtl.min.css.map"
     },
     {
-<<<<<<< HEAD
-      "Identity": "E:\\chitahapu\\momentza\\server\\wwwroot\\admin\\lib\\bootstrap\\dist\\css\\bootstrap.css",
-      "SourceId": "MomantzaApp",
-      "SourceType": "Discovered",
-      "ContentRoot": "E:\\chitahapu\\momentza\\server\\wwwroot\\",
-      "BasePath": "_content/MomantzaApp",
-      "RelativePath": "admin/lib/bootstrap/dist/css/bootstrap.css",
-      "AssetKind": "All",
-      "AssetMode": "All",
-      "AssetRole": "Primary",
-      "AssetMergeBehavior": "PreferTarget",
-      "AssetMergeSource": "",
-      "RelatedAsset": "",
-      "AssetTraitName": "",
-      "AssetTraitValue": "",
-      "CopyToOutputDirectory": "Never",
-      "CopyToPublishDirectory": "PreserveNewest",
-      "OriginalItemSpec": "wwwroot\\admin\\lib\\bootstrap\\dist\\css\\bootstrap.css"
-    },
-    {
-      "Identity": "E:\\chitahapu\\momentza\\server\\wwwroot\\admin\\lib\\bootstrap\\dist\\css\\bootstrap.css.map",
-      "SourceId": "MomantzaApp",
-      "SourceType": "Discovered",
-      "ContentRoot": "E:\\chitahapu\\momentza\\server\\wwwroot\\",
-      "BasePath": "_content/MomantzaApp",
-      "RelativePath": "admin/lib/bootstrap/dist/css/bootstrap.css.map",
-      "AssetKind": "All",
-      "AssetMode": "All",
-      "AssetRole": "Primary",
-      "AssetMergeBehavior": "PreferTarget",
-      "AssetMergeSource": "",
-      "RelatedAsset": "",
-      "AssetTraitName": "",
-      "AssetTraitValue": "",
-      "CopyToOutputDirectory": "Never",
-      "CopyToPublishDirectory": "PreserveNewest",
-      "OriginalItemSpec": "wwwroot\\admin\\lib\\bootstrap\\dist\\css\\bootstrap.css.map"
-    },
-    {
-      "Identity": "E:\\chitahapu\\momentza\\server\\wwwroot\\admin\\lib\\bootstrap\\dist\\css\\bootstrap.min.css",
-      "SourceId": "MomantzaApp",
-      "SourceType": "Discovered",
-      "ContentRoot": "E:\\chitahapu\\momentza\\server\\wwwroot\\",
-      "BasePath": "_content/MomantzaApp",
-      "RelativePath": "admin/lib/bootstrap/dist/css/bootstrap.min.css",
-      "AssetKind": "All",
-      "AssetMode": "All",
-      "AssetRole": "Primary",
-      "AssetMergeBehavior": "PreferTarget",
-      "AssetMergeSource": "",
-      "RelatedAsset": "",
-      "AssetTraitName": "",
-      "AssetTraitValue": "",
-      "CopyToOutputDirectory": "Never",
-      "CopyToPublishDirectory": "PreserveNewest",
-      "OriginalItemSpec": "wwwroot\\admin\\lib\\bootstrap\\dist\\css\\bootstrap.min.css"
-    },
-    {
-      "Identity": "E:\\chitahapu\\momentza\\server\\wwwroot\\admin\\lib\\bootstrap\\dist\\css\\bootstrap.min.css.map",
-      "SourceId": "MomantzaApp",
-      "SourceType": "Discovered",
-      "ContentRoot": "E:\\chitahapu\\momentza\\server\\wwwroot\\",
-      "BasePath": "_content/MomantzaApp",
-      "RelativePath": "admin/lib/bootstrap/dist/css/bootstrap.min.css.map",
-      "AssetKind": "All",
-      "AssetMode": "All",
-      "AssetRole": "Primary",
-      "AssetMergeBehavior": "PreferTarget",
-      "AssetMergeSource": "",
-      "RelatedAsset": "",
-      "AssetTraitName": "",
-      "AssetTraitValue": "",
-      "CopyToOutputDirectory": "Never",
-      "CopyToPublishDirectory": "PreserveNewest",
-      "OriginalItemSpec": "wwwroot\\admin\\lib\\bootstrap\\dist\\css\\bootstrap.min.css.map"
-    },
-    {
-      "Identity": "E:\\chitahapu\\momentza\\server\\wwwroot\\admin\\lib\\bootstrap\\dist\\css\\bootstrap.rtl.css",
-      "SourceId": "MomantzaApp",
-      "SourceType": "Discovered",
-      "ContentRoot": "E:\\chitahapu\\momentza\\server\\wwwroot\\",
-      "BasePath": "_content/MomantzaApp",
-      "RelativePath": "admin/lib/bootstrap/dist/css/bootstrap.rtl.css",
-      "AssetKind": "All",
-      "AssetMode": "All",
-      "AssetRole": "Primary",
-      "AssetMergeBehavior": "PreferTarget",
-      "AssetMergeSource": "",
-      "RelatedAsset": "",
-      "AssetTraitName": "",
-      "AssetTraitValue": "",
-      "CopyToOutputDirectory": "Never",
-      "CopyToPublishDirectory": "PreserveNewest",
-      "OriginalItemSpec": "wwwroot\\admin\\lib\\bootstrap\\dist\\css\\bootstrap.rtl.css"
-    },
-    {
-      "Identity": "E:\\chitahapu\\momentza\\server\\wwwroot\\admin\\lib\\bootstrap\\dist\\css\\bootstrap.rtl.css.map",
-      "SourceId": "MomantzaApp",
-      "SourceType": "Discovered",
-      "ContentRoot": "E:\\chitahapu\\momentza\\server\\wwwroot\\",
-      "BasePath": "_content/MomantzaApp",
-      "RelativePath": "admin/lib/bootstrap/dist/css/bootstrap.rtl.css.map",
-      "AssetKind": "All",
-      "AssetMode": "All",
-      "AssetRole": "Primary",
-      "AssetMergeBehavior": "PreferTarget",
-      "AssetMergeSource": "",
-      "RelatedAsset": "",
-      "AssetTraitName": "",
-      "AssetTraitValue": "",
-      "CopyToOutputDirectory": "Never",
-      "CopyToPublishDirectory": "PreserveNewest",
-      "OriginalItemSpec": "wwwroot\\admin\\lib\\bootstrap\\dist\\css\\bootstrap.rtl.css.map"
-    },
-    {
-      "Identity": "E:\\chitahapu\\momentza\\server\\wwwroot\\admin\\lib\\bootstrap\\dist\\css\\bootstrap.rtl.min.css",
-      "SourceId": "MomantzaApp",
-      "SourceType": "Discovered",
-      "ContentRoot": "E:\\chitahapu\\momentza\\server\\wwwroot\\",
-      "BasePath": "_content/MomantzaApp",
-      "RelativePath": "admin/lib/bootstrap/dist/css/bootstrap.rtl.min.css",
-      "AssetKind": "All",
-      "AssetMode": "All",
-      "AssetRole": "Primary",
-      "AssetMergeBehavior": "PreferTarget",
-      "AssetMergeSource": "",
-      "RelatedAsset": "",
-      "AssetTraitName": "",
-      "AssetTraitValue": "",
-      "CopyToOutputDirectory": "Never",
-      "CopyToPublishDirectory": "PreserveNewest",
-      "OriginalItemSpec": "wwwroot\\admin\\lib\\bootstrap\\dist\\css\\bootstrap.rtl.min.css"
-    },
-    {
-      "Identity": "E:\\chitahapu\\momentza\\server\\wwwroot\\admin\\lib\\bootstrap\\dist\\css\\bootstrap.rtl.min.css.map",
-      "SourceId": "MomantzaApp",
-      "SourceType": "Discovered",
-      "ContentRoot": "E:\\chitahapu\\momentza\\server\\wwwroot\\",
-      "BasePath": "_content/MomantzaApp",
-      "RelativePath": "admin/lib/bootstrap/dist/css/bootstrap.rtl.min.css.map",
-      "AssetKind": "All",
-      "AssetMode": "All",
-      "AssetRole": "Primary",
-      "AssetMergeBehavior": "PreferTarget",
-      "AssetMergeSource": "",
-      "RelatedAsset": "",
-      "AssetTraitName": "",
-      "AssetTraitValue": "",
-      "CopyToOutputDirectory": "Never",
-      "CopyToPublishDirectory": "PreserveNewest",
-      "OriginalItemSpec": "wwwroot\\admin\\lib\\bootstrap\\dist\\css\\bootstrap.rtl.min.css.map"
-    },
-    {
-=======
->>>>>>> dafd703 (ui)
       "Identity": "E:\\chitahapu\\momentza\\server\\wwwroot\\admin\\lib\\bootstrap\\dist\\js\\bootstrap.bundle.js",
       "SourceId": "MomantzaApp",
       "SourceType": "Discovered",
@@ -1281,20 +1119,12 @@
       "OriginalItemSpec": "wwwroot\\admin\\lib\\bootstrap\\LICENSE"
     },
     {
-<<<<<<< HEAD
-      "Identity": "E:\\chitahapu\\momentza\\server\\wwwroot\\admin\\lib\\jquery-validation-unobtrusive\\jquery.validate.unobtrusive.js",
-=======
       "Identity": "E:\\chitahapu\\momentza\\server\\wwwroot\\admin\\lib\\jquery\\dist\\jquery.js",
->>>>>>> dafd703 (ui)
       "SourceId": "MomantzaApp",
       "SourceType": "Discovered",
       "ContentRoot": "E:\\chitahapu\\momentza\\server\\wwwroot\\",
       "BasePath": "_content/MomantzaApp",
-<<<<<<< HEAD
-      "RelativePath": "admin/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.js",
-=======
       "RelativePath": "admin/lib/jquery/dist/jquery.js",
->>>>>>> dafd703 (ui)
       "AssetKind": "All",
       "AssetMode": "All",
       "AssetRole": "Primary",
@@ -1305,26 +1135,15 @@
       "AssetTraitValue": "",
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
-<<<<<<< HEAD
-      "OriginalItemSpec": "wwwroot\\admin\\lib\\jquery-validation-unobtrusive\\jquery.validate.unobtrusive.js"
-    },
-    {
-      "Identity": "E:\\chitahapu\\momentza\\server\\wwwroot\\admin\\lib\\jquery-validation-unobtrusive\\jquery.validate.unobtrusive.min.js",
-=======
       "OriginalItemSpec": "wwwroot\\admin\\lib\\jquery\\dist\\jquery.js"
     },
     {
       "Identity": "E:\\chitahapu\\momentza\\server\\wwwroot\\admin\\lib\\jquery\\dist\\jquery.min.js",
->>>>>>> dafd703 (ui)
       "SourceId": "MomantzaApp",
       "SourceType": "Discovered",
       "ContentRoot": "E:\\chitahapu\\momentza\\server\\wwwroot\\",
       "BasePath": "_content/MomantzaApp",
-<<<<<<< HEAD
-      "RelativePath": "admin/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js",
-=======
       "RelativePath": "admin/lib/jquery/dist/jquery.min.js",
->>>>>>> dafd703 (ui)
       "AssetKind": "All",
       "AssetMode": "All",
       "AssetRole": "Primary",
@@ -1335,26 +1154,15 @@
       "AssetTraitValue": "",
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
-<<<<<<< HEAD
-      "OriginalItemSpec": "wwwroot\\admin\\lib\\jquery-validation-unobtrusive\\jquery.validate.unobtrusive.min.js"
-    },
-    {
-      "Identity": "E:\\chitahapu\\momentza\\server\\wwwroot\\admin\\lib\\jquery-validation-unobtrusive\\LICENSE.txt",
-=======
       "OriginalItemSpec": "wwwroot\\admin\\lib\\jquery\\dist\\jquery.min.js"
     },
     {
       "Identity": "E:\\chitahapu\\momentza\\server\\wwwroot\\admin\\lib\\jquery\\dist\\jquery.min.map",
->>>>>>> dafd703 (ui)
       "SourceId": "MomantzaApp",
       "SourceType": "Discovered",
       "ContentRoot": "E:\\chitahapu\\momentza\\server\\wwwroot\\",
       "BasePath": "_content/MomantzaApp",
-<<<<<<< HEAD
-      "RelativePath": "admin/lib/jquery-validation-unobtrusive/LICENSE.txt",
-=======
       "RelativePath": "admin/lib/jquery/dist/jquery.min.map",
->>>>>>> dafd703 (ui)
       "AssetKind": "All",
       "AssetMode": "All",
       "AssetRole": "Primary",
@@ -1365,9 +1173,6 @@
       "AssetTraitValue": "",
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
-<<<<<<< HEAD
-      "OriginalItemSpec": "wwwroot\\admin\\lib\\jquery-validation-unobtrusive\\LICENSE.txt"
-=======
       "OriginalItemSpec": "wwwroot\\admin\\lib\\jquery\\dist\\jquery.min.map"
     },
     {
@@ -1388,7 +1193,6 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\admin\\lib\\jquery\\LICENSE.txt"
->>>>>>> dafd703 (ui)
     },
     {
       "Identity": "E:\\chitahapu\\momentza\\server\\wwwroot\\admin\\lib\\jquery-validation\\dist\\additional-methods.js",
@@ -1486,20 +1290,12 @@
       "OriginalItemSpec": "wwwroot\\admin\\lib\\jquery-validation\\LICENSE.md"
     },
     {
-<<<<<<< HEAD
-      "Identity": "E:\\chitahapu\\momentza\\server\\wwwroot\\admin\\lib\\jquery\\dist\\jquery.js",
-=======
       "Identity": "E:\\chitahapu\\momentza\\server\\wwwroot\\admin\\lib\\jquery-validation-unobtrusive\\jquery.validate.unobtrusive.js",
->>>>>>> dafd703 (ui)
       "SourceId": "MomantzaApp",
       "SourceType": "Discovered",
       "ContentRoot": "E:\\chitahapu\\momentza\\server\\wwwroot\\",
       "BasePath": "_content/MomantzaApp",
-<<<<<<< HEAD
-      "RelativePath": "admin/lib/jquery/dist/jquery.js",
-=======
       "RelativePath": "admin/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.js",
->>>>>>> dafd703 (ui)
       "AssetKind": "All",
       "AssetMode": "All",
       "AssetRole": "Primary",
@@ -1510,26 +1306,15 @@
       "AssetTraitValue": "",
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
-<<<<<<< HEAD
-      "OriginalItemSpec": "wwwroot\\admin\\lib\\jquery\\dist\\jquery.js"
-    },
-    {
-      "Identity": "E:\\chitahapu\\momentza\\server\\wwwroot\\admin\\lib\\jquery\\dist\\jquery.min.js",
-=======
       "OriginalItemSpec": "wwwroot\\admin\\lib\\jquery-validation-unobtrusive\\jquery.validate.unobtrusive.js"
     },
     {
       "Identity": "E:\\chitahapu\\momentza\\server\\wwwroot\\admin\\lib\\jquery-validation-unobtrusive\\jquery.validate.unobtrusive.min.js",
->>>>>>> dafd703 (ui)
       "SourceId": "MomantzaApp",
       "SourceType": "Discovered",
       "ContentRoot": "E:\\chitahapu\\momentza\\server\\wwwroot\\",
       "BasePath": "_content/MomantzaApp",
-<<<<<<< HEAD
-      "RelativePath": "admin/lib/jquery/dist/jquery.min.js",
-=======
       "RelativePath": "admin/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js",
->>>>>>> dafd703 (ui)
       "AssetKind": "All",
       "AssetMode": "All",
       "AssetRole": "Primary",
@@ -1540,26 +1325,15 @@
       "AssetTraitValue": "",
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
-<<<<<<< HEAD
-      "OriginalItemSpec": "wwwroot\\admin\\lib\\jquery\\dist\\jquery.min.js"
-    },
-    {
-      "Identity": "E:\\chitahapu\\momentza\\server\\wwwroot\\admin\\lib\\jquery\\dist\\jquery.min.map",
-=======
       "OriginalItemSpec": "wwwroot\\admin\\lib\\jquery-validation-unobtrusive\\jquery.validate.unobtrusive.min.js"
     },
     {
       "Identity": "E:\\chitahapu\\momentza\\server\\wwwroot\\admin\\lib\\jquery-validation-unobtrusive\\LICENSE.txt",
->>>>>>> dafd703 (ui)
       "SourceId": "MomantzaApp",
       "SourceType": "Discovered",
       "ContentRoot": "E:\\chitahapu\\momentza\\server\\wwwroot\\",
       "BasePath": "_content/MomantzaApp",
-<<<<<<< HEAD
-      "RelativePath": "admin/lib/jquery/dist/jquery.min.map",
-=======
       "RelativePath": "admin/lib/jquery-validation-unobtrusive/LICENSE.txt",
->>>>>>> dafd703 (ui)
       "AssetKind": "All",
       "AssetMode": "All",
       "AssetRole": "Primary",
@@ -1570,30 +1344,7 @@
       "AssetTraitValue": "",
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
-<<<<<<< HEAD
-      "OriginalItemSpec": "wwwroot\\admin\\lib\\jquery\\dist\\jquery.min.map"
-    },
-    {
-      "Identity": "E:\\chitahapu\\momentza\\server\\wwwroot\\admin\\lib\\jquery\\LICENSE.txt",
-      "SourceId": "MomantzaApp",
-      "SourceType": "Discovered",
-      "ContentRoot": "E:\\chitahapu\\momentza\\server\\wwwroot\\",
-      "BasePath": "_content/MomantzaApp",
-      "RelativePath": "admin/lib/jquery/LICENSE.txt",
-      "AssetKind": "All",
-      "AssetMode": "All",
-      "AssetRole": "Primary",
-      "AssetMergeBehavior": "PreferTarget",
-      "AssetMergeSource": "",
-      "RelatedAsset": "",
-      "AssetTraitName": "",
-      "AssetTraitValue": "",
-      "CopyToOutputDirectory": "Never",
-      "CopyToPublishDirectory": "PreserveNewest",
-      "OriginalItemSpec": "wwwroot\\admin\\lib\\jquery\\LICENSE.txt"
-=======
       "OriginalItemSpec": "wwwroot\\admin\\lib\\jquery-validation-unobtrusive\\LICENSE.txt"
->>>>>>> dafd703 (ui)
     },
     {
       "Identity": "E:\\chitahapu\\momentza\\server\\wwwroot\\admin\\placeholder.svg",
@@ -1881,8 +1632,6 @@
       "OriginalItemSpec": "wwwroot\\js\\site.js"
     },
     {
-<<<<<<< HEAD
-=======
       "Identity": "E:\\chitahapu\\momentza\\server\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap.css",
       "SourceId": "MomantzaApp",
       "SourceType": "Discovered",
@@ -2035,7 +1784,6 @@
       "OriginalItemSpec": "wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap.rtl.min.css.map"
     },
     {
->>>>>>> dafd703 (ui)
       "Identity": "E:\\chitahapu\\momentza\\server\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-grid.css",
       "SourceId": "MomantzaApp",
       "SourceType": "Discovered",
@@ -2492,161 +2240,6 @@
       "OriginalItemSpec": "wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-utilities.rtl.min.css.map"
     },
     {
-<<<<<<< HEAD
-      "Identity": "E:\\chitahapu\\momentza\\server\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap.css",
-      "SourceId": "MomantzaApp",
-      "SourceType": "Discovered",
-      "ContentRoot": "E:\\chitahapu\\momentza\\server\\wwwroot\\",
-      "BasePath": "_content/MomantzaApp",
-      "RelativePath": "lib/bootstrap/dist/css/bootstrap.css",
-      "AssetKind": "All",
-      "AssetMode": "All",
-      "AssetRole": "Primary",
-      "AssetMergeBehavior": "PreferTarget",
-      "AssetMergeSource": "",
-      "RelatedAsset": "",
-      "AssetTraitName": "",
-      "AssetTraitValue": "",
-      "CopyToOutputDirectory": "Never",
-      "CopyToPublishDirectory": "PreserveNewest",
-      "OriginalItemSpec": "wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap.css"
-    },
-    {
-      "Identity": "E:\\chitahapu\\momentza\\server\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap.css.map",
-      "SourceId": "MomantzaApp",
-      "SourceType": "Discovered",
-      "ContentRoot": "E:\\chitahapu\\momentza\\server\\wwwroot\\",
-      "BasePath": "_content/MomantzaApp",
-      "RelativePath": "lib/bootstrap/dist/css/bootstrap.css.map",
-      "AssetKind": "All",
-      "AssetMode": "All",
-      "AssetRole": "Primary",
-      "AssetMergeBehavior": "PreferTarget",
-      "AssetMergeSource": "",
-      "RelatedAsset": "",
-      "AssetTraitName": "",
-      "AssetTraitValue": "",
-      "CopyToOutputDirectory": "Never",
-      "CopyToPublishDirectory": "PreserveNewest",
-      "OriginalItemSpec": "wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap.css.map"
-    },
-    {
-      "Identity": "E:\\chitahapu\\momentza\\server\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap.min.css",
-      "SourceId": "MomantzaApp",
-      "SourceType": "Discovered",
-      "ContentRoot": "E:\\chitahapu\\momentza\\server\\wwwroot\\",
-      "BasePath": "_content/MomantzaApp",
-      "RelativePath": "lib/bootstrap/dist/css/bootstrap.min.css",
-      "AssetKind": "All",
-      "AssetMode": "All",
-      "AssetRole": "Primary",
-      "AssetMergeBehavior": "PreferTarget",
-      "AssetMergeSource": "",
-      "RelatedAsset": "",
-      "AssetTraitName": "",
-      "AssetTraitValue": "",
-      "CopyToOutputDirectory": "Never",
-      "CopyToPublishDirectory": "PreserveNewest",
-      "OriginalItemSpec": "wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap.min.css"
-    },
-    {
-      "Identity": "E:\\chitahapu\\momentza\\server\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap.min.css.map",
-      "SourceId": "MomantzaApp",
-      "SourceType": "Discovered",
-      "ContentRoot": "E:\\chitahapu\\momentza\\server\\wwwroot\\",
-      "BasePath": "_content/MomantzaApp",
-      "RelativePath": "lib/bootstrap/dist/css/bootstrap.min.css.map",
-      "AssetKind": "All",
-      "AssetMode": "All",
-      "AssetRole": "Primary",
-      "AssetMergeBehavior": "PreferTarget",
-      "AssetMergeSource": "",
-      "RelatedAsset": "",
-      "AssetTraitName": "",
-      "AssetTraitValue": "",
-      "CopyToOutputDirectory": "Never",
-      "CopyToPublishDirectory": "PreserveNewest",
-      "OriginalItemSpec": "wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap.min.css.map"
-    },
-    {
-      "Identity": "E:\\chitahapu\\momentza\\server\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap.rtl.css",
-      "SourceId": "MomantzaApp",
-      "SourceType": "Discovered",
-      "ContentRoot": "E:\\chitahapu\\momentza\\server\\wwwroot\\",
-      "BasePath": "_content/MomantzaApp",
-      "RelativePath": "lib/bootstrap/dist/css/bootstrap.rtl.css",
-      "AssetKind": "All",
-      "AssetMode": "All",
-      "AssetRole": "Primary",
-      "AssetMergeBehavior": "PreferTarget",
-      "AssetMergeSource": "",
-      "RelatedAsset": "",
-      "AssetTraitName": "",
-      "AssetTraitValue": "",
-      "CopyToOutputDirectory": "Never",
-      "CopyToPublishDirectory": "PreserveNewest",
-      "OriginalItemSpec": "wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap.rtl.css"
-    },
-    {
-      "Identity": "E:\\chitahapu\\momentza\\server\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap.rtl.css.map",
-      "SourceId": "MomantzaApp",
-      "SourceType": "Discovered",
-      "ContentRoot": "E:\\chitahapu\\momentza\\server\\wwwroot\\",
-      "BasePath": "_content/MomantzaApp",
-      "RelativePath": "lib/bootstrap/dist/css/bootstrap.rtl.css.map",
-      "AssetKind": "All",
-      "AssetMode": "All",
-      "AssetRole": "Primary",
-      "AssetMergeBehavior": "PreferTarget",
-      "AssetMergeSource": "",
-      "RelatedAsset": "",
-      "AssetTraitName": "",
-      "AssetTraitValue": "",
-      "CopyToOutputDirectory": "Never",
-      "CopyToPublishDirectory": "PreserveNewest",
-      "OriginalItemSpec": "wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap.rtl.css.map"
-    },
-    {
-      "Identity": "E:\\chitahapu\\momentza\\server\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap.rtl.min.css",
-      "SourceId": "MomantzaApp",
-      "SourceType": "Discovered",
-      "ContentRoot": "E:\\chitahapu\\momentza\\server\\wwwroot\\",
-      "BasePath": "_content/MomantzaApp",
-      "RelativePath": "lib/bootstrap/dist/css/bootstrap.rtl.min.css",
-      "AssetKind": "All",
-      "AssetMode": "All",
-      "AssetRole": "Primary",
-      "AssetMergeBehavior": "PreferTarget",
-      "AssetMergeSource": "",
-      "RelatedAsset": "",
-      "AssetTraitName": "",
-      "AssetTraitValue": "",
-      "CopyToOutputDirectory": "Never",
-      "CopyToPublishDirectory": "PreserveNewest",
-      "OriginalItemSpec": "wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap.rtl.min.css"
-    },
-    {
-      "Identity": "E:\\chitahapu\\momentza\\server\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap.rtl.min.css.map",
-      "SourceId": "MomantzaApp",
-      "SourceType": "Discovered",
-      "ContentRoot": "E:\\chitahapu\\momentza\\server\\wwwroot\\",
-      "BasePath": "_content/MomantzaApp",
-      "RelativePath": "lib/bootstrap/dist/css/bootstrap.rtl.min.css.map",
-      "AssetKind": "All",
-      "AssetMode": "All",
-      "AssetRole": "Primary",
-      "AssetMergeBehavior": "PreferTarget",
-      "AssetMergeSource": "",
-      "RelatedAsset": "",
-      "AssetTraitName": "",
-      "AssetTraitValue": "",
-      "CopyToOutputDirectory": "Never",
-      "CopyToPublishDirectory": "PreserveNewest",
-      "OriginalItemSpec": "wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap.rtl.min.css.map"
-    },
-    {
-=======
->>>>>>> dafd703 (ui)
       "Identity": "E:\\chitahapu\\momentza\\server\\wwwroot\\lib\\bootstrap\\dist\\js\\bootstrap.bundle.js",
       "SourceId": "MomantzaApp",
       "SourceType": "Discovered",
@@ -2894,20 +2487,12 @@
       "OriginalItemSpec": "wwwroot\\lib\\bootstrap\\LICENSE"
     },
     {
-<<<<<<< HEAD
-      "Identity": "E:\\chitahapu\\momentza\\server\\wwwroot\\lib\\jquery-validation-unobtrusive\\jquery.validate.unobtrusive.js",
-=======
       "Identity": "E:\\chitahapu\\momentza\\server\\wwwroot\\lib\\jquery\\dist\\jquery.js",
->>>>>>> dafd703 (ui)
       "SourceId": "MomantzaApp",
       "SourceType": "Discovered",
       "ContentRoot": "E:\\chitahapu\\momentza\\server\\wwwroot\\",
       "BasePath": "_content/MomantzaApp",
-<<<<<<< HEAD
-      "RelativePath": "lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.js",
-=======
       "RelativePath": "lib/jquery/dist/jquery.js",
->>>>>>> dafd703 (ui)
       "AssetKind": "All",
       "AssetMode": "All",
       "AssetRole": "Primary",
@@ -2918,26 +2503,15 @@
       "AssetTraitValue": "",
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
-<<<<<<< HEAD
-      "OriginalItemSpec": "wwwroot\\lib\\jquery-validation-unobtrusive\\jquery.validate.unobtrusive.js"
-    },
-    {
-      "Identity": "E:\\chitahapu\\momentza\\server\\wwwroot\\lib\\jquery-validation-unobtrusive\\jquery.validate.unobtrusive.min.js",
-=======
       "OriginalItemSpec": "wwwroot\\lib\\jquery\\dist\\jquery.js"
     },
     {
       "Identity": "E:\\chitahapu\\momentza\\server\\wwwroot\\lib\\jquery\\dist\\jquery.min.js",
->>>>>>> dafd703 (ui)
       "SourceId": "MomantzaApp",
       "SourceType": "Discovered",
       "ContentRoot": "E:\\chitahapu\\momentza\\server\\wwwroot\\",
       "BasePath": "_content/MomantzaApp",
-<<<<<<< HEAD
-      "RelativePath": "lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js",
-=======
       "RelativePath": "lib/jquery/dist/jquery.min.js",
->>>>>>> dafd703 (ui)
       "AssetKind": "All",
       "AssetMode": "All",
       "AssetRole": "Primary",
@@ -2948,26 +2522,15 @@
       "AssetTraitValue": "",
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
-<<<<<<< HEAD
-      "OriginalItemSpec": "wwwroot\\lib\\jquery-validation-unobtrusive\\jquery.validate.unobtrusive.min.js"
-    },
-    {
-      "Identity": "E:\\chitahapu\\momentza\\server\\wwwroot\\lib\\jquery-validation-unobtrusive\\LICENSE.txt",
-=======
       "OriginalItemSpec": "wwwroot\\lib\\jquery\\dist\\jquery.min.js"
     },
     {
       "Identity": "E:\\chitahapu\\momentza\\server\\wwwroot\\lib\\jquery\\dist\\jquery.min.map",
->>>>>>> dafd703 (ui)
       "SourceId": "MomantzaApp",
       "SourceType": "Discovered",
       "ContentRoot": "E:\\chitahapu\\momentza\\server\\wwwroot\\",
       "BasePath": "_content/MomantzaApp",
-<<<<<<< HEAD
-      "RelativePath": "lib/jquery-validation-unobtrusive/LICENSE.txt",
-=======
       "RelativePath": "lib/jquery/dist/jquery.min.map",
->>>>>>> dafd703 (ui)
       "AssetKind": "All",
       "AssetMode": "All",
       "AssetRole": "Primary",
@@ -2978,9 +2541,6 @@
       "AssetTraitValue": "",
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
-<<<<<<< HEAD
-      "OriginalItemSpec": "wwwroot\\lib\\jquery-validation-unobtrusive\\LICENSE.txt"
-=======
       "OriginalItemSpec": "wwwroot\\lib\\jquery\\dist\\jquery.min.map"
     },
     {
@@ -3001,7 +2561,6 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\lib\\jquery\\LICENSE.txt"
->>>>>>> dafd703 (ui)
     },
     {
       "Identity": "E:\\chitahapu\\momentza\\server\\wwwroot\\lib\\jquery-validation\\dist\\additional-methods.js",
@@ -3099,20 +2658,12 @@
       "OriginalItemSpec": "wwwroot\\lib\\jquery-validation\\LICENSE.md"
     },
     {
-<<<<<<< HEAD
-      "Identity": "E:\\chitahapu\\momentza\\server\\wwwroot\\lib\\jquery\\dist\\jquery.js",
-=======
       "Identity": "E:\\chitahapu\\momentza\\server\\wwwroot\\lib\\jquery-validation-unobtrusive\\jquery.validate.unobtrusive.js",
->>>>>>> dafd703 (ui)
       "SourceId": "MomantzaApp",
       "SourceType": "Discovered",
       "ContentRoot": "E:\\chitahapu\\momentza\\server\\wwwroot\\",
       "BasePath": "_content/MomantzaApp",
-<<<<<<< HEAD
-      "RelativePath": "lib/jquery/dist/jquery.js",
-=======
       "RelativePath": "lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.js",
->>>>>>> dafd703 (ui)
       "AssetKind": "All",
       "AssetMode": "All",
       "AssetRole": "Primary",
@@ -3123,26 +2674,15 @@
       "AssetTraitValue": "",
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
-<<<<<<< HEAD
-      "OriginalItemSpec": "wwwroot\\lib\\jquery\\dist\\jquery.js"
-    },
-    {
-      "Identity": "E:\\chitahapu\\momentza\\server\\wwwroot\\lib\\jquery\\dist\\jquery.min.js",
-=======
       "OriginalItemSpec": "wwwroot\\lib\\jquery-validation-unobtrusive\\jquery.validate.unobtrusive.js"
     },
     {
       "Identity": "E:\\chitahapu\\momentza\\server\\wwwroot\\lib\\jquery-validation-unobtrusive\\jquery.validate.unobtrusive.min.js",
->>>>>>> dafd703 (ui)
       "SourceId": "MomantzaApp",
       "SourceType": "Discovered",
       "ContentRoot": "E:\\chitahapu\\momentza\\server\\wwwroot\\",
       "BasePath": "_content/MomantzaApp",
-<<<<<<< HEAD
-      "RelativePath": "lib/jquery/dist/jquery.min.js",
-=======
       "RelativePath": "lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js",
->>>>>>> dafd703 (ui)
       "AssetKind": "All",
       "AssetMode": "All",
       "AssetRole": "Primary",
@@ -3153,26 +2693,15 @@
       "AssetTraitValue": "",
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
-<<<<<<< HEAD
-      "OriginalItemSpec": "wwwroot\\lib\\jquery\\dist\\jquery.min.js"
-    },
-    {
-      "Identity": "E:\\chitahapu\\momentza\\server\\wwwroot\\lib\\jquery\\dist\\jquery.min.map",
-=======
       "OriginalItemSpec": "wwwroot\\lib\\jquery-validation-unobtrusive\\jquery.validate.unobtrusive.min.js"
     },
     {
       "Identity": "E:\\chitahapu\\momentza\\server\\wwwroot\\lib\\jquery-validation-unobtrusive\\LICENSE.txt",
->>>>>>> dafd703 (ui)
       "SourceId": "MomantzaApp",
       "SourceType": "Discovered",
       "ContentRoot": "E:\\chitahapu\\momentza\\server\\wwwroot\\",
       "BasePath": "_content/MomantzaApp",
-<<<<<<< HEAD
-      "RelativePath": "lib/jquery/dist/jquery.min.map",
-=======
       "RelativePath": "lib/jquery-validation-unobtrusive/LICENSE.txt",
->>>>>>> dafd703 (ui)
       "AssetKind": "All",
       "AssetMode": "All",
       "AssetRole": "Primary",
@@ -3183,30 +2712,7 @@
       "AssetTraitValue": "",
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
-<<<<<<< HEAD
-      "OriginalItemSpec": "wwwroot\\lib\\jquery\\dist\\jquery.min.map"
-    },
-    {
-      "Identity": "E:\\chitahapu\\momentza\\server\\wwwroot\\lib\\jquery\\LICENSE.txt",
-      "SourceId": "MomantzaApp",
-      "SourceType": "Discovered",
-      "ContentRoot": "E:\\chitahapu\\momentza\\server\\wwwroot\\",
-      "BasePath": "_content/MomantzaApp",
-      "RelativePath": "lib/jquery/LICENSE.txt",
-      "AssetKind": "All",
-      "AssetMode": "All",
-      "AssetRole": "Primary",
-      "AssetMergeBehavior": "PreferTarget",
-      "AssetMergeSource": "",
-      "RelatedAsset": "",
-      "AssetTraitName": "",
-      "AssetTraitValue": "",
-      "CopyToOutputDirectory": "Never",
-      "CopyToPublishDirectory": "PreserveNewest",
-      "OriginalItemSpec": "wwwroot\\lib\\jquery\\LICENSE.txt"
-=======
       "OriginalItemSpec": "wwwroot\\lib\\jquery-validation-unobtrusive\\LICENSE.txt"
->>>>>>> dafd703 (ui)
     },
     {
       "Identity": "E:\\chitahapu\\momentza\\server\\wwwroot\\placeholder.svg",
