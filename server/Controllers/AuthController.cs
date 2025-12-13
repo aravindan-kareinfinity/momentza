@@ -19,7 +19,7 @@ namespace Momantza.Controllers
 
         [HttpPost("login")]
         public async Task<IActionResult> Login(LoginRequest request)
-         {
+        {
             try
             {
                 if (!ModelState.IsValid)
@@ -188,7 +188,7 @@ namespace Momantza.Controllers
                     return BadRequest(new { message = "Unable to determine organization. Please access via organization subdomain." });
                 }
 
-               Console.WriteLine($"👤 Register attempt for organization domain: {organization.Domain} (ID: {organization.OrganizationId})");
+                Console.WriteLine($"👤 Register attempt for organization domain: {organization.Domain} (ID: {organization.OrganizationId})");
 
                 // Register user in the specific organization
                 var result = await _authService.RegisterAsync(request.Email, request.Password, request.Name, organization.OrganizationId.ToString());

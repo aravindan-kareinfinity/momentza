@@ -85,6 +85,7 @@ builder.Services.AddScoped<IChatBotDataService, ChatBotDataService>();
 builder.Services.AddScoped<IPaymentDataService, PaymentDataService>();
 builder.Services.AddScoped<IFeatureDataService, FeatureDataService>();
 builder.Services.AddHttpContextAccessor();
+//builder.Services.AddHttpContextAccessor();
 
 var app = builder.Build();
 

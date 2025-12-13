@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
 using Momantza.Services;
 
 namespace Momantza.Controllers
@@ -8,16 +7,13 @@ namespace Momantza.Controllers
     {
         private readonly IOrganizationsDataService _organizationsDataService;
         private readonly IHallDataService _hallDataService;
-        private readonly IConfiguration _configuration;
 
         public ExploreOrganisationController(
             IOrganizationsDataService organizationsDataService,
-            IHallDataService hallDataService,
-            IConfiguration configuration)
+            IHallDataService hallDataService)
         {
             _organizationsDataService = organizationsDataService;
             _hallDataService = hallDataService;
-            _configuration = configuration;
         }
 
         [HttpGet]
@@ -53,7 +49,12 @@ namespace Momantza.Controllers
         {
             try
             {
-                var baseUrl = GetApiBaseUrl();
+                // Use the current request's scheme and host instead of hardcoded localhost:5000
+                // This works for both production (momentza.com) and localhost
+                var scheme = Request.Scheme; // http or https
+                var host = Request.Host.Value; // momentza.com or localhost:5000
+                var baseUrl = $"{scheme}://{host}";
+                
                 using var httpClient = new HttpClient();
                 var response = await httpClient.GetAsync($"{baseUrl}/api/halls");
                 
@@ -75,7 +76,12 @@ namespace Momantza.Controllers
         {
             try
             {
-                var baseUrl = GetApiBaseUrl();
+                // Use the current request's scheme and host instead of hardcoded localhost:5000
+                // This works for both production (momentza.com) and localhost
+                var scheme = Request.Scheme; // http or https
+                var host = Request.Host.Value; // momentza.com or localhost:5000
+                var baseUrl = $"{scheme}://{host}";
+                
                 using var httpClient = new HttpClient();
                 var response = await httpClient.GetAsync($"{baseUrl}/api/bookings/search");
                 
@@ -110,19 +116,6 @@ namespace Momantza.Controllers
             {
                 return NotFound();
             }
-        }
-
-        private string GetApiBaseUrl()
-        {
-            var configured = _configuration["ApiBaseUrl"] ?? Environment.GetEnvironmentVariable("API_BASE_URL");
-            if (!string.IsNullOrWhiteSpace(configured))
-            {
-                return configured.TrimEnd('/');
-            }
-
-            // Default to current host (e.g., https://momentza.com)
-            var requestBase = $"{Request.Scheme}://{Request.Host}";
-            return requestBase.TrimEnd('/');
         }
     }
 }

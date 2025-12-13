@@ -2,6 +2,11 @@
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { useNavigate } from 'react-router-dom';
+import { PublicHallsSection } from '@/components/Home/PublicHallsSection';
+import { PublicReviewsSection } from '@/components/Home/PublicReviewsSection';
+import { PublicHomeCarousel } from '@/components/Home/PublicHomeCarousel';
 
 interface ComponentConfig {
   slotTime?: number;
@@ -26,9 +31,23 @@ interface PreviewComponent {
 
 interface MicrositePreviewProps {
   components: PreviewComponent[];
+  organization?: any;
+  halls?: any[];
+  carouselItems?: any[];
+  galleryImages?: any[];
+  reviews?: any[];
 }
 
-export function MicrositePreview({ components }: MicrositePreviewProps) {
+export function MicrositePreview({ 
+  components, 
+  organization,
+  halls = [],
+  carouselItems = [],
+  galleryImages = [],
+  reviews = []
+}: MicrositePreviewProps) {
+  const navigate = useNavigate();
+
   const getWidthClass = (width?: string) => {
     switch (width) {
       case '1/4': return 'w-1/4';
@@ -45,35 +64,66 @@ export function MicrositePreview({ components }: MicrositePreviewProps) {
 
     switch (component.type) {
       case 'carousel':
+        // Use real carousel component if we have data
+        if (organization && (carouselItems.length > 0 || galleryImages.length > 0)) {
+          return (
+            <PublicHomeCarousel
+              organization={organization}
+              carouselItems={carouselItems}
+              galleryImages={galleryImages}
+            />
+          );
+        }
+        // Fallback to placeholder
         return (
           <div className="relative h-64 md:h-80 lg:h-96 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg overflow-hidden">
             <div className="absolute inset-0 flex items-center justify-center text-white">
               <div className="text-center">
-                <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4">Welcome to Our Venue</h2>
-                <p className="text-lg md:text-xl mb-6">Make your special day unforgettable</p>
+                <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4">
+                  {config.title || organization?.name || 'Welcome to Our Venue'}
+                </h2>
+                <p className="text-lg md:text-xl mb-6">
+                  {config.description || 'Make your special day unforgettable'}
+                </p>
                 <div className="flex justify-center space-x-4">
-                  <button className="px-6 py-3 bg-white text-blue-600 font-semibold rounded-lg hover:bg-gray-100 transition-colors">
+                  <Button 
+                    className="px-6 py-3 bg-white text-blue-600 font-semibold rounded-lg hover:bg-gray-100"
+                    onClick={() => navigate('/booking')}
+                  >
                     Book Now
-                  </button>
-                  <button className="px-6 py-3 border-2 border-white text-white font-semibold rounded-lg hover:bg-white hover:text-blue-600 transition-colors">
+                  </Button>
+                  <Button 
+                    variant="outline"
+                    className="px-6 py-3 border-2 border-white text-white font-semibold rounded-lg hover:bg-white hover:text-blue-600"
+                    onClick={() => navigate('/halls')}
+                  >
                     View Halls
-                  </button>
+                  </Button>
                 </div>
-                <div className="mt-6 text-sm opacity-75">
-                  Auto-advance: {config.slotTime || 5}s
-                </div>
+                {config.slotTime && (
+                  <div className="mt-6 text-sm opacity-75">
+                    Auto-advance: {config.slotTime}s
+                  </div>
+                )}
               </div>
             </div>
           </div>
         );
 
       case 'halls':
+        // Use real halls component if we have halls data
+        if (halls && halls.length > 0) {
+          return <PublicHallsSection halls={halls} />;
+        }
+        // Fallback to placeholder
         return (
           <div className="space-y-6">
             <div className="text-center">
-              <h2 className="text-3xl font-bold text-gray-800 mb-4">Our Wedding Halls</h2>
+              <h2 className="text-3xl font-bold text-gray-800 mb-4">
+                {config.title || 'Our Wedding Halls'}
+              </h2>
               <p className="text-gray-600 max-w-2xl mx-auto">
-                Discover our beautiful venues perfect for your special day. Each hall is designed to create unforgettable memories.
+                {config.description || 'Discover our beautiful venues perfect for your special day. Each hall is designed to create unforgettable memories.'}
               </p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -96,41 +146,73 @@ export function MicrositePreview({ components }: MicrositePreviewProps) {
               ))}
             </div>
             <div className="text-center">
-              <button className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors">
+              <Button 
+                onClick={() => navigate('/halls')}
+                className="px-6 py-3"
+              >
                 View All Halls
-              </button>
+              </Button>
             </div>
           </div>
         );
 
       case 'reviews':
+        // Use real reviews component if we have organization
+        if (organization) {
+          return <PublicReviewsSection organization={organization} />;
+        }
+        // Fallback to placeholder
         const maxReviews = config.maxCount || 6;
         return (
           <div className="space-y-4">
-            <h2 className="text-2xl font-bold text-center">Customer Reviews</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {Array.from({ length: Math.min(maxReviews, 6) }).map((_, i) => (
-                <Card key={i}>
-                  <CardContent className="p-4">
-                    <div className="flex items-center mb-2">
-                      <div className="flex text-yellow-500">
-                        {'★'.repeat(5)}
+            <h2 className="text-2xl font-bold text-center">{config.title || 'Customer Reviews'}</h2>
+            {reviews && reviews.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {reviews.slice(0, Math.min(maxReviews, reviews.length)).map((review: any, i: number) => (
+                  <Card key={review.id || i}>
+                    <CardContent className="p-4">
+                      <div className="flex items-center mb-2">
+                        <div className="flex text-yellow-500">
+                          {'★'.repeat(review.rating || 5)}
+                        </div>
                       </div>
-                    </div>
-                    <p className="text-sm text-gray-600 mb-2">
-                      "Amazing venue with excellent service. Highly recommended!"
-                    </p>
-                    <p className="text-sm font-semibold">- Customer {i + 1}</p>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-            <p className="text-center text-sm text-gray-500">Showing {Math.min(maxReviews, 6)} reviews</p>
+                      <p className="text-sm text-gray-600 mb-2">
+                        "{review.comment || review.feedback || 'Amazing venue with excellent service!'}"
+                      </p>
+                      <p className="text-sm font-semibold">
+                        - {review.customerName || review.customer?.name || 'Customer'}
+                      </p>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {Array.from({ length: Math.min(maxReviews, 6) }).map((_, i) => (
+                  <Card key={i}>
+                    <CardContent className="p-4">
+                      <div className="flex items-center mb-2">
+                        <div className="flex text-yellow-500">
+                          {'★'.repeat(5)}
+                        </div>
+                      </div>
+                      <p className="text-sm text-gray-600 mb-2">
+                        "Amazing venue with excellent service. Highly recommended!"
+                      </p>
+                      <p className="text-sm font-semibold">- Customer {i + 1}</p>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+            <p className="text-center text-sm text-gray-500">
+              Showing {reviews ? Math.min(maxReviews, reviews.length) : Math.min(maxReviews, 6)} reviews
+            </p>
           </div>
         );
 
       case 'text':
-        const alignmentClass = config.textAlignment === 'center' ? 'text-center' : 
+        const alignmentClass =  
                               config.textAlignment === 'right' ? 'text-right' : 'text-left';
         return (
           <div className={`${getWidthClass(config.blockWidth)} mx-auto`}>
@@ -172,39 +254,39 @@ export function MicrositePreview({ components }: MicrositePreviewProps) {
           </div>
         );
 
-      case 'search':
-        return (
-          <Card className="bg-gradient-to-r from-blue-50 to-purple-50 border-0">
-            <CardContent className="p-8">
-              <div className="text-center">
-                <h2 className="text-3xl font-bold text-gray-800 mb-4">Find Your Perfect Hall</h2>
-                <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
-                  Search through our collection of beautiful venues to find the perfect setting for your special day
-                </p>
-                <div className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
-                  <input 
-                    type="text" 
-                    placeholder="Search halls by name, location, or capacity..." 
-                    className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                  <button className="px-8 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors">
-                    Search
-                  </button>
-                </div>
-                <div className="mt-4 text-sm text-gray-500">
-                  Popular searches: Large venues, Outdoor spaces, Intimate settings
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        );
+      // case 'search':
+      //   return (
+      //     <Card className="bg-gradient-to-r from-blue-50 to-purple-50 border-0">
+      //       <CardContent className="p-8">
+      //         <div className="text-center">
+      //           <h2 className="text-3xl font-bold text-gray-800 mb-4">Find Your Perfect Hall</h2>
+      //           <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
+      //             Search through our collection of beautiful venues to find the perfect setting for your special day
+      //           </p>
+      //           <div className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
+      //             <input 
+      //               type="text" 
+      //               placeholder="Search halls by name, location, or capacity..." 
+      //               className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+      //             />
+      //             <button className="px-8 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors">
+      //               Search
+      //             </button>
+      //           </div>
+      //           <div className="mt-4 text-sm text-gray-500">
+      //             Popular searches: Large venues, Outdoor spaces, Intimate settings
+      //           </div>
+      //         </div>
+      //       </CardContent>
+      //     </Card>
+      //   );
 
-      default:
-        return (
-          <div className="p-4 border border-dashed border-gray-300 rounded-lg text-center text-gray-500">
-            {component.type} component
-          </div>
-        );
+      // default:
+      //   return (
+      //     <div className="p-4 border border-dashed border-gray-300 rounded-lg text-center text-gray-500">
+      //       {component.type} component
+      //     </div>
+      //   );
     }
   };
 
@@ -213,8 +295,8 @@ export function MicrositePreview({ components }: MicrositePreviewProps) {
             .sort((a, b) => a.orderPosition - b.orderPosition);
 
   return (
-    <div className="space-y-8 p-6 bg-gray-50 min-h-screen">
-      <div className="max-w-6xl mx-auto">
+    <div className="space-y-8 bg-background min-h-screen">
+      <div className="max-w-7xl mx-auto px-4">
         {activeComponents.map((component) => (
           <div key={component.id} className="mb-8">
             {renderComponent(component)}
@@ -222,7 +304,9 @@ export function MicrositePreview({ components }: MicrositePreviewProps) {
         ))}
         {activeComponents.length === 0 && (
           <div className="text-center text-gray-500 py-12">
-            <h1 className="text-3xl font-bold text-gray-800 mb-4">Welcome</h1>
+            <h1 className="text-3xl font-bold text-gray-800 mb-4">
+              {organization?.name || 'Welcome'}
+            </h1>
             <p className="text-gray-600">This page is being configured. Please check back later.</p>
           </div>
         )}

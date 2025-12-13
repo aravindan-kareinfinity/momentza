@@ -11,7 +11,7 @@ export type RuntimeConfig = {
 export let runtimeConfig: RuntimeConfig = {
   VITE_BASE_URL: '', // default to empty (root)
   VITE_PORT: 8080, // default port
-  VITE_API_BASE_URL: 'https://momentza.com', // default fallback
+  VITE_API_BASE_URL: '', // default: empty = relative URLs (same origin), overridden by config.json
   VITE_APP_TITLE: 'Wedding Hub Manager',
   VITE_APP_VERSION: '1.0.0',
   VITE_ENVIRONMENT: 'development'

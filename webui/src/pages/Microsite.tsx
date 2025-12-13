@@ -43,7 +43,7 @@ const componentTypes = [
   { type: 'carousel', label: 'Carousel', icon: ImageIcon, description: 'Hero carousel with images' },
   { type: 'halls', label: 'Halls Grid', icon: Building, description: 'Display all halls' },
   { type: 'reviews', label: 'Reviews', icon: Star, description: 'Customer testimonials' },
-  { type: 'search', label: 'Hall Search', icon: Search, description: 'Search and filter halls' },
+ // { type: 'search', label: 'Hall Search', icon: Search, description: 'Search and filter halls' },
   { type: 'image', label: 'Image Block', icon: ImageIcon, description: 'Single image with caption' },
   { type: 'text', label: 'Text Block', icon: Type, description: 'Rich text content' },
 ];
@@ -181,6 +181,8 @@ const Microsite = () => {
     const { active, over } = event;
 
     if (active.id !== over?.id) {
+      let reorderedComponents: MicrositeComponent[] = [];
+      
       setComponents((items) => {
         const oldIndex = items.findIndex((item) => item.id === active.id);
         const newIndex = items.findIndex((item) => item.id === over?.id);
@@ -188,23 +190,23 @@ const Microsite = () => {
         const newItems = arrayMove(items, oldIndex, newIndex);
         
         // Update orderPosition numbers
-        return newItems.map((item, index) => ({
+        const updatedItems = newItems.map((item, index) => ({
           ...item,
           orderPosition: index + 1
         }));
+        
+        // Store for API call
+        reorderedComponents = updatedItems;
+        
+        return updatedItems;
       });
 
       // Persist the new order to the server
       try {
-        if (currentUser?.organizationId) {
-          const newOrder = arrayMove(components, 
-            components.findIndex(item => item.id === active.id),
-            components.findIndex(item => item.id === over?.id)
-          );
-          
+        if (currentUser?.organizationId && reorderedComponents.length > 0) {
           await micrositeService.reorderComponents(
             currentUser.organizationId, 
-            newOrder.map(item => item.id)
+            reorderedComponents.map(item => item.id)
           );
         }
       } catch (error) {
@@ -214,6 +216,11 @@ const Microsite = () => {
           description: 'Failed to save component order',
           variant: 'destructive',
         });
+        // Reload components on error
+        if (currentUser?.organizationId) {
+          const componentsData = await micrositeService.getComponents(currentUser.organizationId);
+          setComponents(componentsData);
+        }
       }
     }
   };
@@ -319,8 +326,8 @@ const Microsite = () => {
           componentToUpdate
         );
 
-        // Update local state with the updated component
-        setComponents(components.map(comp => 
+        // Update local state with the updated component using functional update
+        setComponents(prev => prev.map(comp => 
           comp.id === configComponent.id ? updatedComponent : comp
         ));
 

@@ -2,10 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, useParams } from 'react-router-dom';
 import { TopNavigation } from '@/components/Layout/TopNavigation';
-import { PublicHomeCarousel } from '@/components/Home/PublicHomeCarousel';
-import { PublicHallsSection } from '@/components/Home/PublicHallsSection';
 import { CustomerClicksSection } from '@/components/Home/CustomerClicksSection';
-import { PublicReviewsSection } from '@/components/Home/PublicReviewsSection';
 import { PublicFooter } from '@/components/Home/PublicFooter';
 import { ServerErrorDialog } from '@/components/ui/ServerErrorDialog';
 import { 
@@ -14,9 +11,12 @@ import {
   carouselService, 
   galleryService, 
   customerClicksService, 
-  reviewService 
+  reviewService,
+  micrositeService
 } from '@/services/ServiceFactory';
 import { AnimatedPage } from '@/components/Layout/AnimatedPage';
+import { MicrositePreview } from '@/components/Microsite/MicrositePreview';
+import { MicrositeComponent } from '@/services/interfaces/IDataService';
 
 // Page-level context data
 interface PublicHomeData {
@@ -26,6 +26,7 @@ interface PublicHomeData {
   galleryImages: any[];
   customerClicks: any[];
   reviews: any[];
+  micrositeComponents: MicrositeComponent[];
 }
 
 // UUID validation function
@@ -51,7 +52,8 @@ const PublicHome = () => {
     carouselItems: [],
     galleryImages: [],
     customerClicks: [],
-    reviews: []
+    reviews: [],
+    micrositeComponents: []
   });
   
   const [loading, setLoading] = useState(true);
@@ -102,13 +104,18 @@ const PublicHome = () => {
         carouselItems,
         galleryImages,
         customerClicks,
-        reviews
+        reviews,
+        micrositeComponents
       ] = await Promise.all([
         hallService.getAllHalls(),
         carouselService.getCarouselItems(organization.id),
         galleryService.getImagesByOrganization(organization.id),
         customerClicksService.getAll(),
-        reviewService.getReviewsByOrganization(organization.id)
+        reviewService.getReviewsByOrganization(organization.id),
+        micrositeService.getComponents(organization.id).catch(err => {
+          console.warn('[PublicHome] Failed to fetch microsite components:', err);
+          return [];
+        })
       ]);
 
       setPageData({
@@ -117,7 +124,8 @@ const PublicHome = () => {
         carouselItems,
         galleryImages,
         customerClicks,
-        reviews
+        reviews,
+        micrositeComponents
       });
 
       setShowErrorDialog(false);
@@ -192,23 +200,43 @@ const PublicHome = () => {
     );
   }
 
+  // Check if we should use microsite components or fallback to hardcoded sections
+  const activeMicrositeComponents = pageData.micrositeComponents
+    .filter(comp => comp.isActive)
+    .sort((a, b) => a.orderPosition - b.orderPosition);
+
+  const useMicrositeLayout = activeMicrositeComponents.length > 0;
+
   return (
     <AnimatedPage className="min-h-screen bg-background">
       <TopNavigation organization={pageData.organization} />
       <main>
-        <PublicHomeCarousel 
-          organization={pageData.organization}
-          carouselItems={pageData.carouselItems}
-          galleryImages={pageData.galleryImages}
-        />
-        <PublicHallsSection 
-          halls={pageData.halls}
-        />
+        {useMicrositeLayout ? (
+          // Use dynamic microsite components
+          <MicrositePreview
+            components={pageData.micrositeComponents}
+            organization={pageData.organization}
+            halls={pageData.halls}
+            carouselItems={pageData.carouselItems}
+            galleryImages={pageData.galleryImages}
+            reviews={pageData.reviews}
+          />
+        ) : (
+          // Fallback to hardcoded sections if no microsite components
+          <>
+            <div className="container mx-auto px-4 py-12 text-center">
+              <h1 className="text-4xl font-bold mb-4">
+                {pageData.organization?.name || 'Welcome'}
+              </h1>
+              <p className="text-gray-600 mb-8">
+                This page is being configured. Please check back later.
+              </p>
+            </div>
+          </>
+        )}
+        {/* Customer clicks section always shown */}
         <CustomerClicksSection 
           customerClicks={pageData.customerClicks}
-        />
-        <PublicReviewsSection 
-          organization={pageData.organization}
         />
       </main>
       <PublicFooter 

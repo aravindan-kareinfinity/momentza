@@ -3,23 +3,20 @@
   "WorkspaceRootPath": "C:\\Users\\dhine\\OneDrive\\Desktop\\Momentza04\\momentza\\server\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{E622D273-3207-4422-AC9B-67DF4E645BF5}|MomantzaApp.csproj|c:\\users\\dhine\\onedrive\\desktop\\momentza04\\momentza\\server\\dataservice\\servicesdataservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E622D273-3207-4422-AC9B-67DF4E645BF5}|MomantzaApp.csproj|solutionrelative:dataservice\\servicesdataservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E622D273-3207-4422-AC9B-67DF4E645BF5}|MomantzaApp.csproj|c:\\users\\dhine\\onedrive\\desktop\\momentza04\\momentza\\server\\dataservice\\gallerydataservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E622D273-3207-4422-AC9B-67DF4E645BF5}|MomantzaApp.csproj|solutionrelative:dataservice\\gallerydataservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E622D273-3207-4422-AC9B-67DF4E645BF5}|MomantzaApp.csproj|c:\\users\\dhine\\onedrive\\desktop\\momentza04\\momentza\\server\\middleware\\organizationresolvermiddleware.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E622D273-3207-4422-AC9B-67DF4E645BF5}|MomantzaApp.csproj|solutionrelative:middleware\\organizationresolvermiddleware.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{E622D273-3207-4422-AC9B-67DF4E645BF5}|MomantzaApp.csproj|c:\\users\\dhine\\onedrive\\desktop\\momentza04\\momentza\\server\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{E622D273-3207-4422-AC9B-67DF4E645BF5}|MomantzaApp.csproj|solutionrelative:program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Program Files\\dotnet\\sdk\\10.0.100\\Sdks\\Microsoft.NET.Sdk.StaticWebAssets\\targets\\Microsoft.NET.Sdk.StaticWebAssets.targets||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{E622D273-3207-4422-AC9B-67DF4E645BF5}|MomantzaApp.csproj|c:\\users\\dhine\\onedrive\\desktop\\momentza04\\momentza\\server\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
-      "RelativeMoniker": "D:0:0:{E622D273-3207-4422-AC9B-67DF4E645BF5}|MomantzaApp.csproj|solutionrelative:appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{E622D273-3207-4422-AC9B-67DF4E645BF5}|MomantzaApp.csproj|c:\\users\\dhine\\onedrive\\desktop\\momentza04\\momentza\\server\\appsettings.development.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
-      "RelativeMoniker": "D:0:0:{E622D273-3207-4422-AC9B-67DF4E645BF5}|MomantzaApp.csproj|solutionrelative:appsettings.development.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{E622D273-3207-4422-AC9B-67DF4E645BF5}|MomantzaApp.csproj|c:\\users\\dhine\\onedrive\\desktop\\momentza04\\momentza\\server\\controllers\\setupcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{E622D273-3207-4422-AC9B-67DF4E645BF5}|MomantzaApp.csproj|solutionrelative:controllers\\setupcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -29,7 +26,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 5,
+          "SelectedChildIndex": 1,
           "Children": [
             {
               "$type": "Bookmark",
@@ -37,67 +34,54 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "Microsoft.NET.Sdk.StaticWebAssets.targets",
-              "DocumentMoniker": "C:\\Program Files\\dotnet\\sdk\\10.0.100\\Sdks\\Microsoft.NET.Sdk.StaticWebAssets\\targets\\Microsoft.NET.Sdk.StaticWebAssets.targets",
-              "RelativeDocumentMoniker": "..\\..\\..\\..\\..\\..\\..\\Program Files\\dotnet\\sdk\\10.0.100\\Sdks\\Microsoft.NET.Sdk.StaticWebAssets\\targets\\Microsoft.NET.Sdk.StaticWebAssets.targets",
-              "ToolTip": "C:\\Program Files\\dotnet\\sdk\\10.0.100\\Sdks\\Microsoft.NET.Sdk.StaticWebAssets\\targets\\Microsoft.NET.Sdk.StaticWebAssets.targets",
-              "RelativeToolTip": "..\\..\\..\\..\\..\\..\\..\\Program Files\\dotnet\\sdk\\10.0.100\\Sdks\\Microsoft.NET.Sdk.StaticWebAssets\\targets\\Microsoft.NET.Sdk.StaticWebAssets.targets",
-              "ViewState": "AgIAAFoCAAAAAAAAAAAWwGkCAAAEAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003801|",
-              "WhenOpened": "2025-12-12T13:15:27.852Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 4,
-              "Title": "SetupController.cs",
-              "DocumentMoniker": "C:\\Users\\dhine\\OneDrive\\Desktop\\Momentza04\\momentza\\server\\Controllers\\SetupController.cs",
-              "RelativeDocumentMoniker": "Controllers\\SetupController.cs",
-              "ToolTip": "C:\\Users\\dhine\\OneDrive\\Desktop\\Momentza04\\momentza\\server\\Controllers\\SetupController.cs",
-              "RelativeToolTip": "Controllers\\SetupController.cs",
-              "ViewState": "AgIAAEQAAAAAAAAAAAAgwFwAAAAIAAAAAAAAAA==",
+              "DocumentIndex": 0,
+              "Title": "ServicesDataService.cs",
+              "DocumentMoniker": "C:\\Users\\dhine\\OneDrive\\Desktop\\Momentza04\\momentza\\server\\dataservice\\ServicesDataService.cs",
+              "RelativeDocumentMoniker": "dataservice\\ServicesDataService.cs",
+              "ToolTip": "C:\\Users\\dhine\\OneDrive\\Desktop\\Momentza04\\momentza\\server\\dataservice\\ServicesDataService.cs",
+              "RelativeToolTip": "dataservice\\ServicesDataService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-12T12:25:39.743Z",
+              "WhenOpened": "2025-12-13T10:17:31.056Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "appsettings.Development.json",
-              "DocumentMoniker": "C:\\Users\\dhine\\OneDrive\\Desktop\\Momentza04\\momentza\\server\\appsettings.Development.json",
-              "RelativeDocumentMoniker": "appsettings.Development.json",
-              "ToolTip": "C:\\Users\\dhine\\OneDrive\\Desktop\\Momentza04\\momentza\\server\\appsettings.Development.json",
-              "RelativeToolTip": "appsettings.Development.json",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAABrAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2025-12-12T12:22:15.225Z",
+              "DocumentIndex": 1,
+              "Title": "GalleryDataService.cs",
+              "DocumentMoniker": "C:\\Users\\dhine\\OneDrive\\Desktop\\Momentza04\\momentza\\server\\dataservice\\GalleryDataService.cs",
+              "RelativeDocumentMoniker": "dataservice\\GalleryDataService.cs",
+              "ToolTip": "C:\\Users\\dhine\\OneDrive\\Desktop\\Momentza04\\momentza\\server\\dataservice\\GalleryDataService.cs",
+              "RelativeToolTip": "dataservice\\GalleryDataService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-13T10:02:37.084Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 2,
-              "Title": "appsettings.json",
-              "DocumentMoniker": "C:\\Users\\dhine\\OneDrive\\Desktop\\Momentza04\\momentza\\server\\appsettings.json",
-              "RelativeDocumentMoniker": "appsettings.json",
-              "ToolTip": "C:\\Users\\dhine\\OneDrive\\Desktop\\Momentza04\\momentza\\server\\appsettings.json",
-              "RelativeToolTip": "appsettings.json",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAABnAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2025-12-12T12:21:58.132Z",
+              "Title": "OrganizationResolverMiddleware.cs",
+              "DocumentMoniker": "C:\\Users\\dhine\\OneDrive\\Desktop\\Momentza04\\momentza\\server\\Middleware\\OrganizationResolverMiddleware.cs",
+              "RelativeDocumentMoniker": "Middleware\\OrganizationResolverMiddleware.cs",
+              "ToolTip": "C:\\Users\\dhine\\OneDrive\\Desktop\\Momentza04\\momentza\\server\\Middleware\\OrganizationResolverMiddleware.cs",
+              "RelativeToolTip": "Middleware\\OrganizationResolverMiddleware.cs",
+              "ViewState": "AgIAAG4AAAAAAAAAAAAYwCMAAAAIAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-13T08:33:16.616Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 3,
               "Title": "Program.cs",
               "DocumentMoniker": "C:\\Users\\dhine\\OneDrive\\Desktop\\Momentza04\\momentza\\server\\Program.cs",
               "RelativeDocumentMoniker": "Program.cs",
               "ToolTip": "C:\\Users\\dhine\\OneDrive\\Desktop\\Momentza04\\momentza\\server\\Program.cs",
               "RelativeToolTip": "Program.cs",
-              "ViewState": "AgIAAFsAAAAAAAAAAAAwwG4AAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAACsAAAAAAAAAAAAAAHUAAAAXAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-12T12:17:46.407Z",
+              "WhenOpened": "2025-12-13T08:19:34.303Z",
               "EditorCaption": ""
             }
           ]

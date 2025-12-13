@@ -177,7 +177,7 @@ namespace Momantza.Services
             return await GetUsersByOrganizationAsync(organizationId);
         }
 
-        public async Task<Users?> GetByEmailAndOrganizationAsync(string email, string organizationId)
+        public async Task<Users?> GetByEmailAndOrganizationAsync(string email, string orgId)
         {
             try
             {
@@ -185,7 +185,7 @@ namespace Momantza.Services
                 var sql = "SELECT * FROM users WHERE email = @email AND organizationid = @organizationId";
                 using var command = new NpgsqlCommand(sql, connection);
                 command.Parameters.AddWithValue("@email", email);
-                command.Parameters.AddWithValue("@organizationId", organizationId);
+                command.Parameters.AddWithValue("@organizationId", orgId);
 
                 using var reader = await command.ExecuteReaderAsync();
                 if (await reader.ReadAsync())

@@ -1,144 +1,136 @@
-import { buildApiUrl, getApiBaseUrl } from "@/environment";
-import { IAuthService } from "../interfaces/IDataService";
-import { User } from "../../types";
+import { IAuthService } from '../interfaces/IDataService';
+import { User } from '../../types';
+
 
 export class ApiAuthService implements IAuthService {
   private currentUser: User | null = null;
 
   private getBackendBaseUrl(): string {
     const { hostname } = window.location;
-
+    
     // 🎯 CRITICAL FIX: Use the same subdomain but backend port (5212)
-    if (hostname.includes(".localhost")) {
-      return `http://${hostname}:5212`; // Backend runs on port 5212
+    if (hostname.includes('.localhost')) {
+      return `http://${hostname}:5000`; // Backend runs on port 5212
     }
-
-    // Production: same origin (momentza.com)
-    return window.location.origin || 'https://momentza.com';
+    
+    // For production: company.yourapp.com -> api.yourapp.com
+    return 'http://localhost:5000'; // Fallback to direct backend
   }
 
   private getOrganizationId(): string {
     // 1) Query override: ?orgId=...
     try {
       const url = new URL(window.location.href);
-      const q = url.searchParams.get("orgId");
+      const q = url.searchParams.get('orgId');
       if (q) return q;
     } catch {}
 
     // 2) Local override: currentOrganizationId or selectedOrganizationId
-    const storedOrgId =
-      localStorage.getItem("currentOrganizationId") ||
-      localStorage.getItem("selectedOrganizationId");
+    const storedOrgId = localStorage.getItem('currentOrganizationId') || localStorage.getItem('selectedOrganizationId');
     if (storedOrgId) return storedOrgId;
 
     // 3) Subdomain: jk.localhost -> jk
     try {
       const hostname = window.location.hostname;
-      if (hostname.includes(".localhost")) {
-        const subdomain = hostname.split(".")[0];
-        if (subdomain && subdomain !== "www") {
+      if (hostname.includes('.localhost')) {
+        const subdomain = hostname.split('.')[0];
+        if (subdomain && subdomain !== 'www') {
           return subdomain;
         }
       }
       // Production-style: company.yourapp.com -> company
-      const parts = hostname.split(".");
+      const parts = hostname.split('.');
       if (parts.length >= 3) {
         return parts[0];
       }
     } catch {}
 
-    return "";
+    return '';
   }
 
   async login(email: string, password: string): Promise<User> {
     try {
       const orgId = this.getOrganizationId();
       const backendUrl = this.getBackendBaseUrl();
-      const loginUrl = buildApiUrl("/api/auth/login");
-
+      
       // Debug logging
-      console.log("🚀 Login request details:", {
+      console.log('🚀 Login request details:', {
         frontendUrl: window.location.href,
-        organization: orgId || "(empty)",
+        organization: orgId || '(empty)',
         backendUrl: backendUrl,
-        expectedBackend: `http://${orgId}.localhost:5212`, // What it should be
+        expectedBackend: `http://${orgId}.localhost:5000` // What it should be
       });
 
-      // if (!orgId) {
-      //   throw new Error('Please access via organization subdomain (e.g., jk.localhost:8080)');
-      // }
+     
 
-      const resp = await fetch(loginUrl, {
-        method: "POST",
+      const resp = await fetch(`${backendUrl}/api/auth/login`, {
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
-          "X-Organization-Id": orgId,
-          "X-Organization-Subdomain": orgId,
+          'Content-Type': 'application/json',
+          'X-Organization-Id': orgId,
+          'X-Organization-Subdomain': orgId
         },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email, password })
       });
 
       if (!resp.ok) {
-        const errorData = await resp
-          .json()
-          .catch(() => ({ message: "Unknown error" }));
-        console.error("❌ Login failed:", {
+        const errorData = await resp.json().catch(() => ({ message: 'Unknown error' }));
+        console.error('❌ Login failed:', {
           status: resp.status,
           statusText: resp.statusText,
           error: errorData,
           organization: orgId,
-          backendUrl: backendUrl,
+          backendUrl: backendUrl
         });
         throw new Error(errorData.message || `Login failed: ${resp.status}`);
       }
 
       const response = await resp.json();
-
+      
       // Store user data with token
       const userWithToken = {
         ...response.user,
-        token: response.token,
+        token: response.token
       };
-
+      
       this.currentUser = userWithToken;
-      localStorage.setItem("currentUser", JSON.stringify(userWithToken));
-      localStorage.setItem("currentOrganizationId", orgId);
-
-      console.log("✅ Login successful for organization:", orgId);
+      localStorage.setItem('currentUser', JSON.stringify(userWithToken));
+      localStorage.setItem('currentOrganizationId', orgId);
+      
+      console.log('✅ Login successful for organization:', orgId);
       return userWithToken;
     } catch (error) {
-      console.error("❌ Login error:", error);
+      console.error('❌ Login error:', error);
       if (error instanceof Error) {
         throw error;
       }
-      throw new Error("Invalid credentials");
+      throw new Error('Invalid credentials');
     }
   }
 
   async logout(): Promise<void> {
     try {
       const backendUrl = this.getBackendBaseUrl();
-      const logoutUrl = buildApiUrl("/api/auth/logout");
       const token = this.getAuthToken();
-
+      
       if (token) {
-        await fetch(logoutUrl, {
-          method: "POST",
+        await fetch(`${backendUrl}/api/auth/logout`, {
+          method: 'POST',
           headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
           },
-          credentials: "include",
+          credentials: 'include'
         });
       }
     } catch (error) {
-      console.warn("Server logout failed, clearing local data:", error);
+      console.warn('Server logout failed, clearing local data:', error);
     } finally {
       // Always clear local data
       this.currentUser = null;
-      localStorage.removeItem("currentUser");
-      localStorage.removeItem("currentOrganizationId");
-      console.log("✅ Logout completed");
+      localStorage.removeItem('currentUser');
+      localStorage.removeItem('currentOrganizationId');
+      console.log('✅ Logout completed');
     }
   }
 
@@ -149,15 +141,15 @@ export class ApiAuthService implements IAuthService {
     }
 
     // Try to get from localStorage
-    const stored = localStorage.getItem("currentUser");
+    const stored = localStorage.getItem('currentUser');
     if (stored) {
       try {
         const userData = JSON.parse(stored);
         this.currentUser = userData;
         return userData;
       } catch (error) {
-        console.warn("Invalid user data in localStorage, clearing...");
-        localStorage.removeItem("currentUser");
+        console.warn('Invalid user data in localStorage, clearing...');
+        localStorage.removeItem('currentUser');
         return null;
       }
     }
@@ -165,33 +157,32 @@ export class ApiAuthService implements IAuthService {
     // Try to validate with server
     try {
       const backendUrl = this.getBackendBaseUrl();
-      const meUrl = buildApiUrl("/api/auth/me");
       const token = this.getAuthToken();
-
+      
       if (!token) {
         return null;
       }
 
-      const resp = await fetch(meUrl, {
+      const resp = await fetch(`${backendUrl}/api/auth/me`, {
         headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
         },
-        credentials: "include",
+        credentials: 'include'
       });
 
       if (resp.ok) {
         const user = await resp.json();
         this.currentUser = user;
-        localStorage.setItem("currentUser", JSON.stringify(user));
+        localStorage.setItem('currentUser', JSON.stringify(user));
         return user;
       } else {
         // Token is invalid
-        console.warn("Token validation failed, clearing local data");
+        console.warn('Token validation failed, clearing local data');
         this.clearLocalData();
       }
     } catch (error) {
-      console.error("Error validating token:", error);
+      console.error('Error validating token:', error);
       this.clearLocalData();
     }
 
@@ -206,23 +197,22 @@ export class ApiAuthService implements IAuthService {
   async refreshToken(): Promise<string> {
     try {
       const backendUrl = this.getBackendBaseUrl();
-      const refreshUrl = buildApiUrl("/api/auth/refresh");
       const token = this.getAuthToken();
       if (!token) {
-        throw new Error("No token available for refresh");
+        throw new Error('No token available for refresh');
       }
 
-      const resp = await fetch(refreshUrl, {
-        method: "POST",
+      const resp = await fetch(`${backendUrl}/api/auth/refresh`, {
+        method: 'POST',
         headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
         },
-        credentials: "include",
+        credentials: 'include'
       });
 
       if (!resp.ok) {
-        throw new Error("Token refresh failed");
+        throw new Error('Token refresh failed');
       }
 
       const response = await resp.json();
@@ -230,20 +220,17 @@ export class ApiAuthService implements IAuthService {
 
       // Update stored user with new token
       if (this.currentUser) {
-        const updatedUser: any = {
-          ...(this.currentUser as any),
-          token: newToken,
-        };
+        const updatedUser: any = { ...(this.currentUser as any), token: newToken };
         this.currentUser = updatedUser as User;
-        localStorage.setItem("currentUser", JSON.stringify(updatedUser));
+        localStorage.setItem('currentUser', JSON.stringify(updatedUser));
       }
 
-      console.log("✅ Token refreshed successfully");
+      console.log('✅ Token refreshed successfully');
       return newToken;
     } catch (error) {
-      console.error("❌ Token refresh failed:", error);
+      console.error('❌ Token refresh failed:', error);
       await this.logout();
-      throw new Error("Token refresh failed");
+      throw new Error('Token refresh failed');
     }
   }
 
@@ -252,18 +239,18 @@ export class ApiAuthService implements IAuthService {
     if (this.currentUser) {
       return this.currentUser;
     }
-
-    const stored = localStorage.getItem("currentUser");
+    
+    const stored = localStorage.getItem('currentUser');
     if (stored) {
       try {
         this.currentUser = JSON.parse(stored);
         return this.currentUser;
       } catch {
-        localStorage.removeItem("currentUser");
+        localStorage.removeItem('currentUser');
         return null;
       }
     }
-
+    
     return null;
   }
 
@@ -274,25 +261,21 @@ export class ApiAuthService implements IAuthService {
   // Helper methods
   private getAuthToken(): string {
     const user = this.getCurrentUserSync();
-    return (user as any)?.token || "";
+    return (user as any)?.token || '';
   }
 
   private clearLocalData(): void {
     this.currentUser = null;
-    localStorage.removeItem("currentUser");
-    localStorage.removeItem("currentOrganizationId");
+    localStorage.removeItem('currentUser');
+    localStorage.removeItem('currentOrganizationId');
   }
 
   // For backward compatibility - throw errors for sync methods that can't work
   loginSync(email: string, password: string): User {
-    throw new Error(
-      "Synchronous login not supported in API mode. Use login() instead."
-    );
+    throw new Error('Synchronous login not supported in API mode. Use login() instead.');
   }
 
   logoutSync(): void {
-    throw new Error(
-      "Synchronous logout not supported in API mode. Use logout() instead."
-    );
+    throw new Error('Synchronous logout not supported in API mode. Use logout() instead.');
   }
 }
