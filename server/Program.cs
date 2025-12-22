@@ -272,10 +272,10 @@ app.MapFallback(async context =>
             context.Response.Headers.Append("Pragma", "no-cache");
             context.Response.Headers.Append("Expires", "0");
             await context.Response.SendFileAsync(foundPath);
-        }
-        else
-        {
-            context.Response.StatusCode = 404;
+    }
+    else
+    {
+        context.Response.StatusCode = 404;
             var errorMsg = $"SPA index.html not found. Tried:\n- {indexPath}\n" + string.Join("\n- ", altPaths);
             Console.WriteLine($"[SPA Fallback] ERROR: {errorMsg}");
             await context.Response.WriteAsync(errorMsg);

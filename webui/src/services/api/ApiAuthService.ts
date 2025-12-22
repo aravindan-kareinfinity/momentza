@@ -1,20 +1,23 @@
 import { IAuthService } from '../interfaces/IDataService';
 import { User } from '../../types';
+import { getApiBaseUrl } from '../../environment';
 
 
 export class ApiAuthService implements IAuthService {
   private currentUser: User | null = null;
 
   private getBackendBaseUrl(): string {
-    const { hostname } = window.location;
+    // Use the centralized getApiBaseUrl function to ensure consistency
+    // This preserves subdomain for both localhost and production domains
+    const baseUrl = getApiBaseUrl();
     
-    // 🎯 CRITICAL FIX: Use the same subdomain but backend port (5000)
-    if (hostname.includes('.localhost')) {
-      return `http://${hostname}:5000`; // Preserve subdomain, use backend port 5000
+    // If getApiBaseUrl returns empty (relative URL), use current origin
+    // This ensures API calls go to the same domain/subdomain as the frontend
+    if (!baseUrl || baseUrl === '') {
+      return window.location.origin;
     }
     
-    // For production: company.yourapp.com -> api.yourapp.com
-    return 'http://localhost:5000'; // Fallback to direct backend
+    return baseUrl;
   }
 
   private getOrganizationId(): string {

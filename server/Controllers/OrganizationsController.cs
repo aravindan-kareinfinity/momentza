@@ -273,15 +273,27 @@ namespace Momantza.Controllers
                         if (domain.Contains(':'))
                             domain = domain.Split(':')[0];
                         
-                        // Extract subdomain from hostname (e.g., "appointza.localhost" -> "appointza")
+                        // Extract subdomain from hostname for ANY domain format
+                        // Examples:
+                        // - "storesoft.momantza.com" -> "storesoft"
+                        // - "appointza.localhost" -> "appointza"
+                        // - "x.momantza.com" -> "x"
                         var parts = domain.Split('.');
-                        if (parts.Length >= 2 && parts[1] == "localhost")
+                        if (parts.Length >= 3)
                         {
+                            // Has subdomain: subdomain.domain.tld
                             domain = parts[0]; // Get subdomain part
                             Console.WriteLine($" Extracted subdomain from Host header: '{domain}'");
                         }
+                        else if (parts.Length == 2 && parts[1] == "localhost")
+                        {
+                            // Special case: "subdomain.localhost" (2 parts, but localhost is special)
+                            domain = parts[0]; // Get subdomain part
+                            Console.WriteLine($" Extracted subdomain from localhost: '{domain}'");
+                        }
                         else
                         {
+                            // Base domain (e.g., "momantza.com") - no subdomain to extract
                             Console.WriteLine($" Using full hostname as domain: '{domain}'");
                         }
                     }

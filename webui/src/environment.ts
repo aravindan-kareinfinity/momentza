@@ -15,14 +15,34 @@ const normalizeUrl = (value?: string): string | undefined => {
  * For localhost development, preserves subdomain and uses port 5000.
  */
 export const getApiBaseUrl = (): string => {
-  // PRIORITY 1: Check if we're on a subdomain - ALWAYS preserve subdomain regardless of config
+  // PRIORITY 1: ALWAYS preserve subdomain for ANY domain (localhost OR production)
+  // This ensures: storesoft.momantza.com -> API calls go to storesoft.momantza.com
   if (typeof window !== 'undefined') {
     const hostname = window.location.hostname;
+    const protocol = window.location.protocol; // http: or https:
+    const port = window.location.port;
     
-    // Preserve subdomain for .localhost domains (e.g., appointza.localhost -> http://appointza.localhost:5000)
-    if (hostname.includes('.localhost')) {
-      console.log(`[getApiBaseUrl] Preserving subdomain: ${hostname} -> http://${hostname}:5000`);
-      return `http://${hostname}:5000`;
+    // Check if we're on a subdomain (3+ parts: subdomain.domain.tld)
+    const parts = hostname.split('.');
+    const hasSubdomain = parts.length >= 3;
+    
+    if (hasSubdomain) {
+      // We're on a subdomain - preserve it for API calls
+      // Examples:
+      // - storesoft.momantza.com -> https://storesoft.momantza.com/api/...
+      // - appointza.localhost -> http://appointza.localhost:5000/api/...
+      const apiUrl = port 
+        ? `${protocol}//${hostname}:${port}` 
+        : `${protocol}//${hostname}`;
+      console.log(`[getApiBaseUrl] Preserving subdomain: ${hostname} -> ${apiUrl}`);
+      return apiUrl;
+    }
+    
+    // Special case: localhost with port (development)
+    if (hostname.includes('.localhost') || (hostname === 'localhost' && port)) {
+      const devPort = port || '5000';
+      console.log(`[getApiBaseUrl] Development mode: ${hostname} -> http://${hostname}:${devPort}`);
+      return `http://${hostname}:${devPort}`;
     }
   }
   
@@ -38,6 +58,7 @@ export const getApiBaseUrl = (): string => {
   // If we have an explicit config, use it
   if (resolved) {
     // If it's a relative path (starts with /) or empty, return as-is
+    // This means API calls use same origin (good for production)
     if (resolved.startsWith('/') || resolved === '') {
       return resolved;
     }
@@ -55,7 +76,8 @@ export const getApiBaseUrl = (): string => {
     }
   }
   
-  // Production: use relative URLs (empty string means same origin)
+  // Production base domain: use relative URLs (empty string = same origin)
+  // This means: momantza.com -> /api/... (same origin)
   return '';
 };
 
