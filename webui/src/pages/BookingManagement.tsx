@@ -156,10 +156,10 @@ const BookingManagement = () => {
   // ]);
   const features = pageData.features || [];
 
-  const [selectedServices, setSelectedServices] = useState<Service[]>([
-    { id: 'service-1', name: 'Catering', price: 2000, directPay: false },
-    { id: 'service-2', name: 'Decoration', price: 1500, directPay: false },
-  ]);
+  // const [selectedServices, setSelectedServices] = useState<Service[]>([
+  //   { id: 'service-1', name: 'Catering', price: 2000, directPay: false },
+  //   { id: 'service-2', name: 'Decoration', price: 1500, directPay: false },
+  // ]);
 
   // const [payments, setPayments] = useState<PaymentsItem[]>([]);
 
@@ -606,7 +606,7 @@ console.log("inventoryCatalog >>>", inventoryCatalog);
     (sum, f) => sum + Number(f.price || 0) * Number(f.quantity || 0),
     0
   );
-  const servicesTotal = selectedServices.filter(s => !s.directPay).reduce((sum, s) => sum + Number(s.price || 0), 0);
+  const servicesTotal = servicesArray.filter(s => !s.directPay).reduce((sum, s) => sum + Number(s.price || 0), 0);
   const inventoryTotal = bookingInventoryItems.reduce((sum, item) => sum + (Number(item.price || 0) * Number(item.quantity || 0)), 0);
   const safeDiscount = Number(discount || 0);
   const totalCharges = safeBookingTotal + featuresTotal + servicesTotal + inventoryTotal - safeDiscount;

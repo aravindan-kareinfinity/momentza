@@ -210,6 +210,7 @@ namespace Momantza.Middleware
                             Domain = reader.IsDBNull(1) ? string.Empty : reader.GetString(1)
                         };
                     }
+                    await reader.CloseAsync();
 
                     // PRIORITY 2: If no exact match and we have a subdomain, try subdomain match
                     // This handles ANY subdomain: "sd", "x", "kjsenfkj", "pakshi", etc.

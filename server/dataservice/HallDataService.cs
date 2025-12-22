@@ -125,10 +125,12 @@ namespace Momantza.Services
         public override async Task<Hall?> GetByIdAsync(string id)
         {
             var orgId = GetCurrentOrganizationId();
-            var sql = "SELECT * FROM halls WHERE id = @id";
+            //var sql = "SELECT * FROM halls WHERE id = @id";
+            var sql = "SELECT * FROM halls WHERE id = @id AND organizationid = @orgId";
             using var connection = await GetConnectionAsync();
             using var command = new NpgsqlCommand(sql, connection);
             command.Parameters.AddWithValue("@id", id);
+            command.Parameters.AddWithValue("@orgId", orgId);
             using var reader = await command.ExecuteReaderAsync();
             if (await reader.ReadAsync())
             {

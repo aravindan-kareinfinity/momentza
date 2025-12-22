@@ -147,43 +147,82 @@ namespace Momantza.Services
             }
         }
 
+        //public async Task<Organizations?> GetByDomainAsync(string domain)
+        //{
+        //    try
+        //    {
+        //        using var connection = await GetConnectionAsync();
+
+        //        // First try exact match
+        //        var sql = "SELECT * FROM organization WHERE lower(defaultdomain) = lower(@domain) OR lower(customdomain) = lower(@domain) LIMIT 1";
+
+        //        using var command = new NpgsqlCommand(sql, connection);
+        //        command.Parameters.AddWithValue("@domain", domain);
+
+        //        using var reader = await command.ExecuteReaderAsync();
+        //        if (await reader.ReadAsync())
+        //        {
+        //            return MapFromReader(reader);
+        //        }
+
+        //        // If exact match fails, try pattern match (like middleware does)
+        //        // This handles cases where domain is "appointza" but DB has "appointza.localhost"
+        //        sql = "SELECT * FROM organization WHERE lower(defaultdomain) LIKE lower(@domainPattern) OR lower(customdomain) LIKE lower(@domainPattern) LIMIT 1";
+
+        //        using var command2 = new NpgsqlCommand(sql, connection);
+        //        command2.Parameters.AddWithValue("@domainPattern", $"{domain}%");
+
+        //        using var reader2 = await command2.ExecuteReaderAsync();
+        //        if (await reader2.ReadAsync())
+        //        {
+        //            return MapFromReader(reader2);
+        //        }
+
+        //        return null;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Console.WriteLine($"Error getting organization by domain: {ex.Message}");
+        //        return null;
+        //    }
+        //}
+
         public async Task<Organizations?> GetByDomainAsync(string domain)
         {
-            try
+            using var connection = await GetConnectionAsync();
+
+            // 1️⃣ Exact match
+            var sql = @"SELECT * FROM organization
+                WHERE lower(defaultdomain) = lower(@domain)
+                   OR lower(customdomain) = lower(@domain)
+                LIMIT 1";
+
+            using (var cmd = new NpgsqlCommand(sql, connection))
             {
-                using var connection = await GetConnectionAsync();
-                
-                // First try exact match
-                var sql = "SELECT * FROM organization WHERE lower(defaultdomain) = lower(@domain) OR lower(customdomain) = lower(@domain) LIMIT 1";
-                using var command = new NpgsqlCommand(sql, connection);
-                command.Parameters.AddWithValue("@domain", domain);
-                
-                using var reader = await command.ExecuteReaderAsync();
+                cmd.Parameters.AddWithValue("@domain", domain);
+                using var reader = await cmd.ExecuteReaderAsync();
                 if (await reader.ReadAsync())
-                {
                     return MapFromReader(reader);
-                }
-                
-                // If exact match fails, try pattern match (like middleware does)
-                // This handles cases where domain is "appointza" but DB has "appointza.localhost"
-                sql = "SELECT * FROM organization WHERE lower(defaultdomain) LIKE lower(@domainPattern) OR lower(customdomain) LIKE lower(@domainPattern) LIMIT 1";
-                using var command2 = new NpgsqlCommand(sql, connection);
-                command2.Parameters.AddWithValue("@domainPattern", $"{domain}%");
-                
-                using var reader2 = await command2.ExecuteReaderAsync();
-                if (await reader2.ReadAsync())
-                {
-                    return MapFromReader(reader2);
-                }
-                
-                return null;
             }
-            catch (Exception ex)
+
+            // 2️⃣ Domain with dot suffix only
+            sql = @"SELECT * FROM organization
+            WHERE lower(defaultdomain) LIKE lower(@pattern)
+               OR lower(customdomain) LIKE lower(@pattern)
+            LIMIT 1";
+
+            using (var cmd = new NpgsqlCommand(sql, connection))
             {
-                Console.WriteLine($"Error getting organization by domain: {ex.Message}");
-                return null;
+                cmd.Parameters.AddWithValue("@pattern", $"{domain}.%");
+                using var reader = await cmd.ExecuteReaderAsync();
+                if (await reader.ReadAsync())
+                    return MapFromReader(reader);
             }
+
+            return null;
         }
+
+
 
         public async Task<Organizations> GetCurrentOrganizationAsync(string domain)
         {
