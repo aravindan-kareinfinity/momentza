@@ -72,7 +72,7 @@ namespace MomantzaApp.DataService
             var orgId = GetCurrentOrganizationId();
             var sql = @"SELECT * FROM features 
                         WHERE booking_id = @bookingId 
-                        AND organizationid = @org 
+                        OR organizationid = @org 
                         ORDER BY created_at DESC";
 
             using var conn = await GetConnectionAsync();

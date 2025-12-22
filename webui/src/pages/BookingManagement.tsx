@@ -156,10 +156,10 @@ const BookingManagement = () => {
   // ]);
   const features = pageData.features || [];
 
-  const [selectedServices, setSelectedServices] = useState<Service[]>([
-    { id: 'service-1', name: 'Catering', price: 2000, directPay: false },
-    { id: 'service-2', name: 'Decoration', price: 1500, directPay: false },
-  ]);
+  // const [selectedServices, setSelectedServices] = useState<Service[]>([
+  //   { id: 'service-1', name: 'Catering', price: 2000, directPay: false },
+  //   { id: 'service-2', name: 'Decoration', price: 1500, directPay: false },
+  // ]);
 
   // const [payments, setPayments] = useState<PaymentsItem[]>([]);
 
@@ -606,7 +606,7 @@ console.log("inventoryCatalog >>>", inventoryCatalog);
     (sum, f) => sum + Number(f.price || 0) * Number(f.quantity || 0),
     0
   );
-  const servicesTotal = selectedServices.filter(s => !s.directPay).reduce((sum, s) => sum + Number(s.price || 0), 0);
+  const servicesTotal = servicesArray.filter(services => !services.directPay).reduce((sum, services) => sum + Number(services.price || 0), 0);
   const inventoryTotal = bookingInventoryItems.reduce((sum, item) => sum + (Number(item.price || 0) * Number(item.quantity || 0)), 0);
   const safeDiscount = Number(discount || 0);
   const totalCharges = safeBookingTotal + featuresTotal + servicesTotal + inventoryTotal - safeDiscount;
@@ -1368,23 +1368,23 @@ console.log("inventoryCatalog >>>", inventoryCatalog);
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {servicesArray.map((service) => (
-                    <div key={service.id} className="flex justify-between items-center p-3 bg-gray-50 rounded">
+                  {servicesArray.map((services) => (
+                    <div key={services.id} className="flex justify-between items-center p-3 bg-gray-50 rounded">
                       <div>
-                        <span className="font-medium">{service.name}</span>
-                        <Badge variant={service.directPay ? "secondary" : "default"} className="ml-2">
-                          {service.directPay ? "Direct Pay" : "Include in Bill"}
+                        <span className="font-medium">{services.name}</span>
+                        <Badge variant={services.directPay ? "secondary" : "default"} className="ml-2">
+                          {services.directPay ? "Direct Pay" : "Include in Bill"}
                         </Badge>
-                        {service.notes && <p className="text-sm text-gray-600 mt-1">{service.notes}</p>}
+                        {services.notes && <p className="text-sm text-gray-600 mt-1">{services.notes}</p>}
                       </div>
                       <div className="flex gap-2 items-center">
-                        <span className="font-semibold">₹{service.price.toLocaleString()}</span>
-                        <Button variant="outline" size="sm" onClick={() => handleEditService(service)}>
+                        <span className="font-semibold">₹{services.price.toLocaleString()}</span>
+                        <Button variant="outline" size="sm" onClick={() => handleEditService(services)}>
                           <Edit className="h-4 w-4" />
                         </Button>
                         <Button variant="outline" size="sm" onClick={() => {
                           const reason = prompt('Please provide reason for deletion:');
-                          if (reason) handleDeleteService(service.id, reason);
+                          if (reason) handleDeleteService(services.id, reason);
                         }}>
                           <Trash2 className="h-4 w-4" />
                         </Button>

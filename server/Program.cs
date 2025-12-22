@@ -51,7 +51,8 @@ builder.Services.AddAuthentication("Bearer")
         };
     });
 
-builder.Services.AddSingleton<IOrganizationResolver, DomainOrganizationResolver>();
+//builder.Services.AddSingleton<IOrganizationResolver, DomainOrganizationResolver>();
+builder.Services.AddScoped<IOrganizationResolver, DomainOrganizationResolver>();
 
 // Return an empty OrganizationContext when not present instead of throwing.
 builder.Services.AddScoped<OrganizationContext>(_ =>

@@ -1,0 +1,242 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Momentza\\momantza\\server\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{E622D273-3207-4422-AC9B-67DF4E645BF5}|MomantzaApp.csproj|c:\\momentza\\momantza\\server\\controllers\\featurecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E622D273-3207-4422-AC9B-67DF4E645BF5}|MomantzaApp.csproj|solutionrelative:controllers\\featurecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E622D273-3207-4422-AC9B-67DF4E645BF5}|MomantzaApp.csproj|c:\\momentza\\momantza\\server\\dataservice\\featuredataservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E622D273-3207-4422-AC9B-67DF4E645BF5}|MomantzaApp.csproj|solutionrelative:dataservice\\featuredataservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E622D273-3207-4422-AC9B-67DF4E645BF5}|MomantzaApp.csproj|c:\\momentza\\momantza\\server\\controllers\\bookingcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E622D273-3207-4422-AC9B-67DF4E645BF5}|MomantzaApp.csproj|solutionrelative:controllers\\bookingcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E622D273-3207-4422-AC9B-67DF4E645BF5}|MomantzaApp.csproj|c:\\momentza\\momantza\\server\\controllers\\homecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E622D273-3207-4422-AC9B-67DF4E645BF5}|MomantzaApp.csproj|solutionrelative:controllers\\homecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E622D273-3207-4422-AC9B-67DF4E645BF5}|MomantzaApp.csproj|c:\\momentza\\momantza\\server\\views\\exploreorganisation\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{E622D273-3207-4422-AC9B-67DF4E645BF5}|MomantzaApp.csproj|solutionrelative:views\\exploreorganisation\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E622D273-3207-4422-AC9B-67DF4E645BF5}|MomantzaApp.csproj|c:\\momentza\\momantza\\server\\middleware\\organizationresolvermiddleware.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E622D273-3207-4422-AC9B-67DF4E645BF5}|MomantzaApp.csproj|solutionrelative:middleware\\organizationresolvermiddleware.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E622D273-3207-4422-AC9B-67DF4E645BF5}|MomantzaApp.csproj|c:\\momentza\\momantza\\server\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E622D273-3207-4422-AC9B-67DF4E645BF5}|MomantzaApp.csproj|solutionrelative:program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E622D273-3207-4422-AC9B-67DF4E645BF5}|MomantzaApp.csproj|c:\\momentza\\momantza\\server\\properties\\launchsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{E622D273-3207-4422-AC9B-67DF4E645BF5}|MomantzaApp.csproj|solutionrelative:properties\\launchsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E622D273-3207-4422-AC9B-67DF4E645BF5}|MomantzaApp.csproj|c:\\momentza\\momantza\\server\\controllers\\organizationscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E622D273-3207-4422-AC9B-67DF4E645BF5}|MomantzaApp.csproj|solutionrelative:controllers\\organizationscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E622D273-3207-4422-AC9B-67DF4E645BF5}|MomantzaApp.csproj|c:\\momentza\\momantza\\server\\dataservice\\organizationsdataservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E622D273-3207-4422-AC9B-67DF4E645BF5}|MomantzaApp.csproj|solutionrelative:dataservice\\organizationsdataservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E622D273-3207-4422-AC9B-67DF4E645BF5}|MomantzaApp.csproj|c:\\momentza\\momantza\\server\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{E622D273-3207-4422-AC9B-67DF4E645BF5}|MomantzaApp.csproj|solutionrelative:appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E622D273-3207-4422-AC9B-67DF4E645BF5}|MomantzaApp.csproj|c:\\momentza\\momantza\\server\\appsettings.development.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{E622D273-3207-4422-AC9B-67DF4E645BF5}|MomantzaApp.csproj|solutionrelative:appsettings.development.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E622D273-3207-4422-AC9B-67DF4E645BF5}|MomantzaApp.csproj|c:\\momentza\\momantza\\server\\dataservice\\reviewdataservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E622D273-3207-4422-AC9B-67DF4E645BF5}|MomantzaApp.csproj|solutionrelative:dataservice\\reviewdataservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 2,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{cce594b6-0c39-4442-ba28-10c64ac7e89f}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:131:0:{1fc202d4-d401-403c-9834-5b218574bb67}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "FeatureController.cs",
+              "DocumentMoniker": "C:\\Momentza\\momantza\\server\\Controllers\\FeatureController.cs",
+              "RelativeDocumentMoniker": "Controllers\\FeatureController.cs",
+              "ToolTip": "C:\\Momentza\\momantza\\server\\Controllers\\FeatureController.cs",
+              "RelativeToolTip": "Controllers\\FeatureController.cs",
+              "ViewState": "AgIAAB0AAAAAAAAAAAAjwCIAAAAZAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-18T07:34:53.751Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "FeatureDataService.cs",
+              "DocumentMoniker": "C:\\Momentza\\momantza\\server\\dataservice\\FeatureDataService.cs",
+              "RelativeDocumentMoniker": "dataservice\\FeatureDataService.cs",
+              "ToolTip": "C:\\Momentza\\momantza\\server\\dataservice\\FeatureDataService.cs",
+              "RelativeToolTip": "dataservice\\FeatureDataService.cs",
+              "ViewState": "AgIAAEAAAAAAAAAAAAAnwEUAAABAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-18T07:31:09.917Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "BookingController.cs",
+              "DocumentMoniker": "C:\\Momentza\\momantza\\server\\Controllers\\BookingController.cs",
+              "RelativeDocumentMoniker": "Controllers\\BookingController.cs",
+              "ToolTip": "C:\\Momentza\\momantza\\server\\Controllers\\BookingController.cs",
+              "RelativeToolTip": "Controllers\\BookingController.cs",
+              "ViewState": "AgIAAK0BAAAAAAAAAADwv7cBAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-17T05:17:42.866Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "HomeController.cs",
+              "DocumentMoniker": "C:\\Momentza\\momantza\\server\\Controllers\\HomeController.cs",
+              "RelativeDocumentMoniker": "Controllers\\HomeController.cs",
+              "ToolTip": "C:\\Momentza\\momantza\\server\\Controllers\\HomeController.cs",
+              "RelativeToolTip": "Controllers\\HomeController.cs",
+              "ViewState": "AgIAAI0AAAAAAAAAAAAYwJwAAAA9AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-16T10:49:15.745Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "launchSettings.json",
+              "DocumentMoniker": "C:\\Momentza\\momantza\\server\\Properties\\launchSettings.json",
+              "RelativeDocumentMoniker": "Properties\\launchSettings.json",
+              "ToolTip": "C:\\Momentza\\momantza\\server\\Properties\\launchSettings.json",
+              "RelativeToolTip": "Properties\\launchSettings.json",
+              "ViewState": "AgIAAAMAAAAAAAAAAAAAAA8AAAAGAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2025-12-16T08:57:26.382Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "OrganizationsController.cs",
+              "DocumentMoniker": "C:\\Momentza\\momantza\\server\\Controllers\\OrganizationsController.cs",
+              "RelativeDocumentMoniker": "Controllers\\OrganizationsController.cs",
+              "ToolTip": "C:\\Momentza\\momantza\\server\\Controllers\\OrganizationsController.cs",
+              "RelativeToolTip": "Controllers\\OrganizationsController.cs",
+              "ViewState": "AgIAANcCAAAAAAAAAAAYwN4CAAApAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-16T08:25:00.915Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "OrganizationsDataService.cs",
+              "DocumentMoniker": "C:\\Momentza\\momantza\\server\\dataservice\\OrganizationsDataService.cs",
+              "RelativeDocumentMoniker": "dataservice\\OrganizationsDataService.cs",
+              "ToolTip": "C:\\Momentza\\momantza\\server\\dataservice\\OrganizationsDataService.cs",
+              "RelativeToolTip": "dataservice\\OrganizationsDataService.cs",
+              "ViewState": "AgIAABgBAAAAAAAAAAAowCgBAAACAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-16T08:24:01.57Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Momentza\\momantza\\server\\Program.cs",
+              "RelativeDocumentMoniker": "Program.cs",
+              "ToolTip": "C:\\Momentza\\momantza\\server\\Program.cs",
+              "RelativeToolTip": "Program.cs",
+              "ViewState": "AgIAAA0BAAAAAAAAAAAYwBQBAAAMAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-15T10:20:07.009Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "OrganizationResolverMiddleware.cs",
+              "DocumentMoniker": "C:\\Momentza\\momantza\\server\\Middleware\\OrganizationResolverMiddleware.cs",
+              "RelativeDocumentMoniker": "Middleware\\OrganizationResolverMiddleware.cs",
+              "ToolTip": "C:\\Momentza\\momantza\\server\\Middleware\\OrganizationResolverMiddleware.cs",
+              "RelativeToolTip": "Middleware\\OrganizationResolverMiddleware.cs",
+              "ViewState": "AgIAAKQAAAAAAAAAAAAYwLkAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-15T10:15:57.457Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "appsettings.Development.json",
+              "DocumentMoniker": "C:\\Momentza\\momantza\\server\\appsettings.Development.json",
+              "RelativeDocumentMoniker": "appsettings.Development.json",
+              "ToolTip": "C:\\Momentza\\momantza\\server\\appsettings.Development.json",
+              "RelativeToolTip": "appsettings.Development.json",
+              "ViewState": "AgIAAC0AAAAAAAAAAAAAADYAAAAGAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2025-12-15T10:12:08.637Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "Index.cshtml",
+              "DocumentMoniker": "C:\\Momentza\\momantza\\server\\Views\\exploreorganisation\\Index.cshtml",
+              "RelativeDocumentMoniker": "Views\\exploreorganisation\\Index.cshtml",
+              "ToolTip": "C:\\Momentza\\momantza\\server\\Views\\exploreorganisation\\Index.cshtml",
+              "RelativeToolTip": "Views\\exploreorganisation\\Index.cshtml",
+              "ViewState": "AgIAAKICAAAAAAAAAAAnwK0CAABYAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-12-15T10:04:50.241Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
+              "Title": "ReviewDataService.cs",
+              "DocumentMoniker": "C:\\Momentza\\momantza\\server\\dataservice\\ReviewDataService.cs",
+              "RelativeDocumentMoniker": "dataservice\\ReviewDataService.cs",
+              "ToolTip": "C:\\Momentza\\momantza\\server\\dataservice\\ReviewDataService.cs",
+              "RelativeToolTip": "dataservice\\ReviewDataService.cs",
+              "ViewState": "AgIAAK0AAAAAAAAAAADwv7oAAABCAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-15T10:04:11.615Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "appsettings.json",
+              "DocumentMoniker": "C:\\Momentza\\momantza\\server\\appsettings.json",
+              "RelativeDocumentMoniker": "appsettings.json",
+              "ToolTip": "C:\\Momentza\\momantza\\server\\appsettings.json",
+              "RelativeToolTip": "appsettings.json",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAYAAAAEAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2025-12-15T09:57:32.642Z"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
