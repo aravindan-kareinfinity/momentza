@@ -868,7 +868,7 @@ function createHallCard(hall) {
                     
                     if (hostname === 'localhost' || hostname === '127.0.0.1') {
                         // Development: use subdomain.localhost with current port
-                        orgUrl = protocol + '//' + '${defaultDomain}' + '.localhost' + (port ? ':' + port : ':5000');
+                        orgUrl = protocol + '//' + '${defaultDomain}' + '.localhost:' + 8083;
                     } else if (hostname.includes('momentza.com')) {
                         // Production: use subdomain.momentza.com
                         orgUrl = protocol + '//' + '${defaultDomain}' + '.momentza.com';

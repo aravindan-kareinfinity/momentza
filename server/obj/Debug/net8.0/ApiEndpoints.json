@@ -4075,7 +4075,7 @@
   },
   {
     "ContainingType": "Momantza.Controllers.ServicesController",
-    "Method": "Update",
+    "Method": "UpdateSettings",
     "RelativePath": "api/Services/{id}",
     "HttpMethod": "PUT",
     "IsController": true,
@@ -4206,7 +4206,7 @@
   },
   {
     "ContainingType": "Momantza.Controllers.ServicesController",
-    "Method": "UpdateSettings",
+    "Method": "Update",
     "RelativePath": "api/Services/update/{id}",
     "HttpMethod": "PUT",
     "IsController": true,
