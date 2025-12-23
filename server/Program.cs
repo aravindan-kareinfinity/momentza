@@ -84,6 +84,7 @@ builder.Services.AddScoped<IHandoverDataService, HandoverDataService>();
 builder.Services.AddScoped<IChatBotDataService, ChatBotDataService>();
 builder.Services.AddScoped<IPaymentDataService, PaymentDataService>();
 builder.Services.AddScoped<IFeatureDataService, FeatureDataService>();
+builder.Services.AddScoped<ILeadsDataService, LeadsDataService>();
 builder.Services.AddHttpContextAccessor();
 //builder.Services.AddHttpContextAccessor();
 

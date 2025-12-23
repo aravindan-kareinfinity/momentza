@@ -2873,6 +2873,32 @@
     ]
   },
   {
+    "ContainingType": "MomantzaApp.Controllers.LeadsController",
+    "Method": "Create",
+    "RelativePath": "api/leads",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "lead",
+        "Type": "MomantzaApp.model.Leads",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "MomantzaApp.Controllers.LeadsController",
+    "Method": "GetAll",
+    "RelativePath": "api/leads",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
     "ContainingType": "Momantza.Controllers.MicrositeController",
     "Method": "CreateComponent",
     "RelativePath": "api/Microsite/components",
