@@ -188,7 +188,7 @@ const Happening = () => {
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   <div className="flex items-center gap-2">
                     <Calendar className="h-4 w-4 text-gray-500" />
-                    <span>{new Date(booking.eventDate).toLocaleDateString()}</span>
+                    <span>{new Date(booking.eventDate).toLocaleDateString('en-GB')}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Clock className="h-4 w-4 text-gray-500" />
