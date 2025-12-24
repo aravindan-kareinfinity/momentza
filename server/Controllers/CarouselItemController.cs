@@ -49,7 +49,7 @@ namespace Momantza.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(CarouselItem carouselItem)
+        public async Task<IActionResult> Create([FromBody] CarouselItem carouselItem)
         {
             try
             {
@@ -71,7 +71,7 @@ namespace Momantza.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(string id, CarouselItem carouselItem)
+        public async Task<IActionResult> Update(string id, [FromBody] CarouselItem carouselItem)
         {
             try
             {
@@ -152,7 +152,7 @@ namespace Momantza.Controllers
         }
 
         [HttpPut("{id}/order")]
-        public async Task<IActionResult> UpdateOrder(string id, UpdateOrderRequest request)
+        public async Task<IActionResult> UpdateOrder(string id, [FromBody] UpdateOrderRequest request)
         {
             try
             {
@@ -170,7 +170,7 @@ namespace Momantza.Controllers
         }
 
         [HttpPost("organizations/{organizationId}/reorder")]
-        public async Task<IActionResult> ReorderItems(string organizationId, ReorderRequest request)
+        public async Task<IActionResult> ReorderItems(string organizationId, [FromBody] ReorderRequest request)
         {
             try
             {

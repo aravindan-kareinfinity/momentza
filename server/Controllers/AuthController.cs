@@ -18,7 +18,7 @@ namespace Momantza.Controllers
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login(LoginRequest request)
+        public async Task<IActionResult> Login([FromBody] LoginRequest request)
         {
             try
             {
@@ -122,7 +122,7 @@ namespace Momantza.Controllers
 
         [HttpPost("change-password")]
         [Authorize]
-        public async Task<ActionResult> ChangePassword(ChangePasswordRequest request)
+        public async Task<ActionResult> ChangePassword([FromBody] ChangePasswordRequest request)
         {
             try
             {
@@ -153,7 +153,7 @@ namespace Momantza.Controllers
         }
 
         [HttpPost("forgot-password")]
-        public async Task<ActionResult> ForgotPassword(ForgotPasswordRequest request)
+        public async Task<ActionResult> ForgotPassword([FromBody] ForgotPasswordRequest request)
         {
             try
             {
@@ -172,7 +172,7 @@ namespace Momantza.Controllers
         }
 
         [HttpPost("register")]
-        public async Task<IActionResult> Register(RegisterRequest request)
+        public async Task<IActionResult> Register([FromBody] RegisterRequest request)
         {
             try
             {
@@ -231,7 +231,7 @@ namespace Momantza.Controllers
         }
 
         [HttpPost("refresh")]
-        public async Task<IActionResult> RefreshToken(RefreshTokenRequest request)
+        public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenRequest request)
         {
             try
             {

@@ -66,7 +66,7 @@ namespace Momantza.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<InventoryItem>> Create(InventoryItem item)
+        public async Task<ActionResult<InventoryItem>> Create([FromBody] InventoryItem item)
         {
             try
             {
@@ -85,7 +85,7 @@ namespace Momantza.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<ActionResult<InventoryItem>> Update(string id, InventoryItem item)
+        public async Task<ActionResult<InventoryItem>> Update(string id, [FromBody] InventoryItem item)
         {
             try
             {

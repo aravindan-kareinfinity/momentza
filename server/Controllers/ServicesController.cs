@@ -48,7 +48,7 @@ namespace Momantza.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(ServiceItem serviceItem)
+        public async Task<IActionResult> Create([FromBody] ServiceItem serviceItem)
         {
             try
             {
@@ -76,7 +76,7 @@ namespace Momantza.Controllers
 
         
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(string id, ServiceItem serviceData)
+        public async Task<IActionResult> Update(string id, [FromBody] ServiceItem serviceData)
         {
             try
             {
@@ -90,7 +90,7 @@ namespace Momantza.Controllers
         }
 
         [HttpPut("update/{id}")]
-        public async Task<IActionResult> UpdateSettings(string id, ServiceItem serviceData)
+        public async Task<IActionResult> UpdateSettings(string id, [FromBody] ServiceItem serviceData)
         {
             try
             {
@@ -166,7 +166,7 @@ namespace Momantza.Controllers
         }
         //new
         [HttpPost("Service")]
-        public async Task<ActionResult<ServiceItem>> CreateService(ServiceItem service)
+        public async Task<ActionResult<ServiceItem>> CreateService([FromBody] ServiceItem service)
         {
             try
             {

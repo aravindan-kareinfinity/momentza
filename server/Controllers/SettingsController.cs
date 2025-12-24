@@ -48,7 +48,7 @@ namespace Momantza.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(MasterDataItem masterDataItem)
+        public async Task<IActionResult> Create([FromBody] MasterDataItem masterDataItem)
         {
             try
             {
@@ -71,7 +71,7 @@ namespace Momantza.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(string id, MasterDataItem masterDataItem)
+        public async Task<IActionResult> Update(string id, [FromBody] MasterDataItem masterDataItem)
         {
             try
             {
@@ -140,7 +140,7 @@ namespace Momantza.Controllers
         }
 
         [HttpPut("key/{key}")]
-        public async Task<IActionResult> UpdateByKey(string key, dynamic value, [FromQuery] string? organizationId = null)
+        public async Task<IActionResult> UpdateByKey(string key, [FromBody] dynamic value, [FromQuery] string? organizationId = null)
         {
             try
             {

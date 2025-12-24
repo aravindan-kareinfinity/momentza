@@ -48,7 +48,7 @@ namespace Momantza.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<PaymentItem>> Create(PaymentItem payment)
+        public async Task<ActionResult<PaymentItem>> Create([FromBody] PaymentItem payment)
         {
             try
             {
@@ -67,7 +67,7 @@ namespace Momantza.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<ActionResult<PaymentItem>> Update(string id, PaymentItem payment)
+        public async Task<ActionResult<PaymentItem>> Update(string id, [FromBody] PaymentItem payment)
         {
             try
             {

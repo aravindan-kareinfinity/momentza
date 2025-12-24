@@ -49,7 +49,7 @@ namespace Momantza.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(GalleryImage galleryImage)
+        public async Task<IActionResult> Create([FromBody] GalleryImage galleryImage)
         {
             try
             {
@@ -72,7 +72,7 @@ namespace Momantza.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(string id, dynamic galleryData)
+        public async Task<IActionResult> Update(string id, [FromBody] dynamic galleryData)
         {
             try
             {

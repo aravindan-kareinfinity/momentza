@@ -49,7 +49,7 @@ namespace Momantza.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(Hall hall)
+        public async Task<IActionResult> Create([FromBody] Hall hall)
         {
             try
             {
@@ -68,7 +68,7 @@ namespace Momantza.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(string id, Hall hall)
+        public async Task<IActionResult> Update(string id, [FromBody] Hall hall)
         {
             try
             {

@@ -66,7 +66,7 @@ namespace Momantza.Controllers
 
         // POST: api/features
         [HttpPost]
-        public async Task<ActionResult<FeatureItem>> Create(FeatureItem feature)
+        public async Task<ActionResult<FeatureItem>> Create([FromBody] FeatureItem feature)
         {
             try
             {
@@ -84,7 +84,7 @@ namespace Momantza.Controllers
 
         // PUT: api/features/{id}
         [HttpPut("{id}")]
-        public async Task<ActionResult<FeatureItem>> Update(string id, FeatureItem feature)
+        public async Task<ActionResult<FeatureItem>> Update(string id, [FromBody] FeatureItem feature)
         {
             try
             {

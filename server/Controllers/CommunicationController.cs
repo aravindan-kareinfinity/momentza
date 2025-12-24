@@ -70,7 +70,7 @@ namespace Momantza.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(Communication communication)
+        public async Task<IActionResult> Create([FromBody] Communication communication)
         {
             try
             {
@@ -89,7 +89,7 @@ namespace Momantza.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<ActionResult<Communication>> Update(string id, Communication communication)
+        public async Task<ActionResult<Communication>> Update(string id, [FromBody] Communication communication)
         {
             try
             {

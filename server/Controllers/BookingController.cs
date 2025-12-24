@@ -56,7 +56,7 @@ namespace Momantza.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(Booking booking)
+        public async Task<IActionResult> Create([FromBody] Booking booking)
         {
             try
             {
@@ -75,7 +75,7 @@ namespace Momantza.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(string id, Booking booking)
+        public async Task<IActionResult> Update(string id, [FromBody] Booking booking)
         {
             try
             {
@@ -182,7 +182,7 @@ namespace Momantza.Controllers
         }
 
         [HttpPost("search")]
-        public async Task<IActionResult> Search(BookingSearchRequest request)
+        public async Task<IActionResult> Search([FromBody] BookingSearchRequest request)
         {
             try
             {
@@ -226,7 +226,7 @@ namespace Momantza.Controllers
         }
 
         [HttpPut("{id}/status")]
-        public async Task<IActionResult> UpdateStatus(string id, UpdateStatusRequest request)
+        public async Task<IActionResult> UpdateStatus(string id, [FromBody] UpdateStatusRequest request)
         {
             try
             {

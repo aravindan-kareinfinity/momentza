@@ -1,4 +1,4 @@
-﻿ using System;
+﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
@@ -142,7 +142,7 @@ namespace Momantza.Middleware
 
                 // Don't redirect - let the fallback route in Program.cs serve the SPA
                 // The SPA will be served by the MapFallback route when subdomain exists
-                Console.WriteLine($"Subdomain '{subdomain}' resolved to organization '{org.OrganizationId}'");
+                    Console.WriteLine($"Subdomain '{subdomain}' resolved to organization '{org.OrganizationId}'");
             }
 
             await _next(context);
@@ -210,7 +210,6 @@ namespace Momantza.Middleware
                             Domain = reader.IsDBNull(1) ? string.Empty : reader.GetString(1)
                         };
                     }
-                    await reader.CloseAsync();
 
                     // PRIORITY 2: If no exact match and we have a subdomain, try subdomain match
                     // This handles ANY subdomain: "sd", "x", "kjsenfkj", "pakshi", etc.

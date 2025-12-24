@@ -68,7 +68,7 @@ namespace Momantza.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(CustomerClick customerClick)
+        public async Task<IActionResult> Create([FromBody] CustomerClick customerClick)
         {
             try
             {
@@ -91,7 +91,7 @@ namespace Momantza.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(string id, dynamic clickData)
+        public async Task<IActionResult> Update(string id, [FromBody] dynamic clickData)
         {
             try
             {
@@ -171,7 +171,7 @@ namespace Momantza.Controllers
         }
 
         [HttpPost("upload")]
-        public async Task<IActionResult> UploadCustomerClick(CustomerClickUploadRequest request)
+        public async Task<IActionResult> UploadCustomerClick([FromBody] CustomerClickUploadRequest request)
         {
             try
             {

@@ -146,8 +146,6 @@ app.UseSession();
 app.UseAuthentication();
 app.UseAuthorization();
 
-
-
 // Always map MVC routes first (these take precedence)
 app.MapControllerRoute(
     name: "default",

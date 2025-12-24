@@ -50,7 +50,7 @@ namespace Momantza.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(Reviews review)
+        public async Task<IActionResult> Create([FromBody] Reviews review)
         {
             try
             {
@@ -64,7 +64,7 @@ namespace Momantza.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(string id, Reviews review)
+        public async Task<IActionResult> Update(string id, [FromBody] Reviews review)
         {
             try
             {
@@ -186,7 +186,7 @@ namespace Momantza.Controllers
         }
 
         [HttpPatch("{id}/toggle-enabled")]
-        public async Task<IActionResult> ToggleEnabled(string id, Reviews review)
+        public async Task<IActionResult> ToggleEnabled(string id, [FromBody] Reviews review)
         {
             try
             {
