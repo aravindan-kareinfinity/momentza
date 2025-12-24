@@ -61,6 +61,7 @@ namespace Momantza.Models
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         
         public DateTime UpdatedAt { get; set; } = DateTime.Now;
+        public string HallName { get; set; }
     }
 
     public class HandOverDetails

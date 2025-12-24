@@ -30,14 +30,29 @@ export interface BookingSearchRequest {
 }
 
 export class ApiBookingService implements IBookingService {
+  // Transform API response to match TypeScript interface
+  // Maps lowercase 'hallname' from API to 'HallName' in TypeScript
+  private transformBooking(booking: any): Booking {
+    return {
+      ...booking,
+      HallName: booking.hallName || booking.HallName || ''
+    };
+  }
+
+  private transformBookings(bookings: any[]): Booking[] {
+    return bookings.map(booking => this.transformBooking(booking));
+  }
+
   async getAll(): Promise<Booking[]> {
-    return apiClient.get<Booking[]>('/api/bookings');
+    const bookings = await apiClient.get<any[]>('/api/bookings');
+    return this.transformBookings(bookings);
   }
 
   async getById(id: string): Promise<Booking | null> {
     try {
-      return await apiClient.get<Booking>(`/api/bookings/${id}`);
-    } catch (error) {
+      const booking = await apiClient.get<any>(`/api/bookings/${id}`);
+      return this.transformBooking(booking);
+    } catch (error: any) {
       if (error.status === 404) {
         return null;
       }
@@ -46,11 +61,13 @@ export class ApiBookingService implements IBookingService {
   }
 
   async create(data: Omit<Booking, 'id'>): Promise<Booking> {
-    return apiClient.post<Booking>('/api/bookings', data);
+    const booking = await apiClient.post<any>('/api/bookings', data);
+    return this.transformBooking(booking);
   }
 
   async update(id: string, data: Partial<Booking>): Promise<Booking> {
-    return apiClient.put<Booking>(`/api/bookings/${id}`, data);
+    const booking = await apiClient.put<any>(`/api/bookings/${id}`, data);
+    return this.transformBooking(booking);
   }
 
   async delete(id: string): Promise<boolean> {
@@ -78,26 +95,31 @@ export class ApiBookingService implements IBookingService {
   }
 
   async searchBookings(searchRequest: BookingSearchRequest): Promise<Booking[]> {
-    return apiClient.post<Booking[]>('/api/bookings/search', searchRequest);
+    const bookings = await apiClient.post<any[]>('/api/bookings/search', searchRequest);
+    return this.transformBookings(bookings);
   }
 
   async updateBookingStatus(id: string, status: Booking['status'], reason?: string): Promise<Booking> {
-    return apiClient.put<Booking>(`/api/bookings/${id}/status`, { status, reason });
+    const booking = await apiClient.put<any>(`/api/bookings/${id}/status`, { status, reason });
+    return this.transformBooking(booking);
   }
 
   async toggleBookingActive(id: string, isActive: boolean): Promise<Booking> {
-    return apiClient.patch<Booking>(`/api/bookings/${id}/active`, { isActive });
+    const booking = await apiClient.patch<any>(`/api/bookings/${id}/active`, { isActive });
+    return this.transformBooking(booking);
   }
 
   async recordHandOver(id: string, handOverDetails: any): Promise<Booking> {
-    return apiClient.post<Booking>(`/api/bookings/${id}/handover`, handOverDetails);
+    const booking = await apiClient.post<any>(`/api/bookings/${id}/handover`, handOverDetails);
+    return this.transformBooking(booking);
   }
 
   async updateBookingCommunication(id: string, lastContactDate: string, customerResponse: string): Promise<Booking> {
-    return apiClient.patch<Booking>(`/api/bookings/${id}/communication`, { 
+    const booking = await apiClient.patch<any>(`/api/bookings/${id}/communication`, { 
       lastContactDate, 
       customerResponse 
     });
+    return this.transformBooking(booking);
   }
 
   async getBookingStatistics(organizationId: string): Promise<any> {
@@ -105,6 +127,7 @@ export class ApiBookingService implements IBookingService {
   }
 
   async createBooking(booking: Omit<Booking, 'id' | 'createdAt'>): Promise<Booking> {
-    return apiClient.post<Booking>('/api/bookings', booking);
+    const createdBooking = await apiClient.post<any>('/api/bookings', booking);
+    return this.transformBooking(createdBooking);
   }
 } 
