@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, useParams } from 'react-router-dom';
 import { TopNavigation } from '@/components/Layout/TopNavigation';
-import { CustomerClicksSection } from '@/components/Home/CustomerClicksSection';
+// import { CustomerClicksSection } from '@/components/Home/CustomerClicksSection';
 import { PublicFooter } from '@/components/Home/PublicFooter';
 import { ServerErrorDialog } from '@/components/ui/ServerErrorDialog';
 import { 
@@ -235,9 +235,10 @@ const PublicHome = () => {
           </>
         )}
         {/* Customer clicks section always shown */}
-        <CustomerClicksSection 
+
+        {/* <CustomerClicksSection 
           customerClicks={pageData.customerClicks}
-        />
+        /> */}
       </main>
       <PublicFooter 
         organization={pageData.organization}
