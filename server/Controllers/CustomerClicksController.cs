@@ -90,7 +90,7 @@ namespace Momantza.Controllers
             }
         }
 
-        [HttpPut("{id}")]
+        [HttpPost("{id}")]
         public async Task<IActionResult> Update(string id, dynamic clickData)
         {
             try
@@ -110,7 +110,7 @@ namespace Momantza.Controllers
             }
         }
 
-        [HttpDelete("{id}")]
+        [HttpPost("{id}")]
         public async Task<IActionResult> Delete(string id)
         {
             try

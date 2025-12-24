@@ -70,7 +70,7 @@ namespace Momantza.Controllers
             }
         }
 
-        [HttpPut("{id}")]
+        [HttpPost("{id}")]
         public async Task<IActionResult> Update(string id, MasterDataItem masterDataItem)
         {
             try
@@ -89,7 +89,7 @@ namespace Momantza.Controllers
             }
         }
 
-        [HttpDelete("{id}")]
+        [HttpPost("{id}")]
         public async Task<IActionResult> Delete(string id)
         {
             try
@@ -139,7 +139,7 @@ namespace Momantza.Controllers
             }
         }
 
-        [HttpPut("key/{key}")]
+        [HttpPost("key/{key}")]
         public async Task<IActionResult> UpdateByKey(string key, dynamic value, [FromQuery] string? organizationId = null)
         {
             try
@@ -191,7 +191,7 @@ namespace Momantza.Controllers
             }
         }
 
-        [HttpPut("event-types/{id}")]
+        [HttpPost("event-types/{id}")]
         public async Task<IActionResult> UpdateEventType(string id, [FromBody] UpdateMasterDataRequest request)
         {
             try
@@ -210,7 +210,7 @@ namespace Momantza.Controllers
             }
         }
 
-        [HttpDelete("event-types/{id}")]
+        [HttpPost("event-types/{id}")]
         public async Task<IActionResult> DeleteEventType(string id)
         {
             try
@@ -262,7 +262,7 @@ namespace Momantza.Controllers
             }
         }
 
-        [HttpPut("image-categories/{id}")]
+        [HttpPost("image-categories/{id}")]
         public async Task<IActionResult> UpdateImageCategory(string id, [FromBody] UpdateMasterDataRequest request)
         {
             try
@@ -281,7 +281,7 @@ namespace Momantza.Controllers
             }
         }
 
-        [HttpDelete("image-categories/{id}")]
+        [HttpPost("image-categories/{id}")]
         public async Task<IActionResult> DeleteImageCategory(string id)
         {
             try
@@ -333,7 +333,7 @@ namespace Momantza.Controllers
             }
         }
 
-        [HttpPut("employees/{id}")]
+        [HttpPost("employees/{id}")]
         public async Task<IActionResult> UpdateEmployee(string id, [FromBody] UpdateMasterDataRequest request)
         {
             try
@@ -352,7 +352,7 @@ namespace Momantza.Controllers
             }
         }
 
-        [HttpDelete("employees/{id}")]
+        [HttpPost("employees/{id}")]
         public async Task<IActionResult> DeleteEmployee(string id)
         {
             try
@@ -404,7 +404,7 @@ namespace Momantza.Controllers
             }
         }
 
-        [HttpPut("inventory-items/{id}")]
+        [HttpPost("inventory-items/{id}")]
         public async Task<IActionResult> UpdateInventoryItem(string id, [FromBody] UpdateInventoryItemRequest request)
         {
             try
@@ -423,7 +423,7 @@ namespace Momantza.Controllers
             }
         }
 
-        [HttpDelete("inventory-items/{id}")]
+        [HttpPost("inventory-items/{id}")]
         public async Task<IActionResult> DeleteInventoryItem(string id)
         {
             try
@@ -475,7 +475,7 @@ namespace Momantza.Controllers
             }
         }
 
-        [HttpPut("ticket-categories/{id}")]
+        [HttpPost("ticket-categories/{id}")]
         public async Task<IActionResult> UpdateTicketCategory(string id, [FromBody] UpdateMasterDataRequest request)
         {
             try
@@ -494,7 +494,7 @@ namespace Momantza.Controllers
             }
         }
 
-        [HttpDelete("ticket-categories/{id}")]
+        [HttpPost("ticket-categories/{id}")]
         public async Task<IActionResult> DeleteTicketCategory(string id)
         {
             try
@@ -570,7 +570,7 @@ namespace Momantza.Controllers
             }
         }
 
-        [HttpDelete("{type}/{id}")]
+        [HttpPost("{type}/{id}")]
         public async Task<IActionResult> DeleteMasterData(string type, string id)
         {
             try

@@ -71,7 +71,7 @@ namespace Momantza.Controllers
             }
         }
 
-        [HttpPut("{id}")]
+        [HttpPost("{id}")]
         public async Task<IActionResult> Update(string id, dynamic galleryData)
         {
             try
@@ -91,7 +91,7 @@ namespace Momantza.Controllers
             }
         }
 
-        [HttpDelete("{id}")]
+        [HttpPost("{id}")]
         public async Task<IActionResult> Delete(string id)
         {
             try
@@ -152,7 +152,7 @@ namespace Momantza.Controllers
             }
         }
 
-        [HttpPut("{id}/activate")]
+        [HttpPost("{id}/activate")]
         public async Task<IActionResult> Activate(string id)
         {
             try
@@ -170,7 +170,7 @@ namespace Momantza.Controllers
             }
         }
 
-        [HttpPut("{id}/deactivate")]
+        [HttpPost("{id}/deactivate")]
         public async Task<IActionResult> Deactivate(string id)
         {
             try

@@ -84,7 +84,7 @@ namespace Momantza.Controllers
             }
         }
 
-        [HttpPut("{id}")]
+        [HttpPost("{id}")]
         public async Task<ActionResult<InventoryItem>> Update(string id, InventoryItem item)
         {
             try
@@ -103,7 +103,7 @@ namespace Momantza.Controllers
             }
         }
 
-        [HttpDelete("{id}")]
+        [HttpPost("{id}")]
         public async Task<ActionResult> Delete(string id)
         {
             try

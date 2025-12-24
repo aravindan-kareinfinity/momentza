@@ -20,7 +20,7 @@ namespace Momantza.Controllers
         }
 
         [HttpPost]
-        [HttpPut]
+        [HttpPost]
         [HttpPatch]
         public async Task<IActionResult> UpsertHandover(string bookingId, [FromBody] HandoverRequest request)
         {
@@ -101,7 +101,7 @@ namespace Momantza.Controllers
             }
         }
 
-        [HttpDelete]
+        [HttpPost]
         public async Task<IActionResult> DeleteHandover(string bookingId)
         {
             try
@@ -222,7 +222,7 @@ namespace Momantza.Controllers
             }
         }
 
-        [HttpDelete("images/{imageId}")]
+        [HttpPost("images/{imageId}")]
         public async Task<IActionResult> DeleteHandoverImage(string bookingId, string imageId)
         {
             try

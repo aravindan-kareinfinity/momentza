@@ -60,7 +60,7 @@ namespace Momantza.Controllers
             }
         }
 
-        [HttpPut("{id}")]
+        [HttpPost("{id}")]
         public async Task<IActionResult> Update(string id, dynamic billingData)
         {
             try
@@ -80,7 +80,7 @@ namespace Momantza.Controllers
             }
         }
 
-        [HttpDelete("{id}")]
+        [HttpPost("{id}")]
         public async Task<IActionResult> Delete(string id)
         {
             try
@@ -147,7 +147,7 @@ namespace Momantza.Controllers
             return Ok(settings);
         }
 
-        [HttpPut("settings")]
+        [HttpPost("settings")]
         public async Task<IActionResult> UpdateSettings(Momantza.Models.BillingSettings settings)
         {
             var updated = await _billingDataService.UpdateBillingSettingsAsync(settings);

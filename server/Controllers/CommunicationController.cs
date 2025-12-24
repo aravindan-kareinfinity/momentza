@@ -88,7 +88,7 @@ namespace Momantza.Controllers
             }
         }
 
-        [HttpPut("{id}")]
+        [HttpPost("{id}")]
         public async Task<ActionResult<Communication>> Update(string id, Communication communication)
         {
             try
@@ -107,7 +107,7 @@ namespace Momantza.Controllers
             }
         }
 
-        [HttpDelete("{id}")]
+        [HttpPost("{id}")]
         public async Task<ActionResult> Delete(string id)
         {
             try

@@ -66,7 +66,7 @@ namespace Momantza.Controllers
             }
         }
 
-        [HttpPut("{id}")]
+        [HttpPost("{id}")]
         public async Task<ActionResult<PaymentItem>> Update(string id, PaymentItem payment)
         {
             try
@@ -85,7 +85,7 @@ namespace Momantza.Controllers
             }
         }
 
-        [HttpDelete("{id}")]
+        [HttpPost("{id}")]
         public async Task<ActionResult> Delete(string id)
         {
             try

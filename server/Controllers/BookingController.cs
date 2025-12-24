@@ -74,7 +74,7 @@ namespace Momantza.Controllers
             }
         }
 
-        [HttpPut("{id}")]
+        [HttpPost("{id}")]
         public async Task<IActionResult> Update(string id, Booking booking)
         {
             try
@@ -93,7 +93,7 @@ namespace Momantza.Controllers
             }
         }
 
-        [HttpDelete("{id}")]
+        [HttpPost("{id}")]
         public async Task<IActionResult> Delete(string id)
         {
             try
@@ -225,7 +225,7 @@ namespace Momantza.Controllers
             }
         }
 
-        [HttpPut("{id}/status")]
+        [HttpPost("{id}/status")]
         public async Task<IActionResult> UpdateStatus(string id, UpdateStatusRequest request)
         {
             try

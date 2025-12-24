@@ -70,7 +70,7 @@ namespace Momantza.Controllers
             }
         }
 
-        [HttpPut("{id}")]
+        [HttpPost("{id}")]
         public async Task<IActionResult> Update(string id, CarouselItem carouselItem)
         {
             try
@@ -89,7 +89,7 @@ namespace Momantza.Controllers
             }
         }
 
-        [HttpDelete("{id}")]
+        [HttpPost("{id}")]
         public async Task<IActionResult> Delete(string id)
         {
             try
@@ -151,7 +151,7 @@ namespace Momantza.Controllers
             }
         }
 
-        [HttpPut("{id}/order")]
+        [HttpPost("{id}/order")]
         public async Task<IActionResult> UpdateOrder(string id, UpdateOrderRequest request)
         {
             try

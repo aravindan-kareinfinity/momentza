@@ -83,7 +83,7 @@ namespace Momantza.Controllers
         }
 
         // PUT: api/features/{id}
-        [HttpPut("{id}")]
+        [HttpPost("{id}")]
         public async Task<ActionResult<FeatureItem>> Update(string id, FeatureItem feature)
         {
             try
@@ -101,7 +101,7 @@ namespace Momantza.Controllers
         }
 
         // DELETE: api/features/{id}
-        [HttpDelete("{id}")]
+        [HttpPost("{id}")]
         public async Task<ActionResult> Delete(string id)
         {
             try
