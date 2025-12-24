@@ -569,23 +569,23 @@ export const mockBillingSettings: BillingSettings = {
 
 // Customer Clicks
 export const mockCustomerClicks: CustomerClick[] = [
-  {
-    id: '1',
-    customerId: '1',
-    hallId: '1',
-    customerName: 'Alice Brown',
-    customerEmail: 'alice@email.com',
-    customerPhone: '+1-555-0123',
-    eventDate: '2024-09-15',
-    eventType: 'Wedding',
-    guestCount: 200,
-    message: 'Interested in booking for our wedding ceremony',
-    timestamp: '2024-06-01T09:00:00Z',
-    rating: 5,
-    createdAt: '2024-06-01T09:00:00Z',
-    boyName: 'John Brown',
-    girlName: 'Alice Brown'
-  },
+  // {
+  //   id: '1',
+  //   customerId: '1',
+  //   hallId: '1',
+  //   customerName: 'Alice Brown',
+  //   customerEmail: 'alice@email.com',
+  //   customerPhone: '+1-555-0123',
+  //   eventDate: '2024-09-15',
+  //   eventType: 'Wedding',
+  //   guestCount: 200,
+  //   message: 'Interested in booking for our wedding ceremony',
+  //   timestamp: '2024-06-01T09:00:00Z',
+  //   rating: 5,
+  //   createdAt: '2024-06-01T09:00:00Z',
+  //  // boyName: 'John Brown',
+  //   girlName: 'Alice Brown'
+  // },
   {
     id: '2',
     customerId: '2',
