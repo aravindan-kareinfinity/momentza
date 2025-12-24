@@ -3455,7 +3455,10 @@
       "path": "microsoft.netcore.platforms/1.0.1",
       "files": [
         ".nupkg.metadata",
+<<<<<<< HEAD
         ".signature.p7s",
+=======
+>>>>>>> bf2f39548e6e67c1b306a34c38f02723ea324ef3
         "ThirdPartyNotices.txt",
         "dotnet_library_license.txt",
         "lib/netstandard1.0/_._",
@@ -3470,7 +3473,10 @@
       "path": "microsoft.netcore.targets/1.0.1",
       "files": [
         ".nupkg.metadata",
+<<<<<<< HEAD
         ".signature.p7s",
+=======
+>>>>>>> bf2f39548e6e67c1b306a34c38f02723ea324ef3
         "ThirdPartyNotices.txt",
         "dotnet_library_license.txt",
         "lib/netstandard1.0/_._",
@@ -3824,7 +3830,10 @@
       "path": "system.collections/4.0.11",
       "files": [
         ".nupkg.metadata",
+<<<<<<< HEAD
         ".signature.p7s",
+=======
+>>>>>>> bf2f39548e6e67c1b306a34c38f02723ea324ef3
         "ThirdPartyNotices.txt",
         "dotnet_library_license.txt",
         "lib/MonoAndroid10/_._",
@@ -4185,7 +4194,10 @@
       "path": "system.diagnostics.debug/4.0.11",
       "files": [
         ".nupkg.metadata",
+<<<<<<< HEAD
         ".signature.p7s",
+=======
+>>>>>>> bf2f39548e6e67c1b306a34c38f02723ea324ef3
         "ThirdPartyNotices.txt",
         "dotnet_library_license.txt",
         "lib/MonoAndroid10/_._",
@@ -4280,7 +4292,10 @@
       "path": "system.globalization/4.0.11",
       "files": [
         ".nupkg.metadata",
+<<<<<<< HEAD
         ".signature.p7s",
+=======
+>>>>>>> bf2f39548e6e67c1b306a34c38f02723ea324ef3
         "ThirdPartyNotices.txt",
         "dotnet_library_license.txt",
         "lib/MonoAndroid10/_._",
@@ -4372,7 +4387,10 @@
       "path": "system.io/4.1.0",
       "files": [
         ".nupkg.metadata",
+<<<<<<< HEAD
         ".signature.p7s",
+=======
+>>>>>>> bf2f39548e6e67c1b306a34c38f02723ea324ef3
         "ThirdPartyNotices.txt",
         "dotnet_library_license.txt",
         "lib/MonoAndroid10/_._",
@@ -4478,7 +4496,10 @@
       "path": "system.linq/4.1.0",
       "files": [
         ".nupkg.metadata",
+<<<<<<< HEAD
         ".signature.p7s",
+=======
+>>>>>>> bf2f39548e6e67c1b306a34c38f02723ea324ef3
         "ThirdPartyNotices.txt",
         "dotnet_library_license.txt",
         "lib/MonoAndroid10/_._",
@@ -4608,7 +4629,10 @@
       "path": "system.reflection/4.1.0",
       "files": [
         ".nupkg.metadata",
+<<<<<<< HEAD
         ".signature.p7s",
+=======
+>>>>>>> bf2f39548e6e67c1b306a34c38f02723ea324ef3
         "ThirdPartyNotices.txt",
         "dotnet_library_license.txt",
         "lib/MonoAndroid10/_._",
@@ -4689,7 +4713,10 @@
       "path": "system.reflection.extensions/4.0.1",
       "files": [
         ".nupkg.metadata",
+<<<<<<< HEAD
         ".signature.p7s",
+=======
+>>>>>>> bf2f39548e6e67c1b306a34c38f02723ea324ef3
         "ThirdPartyNotices.txt",
         "dotnet_library_license.txt",
         "lib/MonoAndroid10/_._",
@@ -4769,7 +4796,10 @@
       "path": "system.reflection.primitives/4.0.1",
       "files": [
         ".nupkg.metadata",
+<<<<<<< HEAD
         ".signature.p7s",
+=======
+>>>>>>> bf2f39548e6e67c1b306a34c38f02723ea324ef3
         "ThirdPartyNotices.txt",
         "dotnet_library_license.txt",
         "lib/MonoAndroid10/_._",
@@ -4826,7 +4856,10 @@
       "path": "system.resources.resourcemanager/4.0.1",
       "files": [
         ".nupkg.metadata",
+<<<<<<< HEAD
         ".signature.p7s",
+=======
+>>>>>>> bf2f39548e6e67c1b306a34c38f02723ea324ef3
         "ThirdPartyNotices.txt",
         "dotnet_library_license.txt",
         "lib/MonoAndroid10/_._",
@@ -4883,7 +4916,10 @@
       "path": "system.runtime/4.1.0",
       "files": [
         ".nupkg.metadata",
+<<<<<<< HEAD
         ".signature.p7s",
+=======
+>>>>>>> bf2f39548e6e67c1b306a34c38f02723ea324ef3
         "ThirdPartyNotices.txt",
         "dotnet_library_license.txt",
         "lib/MonoAndroid10/_._",
@@ -5000,7 +5036,10 @@
       "path": "system.runtime.extensions/4.1.0",
       "files": [
         ".nupkg.metadata",
+<<<<<<< HEAD
         ".signature.p7s",
+=======
+>>>>>>> bf2f39548e6e67c1b306a34c38f02723ea324ef3
         "ThirdPartyNotices.txt",
         "dotnet_library_license.txt",
         "lib/MonoAndroid10/_._",
@@ -5081,7 +5120,10 @@
       "path": "system.text.encoding/4.0.11",
       "files": [
         ".nupkg.metadata",
+<<<<<<< HEAD
         ".signature.p7s",
+=======
+>>>>>>> bf2f39548e6e67c1b306a34c38f02723ea324ef3
         "ThirdPartyNotices.txt",
         "dotnet_library_license.txt",
         "lib/MonoAndroid10/_._",
@@ -5296,7 +5338,10 @@
       "path": "system.text.regularexpressions/4.1.0",
       "files": [
         ".nupkg.metadata",
+<<<<<<< HEAD
         ".signature.p7s",
+=======
+>>>>>>> bf2f39548e6e67c1b306a34c38f02723ea324ef3
         "ThirdPartyNotices.txt",
         "dotnet_library_license.txt",
         "lib/MonoAndroid10/_._",
@@ -5379,7 +5424,10 @@
       "path": "system.threading/4.0.11",
       "files": [
         ".nupkg.metadata",
+<<<<<<< HEAD
         ".signature.p7s",
+=======
+>>>>>>> bf2f39548e6e67c1b306a34c38f02723ea324ef3
         "ThirdPartyNotices.txt",
         "dotnet_library_license.txt",
         "lib/MonoAndroid10/_._",
@@ -5477,7 +5525,10 @@
       "path": "system.threading.tasks/4.0.11",
       "files": [
         ".nupkg.metadata",
+<<<<<<< HEAD
         ".signature.p7s",
+=======
+>>>>>>> bf2f39548e6e67c1b306a34c38f02723ea324ef3
         "ThirdPartyNotices.txt",
         "dotnet_library_license.txt",
         "lib/MonoAndroid10/_._",
@@ -5568,23 +5619,39 @@
     ]
   },
   "packageFolders": {
+<<<<<<< HEAD
     "C:\\Users\\aravi\\.nuget\\packages\\": {},
+=======
+    "C:\\Users\\Roshan\\.nuget\\packages\\": {},
+>>>>>>> bf2f39548e6e67c1b306a34c38f02723ea324ef3
     "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
+<<<<<<< HEAD
       "projectUniqueName": "E:\\chitahapu\\momentza\\server\\MomantzaApp.csproj",
       "projectName": "MomantzaApp",
       "projectPath": "E:\\chitahapu\\momentza\\server\\MomantzaApp.csproj",
       "packagesPath": "C:\\Users\\aravi\\.nuget\\packages\\",
       "outputPath": "E:\\chitahapu\\momentza\\server\\obj\\",
+=======
+      "projectUniqueName": "C:\\Momentza\\momantza\\server\\MomantzaApp.csproj",
+      "projectName": "MomantzaApp",
+      "projectPath": "C:\\Momentza\\momantza\\server\\MomantzaApp.csproj",
+      "packagesPath": "C:\\Users\\Roshan\\.nuget\\packages\\",
+      "outputPath": "C:\\Momentza\\momantza\\server\\obj\\",
+>>>>>>> bf2f39548e6e67c1b306a34c38f02723ea324ef3
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
       ],
       "configFilePaths": [
+<<<<<<< HEAD
         "C:\\Users\\aravi\\AppData\\Roaming\\NuGet\\NuGet.Config",
+=======
+        "C:\\Users\\Roshan\\AppData\\Roaming\\NuGet\\NuGet.Config",
+>>>>>>> bf2f39548e6e67c1b306a34c38f02723ea324ef3
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
@@ -5593,7 +5660,10 @@
       ],
       "sources": {
         "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+<<<<<<< HEAD
         "C:\\Program Files\\dotnet\\library-packs": {},
+=======
+>>>>>>> bf2f39548e6e67c1b306a34c38f02723ea324ef3
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
@@ -5611,7 +5681,12 @@
         "enableAudit": "true",
         "auditLevel": "low",
         "auditMode": "direct"
+<<<<<<< HEAD
       }
+=======
+      },
+      "SdkAnalysisLevel": "9.0.100"
+>>>>>>> bf2f39548e6e67c1b306a34c38f02723ea324ef3
     },
     "frameworks": {
       "net8.0": {
@@ -5731,7 +5806,11 @@
             "privateAssets": "all"
           }
         },
+<<<<<<< HEAD
         "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.202/PortableRuntimeIdentifierGraph.json"
+=======
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.103/PortableRuntimeIdentifierGraph.json"
+>>>>>>> bf2f39548e6e67c1b306a34c38f02723ea324ef3
       }
     }
   }

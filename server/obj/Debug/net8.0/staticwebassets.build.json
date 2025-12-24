@@ -1,6 +1,10 @@
 {
   "Version": 1,
+<<<<<<< HEAD
   "Hash": "/A9mH0Wk8p1huONhCo7cXbGmqX/M2iTo1u1WdhpSmmA=",
+=======
+  "Hash": "UvaqmFjRTUzaR4hgtS4rVGOupfu7sEIlDrvQqAmgoW4=",
+>>>>>>> bf2f39548e6e67c1b306a34c38f02723ea324ef3
   "Source": "MomantzaApp",
   "BasePath": "_content/MomantzaApp",
   "Mode": "Default",
@@ -14671,7 +14675,11 @@
         },
         {
           "Name": "Last-Modified",
+<<<<<<< HEAD
           "Value": "Wed, 24 Dec 2025 10:45:08 GMT"
+=======
+          "Value": "Wed, 24 Dec 2025 12:59:19 GMT"
+>>>>>>> bf2f39548e6e67c1b306a34c38f02723ea324ef3
         },
         {
           "Name": "Cache-Control",
@@ -14708,7 +14716,11 @@
         },
         {
           "Name": "Last-Modified",
+<<<<<<< HEAD
           "Value": "Wed, 24 Dec 2025 10:45:08 GMT"
+=======
+          "Value": "Wed, 24 Dec 2025 12:59:19 GMT"
+>>>>>>> bf2f39548e6e67c1b306a34c38f02723ea324ef3
         },
         {
           "Name": "Cache-Control",
@@ -14753,7 +14765,11 @@
         },
         {
           "Name": "Last-Modified",
+<<<<<<< HEAD
           "Value": "Wed, 24 Dec 2025 10:45:08 GMT"
+=======
+          "Value": "Wed, 24 Dec 2025 12:59:19 GMT"
+>>>>>>> bf2f39548e6e67c1b306a34c38f02723ea324ef3
         },
         {
           "Name": "Cache-Control",
@@ -14798,7 +14814,11 @@
         },
         {
           "Name": "Last-Modified",
+<<<<<<< HEAD
           "Value": "Wed, 24 Dec 2025 10:45:08 GMT"
+=======
+          "Value": "Wed, 24 Dec 2025 12:59:19 GMT"
+>>>>>>> bf2f39548e6e67c1b306a34c38f02723ea324ef3
         },
         {
           "Name": "Cache-Control",
