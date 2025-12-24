@@ -161,7 +161,7 @@ const Happening = () => {
         {(Array.isArray(activeBookings) ? activeBookings : []).map((booking) => {
           // Note: In a real app, you would fetch hall data for each booking
           // For now, we'll use a placeholder since hallService.getHallById is async
-          const hallName = `Hall ${booking.hallId}`;
+          // const hallName = `Hall ${booking.hallId}`;
           
           return (
             <Card key={booking.id} className="relative">
@@ -174,7 +174,7 @@ const Happening = () => {
                     </CardTitle>
                     <div className="flex items-center gap-2 text-sm text-gray-600 mt-1">
                       <MapPin className="h-4 w-4" />
-                      {hallName}
+                      {booking.HallName}
                     </div>
                   </div>
                   <Badge variant={booking.isActive ? 'default' : 'secondary'}>
