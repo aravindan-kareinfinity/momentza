@@ -3,7 +3,8 @@
     Layout = "_LandingLayout";
 }
 
-<div x-data="{ showModal: false, navopen: false }">
+<div x-data="{ showModal: false, contactModal: false, navopen: false }"
+     x-on:close-contact-modal.window="contactModal = false">
     <!-- Navigation Bar -->
     <nav class="bg-white shadow-md sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
@@ -19,7 +20,7 @@
                 <li><a href="#onboarding" class="hover:text-pink-600">🚀 Onboarding</a></li>
                 <li><a href="#contact" class="hover:text-pink-600">📞 Contact</a></li>
                  <li><a asp-controller="ExploreOrganisation" asp-action="Index" class="hover:text-pink-600">📞 Explore</a></li>
-                <li><a asp-controller="Setup" asp-action="Index" class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700">Setup</a></li>
+                @* <li><a asp-controller="Setup" asp-action="Index" class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700">Setup</a></li> *@
             </ul>
         </div>
 
@@ -30,6 +31,7 @@
             <a href="#benefits" @@click="navopen = false" class="block">Benefits</a>
             <a href="#onboarding" @@click="navopen = false" class="block">Onboarding</a>
             <a href="#contact" @@click="navopen = false" class="block">Contact</a>
+            <a asp-controller="ExploreOrganisation" asp-action="Index" class="block">Explore</a>
         </div>
     </nav>
 
@@ -77,7 +79,7 @@
         <!-- Hero content -->
         <h1 class="text-4xl font-bold text-gray-800 mb-4 relative z-10" data-aos="fade-up">Manage Your Celebration Space With Style</h1>
         <p class="text-gray-600 text-lg mb-8 relative z-10" data-aos="fade-up" data-aos-delay="300">A complete suite to showcase, book, and manage your hall online.</p>
-        <button @@click="showModal = true" class="relative z-10 inline-block px-8 py-3 bg-pink-600 text-white font-semibold rounded-lg shadow hover:bg-pink-700 transition duration-300">Start Your Journey</button>
+        <a asp-controller="Setup" asp-action="Index" class="relative z-10 inline-block px-8 py-3 bg-pink-600 text-white font-semibold rounded-lg shadow hover:bg-pink-700 transition duration-300">Start Your Journey</a>
     </section>
 
     <!-- Features Section -->
@@ -544,7 +546,7 @@
         <div class="max-w-4xl mx-auto">
             <h2 class="text-3xl font-bold mb-6">📞 Contact Us</h2>
             <p class="text-gray-300 text-base leading-relaxed mb-8">Have questions? We're here to help!</p>
-            <button @@click="showModal = true" class="px-8 py-3 bg-pink-600 text-white font-semibold rounded-lg shadow hover:bg-pink-700 transition duration-300">Get in Touch</button>
+            <button @@click="contactModal = true" class="px-8 py-3 bg-pink-600 text-white font-semibold rounded-lg shadow hover:bg-pink-700 transition duration-300">Get in Touch</button>
         </div>
     </section>
 
@@ -561,5 +563,119 @@
             <button @@click="showModal = false" class="w-full px-4 py-2 bg-pink-600 text-white rounded-lg hover:bg-pink-700">Close</button>
         </div>
     </div>
+
+    <!--Contact US modal-->
+    <div x-show="contactModal"
+         x-transition
+         class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+    @@click.self ="contactModal = false">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-lg mx-4">
+
+            <!-- Header -->
+            <div class="flex justify-between items-center px-6 py-4 border-b">
+                <h3 class="text-xl font-bold text-gray-800">📞 Get in Touch</h3>
+                <button @@click ="contactModal = false"
+                        class="text-gray-500 hover:text-gray-800 text-2xl">
+                    &times;
+                </button>
+            </div>
+
+            <!-- Body -->
+            <form id="contactForm" class="px-6 py-5 space-y-4">
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Your Name *</label>
+                    <input id="leadName" type="text" required
+                           class="w-full px-3 py-2 border rounded-md" />
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Mobile Number *</label>
+                    <input id="leadMobile" type="tel" required
+                           class="w-full px-3 py-2 border rounded-md" />
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Email *</label>
+                    <input id="leadEmail" type="email" required
+                           class="w-full px-3 py-2 border rounded-md" />
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">City</label>
+                    <input id="leadCity" type="text"
+                           class="w-full px-3 py-2 border rounded-md" />
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Your Requirement *</label>
+                    <textarea id="leadMessage" rows="4" required
+                              class="w-full px-3 py-2 border rounded-md"></textarea>
+                </div>
+
+                <!-- Footer -->
+                <div class="px-6 py-4 border-t flex justify-end gap-3">
+                    <button type="button"
+                            @@click="contactModal = false"
+                            class="px-4 py-2 rounded-md border text-gray-600 hover:bg-gray-100">
+                        Cancel
+                    </button>
+                    <button id="submitLeadBtn" type="button"
+                            class="px-6 py-2 bg-pink-600 text-white rounded-md hover:bg-pink-700">
+                        Submit Request
+                    </button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+
 </div>
+
+<!--Leads data storing-->
+<script>
+    document.getElementById('submitLeadBtn').addEventListener('click', async function () {
+
+        const payload = {
+            name: document.getElementById('leadName').value,
+            mobile: document.getElementById('leadMobile').value,
+            email: document.getElementById('leadEmail').value,
+            city: document.getElementById('leadCity').value,
+            message: document.getElementById('leadMessage').value
+        };
+
+        if (!payload.name || !payload.mobile) {
+            alert("Name and Mobile are required");
+            return;
+        }
+
+        try {
+            const response = await fetch('/api/leads', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                alert(data || "Failed to submit lead");
+                return;
+            }
+
+            // ✅ SUCCESS (stop execution here)
+            alert("Thank you! We will contact you soon.");
+
+            document.getElementById('contactForm').reset();
+
+            // close modal safely
+            window.dispatchEvent(new CustomEvent('close-contact-modal'));
+
+        } catch (err) {
+            console.error(err);
+            alert("Network error. Please try again.");
+        }
+    });
+</script>
+
 

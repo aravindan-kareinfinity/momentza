@@ -606,7 +606,10 @@ console.log("inventoryCatalog >>>", inventoryCatalog);
     (sum, f) => sum + Number(f.price || 0) * Number(f.quantity || 0),
     0
   );
+
   const servicesTotal = servicesArray.filter(services => !services.directPay).reduce((sum, services) => sum + Number(services.price || 0), 0);
+
+
   const inventoryTotal = bookingInventoryItems.reduce((sum, item) => sum + (Number(item.price || 0) * Number(item.quantity || 0)), 0);
   const safeDiscount = Number(discount || 0);
   const totalCharges = safeBookingTotal + featuresTotal + servicesTotal + inventoryTotal - safeDiscount;

@@ -862,13 +862,17 @@ function createHallCard(hall) {
                 ${defaultDomain ? `
                 <button class="btn btn-outline-primary w-100 py-3 fw-semibold" onclick="(function() {
                     const hostname = window.location.hostname;
-                    const port = window.location.port;
+                    // const port = window.location.port;
                     const protocol = window.location.protocol;
                     let orgUrl;
                     
                     if (hostname === 'localhost' || hostname === '127.0.0.1') {
                         // Development: use subdomain.localhost with current port
+<<<<<<< HEAD
                         orgUrl = protocol + '//' + '${defaultDomain}' + '.localhost:' + 8083;
+=======
+                        orgUrl = protocol + '//' + '${defaultDomain}' + '.localhost:' + 8082;
+>>>>>>> 114eeaaa55da7d5f8d6fbc6c03e2d32d67779540
                     } else if (hostname.includes('momentza.com')) {
                         // Production: use subdomain.momentza.com
                         orgUrl = protocol + '//' + '${defaultDomain}' + '.momentza.com';

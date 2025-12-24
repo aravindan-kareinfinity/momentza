@@ -16,9 +16,13 @@ interface ComponentConfig {
   title?: string;
   description?: string;
   imageUrl?: string;
+  imageUrls?: string[];
   imagePosition?: 'left' | 'right';
   textAlignment?: 'left' | 'right';
+  alignment?: 'left' | 'center' | 'right';
   blockWidth?: '1/4' | '1/3' | '1/2' | 'full';
+  textPosition?: 'top' | 'center' | 'bottom';
+  showGalleryButton?: boolean;
 }
 
 interface PreviewComponent {
@@ -71,6 +75,8 @@ export function MicrositePreview({
               organization={organization}
               carouselItems={carouselItems}
               galleryImages={galleryImages}
+              textPosition={config.textPosition || 'center'}
+              slotTime={config.slotTime}
             />
           );
         }
@@ -113,7 +119,10 @@ export function MicrositePreview({
       case 'halls':
         // Use real halls component if we have halls data
         if (halls && halls.length > 0) {
-          return <PublicHallsSection halls={halls} />;
+          return <PublicHallsSection halls={halls} config={{
+            width: config.width,
+            height: config.height ? parseInt(config.height) : undefined
+          }} />;
         }
         // Fallback to placeholder
         return (
@@ -212,16 +221,17 @@ export function MicrositePreview({
         );
 
       case 'text':
-        const alignmentClass =  
-                              config.textAlignment === 'right' ? 'text-right' : 'text-left';
+        const alignmentClass =
+                              config.alignment === 'right' ? 'text-right' :
+                              config.alignment === 'center' ? 'text-center' : 'text-left';
         return (
-          <div className={`${getWidthClass(config.blockWidth)} mx-auto`}>
+          <div className={`${getWidthClass(config.width)} mx-auto`}>
             <div className={`flex ${config.imagePosition === 'right' ? 'flex-row-reverse' : 'flex-row'} items-center gap-8`}>
               {config.imageUrl && (
                 <div className="flex-shrink-0 w-56 h-40">
-                  <img 
-                    src={config.imageUrl} 
-                    alt={config.title} 
+                  <img
+                    src={config.imageUrl}
+                    alt={config.title}
                     className="w-full h-full object-cover rounded-lg shadow-lg"
                   />
                 </div>
@@ -239,17 +249,23 @@ export function MicrositePreview({
         );
 
       case 'image':
+        const imageUrls = config.imageUrls || (config.imageUrl ? [config.imageUrl] : []);
         return (
           <div className="text-center">
-            {config.imageUrl && (
-              <img 
-                src={config.imageUrl} 
-                alt={config.title} 
-                className="w-full max-w-2xl mx-auto rounded-lg"
-              />
+            {imageUrls.length > 0 && (
+              <div className={`grid gap-4 ${imageUrls.length === 1 ? 'grid-cols-1' : imageUrls.length === 2 ? 'grid-cols-2' : 'grid-cols-3'}`}>
+                {imageUrls.slice(0, 6).map((url: string, index: number) => (
+                  <img
+                    key={index}
+                    src={url}
+                    alt={config.title || `Image ${index + 1}`}
+                    className="w-full h-48 object-cover rounded-lg shadow-lg"
+                  />
+                ))}
+              </div>
             )}
             {config.title && (
-              <p className="mt-2 text-gray-600">{config.title}</p>
+              <p className="mt-4 text-gray-600">{config.title}</p>
             )}
           </div>
         );

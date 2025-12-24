@@ -10,9 +10,13 @@ import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSam
 
 interface PublicHallsSectionProps {
   halls: any[];
+  config?: {
+    width?: string;
+    height?: number;
+  };
 }
 
-export function PublicHallsSection({ halls }: PublicHallsSectionProps) {
+export function PublicHallsSection({ halls, config }: PublicHallsSectionProps) {
   const navigate = useNavigate();
   const [selectedDates, setSelectedDates] = useState<Record<string, Date | null>>({});
   const [imageUrls, setImageUrls] = useState<Record<string, string>>({});
@@ -68,18 +72,25 @@ export function PublicHallsSection({ halls }: PublicHallsSectionProps) {
 
   return (
     <section className="py-16 bg-background">
-      <div className="container mx-auto px-4">
+      {/* <div className="container mx-auto px-4">
         <div className="text-center mb-12">
           <h2 className="text-3xl font-bold mb-4">Our Wedding Halls</h2>
           <p className="text-gray-600 max-w-2xl mx-auto">
             Discover our beautiful venues perfect for your special day. Each hall is designed 
             to create magical moments and unforgettable memories.
           </p>
-        </div>
+        </div> */}
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {halls.map((hall) => (
-            <Card key={hall.id} className="overflow-hidden">
+            <Card
+              key={hall.id}
+              className="overflow-hidden"
+              style={{
+                width: config?.width ? `${config.width}px` : undefined,
+                height: config?.height ? `${config.height}px` : undefined
+              }}
+            >
               <div className="aspect-video relative">
                 <img
                   src={getImageUrl(hall)}
@@ -163,7 +174,7 @@ export function PublicHallsSection({ halls }: PublicHallsSectionProps) {
             </Card>
           ))}
         </div>
-      </div>
+     
     </section>
   );
 }

@@ -1,8 +1,10 @@
-﻿using System;
+﻿ using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Hosting;
 using Npgsql;
 
 namespace Momantza.Middleware
@@ -35,20 +37,60 @@ namespace Momantza.Middleware
         public async Task InvokeAsync(HttpContext context, IOrganizationResolver resolver)
         {
             // Get host and extract subdomain and domain
+            // Handles ANY subdomain: "sd", "x", "kjsenfkj", "whatever", etc.
             var host = context.Request.Host.Host.ToLower();
             var parts = host.Split('.');
 
             string subdomain = "";
             string domain = "";
+            bool isDevelopmentLocalhost = false;
 
-            if (parts.Length >= 2)
+            // Extract subdomain from ANY hostname format
+            // Examples:
+            // - "momantza.com" -> NO subdomain (base domain)
+            // - "sd.momantza.com" -> subdomain="sd", domain="momantza.com"
+            // - "x.localhost" -> subdomain="x", domain="localhost" (for local dev)
+            // - "kjsenfkj.momantza.com" -> subdomain="kjsenfkj", domain="momantza.com"
+            // - "whatever.example.com" -> subdomain="whatever", domain="example.com"
+            // - "localhost" -> NO subdomain, domain="localhost" (development base domain)
+            
+            // A subdomain exists only if there are 3+ parts (subdomain.domain.tld)
+            // For 2 parts (domain.tld), it's the base domain with no subdomain
+            if (parts.Length >= 3)
             {
-                subdomain = parts[0]; // First part is subdomain
+                // Has subdomain: subdomain.domain.tld
+                subdomain = parts[0].Trim(); // First part is subdomain (any value)
                 domain = string.Join(".", parts.Skip(1)); // Rest is domain
+            }
+            else if (parts.Length == 2)
+            {
+                // Base domain: domain.tld (no subdomain)
+                // Examples: "momantza.com", "example.com"
+                // Special case: "subdomain.localhost" (2 parts, but localhost is special)
+                if (parts[1] == "localhost")
+                {
+                    // This is actually a subdomain: "storesoft.localhost" -> subdomain="storesoft"
+                    subdomain = parts[0].Trim();
+                    domain = "localhost";
+                }
+                else
+                {
+                    // Base domain: domain.tld (no subdomain)
+                    subdomain = ""; // No subdomain
+                    domain = host; // Full host is the domain
+                }
             }
             else
             {
-                domain = host; // No subdomain, use full host as domain
+                // Single part: just "localhost" or IP address
+                subdomain = "";
+                domain = host;
+                
+                // Mark as development localhost (no subdomain)
+                if (host == "localhost" || host == "127.0.0.1")
+                {
+                    isDevelopmentLocalhost = true;
+                }
             }
             // LOGS for checking purpose
             Console.WriteLine("============== 🌐 DOMAIN DEBUG ==============");
@@ -61,8 +103,11 @@ namespace Momantza.Middleware
             // Store subdomain and domain in context for use by resolver/controllers
             context.Items["Subdomain"] = subdomain;
             context.Items["Domain"] = domain;
+            context.Items["IsDevelopmentLocalhost"] = isDevelopmentLocalhost;
 
             // FIRST: Try to resolve organization from subdomain
+            // In development, if accessing localhost without subdomain, skip organization resolution
+            // This allows the base domain to work in development (serves MVC landing page)
             var org = await resolver.ResolveAsync(context);
 
             // SECOND: If subdomain resolution failed, check URL path patterns
@@ -107,45 +152,98 @@ namespace Momantza.Middleware
     public class DomainOrganizationResolver : IOrganizationResolver
     {
         private readonly IConfiguration _config;
+        private readonly IWebHostEnvironment _environment;
 
-        public DomainOrganizationResolver(IConfiguration config)
+        public DomainOrganizationResolver(IConfiguration config, IWebHostEnvironment environment)
         {
             _config = config;
+            _environment = environment;
         }
 
         public async Task<OrganizationContext?> ResolveAsync(HttpContext context)
         {
-            // Use the subdomain stored by the middleware (fallback to host)
+            // Get full hostname and subdomain
+            // Handles ANY subdomain value: "sd", "x", "kjsenfkj", "whatever", etc.
+            var fullHost = context.Request.Host.Host.ToLowerInvariant().Trim();
             var subdomainObj = context.Items["Subdomain"];
-            var subdomain = (subdomainObj as string) ?? context.Request.Host.Host ?? string.Empty;
-            subdomain = subdomain.ToLowerInvariant();
+            var subdomain = (subdomainObj as string) ?? string.Empty;
+            subdomain = subdomain.ToLowerInvariant().Trim();
+            var isDevelopmentLocalhost = context.Items["IsDevelopmentLocalhost"] as bool? ?? false;
 
-            if (!string.IsNullOrEmpty(subdomain))
+            // SPECIAL CASE: In development, if accessing plain localhost (no subdomain),
+            // skip organization resolution to allow base domain to work (serves MVC landing page)
+            // This matches production behavior where momantza.com (base domain) works without organization
+            if (_environment.IsDevelopment() && isDevelopmentLocalhost && string.IsNullOrEmpty(subdomain))
+            {
+                Console.WriteLine($"Development mode: Skipping organization resolution for base localhost '{fullHost}'");
+                return null; // Allow request to proceed without organization (base domain behavior)
+            }
+
+            // Only proceed if we have a valid hostname or subdomain
+            // Empty strings, whitespace, or null are ignored
+            if ((!string.IsNullOrWhiteSpace(subdomain) && subdomain.Length > 0) || 
+                (!string.IsNullOrWhiteSpace(fullHost) && fullHost.Length > 0))
             {
                 try
                 {
                     using var connection = new NpgsqlConnection(_config.GetConnectionString("DefaultConnection"));
                     await connection.OpenAsync();
 
-                    var sql = "SELECT id, customdomain, name FROM organization WHERE lower(defaultdomain) LIKE @subdomainPattern OR lower(customdomain) LIKE @subdomainPattern LIMIT 1";
+                    // PRIORITY 1: Try exact match on full hostname first (most accurate)
+                    // This handles: pakshi.momantza.com -> matches defaultdomain='pakshi.momantza.com'
+                    var sql = @"
+                        SELECT id, customdomain, name 
+                        FROM organization 
+                        WHERE lower(defaultdomain) = @fullHost 
+                           OR lower(customdomain) = @fullHost 
+                        LIMIT 1";
                     using var command = new NpgsqlCommand(sql, connection);
-                    // search lower-cased domain fields with a prefix match
-                    command.Parameters.AddWithValue("@subdomainPattern", $"{subdomain}%");
+                    command.Parameters.AddWithValue("@fullHost", fullHost);
 
                     using var reader = await command.ExecuteReaderAsync();
                     if (await reader.ReadAsync())
                     {
-                        Console.WriteLine($"Organization found for subdomain '{subdomain}': {reader.GetString(0)}");
+                        Console.WriteLine($"Organization found for full host '{fullHost}': {reader.GetString(0)}");
                         return new OrganizationContext
                         {
                             OrganizationId = Guid.Parse(reader.GetString(0)),
                             Domain = reader.IsDBNull(1) ? string.Empty : reader.GetString(1)
                         };
                     }
+                    await reader.CloseAsync();
+
+                    // PRIORITY 2: If no exact match and we have a subdomain, try subdomain match
+                    // This handles ANY subdomain: "sd", "x", "kjsenfkj", "pakshi", etc.
+                    // Matches: defaultdomain='pakshi' or 'pakshi.localhost' or 'x' or 'sd.momantza.com'
+                    if (!string.IsNullOrWhiteSpace(subdomain) && subdomain.Length > 0)
+                    {
+                        sql = @"
+                            SELECT id, customdomain, name 
+                            FROM organization 
+                            WHERE lower(defaultdomain) = @subdomain 
+                               OR lower(defaultdomain) LIKE @subdomainPattern
+                               OR lower(customdomain) = @subdomain
+                               OR lower(customdomain) LIKE @subdomainPattern
+                            LIMIT 1";
+                        using var subdomainCommand = new NpgsqlCommand(sql, connection);
+                        subdomainCommand.Parameters.AddWithValue("@subdomain", subdomain);
+                        subdomainCommand.Parameters.AddWithValue("@subdomainPattern", $"{subdomain}.%");
+
+                        using var subdomainReader = await subdomainCommand.ExecuteReaderAsync();
+                        if (await subdomainReader.ReadAsync())
+                        {
+                            Console.WriteLine($"Organization found for subdomain '{subdomain}': {subdomainReader.GetString(0)}");
+                            return new OrganizationContext
+                            {
+                                OrganizationId = Guid.Parse(subdomainReader.GetString(0)),
+                                Domain = subdomainReader.IsDBNull(1) ? string.Empty : subdomainReader.GetString(1)
+                            };
+                        }
+                    }
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Error resolving organization for subdomain '{subdomain}': {ex.Message}");
+                    Console.WriteLine($"Error resolving organization for host '{fullHost}' / subdomain '{subdomain}': {ex.Message}");
                 }
             }
 
