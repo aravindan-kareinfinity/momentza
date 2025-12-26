@@ -19,7 +19,7 @@ export class ApiHandoverService {
     }
   
     async deleteHandover(bookingId: string) {
-      return apiClient.delete(`/api/bookings/${bookingId}/handover`);
+      return apiClient.post(`/api/bookings/${bookingId}/handover/delete`,{});
     }
   
     // ---------------------------
@@ -27,7 +27,7 @@ export class ApiHandoverService {
     // ---------------------------
   
     async uploadImage(bookingId: string, formData: FormData) {
-      return apiClient.upload(`/api/bookings/${bookingId}/handover/images`, formData);
+      return apiClient.post(`/api/bookings/${bookingId}/handover/images`, formData);
     }
   
     async getImages(bookingId: string): Promise<HandOverImage[]> {
@@ -35,7 +35,7 @@ export class ApiHandoverService {
       }
   
     async deleteImage(bookingId: string, imageId: string) {
-      return apiClient.delete(`/api/bookings/${bookingId}/handover/images/${imageId}`);
+      return apiClient.post(`/api/bookings/${bookingId}/handover/images/${imageId}/delete`,{});
     }
   
     getImageUrl(bookingId: string, imageId: string) {

@@ -23,12 +23,12 @@ export class ApiFeatureService {
   }
 
   async update(id: string, feature: Partial<FeatureItem>): Promise<FeatureItem> {
-    return apiClient.put<FeatureItem>(`/api/feature/${id}`, feature);
+    return apiClient.post<FeatureItem>(`/api/feature/${id}`, feature);
   }
 
   async delete(id: string): Promise<boolean> {
     try {
-      await apiClient.delete(`/api/feature/${id}`);
+      await apiClient.post(`/api/feature/delete/${id}`,{});
       return true;
     } catch {
       return false;

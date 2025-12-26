@@ -5,7 +5,7 @@ using Momantza.Models;
 namespace Momantza.Controllers
 {
     [ApiController]
-    [Route("api/bookings/{bookingId}/handover")]
+    [Route("api/bookings/{bookingId}/handover/")]
     public class HandoverController : ControllerBase
     {
         private readonly IHandoverDataService _handoverDataService;
@@ -101,7 +101,7 @@ namespace Momantza.Controllers
             }
         }
 
-        [HttpPost]
+        [HttpPost("delete")]
         public async Task<IActionResult> DeleteHandover(string bookingId)
         {
             try
@@ -132,9 +132,7 @@ namespace Momantza.Controllers
         // Handover images controller part
 
         [HttpPost("images")]
-        public async Task<IActionResult> UploadHandoverImage(
-    string bookingId,
-    [FromForm] HandoverImageUploadDto dto)
+        public async Task<IActionResult> UploadHandoverImage(string bookingId,[FromForm] HandoverImageUploadDto dto)
         {
             try
             {
@@ -222,7 +220,7 @@ namespace Momantza.Controllers
             }
         }
 
-        [HttpPost("images/{imageId}")]
+        [HttpPost("images/{imageId}/delete")]
         public async Task<IActionResult> DeleteHandoverImage(string bookingId, string imageId)
         {
             try

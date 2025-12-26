@@ -23,12 +23,12 @@ export class ApiServicesService implements IServicesService {
   }
 
   async update(id: string, data: Partial<ServiceItem>): Promise<ServiceItem> {
-    return apiClient.put<ServiceItem>(`/api/services/${id}`, data);
+    return apiClient.post<ServiceItem>(`/api/services/${id}`, data);
   }
 
   async delete(id: string): Promise<boolean> {
     try {
-      await apiClient.delete(`/api/services/${id}`);
+      await apiClient.post(`/api/services/setting/delete/${id}`,{});
       return true;
     } catch (error) {
       return false;
@@ -44,16 +44,16 @@ export class ApiServicesService implements IServicesService {
   }
 
   async updateService(id: string, updates: Partial<ServiceItem>): Promise<ServiceItem> {
-    return apiClient.put<ServiceItem>(`/api/services/${id}`, updates);
+    return apiClient.post<ServiceItem>(`/api/services/setting/update/${id}`, updates);
   }
 
   async updateSettingsService(id: string, updates: Partial<ServiceItem>): Promise<ServiceItem> {
-    return apiClient.put<ServiceItem>(`/api/services/update/${id}`, updates);
+    return apiClient.post<ServiceItem>(`/api/services/update/${id}`, updates);
   }
 
   async deleteService(id: string): Promise<boolean> {
     try {
-      await apiClient.delete(`/api/services/delete/${id}`);
+      await apiClient.post(`/api/services/delete/${id}`,{});
       return true;
     } catch (error) {
       return false;

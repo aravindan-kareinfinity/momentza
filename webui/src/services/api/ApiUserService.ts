@@ -36,12 +36,12 @@ export class ApiUserService implements IUserService {
     console.log('[ApiUserService] Sending update data:', updateData);
     console.log('[ApiUserService] Update URL:', '/api/users');
     
-    return apiClient.post<User>('/api/users', updateData);
+    return apiClient.post<User>('/api/users/update', updateData);
   }
 
   async delete(id: string): Promise<boolean> {
     try {
-      await apiClient.post(`/api/users/${id}/delete`, {});
+      await apiClient.post(`/api/users/delete/${id}`, {});
       return true;
     } catch (error) {
       return false;

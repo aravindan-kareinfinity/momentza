@@ -15,10 +15,10 @@ export class ApiInventoryService {
   }
 
   async update(id: string, data: any) {
-    return apiClient.put(`/api/inventory/${id}`, data);
+    return apiClient.post(`/api/inventory/${id}`, data);
   }
 
   async delete(id: string) {
-    return apiClient.delete(`/api/inventory/${id}`);
+    return apiClient.post(`/api/inventory/delete/${id}`,{});
   }
 }

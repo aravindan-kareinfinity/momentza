@@ -775,7 +775,7 @@ console.log("inventoryCatalog >>>", inventoryCatalog);
           updatedAt: new Date().toISOString()
         };
 
-        const updatedService = await servicesService.updateService(editingItem.id, updatedServiceData);
+        const updatedService = await servicesService.updateSettingsService(editingItem.id, updatedServiceData);
 
         // Update local state immediately
         setPageData(prev => ({

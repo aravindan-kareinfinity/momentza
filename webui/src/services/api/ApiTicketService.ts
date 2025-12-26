@@ -23,12 +23,12 @@ export class ApiTicketService implements ITicketService {
   }
 
   async update(id: string, data: Partial<TicketItem>): Promise<TicketItem> {
-    return apiClient.put<TicketItem>(`/api/tickets/${id}`, data);
+    return apiClient.post<TicketItem>(`/api/tickets/${id}`, data);
   }
 
   async delete(id: string): Promise<boolean> {
     try {
-      await apiClient.delete(`/api/tickets/${id}`);
+      await apiClient.post(`/api/tickets/${id}`,{});
       return true;
     } catch (error) {
       return false;
@@ -48,12 +48,12 @@ export class ApiTicketService implements ITicketService {
   }
 
   async updateTicket(id: string, data: Partial<TicketItem>): Promise<TicketItem> {
-    return apiClient.put<TicketItem>(`/api/tickets/${id}`, data);
+    return apiClient.post<TicketItem>(`/api/tickets/${id}`, data);
   }
 
   async deleteTicket(id: string): Promise<boolean> {
     try {
-      await apiClient.delete(`/api/tickets/${id}`);
+      await apiClient.post(`/api/tickets/delete/${id}`,{});
       return true;
     } catch (error) {
       return false;

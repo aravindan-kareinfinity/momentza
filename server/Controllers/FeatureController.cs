@@ -101,7 +101,7 @@ namespace Momantza.Controllers
         }
 
         // DELETE: api/features/{id}
-        [HttpPost("{id}")]
+        [HttpPost("delete/{id}")]
         public async Task<ActionResult> Delete(string id)
         {
             try

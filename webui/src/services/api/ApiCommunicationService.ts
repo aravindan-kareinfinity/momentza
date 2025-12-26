@@ -23,12 +23,12 @@ export class ApiCommunicationService implements ICommunicationService {
   }
 
   async update(id: string, data: Partial<Communication>): Promise<Communication> {
-    return apiClient.put<Communication>(`/api/communication/${id}`, data);
+    return apiClient.post<Communication>(`/api/communication/${id}`, data);
   }
 
   async delete(id: string): Promise<boolean> {
     try {
-      await apiClient.delete(`/api/communication/${id}`);
+      await apiClient.post(`/api/communication/delete/${id}`,{});
       return true;
     } catch (error) {
       return false;
@@ -44,12 +44,12 @@ export class ApiCommunicationService implements ICommunicationService {
   }
 
   async updateCommunication(id: string, data: Partial<Communication>): Promise<Communication> {
-    return apiClient.put<Communication>(`/api/communication/${id}`, data);
+    return apiClient.post<Communication>(`/api/communication/${id}`, data);
   }
 
   async deleteCommunication(id: string): Promise<boolean> {
     try {
-      await apiClient.delete(`/api/communication/${id}`);
+      await apiClient.post(`/api/communication/delete/${id}`,{});
       return true;
     } catch (error) {
       return false;

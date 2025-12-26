@@ -75,7 +75,7 @@ namespace Momantza.Controllers
         }
 
         
-        [HttpPost("{id}")]
+        [HttpPost("update/{id}")]
         public async Task<IActionResult> Update(string id, ServiceItem serviceData)
         {
             try
@@ -89,7 +89,7 @@ namespace Momantza.Controllers
             }
         }
 
-        [HttpPost("update/{id}")]
+        [HttpPost("setting/update/{id}")]
         public async Task<IActionResult> UpdateSettings(string id, ServiceItem serviceData)
         {
             try
@@ -103,7 +103,7 @@ namespace Momantza.Controllers
             }
         }
 
-        [HttpPost("{id}")]
+        [HttpPost("setting/delete/{id}")]
         public async Task<IActionResult> Delete(string id)
         {
             try

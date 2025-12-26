@@ -24,12 +24,12 @@ export class ApiPaymentService implements IPaymentService {
   }
 
   async update(id: string, data: Partial<PaymentsItem>): Promise<PaymentsItem> {
-    return apiClient.put<PaymentsItem>(`/api/payments/${id}`, data);
+    return apiClient.post<PaymentsItem>(`/api/payments/${id}`, data);
   }
 
   async delete(id: string): Promise<boolean> {
     try {
-      await apiClient.delete(`/api/payments/${id}`);
+      await apiClient.post(`/api/payments/delete/${id}`,{});
       return true;
     } catch (error) {
       return false;

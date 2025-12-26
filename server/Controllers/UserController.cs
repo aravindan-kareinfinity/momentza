@@ -71,7 +71,7 @@ namespace Momantza.Controllers
             }
         }
 
-        [HttpPost]
+        [HttpPost("update")]
         public async Task<IActionResult> Update(Users user)
         {
             try
@@ -89,7 +89,7 @@ namespace Momantza.Controllers
             }
         }
 
-        [HttpPost("{id}")]
+        [HttpPost("delete/{id}")]
         public async Task<IActionResult> Delete(string id)
         {
             try
