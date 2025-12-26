@@ -165,7 +165,7 @@ const HallEdit = () => {
         isActive,
       };
 
-      hallService.updateHall(hall.id, updatedHall);
+      await hallService.updateHall(hall.id, updatedHall);
       
       toast({
         title: 'Success',

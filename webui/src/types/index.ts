@@ -74,7 +74,7 @@ export interface Booking {
     billingAddress: string;
     gstNumber: string;
   };
-  hallName: string;
+  // hallName: string;
 }
 
 export interface Review {

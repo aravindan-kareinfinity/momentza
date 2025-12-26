@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Momantza.Services;
 using Momantza.Models;
 using Microsoft.AspNetCore.Http;
+using System.ComponentModel.DataAnnotations;
 
 namespace Momantza.Controllers
 {
@@ -71,27 +72,54 @@ namespace Momantza.Controllers
             }
         }
 
-        [HttpPost("{id}")]
-        public async Task<IActionResult> Update(string id, dynamic galleryData)
+        //[HttpPost("{id}/update")]
+        //public async Task<IActionResult> Update(string id, dynamic galleryData)
+        //{
+        //    try
+        //    {
+        //        // Set the ID on the gallery data
+        //        galleryData.Id = id;
+        //        var success = await _galleryDataService.UpdateAsync(galleryData);
+        //        if (!success)
+        //        {
+        //            return NotFound(new { message = "Gallery item not found" });
+        //        }
+        //        return Ok(await _galleryDataService.GetByIdAsync(id));
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return StatusCode(500, new { message = "Internal server error", error = ex.Message });
+        //    }
+        //}
+
+        [HttpPost("{id}/update")]
+        public async Task<IActionResult> Update(
+    string id,
+    [FromBody] GalleryUpdateDto dto
+)
         {
             try
             {
-                // Set the ID on the gallery data
-                galleryData.Id = id;
-                var success = await _galleryDataService.UpdateAsync(galleryData);
-                if (!success)
+                var updates = new GalleryImage
                 {
-                    return NotFound(new { message = "Gallery item not found" });
-                }
-                return Ok(await _galleryDataService.GetByIdAsync(id));
+                    Title = dto.Title,
+                    Category = dto.Category
+                };
+
+                var updated = await _galleryDataService.UpdateGalleryItemAsync(id, updates);
+                return Ok(updated);
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { message = "Internal server error", error = ex.Message });
+                return StatusCode(500, new
+                {
+                    message = "Internal server error",
+                    error = ex.Message
+                });
             }
         }
 
-        [HttpPost("{id}")]
+        [HttpPost("{id}/delete")]
         public async Task<IActionResult> Delete(string id)
         {
             try
@@ -241,5 +269,16 @@ namespace Momantza.Controllers
                 return StatusCode(500, new { message = "Internal server error", error = ex.Message });
             }
         }
+    }
+
+    public class GalleryUpdateDto
+    {
+        [Required]
+        [MaxLength(200)]
+        public string Title { get; set; } = string.Empty;
+
+        [Required]
+        [MaxLength(50)]
+        public string Category { get; set; } = string.Empty;
     }
 } 

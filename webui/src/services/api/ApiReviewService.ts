@@ -37,7 +37,7 @@ export class ApiReviewService implements IReviewService {
     };
     
     // Call PUT with full Review object in request body
-    return apiClient.put<Review>(`/api/reviews/${id}`, fullReview);
+    return apiClient.post<Review>(`/api/reviews/${id}`, fullReview);
   }
 
   // Optimized update method that takes the current review to avoid extra GET request
@@ -50,12 +50,12 @@ export class ApiReviewService implements IReviewService {
     };
     
     // Call PUT with full Review object in request body
-    return apiClient.put<Review>(`/api/reviews/${id}`, fullReview);
+    return apiClient.post<Review>(`/api/reviews/${id}/update`, fullReview);
   }
 
   async delete(id: string): Promise<boolean> {
     try {
-      await apiClient.delete(`/api/reviews/${id}`);
+      await apiClient.post(`/api/reviews/${id}/delete`, {});
       return true;
     } catch (error) {
       return false;

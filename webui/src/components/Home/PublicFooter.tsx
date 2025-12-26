@@ -36,7 +36,8 @@ export function PublicFooter({ organization }: PublicFooterProps) {
               </div>
               <div className="flex items-center text-gray-300">
                 <Mail className="h-4 w-4 mr-2" />
-                <span>{organization.contactPerson}@example.com</span>
+                {/* <span>{organization.contactPerson}@example.com</span> */}
+                <span>{organization.contactPerson}@gmail.com</span>
               </div>
               <div className="flex items-center text-gray-300">
                 <MapPin className="h-4 w-4 mr-2" />

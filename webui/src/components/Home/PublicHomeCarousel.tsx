@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Carousel,
   CarouselContent,
   CarouselItem,
   CarouselNext,
   CarouselPrevious,
+  CarouselApi,
 } from '@/components/ui/carousel';
 import { galleryService } from '@/services/ServiceFactory';
 
@@ -12,13 +13,39 @@ interface PublicHomeCarouselProps {
   organization: any;
   carouselItems: any[];
   galleryImages: any[];
+  textPosition?: 'top' | 'center' | 'bottom';
+  slotTime?: number;
 }
 
-export function PublicHomeCarousel({ 
-  organization, 
-  carouselItems, 
-  galleryImages 
+export function PublicHomeCarousel({
+  organization,
+  carouselItems,
+  galleryImages,
+  textPosition = 'center',
+  slotTime
 }: PublicHomeCarouselProps) {
+  const [api, setApi] = useState<CarouselApi>();
+
+  // Auto-advance carousel if slotTime is provided
+  useEffect(() => {
+    if (!api || !slotTime || slotTime <= 0) return;
+
+    const interval = setInterval(() => {
+      const current = api.selectedScrollSnap();
+      const total = api.scrollSnapList().length;
+
+      if (current >= total - 1) {
+        // If at the last slide, go back to first
+        api.scrollTo(0);
+      } else {
+        // Otherwise, go to next slide
+        api.scrollNext();
+      }
+    }, slotTime * 1000);
+
+    return () => clearInterval(interval);
+  }, [api, slotTime]);
+
   // Function to get proper image URL
   const getImageUrl = (item: any): string => {
     if (!item.imageUrl) {
@@ -70,7 +97,7 @@ export function PublicHomeCarousel({
 
   return (
     <div className="relative mb-12">
-      <Carousel className="w-full">
+      <Carousel className="w-full" setApi={setApi}>
         <CarouselContent>
           {Array.isArray(displayItems) && displayItems.map((item) => (
             <CarouselItem key={item.id}>
@@ -85,13 +112,18 @@ export function PublicHomeCarousel({
                   }}
                 />
                 <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-                  <div className="text-center text-white max-w-2xl px-4">
-                    <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold mb-4">
-                      {item.title}
-                    </h1>
-                    <p className="text-lg md:text-xl lg:text-2xl opacity-90">
-                      {item.description}
-                    </p>
+                 <div className={`absolute left-1/2 transform -translate-x-1/2 text-center text-white max-w-2xl px-4 w-full ${
+    textPosition === 'top' ? 'top-8' : // Top position with more spacing
+    textPosition === 'bottom' ? 'bottom-8' : 'top-1/2 -translate-y-1/2' // Center position
+}`}>
+                    <div>
+                      <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold mb-4">
+                        {item.title}
+                      </h1>
+                      <p className="text-lg md:text-xl lg:text-2xl opacity-90">
+                        {item.description}
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>

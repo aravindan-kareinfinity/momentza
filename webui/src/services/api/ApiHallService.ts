@@ -23,12 +23,12 @@ export class ApiHallService implements IHallService {
   }
 
   async update(id: string, data: Partial<Hall>): Promise<Hall> {
-    return apiClient.put<Hall>(`/api/halls/${id}`, data);
+    return apiClient.post<Hall>(`/api/halls/${id}/update`, data);
   }
 
   async delete(id: string): Promise<boolean> {
     try {
-      await apiClient.delete(`/api/halls/${id}`);
+      await apiClient.post(`/api/halls/${id}/delete`, {});
       return true;
     } catch (error) {
       return false;
@@ -146,12 +146,12 @@ export class ApiHallService implements IHallService {
   }
 
   async updateHall(id: string, updates: Partial<Hall>): Promise<Hall> {
-    return apiClient.put<Hall>(`/api/halls/${id}`, updates);
+    return apiClient.post<Hall>(`/api/halls/${id}/update`, updates);
   }
 
   async deleteHall(id: string): Promise<boolean> {
     try {
-      await apiClient.delete(`/api/halls/${id}`);
+      await apiClient.post(`/api/halls/${id}/delete`, {});
       return true;
     } catch (error) {
       return false;

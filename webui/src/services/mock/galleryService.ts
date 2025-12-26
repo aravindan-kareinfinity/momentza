@@ -42,6 +42,24 @@ class GalleryService {
     return newImage;
   }
 
+  async update(
+    id: string,
+    data: Partial<GalleryImage>
+  ): Promise<GalleryImage> {
+    const index = mockGalleryImages.findIndex(img => img.id === id);
+
+    if (index === -1) {
+      throw new Error('Image not found');
+    }
+
+    mockGalleryImages[index] = {
+      ...mockGalleryImages[index],
+      ...data,
+    };
+
+    return Promise.resolve(mockGalleryImages[index]);
+  }
+
   deleteImage(id: string): boolean {
     const index = mockGalleryImages.findIndex(image => image.id === id);
     if (index !== -1) {

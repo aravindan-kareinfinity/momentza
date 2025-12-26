@@ -5574,11 +5574,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Momentza\\momantza\\server\\MomantzaApp.csproj",
+      "projectUniqueName": "C:\\backup\\momentza\\server\\MomantzaApp.csproj",
       "projectName": "MomantzaApp",
-      "projectPath": "C:\\Momentza\\momantza\\server\\MomantzaApp.csproj",
+      "projectPath": "C:\\backup\\momentza\\server\\MomantzaApp.csproj",
       "packagesPath": "C:\\Users\\Roshan\\.nuget\\packages\\",
-      "outputPath": "C:\\Momentza\\momantza\\server\\obj\\",
+      "outputPath": "C:\\backup\\momentza\\server\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

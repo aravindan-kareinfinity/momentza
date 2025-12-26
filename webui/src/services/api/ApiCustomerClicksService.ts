@@ -24,12 +24,12 @@ export class ApiCustomerClicksService implements ICustomerClicksService {
   }
 
   async update(id: string, data: Partial<CustomerClick>): Promise<CustomerClick> {
-    return apiClient.put<CustomerClick>(`/api/customer-clicks/${id}`, data);
+    return apiClient.post<CustomerClick>(`/api/customer-clicks/${id}/update`, data);
   }
 
   async delete(id: string): Promise<boolean> {
     try {
-      await apiClient.delete(`/api/customer-clicks/${id}`);
+      await apiClient.post(`/api/customer-clicks/${id}/delete`, {});
       return true;
     } catch (error) {
       return false;

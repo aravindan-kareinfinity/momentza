@@ -11,12 +11,12 @@ export class ApiMicrositeService implements IMicrositeService {
   }
 
   async updateComponent(id: string, component: Partial<MicrositeComponent>): Promise<MicrositeComponent> {
-    return apiClient.put<MicrositeComponent>(`/api/microsite/components/${id}`, component);
+    return apiClient.post<MicrositeComponent>(`/api/microsite/components/${id}/update`, component);
   }
 
   async deleteComponent(id: string): Promise<boolean> {
     try {
-      await apiClient.delete(`/api/microsite/components/${id}`);
+      await apiClient.post(`/api/microsite/components/${id}/delete`, {});
       return true;
     } catch (error) {
       return false;
@@ -24,7 +24,7 @@ export class ApiMicrositeService implements IMicrositeService {
   }
 
   async reorderComponents(organizationId: string, componentIds: string[]): Promise<void> {
-    await apiClient.put(`/api/microsite/organizations/${organizationId}/reorder`, { componentIds });
+    await apiClient.post(`/api/microsite/organizations/${organizationId}/reorder`, { componentIds });
   }
 
   async toggleComponent(id: string, isActive: boolean): Promise<MicrositeComponent> {

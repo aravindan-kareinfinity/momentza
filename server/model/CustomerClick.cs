@@ -61,4 +61,31 @@ namespace Momantza.Models
         
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     }
+
+    //update fix
+    public class CustomerClickUpdateDto
+    {
+        public DateTime? EventDate { get; set; }
+
+        [MaxLength(50)]
+        public string? EventType { get; set; }
+
+        [MaxLength(1000)]
+        public string? Message { get; set; }
+
+        public int? GuestCount { get; set; }
+
+        public int? Rating { get; set; }
+
+        public string? HallId { get; set; }
+
+        [MaxLength(100)]
+        public string? BoyName { get; set; }
+
+        [MaxLength(100)]
+        public string? GirlName { get; set; }
+
+        // Base64 image (ONLY when user uploads new image)
+        public string? ImageBase64 { get; set; }
+    }
 } 

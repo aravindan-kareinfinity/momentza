@@ -154,7 +154,33 @@ const Gallery = () => {
     setShowEditDialog(true);
   };
 
-  const handleSaveEdit = () => {
+  // const handleSaveEdit = () => {
+  //   if (!editingImage.title || !editingImage.category) {
+  //     toast({
+  //       title: 'Error',
+  //       description: 'Please fill all fields',
+  //       variant: 'destructive',
+  //     });
+  //     return;
+  //   }
+
+  //   const safeImages = Array.isArray(images) ? images : [];
+  //   setImages(safeImages.map(img => 
+  //     img.id === editingImage.id 
+  //       ? { ...img, title: editingImage.title, category: editingImage.category }
+  //       : img
+  //   ));
+    
+  //   setShowEditDialog(false);
+  //   setEditingImage(null);
+    
+  //   toast({
+  //     title: 'Success',
+  //     description: 'Image updated successfully',
+  //   });
+  // };
+
+  const handleSaveEdit = async () => {
     if (!editingImage.title || !editingImage.category) {
       toast({
         title: 'Error',
@@ -163,22 +189,37 @@ const Gallery = () => {
       });
       return;
     }
-
-    const safeImages = Array.isArray(images) ? images : [];
-    setImages(safeImages.map(img => 
-      img.id === editingImage.id 
-        ? { ...img, title: editingImage.title, category: editingImage.category }
-        : img
-    ));
-    
-    setShowEditDialog(false);
-    setEditingImage(null);
-    
-    toast({
-      title: 'Success',
-      description: 'Image updated successfully',
-    });
+  
+    try {
+      // ✅ CALL BACKEND API
+      const updatedImage = await galleryService.update(editingImage.id, {
+        title: editingImage.title,
+        category: editingImage.category,
+      });
+  
+      // ✅ Update local state with backend response
+      setImages(prev =>
+        prev.map(img =>
+          img.id === updatedImage.id ? updatedImage : img
+        )
+      );
+  
+      setShowEditDialog(false);
+      setEditingImage(null);
+  
+      toast({
+        title: 'Success',
+        description: 'Image updated successfully',
+      });
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'Failed to update image',
+        variant: 'destructive',
+      });
+    }
   };
+  
 
   const handleDeleteImage = (id: string) => {
     try {

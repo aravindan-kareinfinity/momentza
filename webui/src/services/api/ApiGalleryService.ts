@@ -24,12 +24,12 @@ export class ApiGalleryService implements IGalleryService {
   }
 
   async update(id: string, data: Partial<GalleryImage>): Promise<GalleryImage> {
-    return apiClient.put<GalleryImage>(`/api/gallery/${id}`, data);
+    return apiClient.post<GalleryImage>(`/api/gallery/${id}/update`, data);
   }
 
   async delete(id: string): Promise<boolean> {
     try {
-      await apiClient.delete(`/api/gallery/${id}`);
+      await apiClient.post(`/api/gallery/${id}/delete`, {});
       return true;
     } catch (error) {
       return false;
@@ -58,7 +58,7 @@ export class ApiGalleryService implements IGalleryService {
 
   async deleteImage(id: string): Promise<boolean> {
     try {
-      await apiClient.delete(`/api/gallery/${id}`);
+      await apiClient.post(`/api/gallery/${id}/delete`, {});
       return true;
     } catch (error) {
       return false;

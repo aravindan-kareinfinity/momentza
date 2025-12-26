@@ -153,7 +153,7 @@ namespace Momantza.Services
             }
         }
 
-        public async Task<CustomerClick> UpdateCustomerClickAsync(string id, CustomerClick updates)
+        public async Task<CustomerClick> UpdateCustomerClickAsync(string id, CustomerClickUpdateDto updates)
         {
             try
             {
@@ -162,19 +162,36 @@ namespace Momantza.Services
                     throw new Exception("Customer click not found");
 
                 // Update only the provided fields
-                if (!string.IsNullOrEmpty(updates.CustomerId)) existing.CustomerId = updates.CustomerId;
-                if (!string.IsNullOrEmpty(updates.HallId)) existing.HallId = updates.HallId;
-                if (!string.IsNullOrEmpty(updates.CustomerName)) existing.CustomerName = updates.CustomerName;
-                if (!string.IsNullOrEmpty(updates.CustomerEmail)) existing.CustomerEmail = updates.CustomerEmail;
-                if (!string.IsNullOrEmpty(updates.CustomerPhone)) existing.CustomerPhone = updates.CustomerPhone;
-                if (!string.IsNullOrEmpty(updates.EventDate.ToString())) existing.EventDate = updates.EventDate;
-                if (!string.IsNullOrEmpty(updates.EventType)) existing.EventType = updates.EventType;
-                if (!string.IsNullOrEmpty(updates.GuestCount.ToString())) existing.GuestCount = updates.GuestCount;
-                if (!string.IsNullOrEmpty(updates.Message)) existing.Message = updates.Message;
-                if (!string.IsNullOrEmpty(updates.Timestamp.ToString())) existing.Timestamp = updates.Timestamp;
-                if (updates.Rating.HasValue) existing.Rating = updates.Rating;
-                if (updates.ImageBytes != null) existing.ImageBytes = updates.ImageBytes;
-                if (!string.IsNullOrEmpty(updates.ContentType)) existing.ContentType = updates.ContentType;
+                if (updates.EventDate.HasValue)
+                    existing.EventDate = updates.EventDate.Value;
+
+                if (!string.IsNullOrEmpty(updates.EventType))
+                    existing.EventType = updates.EventType;
+
+                if (!string.IsNullOrEmpty(updates.Message))
+                    existing.Message = updates.Message;
+
+                if (updates.GuestCount.HasValue)
+                    existing.GuestCount = updates.GuestCount.Value;
+
+                if (updates.Rating.HasValue)
+                    existing.Rating = updates.Rating;
+
+                if (!string.IsNullOrEmpty(updates.HallId))
+                    existing.HallId = updates.HallId;
+
+                if (!string.IsNullOrEmpty(updates.BoyName))
+                    existing.BoyName = updates.BoyName;
+
+                if (!string.IsNullOrEmpty(updates.GirlName))
+                    existing.GirlName = updates.GirlName;
+
+                // Update image ONLY if user uploads new one
+                if (!string.IsNullOrEmpty(updates.ImageBase64))
+                {
+                    existing.ImageBytes = Convert.FromBase64String(updates.ImageBase64);
+                    existing.ContentType = "image/jpeg";
+                }
 
                 var success = await UpdateAsync(existing);
                 if (!success) throw new Exception("Failed to update customer click");
@@ -365,7 +382,8 @@ namespace Momantza.Services
     {
         Task<List<CustomerClick>> GetByHallIdAsync(string hallId);
         Task<CustomerClick> CreateCustomerClickAsync(CustomerClick click);
-        Task<CustomerClick> UpdateCustomerClickAsync(string id, CustomerClick updates);
+        //Task<CustomerClick> UpdateCustomerClickAsync(string id, CustomerClick updates);
+        Task<CustomerClick> UpdateCustomerClickAsync(string id,CustomerClickUpdateDto updates);
         Task<bool> DeleteCustomerClickAsync(string id);
         Task<List<CustomerClick>> GetByOrganizationAsync(string organizationId);
         Task<object> GetStatisticsAsync(string? organizationId = null, DateTime? startDate = null, DateTime? endDate = null);

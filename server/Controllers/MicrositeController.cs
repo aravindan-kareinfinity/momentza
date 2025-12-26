@@ -96,7 +96,7 @@ namespace Momantza.Controllers
             }
         }
 
-        [HttpPost("components/{id}")]
+        [HttpPost("components/{id}/update")]
         public async Task<IActionResult> UpdateComponent(string id, MicrositeComponent component)
         {
             try
@@ -149,7 +149,7 @@ namespace Momantza.Controllers
             }
         }
 
-        [HttpPost("components/{id}")]
+        [HttpPost("components/{id}/delete")]
         public async Task<IActionResult> DeleteComponent(string id)
         {
             try

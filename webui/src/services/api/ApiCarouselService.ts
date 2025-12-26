@@ -23,12 +23,12 @@ export class ApiCarouselService implements ICarouselService {
   }
 
   async update(id: string, data: Partial<CarouselItem>): Promise<CarouselItem> {
-    return apiClient.put<CarouselItem>(`/api/carousel/${id}`, data);
+    return apiClient.post<CarouselItem>(`/api/carousel/${id}/update`, data);
   }
 
   async delete(id: string): Promise<boolean> {
     try {
-      await apiClient.delete(`/api/carousel/${id}`);
+      await apiClient.post(`/api/carousel/${id}/delete`, {});
       return true;
     } catch (error) {
       return false;

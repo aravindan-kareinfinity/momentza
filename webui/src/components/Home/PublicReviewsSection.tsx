@@ -40,7 +40,8 @@ export function PublicReviewsSection({ organization }: PublicReviewsSectionProps
     return null;
   }
 
-  const safeReviews = Array.isArray(reviews) ? reviews : [];
+  // const safeReviews = Array.isArray(reviews) ? reviews : [];
+  const safeReviews = Array.isArray(reviews) ? reviews.filter(review => review.isEnabled === true) : [];
   const displayReviews = safeReviews.slice(0, 3);
 
   // Loading state

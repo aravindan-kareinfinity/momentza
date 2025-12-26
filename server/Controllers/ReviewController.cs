@@ -63,7 +63,7 @@ namespace Momantza.Controllers
             }
         }
 
-        [HttpPost("{id}")]
+        [HttpPost("{id}/update")]
         public async Task<IActionResult> Update(string id, Reviews review)
         {
             try
@@ -82,7 +82,7 @@ namespace Momantza.Controllers
             }
         }
 
-        [HttpPost("{id}")]
+        [HttpPost("{id}/delete")]
         public async Task<IActionResult> Delete(string id)
         {
             try

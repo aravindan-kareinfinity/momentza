@@ -90,27 +90,50 @@ namespace Momantza.Controllers
             }
         }
 
-        [HttpPost("{id}")]
-        public async Task<IActionResult> Update(string id, dynamic clickData)
+        //[HttpPost("{id}/update")]
+        //public async Task<IActionResult> Update(string id, dynamic clickData)
+        //{
+        //    try
+        //    {
+        //        // Set the ID on the click data
+        //        clickData.Id = id;
+        //        var success = await _customerClicksDataService.UpdateAsync(clickData);
+        //        if (!success)
+        //        {
+        //            return NotFound(new { message = "Customer click record not found" });
+        //        }
+        //        return Ok(await _customerClicksDataService.GetByIdAsync(id));
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return StatusCode(500, new { message = "Internal server error", error = ex.Message });
+        //    }
+        //}
+
+        [HttpPost("{id}/update")]
+        public async Task<IActionResult> Update(
+                string id,
+                [FromBody] CustomerClickUpdateDto dto
+            )
         {
             try
             {
-                // Set the ID on the click data
-                clickData.Id = id;
-                var success = await _customerClicksDataService.UpdateAsync(clickData);
-                if (!success)
-                {
-                    return NotFound(new { message = "Customer click record not found" });
-                }
-                return Ok(await _customerClicksDataService.GetByIdAsync(id));
+                var updated = await _customerClicksDataService
+                    .UpdateCustomerClickAsync(id, dto);
+
+                return Ok(updated);
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { message = "Internal server error", error = ex.Message });
+                return StatusCode(500, new
+                {
+                    message = "Internal server error",
+                    error = ex.Message
+                });
             }
         }
 
-        [HttpPost("{id}")]
+        [HttpPost("{id}/delete")]
         public async Task<IActionResult> Delete(string id)
         {
             try

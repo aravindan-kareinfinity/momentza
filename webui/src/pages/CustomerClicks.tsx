@@ -122,87 +122,154 @@ const CustomerClicks = () => {
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
 
+  // const handleSave = async () => {
+  //   if (!currentUser?.organizationId) {
+  //     console.error('No organization ID available');
+  //     return;
+  //   }
+
+  //   if (!newClick.date || !newClick.title || !newClick.hallId) {
+  //     console.error('Required fields missing:', {
+  //       date: newClick.date,
+  //       title: newClick.title,
+  //       hallId: newClick.hallId
+  //     });
+  //     alert('Please fill in all required fields: Event Date, Title, and Hall');
+  //     return;
+  //   }
+
+  //   if (halls.length === 0) {
+  //     console.error('No halls available');
+  //     alert('No halls are available. Please try again later.');
+  //     return;
+  //   }
+
+  //   setUploading(true);
+  //   try {
+  //     // Use the same upload endpoint for both create and update
+  //     const uploadData = {
+  //       id: editingClick?.id, // Include ID for updates, undefined for creates
+  //       customerId: editingClick?.customerId, // Include existing customerId for updates
+  //       eventDate: newClick.date,
+  //       eventType: newClick.title,
+  //       message: newClick.message,
+  //       hallId: newClick.hallId,
+  //       boyName: newClick.boyName,
+  //       girlName: newClick.girlName,
+  //       imageBase64: selectedImage ? await convertFileToBase64(selectedImage) : undefined
+  //     };
+      
+  //     await customerClicksService.createCustomerClick(uploadData);
+      
+  //     // Refresh data
+  //     try {
+  //       const updatedClicks = await customerClicksService.getAll();
+  //       setCustomerClicks(updatedClicks || []);
+  //     } catch (err) {
+  //       console.error('Failed to refresh customer clicks:', err);
+  //     }
+      
+  //     setShowAddForm(false);
+  //     setEditingClick(null);
+  //     setNewClick({
+  //       image: '',
+  //       date: '',
+  //       functionName: '',
+  //       title: '',
+  //       boyName: '',
+  //       girlName: '',
+  //       hallId: halls.length > 0 ? halls[0].id : '1',
+  //       message: ''
+  //     });
+  //     setSelectedImage(null);
+  //   } catch (error) {
+  //     console.error('Error saving customer click:', error);
+  //   } finally {
+  //     setUploading(false);
+  //   }
+  // };
+
   const handleSave = async () => {
-    if (!currentUser?.organizationId) {
-      console.error('No organization ID available');
-      return;
-    }
-
-    if (!newClick.date || !newClick.title || !newClick.hallId) {
-      console.error('Required fields missing:', {
-        date: newClick.date,
-        title: newClick.title,
-        hallId: newClick.hallId
-      });
-      alert('Please fill in all required fields: Event Date, Title, and Hall');
-      return;
-    }
-
-    if (halls.length === 0) {
-      console.error('No halls available');
-      alert('No halls are available. Please try again later.');
-      return;
-    }
-
+    if (!currentUser?.organizationId) return;
+  
     setUploading(true);
     try {
-      // Use the same upload endpoint for both create and update
-      const uploadData = {
-        id: editingClick?.id, // Include ID for updates, undefined for creates
-        customerId: editingClick?.customerId, // Include existing customerId for updates
-        eventDate: newClick.date,
-        eventType: newClick.title,
-        message: newClick.message,
-        hallId: newClick.hallId,
-        boyName: newClick.boyName,
-        girlName: newClick.girlName,
-        imageBase64: selectedImage ? await convertFileToBase64(selectedImage) : undefined
-      };
-      
-      await customerClicksService.createCustomerClick(uploadData);
-      
-      // Refresh data
-      try {
-        const updatedClicks = await customerClicksService.getAll();
-        setCustomerClicks(updatedClicks || []);
-      } catch (err) {
-        console.error('Failed to refresh customer clicks:', err);
+      if (editingClick) {
+        // ✅ UPDATE
+        await customerClicksService.update(editingClick.id, {
+          eventDate: newClick.date,
+          eventType: newClick.title,
+          message: newClick.message,
+          hallId: newClick.hallId,
+          boyName: newClick.boyName,
+          girlName: newClick.girlName,
+          imageBase64: selectedImage
+            ? await convertFileToBase64(selectedImage)
+            : undefined
+        });
+      } else {
+        // ✅ CREATE
+        await customerClicksService.createCustomerClick({
+          eventDate: newClick.date,
+          eventType: newClick.title,
+          message: newClick.message,
+          hallId: newClick.hallId,
+          boyName: newClick.boyName,
+          girlName: newClick.girlName,
+          imageBase64: selectedImage
+            ? await convertFileToBase64(selectedImage)
+            : undefined
+        });
       }
-      
+  
+      const updatedClicks = await customerClicksService.getAll();
+      setCustomerClicks(updatedClicks || []);
+  
       setShowAddForm(false);
       setEditingClick(null);
-      setNewClick({
-        image: '',
-        date: '',
-        functionName: '',
-        title: '',
-        boyName: '',
-        girlName: '',
-        hallId: halls.length > 0 ? halls[0].id : '1',
-        message: ''
-      });
       setSelectedImage(null);
-    } catch (error) {
-      console.error('Error saving customer click:', error);
     } finally {
       setUploading(false);
     }
   };
+  
 
+  // const handleEdit = (click: ExtendedCustomerClick) => {
+  //   setEditingClick(click);
+  //   setNewClick({
+  //     image: click.image || '',
+  //     date: click.eventDate || '',
+  //     functionName: click.eventType || '',
+  //     title: click.eventType || '', // Use eventType as title for existing records
+  //     boyName: click.boyName || '',
+  //     girlName: click.girlName || '',
+  //     hallId: click.hallId || '1',
+  //     message: click.message || ''
+  //   });
+  //   setShowAddForm(true);
+  // };
   const handleEdit = (click: ExtendedCustomerClick) => {
     setEditingClick(click);
+  
     setNewClick({
-      image: click.image || '',
-      date: click.eventDate || '',
+      image: click.imageBytes
+        ? `data:${click.contentType};base64,${click.imageBytes}`
+        : '',
+      date: click.eventDate
+        ? click.eventDate.split('T')[0]
+        : '',
       functionName: click.eventType || '',
-      title: click.eventType || '', // Use eventType as title for existing records
+      title: click.eventType || '',
       boyName: click.boyName || '',
       girlName: click.girlName || '',
-      hallId: click.hallId || '1',
+      hallId: click.hallId || '',
       message: click.message || ''
     });
+  
+    setSelectedImage(null); // keep existing image unless user uploads new one
     setShowAddForm(true);
   };
+  
 
   const handleDelete = async (id: string) => {
     try {

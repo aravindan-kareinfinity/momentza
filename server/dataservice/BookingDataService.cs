@@ -31,7 +31,7 @@ namespace Momantza.Services
                 LastContactDate = reader["lastcontactdate"] != DBNull.Value ? Convert.ToDateTime(reader["lastcontactdate"]) : null,
                 CreatedAt = reader["createdat"] != DBNull.Value ? Convert.ToDateTime(reader["createdat"]) : DateTime.Now,
                 UpdatedAt = reader["updatedat"] != DBNull.Value ? Convert.ToDateTime(reader["updatedat"]) : DateTime.Now,
-                HallName = reader["hallname"].ToString() ?? string.Empty
+                //HallName = reader["hallname"].ToString() ?? string.Empty
             };
         }
 
@@ -351,32 +351,32 @@ namespace Momantza.Services
         }
 
         //Fetch hall names
-        public override async Task<List<Booking>> GetByOrganizationIdAsync(string organizationId)
-        {
-            using var connection = await GetConnectionAsync();
+        //public override async Task<List<Booking>> GetByOrganizationIdAsync(string organizationId)
+        //{
+        //    using var connection = await GetConnectionAsync();
 
-            var sql = @"
-        SELECT
-            b.*,
-            h.name AS hallname
-        FROM bookings b
-        LEFT JOIN halls h ON h.id = b.hallid
-        WHERE b.organizationid = @organizationId
-        ORDER BY b.createdat DESC";
+        //    var sql = @"
+        //SELECT
+        //    b.*,
+        //    h.name AS hallname
+        //FROM bookings b
+        //LEFT JOIN halls h ON h.id = b.hallid
+        //WHERE b.organizationid = @organizationId
+        //ORDER BY b.createdat DESC";
 
-            using var command = new NpgsqlCommand(sql, connection);
-            command.Parameters.AddWithValue("@organizationId", organizationId);
+        //    using var command = new NpgsqlCommand(sql, connection);
+        //    command.Parameters.AddWithValue("@organizationId", organizationId);
 
-            using var reader = await command.ExecuteReaderAsync();
+        //    using var reader = await command.ExecuteReaderAsync();
 
-            var results = new List<Booking>();
-            while (await reader.ReadAsync())
-            {
-                results.Add(MapFromReader(reader));
-            }
+        //    var results = new List<Booking>();
+        //    while (await reader.ReadAsync())
+        //    {
+        //        results.Add(MapFromReader(reader));
+        //    }
 
-            return results;
-        }
+        //    return results;
+        //}
 
 
         public async Task<BookingStatistics> GetBookingStatisticsAsync(string organizationId)

@@ -66,13 +66,13 @@ export class ApiBookingService implements IBookingService {
   }
 
   async update(id: string, data: Partial<Booking>): Promise<Booking> {
-    const booking = await apiClient.put<any>(`/api/bookings/${id}`, data);
+    const booking = await apiClient.post<any>(`/api/bookings/${id}/update`, data);
     return this.transformBooking(booking);
   }
 
   async delete(id: string): Promise<boolean> {
     try {
-      await apiClient.delete(`/api/bookings/${id}`);
+      await apiClient.post(`/api/bookings/${id}/delete`, {});
       return true;
     } catch (error) {
       return false;
@@ -100,7 +100,7 @@ export class ApiBookingService implements IBookingService {
   }
 
   async updateBookingStatus(id: string, status: Booking['status'], reason?: string): Promise<Booking> {
-    const booking = await apiClient.put<any>(`/api/bookings/${id}/status`, { status, reason });
+    const booking = await apiClient.post<any>(`/api/bookings/${id}/status`, { status, reason });
     return this.transformBooking(booking);
   }
 
