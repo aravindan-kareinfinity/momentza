@@ -8,6 +8,6 @@ export class ApiBillingService implements IBillingService {
   }
 
   async updateBillingSettings(settings: Partial<BillingSettings>): Promise<BillingSettings> {
-    return apiClient.put<BillingSettings>('/api/billing/settings', settings);
+    return apiClient.post<BillingSettings>('/api/billing/settings', settings);
   }
 } 

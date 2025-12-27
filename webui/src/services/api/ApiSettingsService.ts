@@ -8,16 +8,16 @@ export class ApiSettingsService implements ISettingsService {
   }
 
   async addEventType(name: string): Promise<MasterDataItem> {
-    return apiClient.post<MasterDataItem>('/api/settings/event-types', { name });
+    return apiClient.post<MasterDataItem>('/api/settings/eventTypes/add', { name });
   }
 
   async updateEventType(id: string, name: string): Promise<MasterDataItem> {
-    return apiClient.put<MasterDataItem>(`/api/settings/event-types/${id}`, { name });
+    return apiClient.post<MasterDataItem>(`/api/settings/event-types/update/${id}`, { name });
   }
 
   async deleteEventType(id: string): Promise<boolean> {
     try {
-      await apiClient.delete(`/api/settings/event-types/${id}`);
+      await apiClient.post(`/api/settings/event-types/delete/${id}`, {});
       return true;
     } catch {
       return false;
@@ -29,16 +29,16 @@ export class ApiSettingsService implements ISettingsService {
   }
 
   async addImageCategory(name: string): Promise<MasterDataItem> {
-    return apiClient.post<MasterDataItem>('/api/settings/image-categories', { name });
+    return apiClient.post<MasterDataItem>('/api/settings/image-categories/add', { name });
   }
 
   async updateImageCategory(id: string, name: string): Promise<MasterDataItem> {
-    return apiClient.put<MasterDataItem>(`/api/settings/image-categories/${id}`, { name });
+    return apiClient.post<MasterDataItem>(`/api/settings/image-categories/update/${id}`, { name });
   }
 
   async deleteImageCategory(id: string): Promise<boolean> {
     try {
-      await apiClient.delete(`/api/settings/image-categories/${id}`);
+      await apiClient.post(`/api/settings/image-categories/delete/${id}`, {});
       return true;
     } catch {
       return false;
@@ -50,16 +50,16 @@ export class ApiSettingsService implements ISettingsService {
   }
 
   async addEmployee(name: string): Promise<MasterDataItem> {
-    return apiClient.post<MasterDataItem>('/api/settings/employees', { name });
+    return apiClient.post<MasterDataItem>('/api/settings/employees/add', { name });
   }
 
   async updateEmployee(id: string, name: string): Promise<MasterDataItem> {
-    return apiClient.put<MasterDataItem>(`/api/settings/employees/${id}`, { name });
+    return apiClient.post<MasterDataItem>(`/api/settings/employees/update/${id}`, { name });
   }
 
   async deleteEmployee(id: string): Promise<boolean> {
     try {
-      await apiClient.delete(`/api/settings/employees/${id}`);
+      await apiClient.post(`/api/settings/employees/delete/${id}`, {});
       return true;
     } catch {
       return false;
@@ -71,16 +71,16 @@ export class ApiSettingsService implements ISettingsService {
   }
 
   async addInventoryItem(name: string, charge: number): Promise<MasterDataItem> {
-    return apiClient.post<MasterDataItem>('/api/settings/inventory-items', { name, charge });
+    return apiClient.post<MasterDataItem>('/api/settings/inventory-items/add', { name, charge });
   }
 
   async updateInventoryItem(id: string, name: string, charge: number): Promise<MasterDataItem> {
-    return apiClient.put<MasterDataItem>(`/api/settings/inventory-items/${id}`, { name, charge });
+    return apiClient.post<MasterDataItem>(`/api/settings/inventory-items/update/${id}`, { name, charge });
   }
 
   async deleteInventoryItem(id: string): Promise<boolean> {
     try {
-      await apiClient.delete(`/api/settings/inventory-items/${id}`);
+      await apiClient.post(`/api/settings/inventory-items/delete/${id}`, {});
       return true;
     } catch {
       return false;
@@ -92,36 +92,51 @@ export class ApiSettingsService implements ISettingsService {
   }
 
   async addTicketCategory(name: string): Promise<MasterDataItem> {
-    return apiClient.post<MasterDataItem>('/api/settings/ticket-categories', { name });
+    return apiClient.post<MasterDataItem>('/api/settings/ticket-categories/add', { name });
   }
 
   async updateTicketCategory(id: string, name: string): Promise<MasterDataItem> {
-    return apiClient.put<MasterDataItem>(`/api/settings/ticket-categories/${id}`, { name });
+    return apiClient.post<MasterDataItem>(`/api/settings/ticket-categories/update/${id}`, { name });
   }
 
   async deleteTicketCategory(id: string): Promise<boolean> {
     try {
-      await apiClient.delete(`/api/settings/ticket-categories/${id}`);
+      await apiClient.post(`/api/settings/ticket-categories/delete/${id}`, {});
       return true;
     } catch {
       return false;
     }
   }
 
+  private getApiPath(type: 'eventTypes' | 'imageCategories' | 'employees' | 'inventoryItems' | 'ticketCategories'): string {
+    const pathMap: Record<string, string> = {
+      'eventTypes': 'event-types',
+      'imageCategories': 'image-categories',
+      'employees': 'employees',
+      'inventoryItems': 'inventory-items',
+      'ticketCategories': 'ticket-categories'
+    };
+    return pathMap[type] || type;
+  }
+
   async getMasterData(type: 'eventTypes' | 'imageCategories' | 'employees' | 'inventoryItems' | 'ticketCategories'): Promise<MasterDataItem[]> {
-    return apiClient.get<MasterDataItem[]>(`/api/settings/${type}`);
+    return apiClient.get<MasterDataItem[]>(`/api/settings/${this.getApiPath(type)}`);
   }
 
   async addMasterData(type: 'eventTypes' | 'imageCategories' | 'employees' | 'inventoryItems' | 'ticketCategories', name: string, charge?: number): Promise<MasterDataItem> {
-    return apiClient.post<MasterDataItem>(`/api/settings/${type}`, { name, charge });
+    return apiClient.post<MasterDataItem>(`/api/settings/${this.getApiPath(type)}/add`, { name, charge });
+  }
+
+  async updateMasterData(type: 'eventTypes' | 'imageCategories' | 'employees' | 'inventoryItems' | 'ticketCategories', id: string, name: string, charge?: number): Promise<MasterDataItem> {
+    return apiClient.post<MasterDataItem>(`/api/settings/${this.getApiPath(type)}/update/${id}`, { name, charge });
   }
 
   async deleteMasterData(type: 'eventTypes' | 'imageCategories' | 'employees' | 'inventoryItems' | 'ticketCategories', id: string): Promise<boolean> {
     try {
-      await apiClient.delete(`/api/settings/${type}/${id}`);
+      await apiClient.post(`/api/settings/${this.getApiPath(type)}/delete/${id}`, {});
       return true;
     } catch {
       return false;
     }
   }
-} 
+}

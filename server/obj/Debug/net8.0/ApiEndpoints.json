@@ -2032,8 +2032,50 @@
   },
   {
     "ContainingType": "Momantza.Controllers.FeatureController",
+    "Method": "GetByBookingId",
+    "RelativePath": "api/Feature/booking/{bookingId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "bookingId",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "System.Collections.Generic.List\u00601[[MomantzaApp.model.FeatureItem, MomantzaApp, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "Momantza.Controllers.FeatureController",
+    "Method": "Delete",
+    "RelativePath": "api/Feature/delete/{id}",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Momantza.Controllers.FeatureController",
     "Method": "Update",
-    "RelativePath": "api/Feature/{id}",
+    "RelativePath": "api/Feature/update/{id}",
     "HttpMethod": "POST",
     "IsController": true,
     "Order": 0,
@@ -2062,6 +2104,7 @@
     ]
   },
   {
+<<<<<<< HEAD
     "ContainingType": "Momantza.Controllers.FeatureController",
     "Method": "GetByBookingId",
     "RelativePath": "api/Feature/booking/{bookingId}",
@@ -2104,6 +2147,8 @@
     "ReturnTypes": []
   },
   {
+=======
+>>>>>>> 51de1d2 (settings screen functionalities)
     "ContainingType": "Momantza.Controllers.GalleryController",
     "Method": "GetAll",
     "RelativePath": "api/Gallery",
@@ -3048,8 +3093,24 @@
   },
   {
     "ContainingType": "Momantza.Controllers.OrganizationsController",
+    "Method": "Delete",
+    "RelativePath": "api/Organizations/{id}/delete",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Momantza.Controllers.OrganizationsController",
     "Method": "Update",
-    "RelativePath": "api/Organizations/{id}",
+    "RelativePath": "api/Organizations/{id}/update",
     "HttpMethod": "POST",
     "IsController": true,
     "Order": 0,
@@ -3062,22 +3123,6 @@
       {
         "Name": "organization",
         "Type": "Momantza.Models.Organizations",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "Momantza.Controllers.OrganizationsController",
-    "Method": "Delete",
-    "RelativePath": "api/Organizations/{id}",
-    "HttpMethod": "POST",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "id",
-        "Type": "System.String",
         "IsRequired": true
       }
     ],
@@ -3257,8 +3302,24 @@
   },
   {
     "ContainingType": "Momantza.Controllers.OrganizationsController",
+    "Method": "Delete",
+    "RelativePath": "api/orgs/{id}/delete",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Momantza.Controllers.OrganizationsController",
     "Method": "Update",
-    "RelativePath": "api/orgs/{id}",
+    "RelativePath": "api/orgs/{id}/update",
     "HttpMethod": "POST",
     "IsController": true,
     "Order": 0,
@@ -3271,22 +3332,6 @@
       {
         "Name": "organization",
         "Type": "Momantza.Models.Organizations",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "Momantza.Controllers.OrganizationsController",
-    "Method": "Delete",
-    "RelativePath": "api/orgs/{id}",
-    "HttpMethod": "POST",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "id",
-        "Type": "System.String",
         "IsRequired": true
       }
     ],
@@ -4080,6 +4125,46 @@
   },
   {
     "ContainingType": "Momantza.Controllers.ServicesController",
+<<<<<<< HEAD
+=======
+    "Method": "Update",
+    "RelativePath": "api/Services/{id}",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.String",
+        "IsRequired": true
+      },
+      {
+        "Name": "serviceData",
+        "Type": "Momantza.Models.ServiceItem",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Momantza.Controllers.ServicesController",
+    "Method": "Delete",
+    "RelativePath": "api/Services/{id}/delete",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Momantza.Controllers.ServicesController",
+>>>>>>> 51de1d2 (settings screen functionalities)
     "Method": "GetActive",
     "RelativePath": "api/Services/active",
     "HttpMethod": "GET",
@@ -4327,48 +4412,6 @@
   },
   {
     "ContainingType": "Momantza.Controllers.SettingsController",
-    "Method": "AddMasterData",
-    "RelativePath": "api/Settings/{type}",
-    "HttpMethod": "POST",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "type",
-        "Type": "System.String",
-        "IsRequired": true
-      },
-      {
-        "Name": "request",
-        "Type": "Momantza.Controllers.AddMasterDataRequest",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "Momantza.Controllers.SettingsController",
-    "Method": "DeleteMasterData",
-    "RelativePath": "api/Settings/{type}/{id}",
-    "HttpMethod": "POST",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "type",
-        "Type": "System.String",
-        "IsRequired": true
-      },
-      {
-        "Name": "id",
-        "Type": "System.String",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "Momantza.Controllers.SettingsController",
     "Method": "GetEmployees",
     "RelativePath": "api/Settings/employees",
     "HttpMethod": "GET",
@@ -4380,7 +4423,7 @@
   {
     "ContainingType": "Momantza.Controllers.SettingsController",
     "Method": "AddEmployee",
-    "RelativePath": "api/Settings/employees",
+    "RelativePath": "api/Settings/employees/add",
     "HttpMethod": "POST",
     "IsController": true,
     "Order": 0,
@@ -4395,8 +4438,24 @@
   },
   {
     "ContainingType": "Momantza.Controllers.SettingsController",
+    "Method": "DeleteEmployee",
+    "RelativePath": "api/Settings/employees/delete/{id}",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Momantza.Controllers.SettingsController",
     "Method": "UpdateEmployee",
-    "RelativePath": "api/Settings/employees/{id}",
+    "RelativePath": "api/Settings/employees/update/{id}",
     "HttpMethod": "POST",
     "IsController": true,
     "Order": 0,
@@ -4409,22 +4468,6 @@
       {
         "Name": "request",
         "Type": "Momantza.Controllers.UpdateMasterDataRequest",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "Momantza.Controllers.SettingsController",
-    "Method": "DeleteEmployee",
-    "RelativePath": "api/Settings/employees/{id}",
-    "HttpMethod": "POST",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "id",
-        "Type": "System.String",
         "IsRequired": true
       }
     ],
@@ -4443,7 +4486,7 @@
   {
     "ContainingType": "Momantza.Controllers.SettingsController",
     "Method": "AddEventType",
-    "RelativePath": "api/Settings/event-types",
+    "RelativePath": "api/Settings/event-types/add",
     "HttpMethod": "POST",
     "IsController": true,
     "Order": 0,
@@ -4458,8 +4501,24 @@
   },
   {
     "ContainingType": "Momantza.Controllers.SettingsController",
+    "Method": "DeleteEventType",
+    "RelativePath": "api/Settings/event-types/delete/{id}",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Momantza.Controllers.SettingsController",
     "Method": "UpdateEventType",
-    "RelativePath": "api/Settings/event-types/{id}",
+    "RelativePath": "api/Settings/event-types/update/{id}",
     "HttpMethod": "POST",
     "IsController": true,
     "Order": 0,
@@ -4472,22 +4531,6 @@
       {
         "Name": "request",
         "Type": "Momantza.Controllers.UpdateMasterDataRequest",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "Momantza.Controllers.SettingsController",
-    "Method": "DeleteEventType",
-    "RelativePath": "api/Settings/event-types/{id}",
-    "HttpMethod": "POST",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "id",
-        "Type": "System.String",
         "IsRequired": true
       }
     ],
@@ -4506,7 +4549,7 @@
   {
     "ContainingType": "Momantza.Controllers.SettingsController",
     "Method": "AddImageCategory",
-    "RelativePath": "api/Settings/image-categories",
+    "RelativePath": "api/Settings/image-categories/add",
     "HttpMethod": "POST",
     "IsController": true,
     "Order": 0,
@@ -4521,8 +4564,24 @@
   },
   {
     "ContainingType": "Momantza.Controllers.SettingsController",
+    "Method": "DeleteImageCategory",
+    "RelativePath": "api/Settings/image-categories/delete/{id}",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Momantza.Controllers.SettingsController",
     "Method": "UpdateImageCategory",
-    "RelativePath": "api/Settings/image-categories/{id}",
+    "RelativePath": "api/Settings/image-categories/update/{id}",
     "HttpMethod": "POST",
     "IsController": true,
     "Order": 0,
@@ -4542,22 +4601,6 @@
   },
   {
     "ContainingType": "Momantza.Controllers.SettingsController",
-    "Method": "DeleteImageCategory",
-    "RelativePath": "api/Settings/image-categories/{id}",
-    "HttpMethod": "POST",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "id",
-        "Type": "System.String",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "Momantza.Controllers.SettingsController",
     "Method": "GetInventoryItems",
     "RelativePath": "api/Settings/inventory-items",
     "HttpMethod": "GET",
@@ -4569,7 +4612,7 @@
   {
     "ContainingType": "Momantza.Controllers.SettingsController",
     "Method": "AddInventoryItem",
-    "RelativePath": "api/Settings/inventory-items",
+    "RelativePath": "api/Settings/inventory-items/add",
     "HttpMethod": "POST",
     "IsController": true,
     "Order": 0,
@@ -4584,8 +4627,24 @@
   },
   {
     "ContainingType": "Momantza.Controllers.SettingsController",
+    "Method": "DeleteInventoryItem",
+    "RelativePath": "api/Settings/inventory-items/delete/{id}",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Momantza.Controllers.SettingsController",
     "Method": "UpdateInventoryItem",
-    "RelativePath": "api/Settings/inventory-items/{id}",
+    "RelativePath": "api/Settings/inventory-items/update/{id}",
     "HttpMethod": "POST",
     "IsController": true,
     "Order": 0,
@@ -4598,22 +4657,6 @@
       {
         "Name": "request",
         "Type": "Momantza.Controllers.UpdateInventoryItemRequest",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "Momantza.Controllers.SettingsController",
-    "Method": "DeleteInventoryItem",
-    "RelativePath": "api/Settings/inventory-items/{id}",
-    "HttpMethod": "POST",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "id",
-        "Type": "System.String",
         "IsRequired": true
       }
     ],
@@ -4695,7 +4738,7 @@
   {
     "ContainingType": "Momantza.Controllers.SettingsController",
     "Method": "AddTicketCategory",
-    "RelativePath": "api/Settings/ticket-categories",
+    "RelativePath": "api/Settings/ticket-categories/add",
     "HttpMethod": "POST",
     "IsController": true,
     "Order": 0,
@@ -4710,8 +4753,24 @@
   },
   {
     "ContainingType": "Momantza.Controllers.SettingsController",
+    "Method": "DeleteTicketCategory",
+    "RelativePath": "api/Settings/ticket-categories/delete/{id}",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Momantza.Controllers.SettingsController",
     "Method": "UpdateTicketCategory",
-    "RelativePath": "api/Settings/ticket-categories/{id}",
+    "RelativePath": "api/Settings/ticket-categories/update/{id}",
     "HttpMethod": "POST",
     "IsController": true,
     "Order": 0,
@@ -4724,22 +4783,6 @@
       {
         "Name": "request",
         "Type": "Momantza.Controllers.UpdateMasterDataRequest",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "Momantza.Controllers.SettingsController",
-    "Method": "DeleteTicketCategory",
-    "RelativePath": "api/Settings/ticket-categories/{id}",
-    "HttpMethod": "POST",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "id",
-        "Type": "System.String",
         "IsRequired": true
       }
     ],
@@ -5483,8 +5526,24 @@
   },
   {
     "ContainingType": "Momantza.Controllers.OrganizationsController",
+    "Method": "Delete",
+    "RelativePath": "api/v1/Organizations/{id}/delete",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Momantza.Controllers.OrganizationsController",
     "Method": "Update",
-    "RelativePath": "api/v1/Organizations/{id}",
+    "RelativePath": "api/v1/Organizations/{id}/update",
     "HttpMethod": "POST",
     "IsController": true,
     "Order": 0,
@@ -5497,22 +5556,6 @@
       {
         "Name": "organization",
         "Type": "Momantza.Models.Organizations",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "Momantza.Controllers.OrganizationsController",
-    "Method": "Delete",
-    "RelativePath": "api/v1/Organizations/{id}",
-    "HttpMethod": "POST",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "id",
-        "Type": "System.String",
         "IsRequired": true
       }
     ],

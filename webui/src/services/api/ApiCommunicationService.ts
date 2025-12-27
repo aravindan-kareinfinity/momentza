@@ -1,10 +1,10 @@
-import { ICommunicationService } from '../interfaces/IDataService';
-import { Communication } from '../mockData';
-import { apiClient } from '../http/ApiClient';
+import { ICommunicationService } from "../interfaces/IDataService";
+import { Communication } from "../mockData";
+import { apiClient } from "../http/ApiClient";
 
 export class ApiCommunicationService implements ICommunicationService {
   async getAll(): Promise<Communication[]> {
-    return apiClient.get<Communication[]>('/api/communication');
+    return apiClient.get<Communication[]>("/api/communication");
   }
 
   async getById(id: string): Promise<Communication | null> {
@@ -18,41 +18,55 @@ export class ApiCommunicationService implements ICommunicationService {
     }
   }
 
-  async create(data: Omit<Communication, 'id'>): Promise<Communication> {
-    return apiClient.post<Communication>('/api/communication', data);
+  async create(data: Omit<Communication, "id">): Promise<Communication> {
+    return apiClient.post<Communication>("/api/communication", data);
   }
 
-  async update(id: string, data: Partial<Communication>): Promise<Communication> {
+  async update(
+    id: string,
+    data: Partial<Communication>
+  ): Promise<Communication> {
+    return apiClient.post<Communication>(`/api/communication/${id}`, data);
     return apiClient.post<Communication>(`/api/communication/${id}`, data);
   }
 
   async delete(id: string): Promise<boolean> {
     try {
-      await apiClient.post(`/api/communication/delete/${id}`,{});
+      await apiClient.post(`/api/communication/delete/${id}`, {});
       return true;
     } catch (error) {
       return false;
     }
   }
 
-  async getCommunicationsByBookingId(bookingId: string): Promise<Communication[]> {
-    return apiClient.get<Communication[]>(`/api/communication/booking/${bookingId}/communication`);
+  async getCommunicationsByBookingId(
+    bookingId: string
+  ): Promise<Communication[]> {
+    return apiClient.get<Communication[]>(
+      `/api/communication/booking/${bookingId}/communication`
+    );
   }
 
-  async createCommunication(data: Omit<Communication, 'id'>): Promise<Communication> {
-    return apiClient.post<Communication>('/api/communication', data);
+  async createCommunication(
+    data: Omit<Communication, "id">
+  ): Promise<Communication> {
+    return apiClient.post<Communication>("/api/communication", data);
   }
 
-  async updateCommunication(id: string, data: Partial<Communication>): Promise<Communication> {
+  async updateCommunication(
+    id: string,
+    data: Partial<Communication>
+  ): Promise<Communication> {
+    return apiClient.post<Communication>(`/api/communication/${id}`, data);
     return apiClient.post<Communication>(`/api/communication/${id}`, data);
   }
 
   async deleteCommunication(id: string): Promise<boolean> {
     try {
-      await apiClient.post(`/api/communication/delete/${id}`,{});
+      await apiClient.post(`/api/communication/delete/${id}`, {});
       return true;
     } catch (error) {
       return false;
     }
   }
-} 
+}

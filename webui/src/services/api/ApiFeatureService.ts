@@ -18,17 +18,22 @@ export class ApiFeatureService {
     return apiClient.get<FeatureItem[]>(`/api/feature/booking/${bookingId}`);
   }
 
-  async create(feature: Omit<FeatureItem, "id" | "createdAt" | "updatedAt">): Promise<FeatureItem> {
+  async create(
+    feature: Omit<FeatureItem, "id" | "createdAt" | "updatedAt">
+  ): Promise<FeatureItem> {
     return apiClient.post<FeatureItem>("/api/feature", feature);
   }
 
-  async update(id: string, feature: Partial<FeatureItem>): Promise<FeatureItem> {
-    return apiClient.post<FeatureItem>(`/api/feature/${id}`, feature);
+  async update(
+    id: string,
+    feature: Partial<FeatureItem>
+  ): Promise<FeatureItem> {
+    return apiClient.post<FeatureItem>(`/api/feature/update/${id}`, feature);
   }
 
   async delete(id: string): Promise<boolean> {
     try {
-      await apiClient.post(`/api/feature/delete/${id}`,{});
+      await apiClient.post(`/api/feature/delete/${id}`, {});
       return true;
     } catch {
       return false;

@@ -172,61 +172,94 @@ namespace Momantza.Controllers
             }
         }
 
-        [HttpPost("event-types")]
+        //[HttpPost("event-types")]
+        //public async Task<IActionResult> AddEventType([FromBody] AddMasterDataRequest request)
+        //{
+        //    try
+        //    {
+        //        if (!ModelState.IsValid)
+        //        {
+        //            return BadRequest(ModelState);
+        //        }
+
+        //        var item = await _settingsDataService.CreateEventTypeAsync(request.Name);
+        //        return CreatedAtAction(nameof(GetById), new { id = item.Id }, item);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return StatusCode(500, new { message = "Internal server error", error = ex.Message });
+        //    }
+        //}
+
+        //[HttpPost("event-types/{id}")]
+        //public async Task<IActionResult> UpdateEventType(string id, [FromBody] UpdateMasterDataRequest request)
+        //{
+        //    try
+        //    {
+        //        if (!ModelState.IsValid)
+        //        {
+        //            return BadRequest(ModelState);
+        //        }
+
+        //        var item = await _settingsDataService.UpdateEventTypeAsync(id, request.Name);
+        //        return Ok(item);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return StatusCode(500, new { message = "Internal server error", error = ex.Message });
+        //    }
+        //}
+
+        //[HttpPost("event-types/{id}")]
+        //public async Task<IActionResult> DeleteEventType(string id)
+        //{
+        //    try
+        //    {
+        //        var success = await _settingsDataService.DeleteAsync(id);
+        //        if (!success)
+        //        {
+        //            return NotFound(new { message = "Event type not found" });
+        //        }
+        //        return NoContent();
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return StatusCode(500, new { message = "Internal server error", error = ex.Message });
+        //    }
+        //}
+
+        // Event Types endpoints
+
+        [HttpPost("event-types/add")]
         public async Task<IActionResult> AddEventType([FromBody] AddMasterDataRequest request)
         {
-            try
-            {
-                if (!ModelState.IsValid)
-                {
-                    return BadRequest(ModelState);
-                }
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
-                var item = await _settingsDataService.CreateEventTypeAsync(request.Name);
-                return CreatedAtAction(nameof(GetById), new { id = item.Id }, item);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = "Internal server error", error = ex.Message });
-            }
+            var item = await _settingsDataService.CreateEventTypeAsync(request.Name);
+            return CreatedAtAction(nameof(GetById), new { id = item.Id }, item);
         }
 
-        [HttpPost("event-types/{id}")]
+        [HttpPost("event-types/update/{id}")]
         public async Task<IActionResult> UpdateEventType(string id, [FromBody] UpdateMasterDataRequest request)
         {
-            try
-            {
-                if (!ModelState.IsValid)
-                {
-                    return BadRequest(ModelState);
-                }
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
-                var item = await _settingsDataService.UpdateEventTypeAsync(id, request.Name);
-                return Ok(item);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = "Internal server error", error = ex.Message });
-            }
+            var item = await _settingsDataService.UpdateEventTypeAsync(id, request.Name);
+            return Ok(item);
         }
 
-        [HttpPost("event-types/{id}")]
+        [HttpPost("event-types/delete/{id}")]
         public async Task<IActionResult> DeleteEventType(string id)
         {
-            try
-            {
-                var success = await _settingsDataService.DeleteAsync(id);
-                if (!success)
-                {
-                    return NotFound(new { message = "Event type not found" });
-                }
-                return NoContent();
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = "Internal server error", error = ex.Message });
-            }
+            var success = await _settingsDataService.DeleteAsync(id);
+            if (!success)
+                return NotFound(new { message = "Event type not found" });
+
+            return NoContent();
         }
+
 
         // Image Categories endpoints
         [HttpGet("image-categories")]
@@ -243,7 +276,7 @@ namespace Momantza.Controllers
             }
         }
 
-        [HttpPost("image-categories")]
+        [HttpPost("image-categories/add")]
         public async Task<IActionResult> AddImageCategory([FromBody] AddMasterDataRequest request)
         {
             try
@@ -262,7 +295,7 @@ namespace Momantza.Controllers
             }
         }
 
-        [HttpPost("image-categories/{id}")]
+        [HttpPost("image-categories/update/{id}")]
         public async Task<IActionResult> UpdateImageCategory(string id, [FromBody] UpdateMasterDataRequest request)
         {
             try
@@ -281,7 +314,7 @@ namespace Momantza.Controllers
             }
         }
 
-        [HttpPost("image-categories/{id}")]
+        [HttpPost("image-categories/delete/{id}")]
         public async Task<IActionResult> DeleteImageCategory(string id)
         {
             try
@@ -314,7 +347,7 @@ namespace Momantza.Controllers
             }
         }
 
-        [HttpPost("employees")]
+        [HttpPost("employees/add")]
         public async Task<IActionResult> AddEmployee([FromBody] AddMasterDataRequest request)
         {
             try
@@ -333,7 +366,7 @@ namespace Momantza.Controllers
             }
         }
 
-        [HttpPost("employees/{id}")]
+        [HttpPost("employees/update/{id}")]
         public async Task<IActionResult> UpdateEmployee(string id, [FromBody] UpdateMasterDataRequest request)
         {
             try
@@ -352,7 +385,7 @@ namespace Momantza.Controllers
             }
         }
 
-        [HttpPost("employees/{id}")]
+        [HttpPost("employees/delete/{id}")]
         public async Task<IActionResult> DeleteEmployee(string id)
         {
             try
@@ -385,7 +418,7 @@ namespace Momantza.Controllers
             }
         }
 
-        [HttpPost("inventory-items")]
+        [HttpPost("inventory-items/add")]
         public async Task<IActionResult> AddInventoryItem([FromBody] AddInventoryItemRequest request)
         {
             try
@@ -404,7 +437,7 @@ namespace Momantza.Controllers
             }
         }
 
-        [HttpPost("inventory-items/{id}")]
+        [HttpPost("inventory-items/update/{id}")]
         public async Task<IActionResult> UpdateInventoryItem(string id, [FromBody] UpdateInventoryItemRequest request)
         {
             try
@@ -423,7 +456,7 @@ namespace Momantza.Controllers
             }
         }
 
-        [HttpPost("inventory-items/{id}")]
+        [HttpPost("inventory-items/delete/{id}")]
         public async Task<IActionResult> DeleteInventoryItem(string id)
         {
             try
@@ -456,7 +489,7 @@ namespace Momantza.Controllers
             }
         }
 
-        [HttpPost("ticket-categories")]
+        [HttpPost("ticket-categories/add")]
         public async Task<IActionResult> AddTicketCategory([FromBody] AddMasterDataRequest request)
         {
             try
@@ -475,7 +508,7 @@ namespace Momantza.Controllers
             }
         }
 
-        [HttpPost("ticket-categories/{id}")]
+        [HttpPost("ticket-categories/update/{id}")]
         public async Task<IActionResult> UpdateTicketCategory(string id, [FromBody] UpdateMasterDataRequest request)
         {
             try
@@ -494,7 +527,7 @@ namespace Momantza.Controllers
             }
         }
 
-        [HttpPost("ticket-categories/{id}")]
+        [HttpPost("ticket-categories/delete/{id}")]
         public async Task<IActionResult> DeleteTicketCategory(string id)
         {
             try
@@ -539,54 +572,54 @@ namespace Momantza.Controllers
             }
         }
 
-        [HttpPost("{type}")]
-        public async Task<IActionResult> AddMasterData(string type, [FromBody] AddMasterDataRequest request)
-        {
-            try
-            {
-                if (!ModelState.IsValid)
-                {
-                    return BadRequest(ModelState);
-                }
+        //[HttpPost("{type}")]
+        //public async Task<IActionResult> AddMasterData(string type, [FromBody] AddMasterDataRequest request)
+        //{
+        //    try
+        //    {
+        //        if (!ModelState.IsValid)
+        //        {
+        //            return BadRequest(ModelState);
+        //        }
 
-                MasterDataItem item = type switch
-                {
-                    "eventTypes" => await _settingsDataService.CreateEventTypeAsync(request.Name),
-                    "imageCategories" => await _settingsDataService.CreateImageCategoryAsync(request.Name),
-                    "employees" => await _settingsDataService.CreateEmployeeAsync(request.Name),
-                    "inventoryItems" => await _settingsDataService.CreateInventoryItemAsync(request.Name, request.Charge),
-                    "ticketCategories" => await _settingsDataService.CreateTicketCategoryAsync(request.Name),
-                    _ => throw new ArgumentException($"Unknown master data type: {type}")
-                };
-                return CreatedAtAction(nameof(GetById), new { id = item.Id }, item);
-            }
-            catch (ArgumentException ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = "Internal server error", error = ex.Message });
-            }
-        }
+        //        MasterDataItem item = type switch
+        //        {
+        //            "eventTypes" => await _settingsDataService.CreateEventTypeAsync(request.Name),
+        //            "imageCategories" => await _settingsDataService.CreateImageCategoryAsync(request.Name),
+        //            "employees" => await _settingsDataService.CreateEmployeeAsync(request.Name),
+        //            "inventoryItems" => await _settingsDataService.CreateInventoryItemAsync(request.Name, request.Charge),
+        //            "ticketCategories" => await _settingsDataService.CreateTicketCategoryAsync(request.Name),
+        //            _ => throw new ArgumentException($"Unknown master data type: {type}")
+        //        };
+        //        return CreatedAtAction(nameof(GetById), new { id = item.Id }, item);
+        //    }
+        //    catch (ArgumentException ex)
+        //    {
+        //        return BadRequest(new { message = ex.Message });
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return StatusCode(500, new { message = "Internal server error", error = ex.Message });
+        //    }
+        //}
 
-        [HttpPost("{type}/{id}")]
-        public async Task<IActionResult> DeleteMasterData(string type, string id)
-        {
-            try
-            {
-                var success = await _settingsDataService.DeleteAsync(id);
-                if (!success)
-                {
-                    return NotFound(new { message = $"{type} not found" });
-                }
-                return NoContent();
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = "Internal server error", error = ex.Message });
-            }
-        }
+        //[HttpPost("{type}/{id}")]
+        //public async Task<IActionResult> DeleteMasterData(string type, string id)
+        //{
+        //    try
+        //    {
+        //        var success = await _settingsDataService.DeleteAsync(id);
+        //        if (!success)
+        //        {
+        //            return NotFound(new { message = $"{type} not found" });
+        //        }
+        //        return NoContent();
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return StatusCode(500, new { message = "Internal server error", error = ex.Message });
+        //    }
+        //}
     }
 
     public class AddMasterDataRequest

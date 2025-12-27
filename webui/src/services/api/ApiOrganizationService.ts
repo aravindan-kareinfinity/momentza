@@ -185,7 +185,7 @@ export class ApiOrganizationService implements IOrganizationService {
 
   async update(id: string, data: Partial<Organization>): Promise<Organization> {
     console.log('Updating organization with data:', data);
-    const updatedOrg = await apiClient.put<Organization>(`/api/organizations/${id}`, data);
+    const updatedOrg = await apiClient.post<Organization>(`/api/organizations/${id}/update`, data);
     console.log('API returned:', updatedOrg);
     
     // Update cache if this is the current organization
@@ -205,7 +205,7 @@ export class ApiOrganizationService implements IOrganizationService {
 
   async delete(id: string): Promise<boolean> {
     try {
-      await apiClient.delete(`/api/organizations/${id}`);
+      await apiClient.post(`/api/organizations/${id}/delete`, {});
       return true;
     } catch (error) {
       return false;
