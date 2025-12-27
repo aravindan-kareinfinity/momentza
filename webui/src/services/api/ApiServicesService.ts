@@ -58,7 +58,10 @@ export class ApiServicesService implements IServicesService {
     id: string,
     updates: Partial<ServiceItem>
   ): Promise<ServiceItem> {
+<<<<<<< HEAD
     return apiClient.post<ServiceItem>(`/api/services/update/${id}`, updates);
+=======
+>>>>>>> d23f179 (Resolve merge conflicts and apply settings screen changes)
     return apiClient.post<ServiceItem>(`/api/services/update/${id}`, updates);
   }
 
