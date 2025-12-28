@@ -79,7 +79,8 @@ export function PublicHomeCarousel({
 
   let displayItems: any[] = [];
   if (Array.isArray(carouselItems) && carouselItems.length > 0) {
-    displayItems = carouselItems;
+    // Filter to only show active carousel items
+    displayItems = carouselItems.filter(item => item.isActive !== false);
   } else if (Array.isArray(galleryImages) && galleryImages.length > 0) {
     displayItems = galleryImages.slice(0, 5).map((img, index) => ({
       id: img.id,

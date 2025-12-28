@@ -101,11 +101,8 @@ namespace Momantza.Controllers
             {
                 return NotFound(new { message = "Service not found" });
             }
-<<<<<<< HEAD
         }
 
-=======
->>>>>>> d23f179 (Resolve merge conflicts and apply settings screen changes)
         [HttpPost("setting/delete/{id}")]
         public async Task<IActionResult> Delete(string id)
         {

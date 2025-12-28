@@ -85,6 +85,7 @@ export interface Review {
   rating: number;
   comment: string;
   date: string;
+  reply?: string;
   isEnabled?: boolean;
 }
 

@@ -26,10 +26,7 @@ export class ApiCommunicationService implements ICommunicationService {
     id: string,
     data: Partial<Communication>
   ): Promise<Communication> {
-<<<<<<< HEAD
     return apiClient.post<Communication>(`/api/communication/${id}`, data);
-=======
->>>>>>> d23f179 (Resolve merge conflicts and apply settings screen changes)
     return apiClient.post<Communication>(`/api/communication/${id}`, data);
   }
 
@@ -60,10 +57,7 @@ export class ApiCommunicationService implements ICommunicationService {
     id: string,
     data: Partial<Communication>
   ): Promise<Communication> {
-<<<<<<< HEAD
     return apiClient.post<Communication>(`/api/communication/${id}`, data);
-=======
->>>>>>> d23f179 (Resolve merge conflicts and apply settings screen changes)
     return apiClient.post<Communication>(`/api/communication/${id}`, data);
   }
 

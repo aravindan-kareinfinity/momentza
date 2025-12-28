@@ -108,7 +108,7 @@ const PublicHome = () => {
         micrositeComponents
       ] = await Promise.all([
         hallService.getAllHalls(),
-        carouselService.getCarouselItems(organization.id),
+        carouselService.getActiveCarouselItems(organization.id),
         galleryService.getImagesByOrganization(organization.id),
         customerClicksService.getAll(),
         reviewService.getReviewsByOrganization(organization.id),

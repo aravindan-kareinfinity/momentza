@@ -87,6 +87,7 @@ namespace Momantza.Services
             payment.Id = Guid.NewGuid().ToString();
             payment.CreatedAt = DateTime.UtcNow;
             payment.UpdatedAt = DateTime.UtcNow;
+            payment.OrganizationId = GetCurrentOrganizationId();
 
             var sql = @"
                 INSERT INTO payments (id, date, payment_mode, amount, person_name, notes, booking_id, created_at, updated_at, organizationid)

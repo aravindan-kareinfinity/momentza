@@ -18,6 +18,7 @@ import { AnimatedPage } from '@/components/Layout/AnimatedPage';
 const Reviews = () => {
   const { toast } = useToast();
   const [newReply, setNewReply] = useState('');
+  const [replyingToReviewId, setReplyingToReviewId] = useState<string | null>(null);
 
   // State for data
   const [reviews, setReviews] = useState<Review[]>([]);
@@ -83,9 +84,53 @@ const Reviews = () => {
     (reviewData: Omit<Review, 'id'>) => reviewService.create(reviewData)
   );
 
-  const handleReply = (reviewId: string) => {
-    console.log('Replying to review:', reviewId, 'with:', newReply);
-    setNewReply('');
+  const handleReply = async (reviewId: string) => {
+    if (!newReply.trim()) {
+      toast({
+        title: 'Error',
+        description: 'Please enter a reply',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    try {
+      // Find the current review
+      const currentReview = reviews.find(review => review.id === reviewId);
+      if (!currentReview) {
+        toast({
+          title: 'Error',
+          description: 'Review not found',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      // Update the review with the reply using the optimized service method
+      await reviewService.updateWithCurrentData(reviewId, currentReview, { reply: newReply.trim() });
+
+      // Refresh reviews after update
+      if (currentUser?.organizationId) {
+        const updatedReviews = await reviewService.getReviewsByOrganization(currentUser.organizationId);
+        setReviews(Array.isArray(updatedReviews) ? updatedReviews : []);
+      }
+
+      // Clear the reply input and close dialog
+      setNewReply('');
+      setReplyingToReviewId(null);
+      
+      toast({
+        title: 'Success',
+        description: 'Reply sent successfully',
+      });
+    } catch (error) {
+      console.error('Failed to send reply:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to send reply',
+        variant: 'destructive',
+      });
+    }
   };
 
   const handleToggleReview = async (reviewId: string, isEnabled: boolean) => {
@@ -306,13 +351,37 @@ const Reviews = () => {
             <CardContent>
               <p className="text-gray-700 mb-4">{review.comment}</p>
               
-              <div className="flex justify-between items-center">
+              {review.reply && (
+                <div className="mt-4 p-3 bg-gray-50 rounded-lg border-l-4 border-blue-500">
+                  <div className="flex items-center mb-2">
+                    <Reply className="h-4 w-4 mr-2 text-blue-500" />
+                    <span className="text-sm font-semibold text-blue-700">Your Reply</span>
+                  </div>
+                  <p className="text-gray-700 text-sm">{review.reply}</p>
+                </div>
+              )}
+              
+              <div className="flex justify-between items-center mt-4">
                 <div className="flex gap-2">
-                  <Dialog>
+                  <Dialog open={replyingToReviewId === review.id} onOpenChange={(open) => {
+                    if (!open) {
+                      setReplyingToReviewId(null);
+                      setNewReply('');
+                    } else {
+                      setReplyingToReviewId(review.id);
+                    }
+                  }}>
                     <DialogTrigger asChild>
-                      <Button variant="outline" size="sm">
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={() => {
+                          setReplyingToReviewId(review.id);
+                          setNewReply(review.reply || '');
+                        }}
+                      >
                         <Reply className="h-4 w-4 mr-1" />
-                        Reply
+                        {review.reply ? 'Edit Reply' : 'Reply'}
                       </Button>
                     </DialogTrigger>
                     <DialogContent>
@@ -327,11 +396,24 @@ const Reviews = () => {
                             value={newReply}
                             onChange={(e) => setNewReply(e.target.value)}
                             placeholder="Thank you for your feedback..."
+                            rows={4}
                           />
                         </div>
-                        <Button onClick={() => handleReply(review.id)} className="w-full">
-                          Send Reply
-                        </Button>
+                        <div className="flex gap-2">
+                          <Button onClick={() => handleReply(review.id)} className="flex-1">
+                            {review.reply ? 'Update Reply' : 'Send Reply'}
+                          </Button>
+                          <Button 
+                            variant="outline" 
+                            onClick={() => {
+                              setReplyingToReviewId(null);
+                              setNewReply('');
+                            }}
+                            className="flex-1"
+                          >
+                            Cancel
+                          </Button>
+                        </div>
                       </div>
                     </DialogContent>
                   </Dialog>

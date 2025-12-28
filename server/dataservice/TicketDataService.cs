@@ -160,11 +160,14 @@ namespace Momantza.Services
 
         public async Task<bool> DeleteAsync(string id)
         {
+            var orgId = GetCurrentOrganizationId();
+
             var sql = "DELETE FROM tickets WHERE id = @id AND organizationid = @organizationId";
 
             using var connection = await GetConnectionAsync();
             using var command = new NpgsqlCommand(sql, connection);
             command.Parameters.AddWithValue("@id", id);
+            command.Parameters.AddWithValue("@organizationId", orgId);
 
             var rowsAffected = await command.ExecuteNonQueryAsync();
             return rowsAffected > 0;

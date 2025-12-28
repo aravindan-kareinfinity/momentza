@@ -10,6 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { ServerErrorDialog } from '@/components/ui/ServerErrorDialog';
+import { useToast } from '@/hooks/use-toast';
 import {
   Calendar,
   Clock,
@@ -115,6 +116,7 @@ interface BookingManagementData {
 const BookingManagement = () => {
   const { bookingId } = useParams<{ bookingId: string }>();
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   // Helper functions
   const generateInvoiceNumber = () => {
@@ -343,7 +345,6 @@ const BookingManagement = () => {
         settingsService.getTicketCategories(),
         servicesService.getAllServices(),
         billingService.getBillingSettings(),
-        featureService.getAll(),
         settingsService.getInventoryItems()
       ]);
 
@@ -357,16 +358,15 @@ const BookingManagement = () => {
       };
 
       const bookings = getOrDefault<any[]>(0, []);
-const eventTypes = getOrDefault<any[]>(1, []);
-const employees = getOrDefault<any[]>(2, []);
-const ticketCategories = getOrDefault<any[]>(3, []);
-const servicesCategories = getOrDefault<any[]>(4, []);   // ⭐ Correct
-const billingSettings = getOrDefault<any>(5, null);
-const features = getOrDefault<any[]>(6, []);
-const inventoryCatalog = getOrDefault<any[]>(7, []);
+      const eventTypes = getOrDefault<any[]>(1, []);
+      const employees = getOrDefault<any[]>(2, []);
+      const ticketCategories = getOrDefault<any[]>(3, []);
+      const servicesCategories = getOrDefault<any[]>(4, []);   // ⭐ Correct
+      const billingSettings = getOrDefault<any>(5, null);
+      const inventoryCatalog = getOrDefault<any[]>(6, []);
 
-console.log("inventoryCatalog >>>", inventoryCatalog);
-  console.log("Result 7 (raw inventory response):", results[7]);
+      console.log("inventoryCatalog >>>", inventoryCatalog);
+      console.log("Result 6 (raw inventory response):", results[6]);
 
       // const bookings = getOrDefault<any[]>(0, []);
       // const eventTypes = getOrDefault<any[]>(1, []);
@@ -405,12 +405,13 @@ console.log("inventoryCatalog >>>", inventoryCatalog);
 
       // Fetch booking-specific data
       const bookingIdSafe = currentBooking?.id || bookingId || '1';
-      const [servicesRes, inventoryRes, ticketsRes, paymentRes, commsRes] = await Promise.allSettled([
+      const [servicesRes, inventoryRes, ticketsRes, paymentRes, commsRes, featuresRes] = await Promise.allSettled([
         servicesService.getServiceByBookingId(bookingIdSafe),
         inventoryService.getInventoryByBookingId(bookingIdSafe),
         ticketService.getTicketsByBookingId(bookingIdSafe),
         paymentService.getPaymentsByBookingId(bookingIdSafe),
-        communicationService.getCommunicationsByBookingId(bookingIdSafe)
+        communicationService.getCommunicationsByBookingId(bookingIdSafe),
+        featureService.getByBookingId(bookingIdSafe)
       ]);
 
       // Normalize tickets and communications so they are always arrays
@@ -419,6 +420,7 @@ console.log("inventoryCatalog >>>", inventoryCatalog);
       const ticketsRaw = ticketsRes.status === 'fulfilled' ? ticketsRes.value : [];
       const paymentRaw = paymentRes.status === 'fulfilled' ? paymentRes.value : [];
       const communicationsRaw = commsRes.status === 'fulfilled' ? commsRes.value : [];
+      const featuresRaw = featuresRes.status === 'fulfilled' ? featuresRes.value : [];
 
       const services = Array.isArray(servicesRaw) ? servicesRaw : (servicesRaw ? [servicesRaw] : []);
       const inventory = Array.isArray(inventoryRaw) ? inventoryRaw : (inventoryRaw ? [inventoryRaw] : []);
@@ -426,12 +428,14 @@ console.log("inventoryCatalog >>>", inventoryCatalog);
       // const payments = Array.isArray(paymentRaw) ? paymentRaw : (paymentRaw ? [paymentRaw] : []);
       const fetchedPayments = Array.isArray(paymentRaw) ? paymentRaw : [];
       const communications = Array.isArray(communicationsRaw) ? communicationsRaw : (communicationsRaw ? [communicationsRaw] : []);
+      const features = Array.isArray(featuresRaw) ? featuresRaw : (featuresRaw ? [featuresRaw] : []);
 
-      if (servicesRes.status === 'rejected') console.warn('[BookingManagement] Failed fetching tickets:', servicesRes.reason);
-      if (inventoryRes.status === 'rejected') console.warn('[BookingManagement] Failed fetching tickets:', inventoryRes.reason);
+      if (servicesRes.status === 'rejected') console.warn('[BookingManagement] Failed fetching services:', servicesRes.reason);
+      if (inventoryRes.status === 'rejected') console.warn('[BookingManagement] Failed fetching inventory:', inventoryRes.reason);
       if (ticketsRes.status === 'rejected') console.warn('[BookingManagement] Failed fetching tickets:', ticketsRes.reason);
-      if (paymentRes.status === 'rejected') console.warn('[BookingManagement] Failed fetching tickets:', paymentRes.reason);
+      if (paymentRes.status === 'rejected') console.warn('[BookingManagement] Failed fetching payments:', paymentRes.reason);
       if (commsRes.status === 'rejected') console.warn('[BookingManagement] Failed fetching communications:', commsRes.reason);
+      if (featuresRes.status === 'rejected') console.warn('[BookingManagement] Failed fetching features:', featuresRes.reason);
 
       //  Load handover images
       let handoverImagesList: any[] = [];
@@ -1084,25 +1088,91 @@ console.log("inventoryCatalog >>>", inventoryCatalog);
 
   // Handover image handlers
   const handleAddHandoverImage = async () => {
-    if (!selectedHandoverFile) return alert("Please choose a file");
+    if (!selectedHandoverFile) {
+      toast({
+        title: 'Error',
+        description: 'Please choose a file',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (!newHandoverImage.category) {
+      toast({
+        title: 'Error',
+        description: 'Please select a category',
+        variant: 'destructive',
+      });
+      return;
+    }
 
     const orgId = pageData.currentBooking?.organizationId;
-    if (!orgId) return alert("Missing organization id");
+    if (!orgId) {
+      toast({
+        title: 'Error',
+        description: 'Missing organization id',
+        variant: 'destructive',
+      });
+      return;
+    }
 
-    const formData = new FormData();
-    formData.append("file", selectedHandoverFile);
-    formData.append("category", newHandoverImage.category);
-    formData.append("description", newHandoverImage.description);
-    formData.append("organizationId", orgId); // 🔥 ADD THIS
-    formData.append("bookingId", bookingId!); // optional
+    try {
+      const formData = new FormData();
+      formData.append("file", selectedHandoverFile);
+      formData.append("category", newHandoverImage.category);
+      formData.append("description", newHandoverImage.description || '');
+      formData.append("organizationId", orgId);
+      formData.append("bookingId", bookingId!);
 
-    await handoverService.uploadImage(bookingId!, formData);
+      await handoverService.uploadImage(bookingId!, formData);
 
-    const images = await handoverService.getImages(bookingId!);
-    setHandoverImages(images);
+      const images = await handoverService.getImages(bookingId!);
+      setHandoverImages(images);
 
-    setSelectedHandoverFile(null);
-    setShowHandoverImageDialog(false);
+      setSelectedHandoverFile(null);
+      setNewHandoverImage({ category: '', description: '' });
+      setShowHandoverImageDialog(false);
+
+      toast({
+        title: 'Success',
+        description: 'Image uploaded successfully',
+      });
+    } catch (error) {
+      console.error('Failed to upload handover image:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to upload image. Please try again.',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleDeleteHandoverImage = async (imageId: string) => {
+    if (!bookingId) return;
+  
+    const confirmDelete = confirm("Are you sure you want to delete this image?");
+    if (!confirmDelete) return;
+  
+    try {
+      await handoverService.deleteImage(bookingId, imageId);
+  
+      // Update UI immediately
+      setHandoverImages(prev =>
+        prev.filter(img => img.id !== imageId)
+      );
+  
+      toast({
+        title: "Deleted",
+        description: "Handover image deleted successfully",
+      });
+    } catch (err) {
+      console.error("Failed to delete handover image", err);
+      toast({
+        title: "Error",
+        description: "Failed to delete image",
+        variant: "destructive",
+      });
+    }
   };
 
   // Inventory item selection handler
@@ -1588,6 +1658,19 @@ console.log("inventoryCatalog >>>", inventoryCatalog);
                       <img src={handoverService.getImageUrl(booking.id, image.id)} alt={image.description} className="w-full h-32 object-cover rounded mb-2" />
                       <Badge variant="outline" className="mb-2">{image.category}</Badge>
                       <p className="text-sm text-gray-600">{image.description}</p>
+                      {/* DELETE BUTTON */}
+                      <div className="flex justify-end">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            const reason = prompt("Please provide reason for deletion:");
+                            if (reason) handleDeleteHandoverImage(image.id);
+                          }}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
                     </div>
                   ))}
                 </div>

@@ -31,8 +31,8 @@ export function HomeCarousel({ organizationId }: HomeCarouselProps) {
       setLoading(true);
       setError(null);
       
-      console.log('[HomeCarousel] Fetching carousel items...');
-      const items = await carouselService.getCarouselItems(organizationId);
+      console.log('[HomeCarousel] Fetching active carousel items...');
+      const items = await carouselService.getActiveCarouselItems(organizationId);
       setCarouselItems(items || []);
       setShowErrorDialog(false);
     } catch (err) {

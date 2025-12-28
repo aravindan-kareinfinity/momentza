@@ -27,7 +27,7 @@ export class ApiHandoverService {
     // ---------------------------
   
     async uploadImage(bookingId: string, formData: FormData) {
-      return apiClient.post(`/api/bookings/${bookingId}/handover/images`, formData);
+      return apiClient.upload(`/api/bookings/${bookingId}/handover/images`, formData);
     }
   
     async getImages(bookingId: string): Promise<HandOverImage[]> {
