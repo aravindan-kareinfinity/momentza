@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Runtime Config Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-result { margin: 10px 0; padding: 10px; border-radius: 4px; }
+        .success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background-color: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        pre { background-color: #f8f9fa; padding: 10px; border-radius: 4px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>Runtime Configuration Test</h1>
+    <p>This page tests if the config.json file can be loaded from the dist folder.</p>
+    
+    <div id="results"></div>
+
+    <script>
+        const resultsDiv = document.getElementById('results');
+        
+        function addResult(type, message, data = null) {
+            const div = document.createElement('div');
+            div.className = `test-result ${type}`;
+            div.innerHTML = `
+                <strong>${message}</strong>
+                ${data ? `<pre>${JSON.stringify(data, null, 2)}</pre>` : ''}
+            `;
+            resultsDiv.appendChild(div);
+        }
+
+        async function testRuntimeConfig() {
+            try {
+                addResult('info', 'Testing runtime configuration loading...');
+                
+                // Test 1: Check if config.json exists
+                const response = await fetch('/config.json');
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                addResult('success', '✅ config.json file found and accessible');
+                
+                // Test 2: Parse the JSON
+                const config = await response.json();
+                addResult('success', '✅ config.json parsed successfully', config);
+                
+                // Test 3: Validate required fields
+                const requiredFields = ['VITE_API_BASE_URL', 'VITE_APP_TITLE', 'VITE_APP_VERSION'];
+                const missingFields = requiredFields.filter(field => !config[field]);
+                
+                if (missingFields.length > 0) {
+                    addResult('error', `❌ Missing required fields: ${missingFields.join(', ')}`);
+                } else {
+                    addResult('success', '✅ All required configuration fields present');
+                }
+                
+                // Test 4: Test API URL format
+                const apiUrl = config.VITE_API_BASE_URL;
+                if (apiUrl && (apiUrl.startsWith('http://') || apiUrl.startsWith('https://'))) {
+                    addResult('success', `✅ API URL format is valid: ${apiUrl}`);
+                } else {
+                    addResult('error', `❌ Invalid API URL format: ${apiUrl}`);
+                }
+                
+                // Test 5: Simulate React app usage
+                window.runtimeConfig = config;
+                addResult('success', '✅ Configuration loaded into window.runtimeConfig');
+                
+                // Test 6: Test environment detection
+                const environment = config.VITE_ENVIRONMENT || 'unknown';
+                addResult('info', `Environment detected: ${environment}`);
+                
+            } catch (error) {
+                addResult('error', `❌ Error loading configuration: ${error.message}`);
+                console.error('Configuration test failed:', error);
+            }
+        }
+
+        // Run the test when page loads
+        testRuntimeConfig();
+    </script>
+</body>
+</html> 
