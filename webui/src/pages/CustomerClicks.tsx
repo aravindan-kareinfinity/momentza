@@ -203,7 +203,7 @@ const CustomerClicks = () => {
           hallId: newClick.hallId,
           boyName: newClick.boyName,
           girlName: newClick.girlName,
-          imageBase64: selectedImage
+          imageBytes: selectedImage
             ? await convertFileToBase64(selectedImage)
             : undefined
         });

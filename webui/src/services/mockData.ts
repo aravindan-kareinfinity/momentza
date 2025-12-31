@@ -570,6 +570,8 @@ export const mockBillingSettings: BillingSettings = {
 // Customer Clicks
 export const mockCustomerClicks: CustomerClick[] = [
   {
+    contentType: "rtyug",
+  imageBytes: "ghjuvwevi",
     id: '1',
     customerId: '1',
     hallId: '1',
@@ -584,9 +586,11 @@ export const mockCustomerClicks: CustomerClick[] = [
     rating: 5,
     createdAt: '2024-06-01T09:00:00Z',
     boyName: 'John Brown',
-    girlName: 'Alice Brown'
+    girlName: 'Alice Brown',
   },
   {
+    contentType: "rvbi",
+  imageBytes: "ebvu",
     id: '2',
     customerId: '2',
     hallId: '2',
@@ -602,6 +606,8 @@ export const mockCustomerClicks: CustomerClick[] = [
     createdAt: '2024-06-02T14:30:00Z'
   },
   {
+    contentType: "eucur",
+  imageBytes: "rtyudcbd",
     id: '3',
     customerId: '3',
     hallId: '1',
@@ -616,68 +622,68 @@ export const mockCustomerClicks: CustomerClick[] = [
     rating: 5,
     createdAt: '2024-06-03T11:15:00Z'
   },
-  {
-    id: '4',
-    customerId: '4',
-    hallId: '3',
-    customerName: 'David Miller',
-    customerEmail: 'david@email.com',
-    customerPhone: '+1-555-0321',
-    eventDate: '2024-12-05',
-    eventType: 'Wedding',
-    guestCount: 300,
-    message: 'Looking for a grand venue for our wedding',
-    timestamp: '2024-06-04T16:45:00Z',
-    rating: 4,
-    createdAt: '2024-06-04T16:45:00Z',
-    boyName: 'David Miller',
-    girlName: 'Sarah Johnson'
-  },
-  {
-    id: '5',
-    customerId: '5',
-    hallId: '2',
-    customerName: 'Eva Johnson',
-    customerEmail: 'eva@email.com',
-    customerPhone: '+1-555-0654',
-    eventDate: '2024-08-25',
-    eventType: 'Anniversary',
-    guestCount: 120,
-    message: 'Celebrating our 25th anniversary',
-    timestamp: '2024-06-05T10:20:00Z',
-    rating: 5,
-    createdAt: '2024-06-05T10:20:00Z'
-  },
-  {
-    id: '6',
-    customerId: '1',
-    hallId: '1',
-    customerName: 'Alice Brown',
-    customerEmail: 'alice@email.com',
-    customerPhone: '+1-555-0123',
-    eventDate: '2024-09-20',
-    eventType: 'Wedding Reception',
-    guestCount: 200,
-    message: 'Following up on our previous inquiry',
-    timestamp: new Date().toISOString(),
-    rating: 5,
-    createdAt: new Date().toISOString()
-  },
-  {
-    id: '7',
-    customerId: '6',
-    hallId: '3',
-    customerName: 'Frank Smith',
-    customerEmail: 'frank@email.com',
-    customerPhone: '+1-555-0987',
-    eventDate: '2024-10-15',
-    eventType: 'Corporate Conference',
-    guestCount: 500,
-    message: 'Annual tech conference with 500 attendees',
-    timestamp: new Date().toISOString(),
-    rating: 4,
-    createdAt: new Date().toISOString()
-  }
+  // {
+  //   id: '4',
+  //   customerId: '4',
+  //   hallId: '3',
+  //   customerName: 'David Miller',
+  //   customerEmail: 'david@email.com',
+  //   customerPhone: '+1-555-0321',
+  //   eventDate: '2024-12-05',
+  //   eventType: 'Wedding',
+  //   guestCount: 300,
+  //   message: 'Looking for a grand venue for our wedding',
+  //   timestamp: '2024-06-04T16:45:00Z',
+  //   rating: 4,
+  //   createdAt: '2024-06-04T16:45:00Z',
+  //   boyName: 'David Miller',
+  //   girlName: 'Sarah Johnson'
+  // },
+  // {
+  //   id: '5',
+  //   customerId: '5',
+  //   hallId: '2',
+  //   customerName: 'Eva Johnson',
+  //   customerEmail: 'eva@email.com',
+  //   customerPhone: '+1-555-0654',
+  //   eventDate: '2024-08-25',
+  //   eventType: 'Anniversary',
+  //   guestCount: 120,
+  //   message: 'Celebrating our 25th anniversary',
+  //   timestamp: '2024-06-05T10:20:00Z',
+  //   rating: 5,
+  //   createdAt: '2024-06-05T10:20:00Z'
+  // },
+  // {
+  //   id: '6',
+  //   customerId: '1',
+  //   hallId: '1',
+  //   customerName: 'Alice Brown',
+  //   customerEmail: 'alice@email.com',
+  //   customerPhone: '+1-555-0123',
+  //   eventDate: '2024-09-20',
+  //   eventType: 'Wedding Reception',
+  //   guestCount: 200,
+  //   message: 'Following up on our previous inquiry',
+  //   timestamp: new Date().toISOString(),
+  //   rating: 5,
+  //   createdAt: new Date().toISOString()
+  // },
+  // {
+  //   id: '7',
+  //   customerId: '6',
+  //   hallId: '3',
+  //   customerName: 'Frank Smith',
+  //   customerEmail: 'frank@email.com',
+  //   customerPhone: '+1-555-0987',
+  //   eventDate: '2024-10-15',
+  //   eventType: 'Corporate Conference',
+  //   guestCount: 500,
+  //   message: 'Annual tech conference with 500 attendees',
+  //   timestamp: new Date().toISOString(),
+  //   rating: 4,
+  //   createdAt: new Date().toISOString()
+  // }
 ];
 
 // Gallery Images

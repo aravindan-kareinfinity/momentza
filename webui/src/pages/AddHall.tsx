@@ -56,6 +56,10 @@ const AddHall = () => {
       setNewFeature({ name: '', charge: '' });
     }
   };
+  //new
+  const getImageIdentifier = (image: any) => {
+    return image.url || image.id;
+  };
 
   const handleRemoveFeature = (index: number) => {
     setFeatures(features.filter((_, i) => i !== index));
@@ -263,37 +267,43 @@ const AddHall = () => {
             <CardTitle>Gallery Images</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-3 gap-3">
-              {galleryImages.length > 0 ? (
-                galleryImages.map((image) => (
+              <div className="grid grid-cols-3 gap-3">
+                {galleryImages.map((image) => (
                   <div
                     key={image.id}
-                    className={`relative cursor-pointer rounded-lg overflow-hidden border-2 ${
-                      selectedImages.includes(image.url) ? 'border-primary' : 'border-gray-200'
+                    className={`relative cursor-pointer rounded-lg overflow-hidden border-2 transition-all duration-200 ${
+                      selectedImages.includes(getImageIdentifier(image)) 
+                        ? 'border-black-500 bg-green-50 shadow-lg' 
+                        : 'border-gray-200 hover:border-gray-300'
                     }`}
-                    onClick={() => handleImageToggle(image.url)}
+                    onClick={() => handleImageToggle(getImageIdentifier(image))}
                   >
                     <img
-                      src={`${image.url}?auto=format&fit=crop&w=200&q=80`}
+                      src={image.url ? `${image.url}?auto=format&fit=crop&w=200&q=80` : galleryService.getImageUrl(image.id)}
                       alt={image.title}
-                      className="w-full h-24 object-cover"
+                      className={`w-full h-24 object-cover transition-all duration-200 ${
+                        selectedImages.includes(getImageIdentifier(image)) 
+                          ? 'brightness-110 saturate-110' 
+                          : ''
+                      }`}
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.src = '/placeholder.svg';
+                      }}
                     />
-                    {selectedImages.includes(image.url) && (
-                      <div className="absolute inset-0 bg-primary/20 flex items-center justify-center">
-                        <Badge>Selected</Badge>
+                    {selectedImages.includes(getImageIdentifier(image)) && (
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <Badge>
+                           Selected
+                        </Badge>
                       </div>
                     )}
                     <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-white text-xs p-1">
                       {image.title}
                     </div>
                   </div>
-                ))
-              ) : (
-                <div className="col-span-3 text-center py-8 text-gray-500">
-                  No gallery images available. Please upload some images first.
-                </div>
-              )}
-            </div>
+                ))}
+              </div>
           </CardContent>
         </Card>
 
