@@ -22,7 +22,7 @@ export class ApiHallService implements IHallService {
     return apiClient.post<Hall>('/api/halls', data);
   }
 
-  async update(id: string, data: Partial<Hall>): Promise<Hall> {
+  async update(id: string, data: any): Promise<Hall> {
     return apiClient.post<Hall>(`/api/halls/${id}/update`, data);
   }
 
@@ -137,6 +137,10 @@ export class ApiHallService implements IHallService {
     return apiClient.get<Hall[]>('/api/halls');
   }
 
+  async getEnableHalls(): Promise<Hall[]> {
+    return apiClient.get<Hall[]>('/api/halls/enable');
+  }
+
   async getHallsByOrganization(organizationId: string): Promise<Hall[]> {
     return apiClient.get<Hall[]>(`/api/halls/organizations/${organizationId}`);
   }
@@ -149,6 +153,14 @@ export class ApiHallService implements IHallService {
     return apiClient.post<Hall>(`/api/halls/${id}/update`, updates);
   }
 
+  async updateHallStatus(id: string, isActive: boolean): Promise<Hall> {
+    // Use the existing updateHall method
+    return this.updateHall(id, { isActive });
+    
+    // OR create a dedicated endpoint:
+    // return apiClient.patch<Hall>(`/api/halls/${id}/status`, { isActive });
+  }
+
   async deleteHall(id: string): Promise<boolean> {
     try {
       await apiClient.post(`/api/halls/${id}/delete`, {});
@@ -157,4 +169,7 @@ export class ApiHallService implements IHallService {
       return false;
     }
   }
+
+  //new
+ 
 } 

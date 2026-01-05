@@ -34,6 +34,7 @@ export interface IBookingService extends IDataService<Booking> {
 
 export interface IHallService extends IDataService<Hall> {
   getAllHalls(): Promise<Hall[]>;
+  getEnableHalls(): Promise<Hall[]>;
   getHallsByOrganization(organizationId: string): Promise<Hall[]>;
   getAccessibleHalls(organizationId: string, accessibleHallIds: string[]): Promise<Hall[]>;
   getHallById(id: string): Promise<Hall | null>;
@@ -41,6 +42,7 @@ export interface IHallService extends IDataService<Hall> {
   createHall(hall: Omit<Hall, 'id'>): Promise<Hall>;
   updateHall(id: string, updates: Partial<Hall>): Promise<Hall>;
   deleteHall(id: string): Promise<boolean>;
+  updateHallStatus(id: string, isActive: boolean): Promise<Hall>
 }
 
 export interface IUserService extends IDataService<User> {

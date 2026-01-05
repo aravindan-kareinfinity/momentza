@@ -114,6 +114,11 @@ const Halls = () => {
   const handleAddHall = () => {
     navigate('/admin/halls/add');
   };
+  const updateHallStatus = () => {
+    navigate('/admin/halls/enable');
+  };
+
+  
 
   // Loading state
   if (loading) {
@@ -176,10 +181,15 @@ const Halls = () => {
           <h1 className="text-3xl font-bold">Halls Management</h1>
           <p className="text-gray-600">Manage your wedding halls and their details</p>
         </div>
+        <div className="flex flex-row gap-4">
+        <Button onClick={updateHallStatus}>
+          Enable Hall
+        </Button>
         <Button onClick={handleAddHall}>
           <Plus className="h-4 w-4 mr-2" />
           Add New Hall
         </Button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

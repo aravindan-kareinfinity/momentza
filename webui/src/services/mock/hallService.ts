@@ -44,6 +44,9 @@ class HallService {
     return Promise.resolve(mockHalls);
   }
 
+  async getEnableHalls(): Promise<Hall[]>{
+    return Promise.resolve(mockHalls)
+  }
   async getHallsByOrganization(organizationId: string): Promise<Hall[]> {
     return Promise.resolve(mockHalls.filter(hall => hall.organizationId === organizationId));
   }

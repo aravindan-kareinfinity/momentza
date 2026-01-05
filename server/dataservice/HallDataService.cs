@@ -107,7 +107,22 @@ namespace Momantza.Services
             }
             return results;
         }
-
+        //
+        public override async Task<List<Hall>> GetEnableAsync()
+        {
+            var orgId = GetCurrentOrganizationId();
+            var sql = "SELECT * FROM halls WHERE organizationid = @organizationId or isactive = false";
+            using var connection = await GetConnectionAsync();
+            using var command = new NpgsqlCommand(sql, connection);
+            command.Parameters.AddWithValue("@organizationId", orgId);
+            using var reader = await command.ExecuteReaderAsync();
+            var results = new List<Hall>();
+            while (await reader.ReadAsync())
+            {
+                results.Add(MapFromReader(reader));
+            }
+            return results;
+        }
         public override async Task<List<Hall>> GetAllAsyncs()
         {
             var sql = "SELECT * FROM halls WHERE isactive = true";
@@ -371,7 +386,8 @@ namespace Momantza.Services
     {
         Task<List<Hall>> GetActiveHallsAsync();
         Task<List<Hall>> GetByCapacityRangeAsync(int minCapacity, int maxCapacity);
-        Task<List<Hall>> GetAllHallsAsync();
+        Task<List<Hall>> GetAllHallsAsync(); 
+        Task<List<Hall>> GetEnableAsync();
         Task<List<Hall>> GetHallsByOrganizationAsync(string organizationId);
         Task<List<Hall>> GetAccessibleHallsAsync(string organizationId, List<string> accessibleHallIds);
         Task<Hall> GetHallByIdAsync(string id);

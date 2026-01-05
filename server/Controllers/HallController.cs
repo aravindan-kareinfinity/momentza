@@ -30,6 +30,20 @@ namespace Momantza.Controllers
             }
         }
 
+        [HttpGet ("enable")]
+        public async Task<IActionResult> GetsAll()
+        {
+            try
+            {
+                var halls = await _hallDataService.GetEnableAsync();
+                return Ok(halls);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Internal server error", error = ex.Message });
+            }
+        }
+
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(string id)
         {

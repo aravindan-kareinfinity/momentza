@@ -284,24 +284,38 @@ const Statistics = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Monthly Bookings and Revenue */}
         <Card>
-          <CardHeader>
-            <CardTitle>Monthly Performance</CardTitle>
-            <CardDescription>Bookings and revenue trends over time</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ChartContainer config={safeChartConfig} className="h-[300px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={safeMonthlyData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="month" />
-                  <YAxis />
-                  <ChartTooltip content={<ChartTooltipContent />} />
-                  <Bar dataKey="bookings" fill="var(--color-bookings)" />
-                </BarChart>
-              </ResponsiveContainer>
-            </ChartContainer>
-          </CardContent>
-        </Card>
+  <CardHeader>
+    <CardTitle>Monthly Performance</CardTitle>
+    <CardDescription>Bookings and revenue trends over time</CardDescription>
+  </CardHeader>
+  <CardContent>
+    <ChartContainer config={safeChartConfig} className="h-[300px]">
+      <ResponsiveContainer width="100%" height="100%">
+        <BarChart data={safeMonthlyData}>
+          <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+          <XAxis 
+            dataKey="month" 
+            stroke="#6b7280"
+            tick={{ fill: "#6b7280" }}
+          />
+          <YAxis 
+            stroke="#6b7280"
+            tick={{ fill: "#6b7280" }}
+          />
+          <ChartTooltip 
+            content={<ChartTooltipContent />}
+            labelStyle={{ color: "#374151" }}
+          />
+          <Bar 
+            dataKey="bookings" 
+            fill="#8b5cf6" // Purple
+            radius={[4, 4, 0, 0]}
+          />
+        </BarChart>
+      </ResponsiveContainer>
+    </ChartContainer>
+  </CardContent>
+</Card>
 
         {/* Booking Status Distribution */}
         <Card>
@@ -336,50 +350,74 @@ const Statistics = () => {
 
         {/* Revenue Trend */}
         <Card>
-          <CardHeader>
-            <CardTitle>Revenue Trend</CardTitle>
-            <CardDescription>Monthly revenue progression</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ChartContainer config={safeChartConfig} className="h-[300px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={safeMonthlyData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="month" />
-                  <YAxis />
-                  <ChartTooltip content={<ChartTooltipContent />} />
-                  <Line 
-                    type="monotone" 
-                    dataKey="revenue" 
-                    stroke="var(--color-revenue)" 
-                    strokeWidth={2}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            </ChartContainer>
-          </CardContent>
-        </Card>
+  <CardHeader>
+    <CardTitle>Revenue Trend</CardTitle>
+    <CardDescription>Gradient revenue progression</CardDescription>
+  </CardHeader>
+  <CardContent>
+    <ChartContainer config={safeChartConfig} className="h-[300px]">
+      <ResponsiveContainer width="100%" height="100%">
+        <LineChart data={safeMonthlyData}>
+          <defs>
+            <linearGradient id="revenueGradient" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="5%" stopColor="var(--color-revenue)" stopOpacity={0.8}/>
+              <stop offset="95%" stopColor="var(--color-revenue)" stopOpacity={0.1}/>
+            </linearGradient>
+          </defs>
+          <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
+          <XAxis dataKey="month" />
+          <YAxis />
+          <ChartTooltip content={<ChartTooltipContent />} />
+          <Line
+            type="monotone" 
+            dataKey="revenue" 
+            stroke="var(--color-revenue)" 
+            strokeWidth={3}
+            fill="url(#revenueGradient)"
+          />
+        </LineChart>
+      </ResponsiveContainer>
+    </ChartContainer>
+  </CardContent>
+</Card>
 
         {/* Hall Utilization */}
         <Card>
-          <CardHeader>
-            <CardTitle>Hall Utilization</CardTitle>
-            <CardDescription>Bookings per hall</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ChartContainer config={safeChartConfig} className="h-[300px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={safeHallUtilization} layout="horizontal">
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis type="number" />
-                  <YAxis dataKey="name" type="category" width={80} />
-                  <ChartTooltip content={<ChartTooltipContent />} />
-                  <Bar dataKey="bookings" fill="var(--color-bookings)" />
-                </BarChart>
-              </ResponsiveContainer>
-            </ChartContainer>
-          </CardContent>
-        </Card>
+  <CardHeader>
+    <CardTitle>Hall Utilization</CardTitle>
+    <CardDescription>Intensity of bookings per hall</CardDescription>
+  </CardHeader>
+  <CardContent>
+    <ChartContainer config={safeChartConfig} className="h-[300px]">
+      <ResponsiveContainer width="100%" height="100%">
+        <BarChart data={safeHallUtilization} layout="vertical">
+          <CartesianGrid strokeDasharray="3 3" horizontal={false} />
+          <XAxis type="number" />
+          <YAxis 
+            dataKey="name" 
+            type="category" 
+            width={80}
+          />
+          <ChartTooltip content={<ChartTooltipContent />} />
+          <Bar 
+            dataKey="bookings" 
+            fill="url(#heatmap-gradient)"
+            barSize={30}
+            radius={[0, 4, 4, 0]}
+          >
+            <defs>
+              <linearGradient id="heatmap-gradient" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stopColor="#f0f9ff" />
+                <stop offset="50%" stopColor="#0ea5e9" />
+                <stop offset="100%" stopColor="#0369a1" />
+              </linearGradient>
+            </defs>
+          </Bar>
+        </BarChart>
+      </ResponsiveContainer>
+    </ChartContainer>
+  </CardContent>
+</Card>
       </div>
 
       {/* Business Insights */}

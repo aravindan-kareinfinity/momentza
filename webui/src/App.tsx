@@ -35,6 +35,7 @@ import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { AIChatBot } from "@/components/AIChatBot/AIChatBot";
 import BookingPreview from "./pages/BookingPreview";
 import { getBaseUrl } from "@/config/environment";
+import EnableHall from './pages/EnableHall';
 
 const queryClient = new QueryClient();
 
@@ -72,6 +73,7 @@ const App = () => {
                         <Route path="/statistics" element={<Statistics />} />
                         <Route path="/halls" element={<Halls />} />
                         <Route path="/halls/add" element={<AddHall />} />
+                        <Route path="/halls/enable" element={<EnableHall/>} />
                         <Route path="/halls/preview/:hallId" element={<HallPreview />} />
                         <Route path="/halls/edit/:hallId" element={<HallEdit />} />
                         <Route path="/bookings" element={<Bookings />} />
