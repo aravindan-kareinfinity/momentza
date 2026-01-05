@@ -111,7 +111,7 @@ namespace Momantza.Services
         public override async Task<List<Hall>> GetEnableAsync()
         {
             var orgId = GetCurrentOrganizationId();
-            var sql = "SELECT * FROM halls WHERE organizationid = @organizationId or isactive = false";
+            var sql = "SELECT * FROM halls WHERE organizationid = @organizationId and isactive = false";
             using var connection = await GetConnectionAsync();
             using var command = new NpgsqlCommand(sql, connection);
             command.Parameters.AddWithValue("@organizationId", orgId);

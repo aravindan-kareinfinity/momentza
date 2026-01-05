@@ -671,528 +671,452 @@ body::before {
 </style>
 
 <script>
-// Keep all the JavaScript logic exactly the same as in your original code
-// Only the HTML structure and CSS styles have been updated for elegance
+    // Global variables
+    let allHalls = [];
+    let allBookings = [];
+    let currentFilteredHalls = [];
 
-let allHalls = [];
-let allBookings = [];
+    // Load halls from API
+    async function loadHalls() {
+        try {
+            showLoading();
 
-// Load halls from API
-async function loadHalls() {
-    try {
-        showLoading();
-        
-        // Use the new combined API endpoint
-        const hallsWithBookingsResponse = await fetch('/api/bookings/halls-with-bookings');
+            const hallsWithBookingsResponse = await fetch('/api/bookings/halls-with-bookings');
 
-        if (!hallsWithBookingsResponse.ok) {
-            throw new Error(`Failed to load halls with bookings: ${hallsWithBookingsResponse.statusText}`);
+            if (!hallsWithBookingsResponse.ok) {
+                throw new Error(`Failed to load halls with bookings: ${hallsWithBookingsResponse.statusText}`);
+            }
+
+            const hallsWithBookingsData = await hallsWithBookingsResponse.json();
+
+            // Extract halls and bookings from the combined data
+            allHalls = hallsWithBookingsData.map(item => item.hall);
+            allBookings = hallsWithBookingsData.flatMap(item =>
+                item.bookings.map(booking => ({
+                    ...booking,
+                    hallId: item.hall.id
+                }))
+            );
+
+            // Store the combined data for easier access
+            window.hallsWithBookingsData = hallsWithBookingsData;
+
+            if (allHalls.length === 0) {
+                showNoHalls();
+            } else {
+                renderHalls(allHalls);
+                populateLocationFilter();
+                setupFilterListeners();
+                updateFilterResults(allHalls.length, allHalls.length);
+            }
+        } catch (error) {
+            console.error('Error loading halls:', error);
+            showError(error.message);
         }
-
-        const hallsWithBookingsData = await hallsWithBookingsResponse.json();
-        
-        // Extract halls and bookings from the combined data
-        allHalls = hallsWithBookingsData.map(item => item.hall);
-        allBookings = hallsWithBookingsData.flatMap(item => 
-            item.bookings.map(booking => ({
-                ...booking,
-                hallId: item.hall.id
-            }))
-        );
-
-        // Store the combined data for easier access
-        window.hallsWithBookingsData = hallsWithBookingsData;
-
-        if (allHalls.length === 0) {
-            showNoHalls();
-        } else {
-            renderHalls();
-        }
-    } catch (error) {
-        console.error('Error loading halls:', error);
-        showError(error.message);
     }
-}
 
-// Show loading state
-function showLoading() {
-    document.getElementById('loadingState').classList.remove('d-none');
-    document.getElementById('errorState').classList.add('d-none');
-    document.getElementById('hallsGrid').classList.add('d-none');
-    document.getElementById('noHallsState').classList.add('d-none');
-}
+    // Show loading state
+    function showLoading() {
+        document.getElementById('loadingState').classList.remove('d-none');
+        document.getElementById('errorState').classList.add('d-none');
+        document.getElementById('hallsGrid').classList.add('d-none');
+        document.getElementById('noHallsState').classList.add('d-none');
+    }
 
-// Show error state
-function showError(message) {
-    document.getElementById('loadingState').classList.add('d-none');
-    document.getElementById('errorState').classList.remove('d-none');
-    document.getElementById('hallsGrid').classList.add('d-none');
-    document.getElementById('noHallsState').classList.add('d-none');
-    document.getElementById('errorMessage').textContent = message;
-}
+    // Show error state
+    function showError(message) {
+        document.getElementById('loadingState').classList.add('d-none');
+        document.getElementById('errorState').classList.remove('d-none');
+        document.getElementById('hallsGrid').classList.add('d-none');
+        document.getElementById('noHallsState').classList.add('d-none');
+        document.getElementById('errorMessage').textContent = message;
+    }
 
-// Show no halls state
-function showNoHalls() {
-    document.getElementById('loadingState').classList.add('d-none');
-    document.getElementById('errorState').classList.add('d-none');
-    document.getElementById('hallsGrid').classList.add('d-none');
-    document.getElementById('noHallsState').classList.remove('d-none');
-}
+    // Show no halls state
+    function showNoHalls() {
+        document.getElementById('loadingState').classList.add('d-none');
+        document.getElementById('errorState').classList.add('d-none');
+        document.getElementById('hallsGrid').classList.add('d-none');
+        document.getElementById('noHallsState').classList.remove('d-none');
+    }
 
-// Render halls
-function renderHalls() {
-    const hallsGrid = document.getElementById('hallsGrid');
-    hallsGrid.innerHTML = '';
+    // Render halls
+    function renderHalls(hallsToRender) {
+        const hallsGrid = document.getElementById('hallsGrid');
+        hallsGrid.innerHTML = '';
 
-    allHalls.forEach(hall => {
-        const hallCard = createHallCard(hall);
-        hallsGrid.appendChild(hallCard);
-    });
+        if (hallsToRender.length === 0) {
+            // Show no results message
+            hallsGrid.innerHTML = `
+                <div class="col-12">
+                    <div class="text-center py-5">
+                        <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                        <h4 class="text-muted mb-2">No Venues Found</h4>
+                        <p class="text-muted">Try adjusting your search or filter criteria</p>
+                        <button class="btn btn-outline-primary mt-2" onclick="clearFilters()">
+                            <i class="fas fa-redo me-2"></i>Clear Filters
+                        </button>
+                    </div>
+                </div>
+            `;
+            document.getElementById('hallsGrid').classList.remove('d-none');
+            return;
+        }
+
+        hallsToRender.forEach(hall => {
+            const hallCard = createHallCard(hall);
+            hallsGrid.appendChild(hallCard);
+        });
+
+        document.getElementById('loadingState').classList.add('d-none');
+        document.getElementById('errorState').classList.add('d-none');
+        document.getElementById('hallsGrid').classList.remove('d-none');
+        document.getElementById('noHallsState').classList.add('d-none');
+    }
+
+    // Setup filter listeners
+    function setupFilterListeners() {
+        // Real-time search with debounce
+        let searchTimeout;
+        const searchInput = document.getElementById('searchInput');
+        const locationFilter = document.getElementById('locationFilter');
+        const capacityFilter = document.getElementById('capacityFilter');
+
+        searchInput.addEventListener('input', function(e) {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                applyFilters();
+            }, 300);
+        });
+
+        locationFilter.addEventListener('change', applyFilters);
+        capacityFilter.addEventListener('change', applyFilters);
+
+        // Search button
+        const searchBtn = document.querySelector('.btn-danger');
+        if (searchBtn) {
+            searchBtn.addEventListener('click', applyFilters);
+        }
+
+        // Clear button
+        const clearBtn = document.querySelector('.btn-outline-light');
+        if (clearBtn) {
+            clearBtn.addEventListener('click', clearFilters);
+        }
+
+        // Allow Enter key in search input
+        searchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                applyFilters();
+            }
+        });
+    }
+
+    // Create hall card
+    function createHallCard(hall) {
+        const col = document.createElement('div');
+        col.className = 'col-xl-4 col-lg-6 col-md-12';
+
+        const card = document.createElement('div');
+        card.className = 'card h-100 glass-card hall-card';
+
+        // Get hall image
+        const imageUrl = getHallImageUrl(hall);
+
+        // Get hall data from stored data
+        const hallData = window.hallsWithBookingsData.find(item => item.hall.id === hall.id);
+        const bookingSummary = hallData ? hallData.bookingSummary : null;
+        const defaultDomain = hallData ? hallData.defaultDomain : '';
+
+        // Get starting price
+        const startingPrice = hall.rateCard?.morningRate || 20000;
+
+        // Get amenities count
+        const amenitiesCount = hall.features?.length || 0;
+
+        card.innerHTML = `
+            <!-- Image Section -->
+            <div class="card-img-container position-relative overflow-hidden">
+                <img src="${imageUrl}"
+                     class="card-img-top"
+                     alt="${hall.name}"
+                     onerror="handleImageError(this)">
+                <span class="badge bg-dark position-absolute top-0 end-0 m-3 px-3 py-2">Wedding Hall</span>
+                <div class="position-absolute bottom-0 start-0 m-3">
+                    <div class="price-badge">₹${startingPrice.toLocaleString()}+</div>
+                </div>
+            </div>
+
+            <!-- Card Body -->
+            <div class="card-body d-flex flex-column p-3">
+                <!-- Header -->
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <h6 class="card-title mb-0 fw-bold text-dark">${hall.name}</h6>
+                </div>
+
+                <!-- Location and Capacity -->
+                <div class="d-flex justify-content-between text-muted mb-2 small">
+                    <span><i class="fas fa-map-marker-alt me-1"></i>${hall.location}</span>
+                    <span><i class="fas fa-users me-1"></i>${hall.capacity} guests</span>
+                    <span><i class="fas fa-star me-1"></i>${amenitiesCount} amenities</span>
+                </div>
+
+                <!-- Booking Statistics -->
+                ${bookingSummary ? `
+                <div class="row g-1 mb-2">
+                    <div class="col-4">
+                        <div class="stats-card-compact">
+                            <div class="stats-number text-success small">${bookingSummary.confirmedBookings}</div>
+                            <div class="stats-label small">Confirmed</div>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="stats-card-compact">
+                            <div class="stats-number text-warning small">${bookingSummary.pendingBookings}</div>
+                            <div class="stats-label small">Pending</div>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="stats-card-compact">
+                            <div class="stats-number text-danger small">${bookingSummary.cancelledBookings}</div>
+                            <div class="stats-label small">Cancelled</div>
+                        </div>
+                    </div>
+                </div>
+                ` : ''}
+
+                <!-- Description -->
+                <p class="card-text text-muted mb-2 small flex-grow-1">${hall.address || 'Beautiful venue with premium facilities.'}</p>
+
+                <!-- Amenities -->
+                <div class="mb-2">
+                    ${hall.features ? hall.features.slice(0, 2).map(feature =>
+                        `<span class="amenity-badge-small d-inline-block me-1">${feature.name}</span>`
+                    ).join('') : ''}
+                    ${hall.features && hall.features.length > 2 ?
+                        `<span class="amenity-badge-small d-inline-block">+${hall.features.length - 2}</span>` : ''}
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="mt-3 pt-3 border-top">
+                    ${defaultDomain ? `
+                    <button class="btn btn-outline-primary w-100 py-3 fw-semibold" onclick="viewOrganization('${defaultDomain}')">
+                        <i class="fas fa-external-link-alt me-2"></i>View Organization
+                    </button>
+                    ` : ''}
+                </div>
+            </div>
+        `;
+
+        col.appendChild(card);
+        return col;
+    }
+
+    // View organization
+    function viewOrganization(defaultDomain) {
+        const hostname = window.location.hostname;
+        const protocol = window.location.protocol;
+        let orgUrl;
+
+        if (hostname === 'localhost' || hostname === '127.0.0.1') {
+            orgUrl = protocol + '//' + defaultDomain + '.localhost:' + 8082;
+        } else if (hostname.includes('momentza.com')) {
+            orgUrl = protocol + '//' + defaultDomain + '.momentza.com';
+        } else {
+            const domainParts = hostname.split('.');
+            const baseDomain = domainParts.slice(-2).join('.');
+            orgUrl = protocol + '//' + defaultDomain + '.' + baseDomain;
+        }
+
+        window.open(orgUrl, '_blank');
+    }
+
+    // Get hall image URL
+    function getHallImageUrl(hall) {
+        if (hall.gallery && hall.gallery.length > 0) {
+            const galleryItem = hall.gallery[0];
+            if (galleryItem.startsWith('http')) {
+                return galleryItem;
+            }
+            return `${window.location.origin}/api/gallery/${galleryItem}/image`;
+        }
+        return 'https://images.unsplash.com/photo-1519167758481-83f1426e6b3c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80';
+    }
+
+    // Handle image load errors
+    function handleImageError(img) {
+        if (img.src.includes('placeholder') || img.dataset.fallbackUsed === 'true') {
+            img.style.backgroundColor = '#f8f9fa';
+            img.style.display = 'flex';
+            img.style.alignItems = 'center';
+            img.style.justifyContent = 'center';
+            img.style.color = '#6c757d';
+            img.style.fontSize = '14px';
+            img.alt = 'Image not available';
+            return;
+        }
+
+        img.dataset.fallbackUsed = 'true';
+        img.src = 'https://images.unsplash.com/photo-1519167758481-83f1426e6b3c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80';
+    }
 
     // Populate location filter
-    populateLocationFilter();
-    
-    // Add real-time search
-    document.getElementById('searchInput').addEventListener('input', applyFilters);
-    
-    // Update filter results
-    const filterResults = document.getElementById('filterResults');
-    filterResults.textContent = `Showing ${allHalls.length} venues`;
+    function populateLocationFilter() {
+        const locationFilter = document.getElementById('locationFilter');
 
-    document.getElementById('loadingState').classList.add('d-none');
-    document.getElementById('errorState').classList.add('d-none');
-    document.getElementById('hallsGrid').classList.remove('d-none');
-    document.getElementById('noHallsState').classList.add('d-none');
-}
-
-// Create hall card
-function createHallCard(hall) {
-    const col = document.createElement('div');
-    col.className = 'col-xl-4 col-lg-6 col-md-12';
-
-    const card = document.createElement('div');
-    card.className = 'card h-100 glass-card hall-card';
-
-    // Get hall image
-    const imageUrl = getHallImageUrl(hall);
-    
-    // Get hall bookings and booking summary from the combined data
-    const hallData = window.hallsWithBookingsData.find(item => item.hall.id === hall.id);
-    const hallBookings = hallData ? hallData.bookings : [];
-    const bookingSummary = hallData ? hallData.bookingSummary : null;
-    const defaultDomain = hallData ? hallData.defaultDomain : '';
-    
-    // Get starting price
-    const startingPrice = hall.rateCard?.morningRate || 20000;
-    
-    // Get amenities count
-    const amenitiesCount = hall.features?.length || 0;
-    
-    // Initialize calendar state for this hall
-    const calendarState = {
-        currentMonth: 9, // October (0-indexed)
-        currentYear: 2025
-    };
-
-    card.innerHTML = `
-        <!-- Image Section -->
-        <div class="card-img-container position-relative overflow-hidden">
-            <img src="${imageUrl}" 
-                 class="card-img-top" 
-                 alt="${hall.name}"
-                 onerror="handleImageError(this)">
-            <span class="badge bg-dark position-absolute top-0 end-0 m-3 px-3 py-2">Wedding Hall</span>
-            <div class="position-absolute bottom-0 start-0 m-3">
-                <div class="price-badge">₹${startingPrice.toLocaleString()}+</div>
-            </div>
-        </div>
-
-        <!-- Card Body -->
-        <div class="card-body d-flex flex-column p-3">
-            <!-- Header -->
-                    <div class="d-flex justify-content-between align-items-start mb-2">
-                <h6 class="card-title mb-0 fw-bold text-dark">${hall.name}</h6>
-                    </div>
-                    
-            <!-- Location and Capacity -->
-            <div class="d-flex justify-content-between text-muted mb-2 small">
-                <span><i class="fas fa-map-marker-alt me-1"></i>${hall.location}</span>
-                <span><i class="fas fa-users me-1"></i>${hall.capacity} guests</span>
-                <span><i class="fas fa-star me-1"></i>${amenitiesCount} amenities</span>
-                    </div>
-                    
-            <!-- Booking Statistics -->
-            ${bookingSummary ? `
-            <div class="row g-1 mb-2">
-                <div class="col-4">
-                    <div class="stats-card-compact">
-                        <div class="stats-number text-success small">${bookingSummary.confirmedBookings}</div>
-                        <div class="stats-label small">Confirmed</div>
-                    </div>
-                        </div>
-                <div class="col-4">
-                    <div class="stats-card-compact">
-                        <div class="stats-number text-warning small">${bookingSummary.pendingBookings}</div>
-                        <div class="stats-label small">Pending</div>
-                    </div>
-                </div>
-                <div class="col-4">
-                    <div class="stats-card-compact">
-                        <div class="stats-number text-danger small">${bookingSummary.cancelledBookings}</div>
-                        <div class="stats-label small">Cancelled</div>
-                    </div>
-                </div>
-            </div>
-            ` : ''}
-             
-            <!-- Description -->
-            <p class="card-text text-muted mb-2 small flex-grow-1">${hall.address || 'Beautiful venue with premium facilities.'}</p>
-            
-            <!-- Amenities -->
-            <div class="mb-2">
-                ${hall.features ? hall.features.slice(0, 2).map(feature => 
-                    `<span class="amenity-badge-small d-inline-block me-1">${feature.name}</span>`
-                ).join('') : ''}
-                ${hall.features && hall.features.length > 2 ? 
-                    `<span class="amenity-badge-small d-inline-block">+${hall.features.length - 2}</span>` : ''}
-                    </div>
-                    
-          <!-- Action Buttons -->
-            <div class="mt-3 pt-3 border-top">
-                ${defaultDomain ? `
-                <button class="btn btn-outline-primary w-100 py-3 fw-semibold" onclick="(function() {
-                    const hostname = window.location.hostname;
-                    // const port = window.location.port;
-                    const protocol = window.location.protocol;
-                    let orgUrl;
-                    
-                    if (hostname === 'localhost' || hostname === '127.0.0.1') {
-                        // Development: use subdomain.localhost with current port
-                        orgUrl = protocol + '//' + '${defaultDomain}' + '.localhost:' + 8082;
-                    } else if (hostname.includes('momentza.com')) {
-                        // Production: use subdomain.momentza.com
-                        orgUrl = protocol + '//' + '${defaultDomain}' + '.momentza.com';
-                    } else {
-                        // Other domains: use subdomain with current domain
-                        const domainParts = hostname.split('.');
-                        const baseDomain = domainParts.slice(-2).join('.'); // Get last 2 parts (e.g., momentza.com)
-                        orgUrl = protocol + '//' + '${defaultDomain}' + '.' + baseDomain;
-                    }
-                    
-                    window.open(orgUrl, '_blank');
-                })()">
-                    <i class="fas fa-external-link-alt me-2"></i>View Organization
-                        </button>
-                ` : ''}
-            </div>
-        </div>
-    `;
-
-    col.appendChild(card);
-    
-    // Add calendar navigation event listeners
-    setTimeout(() => {
-        const prevBtn = card.querySelector('[data-direction="prev"]');
-        const nextBtn = card.querySelector('[data-direction="next"]');
-        const monthYearElement = card.querySelector('.calendar-month-year');
-        const calendarGrid = card.querySelector('.calendar-grid');
-        
-        if (prevBtn && nextBtn && monthYearElement && calendarGrid) {
-            prevBtn.addEventListener('click', () => {
-                calendarState.currentMonth--;
-                if (calendarState.currentMonth < 0) {
-                    calendarState.currentMonth = 11;
-                    calendarState.currentYear--;
-                }
-                updateCalendar(hall.id, hallBookings, calendarState, monthYearElement, calendarGrid);
-            });
-            
-            nextBtn.addEventListener('click', () => {
-                calendarState.currentMonth++;
-                if (calendarState.currentMonth > 11) {
-                    calendarState.currentMonth = 0;
-                    calendarState.currentYear++;
-                }
-                updateCalendar(hall.id, hallBookings, calendarState, monthYearElement, calendarGrid);
-            });
+        // Clear existing options except "All Locations"
+        while (locationFilter.options.length > 1) {
+            locationFilter.remove(1);
         }
-    }, 100);
-    
-    return col;
-}
 
-// All other JavaScript functions remain exactly the same as in your original code
-// (getHallImageUrl, handleImageError, generateCalendarDays, getBookingTooltip, 
-// getStatusBadgeClass, updateCalendar, viewDetails, bookNow, selectDate, 
-// applyFilters, clearFilters, populateLocationFilter)
+        // Get unique locations
+        const locations = [...new Set(allHalls
+            .filter(hall => hall.location && hall.location.trim() !== '')
+            .map(hall => hall.location)
+        )].sort();
 
-// Get hall image URL
-function getHallImageUrl(hall) {
-    if (hall.gallery && hall.gallery.length > 0) {
-        const galleryItem = hall.gallery[0];
-        if (galleryItem.startsWith('http')) {
-            return galleryItem;
-        }
-        // Use the gallery API endpoint format
-        return `${window.location.origin}/api/gallery/${galleryItem}/image`;
-    }
-    // Use a reliable fallback image - wedding venue placeholder
-    return 'https://images.unsplash.com/photo-1519167758481-83f1426e6b3c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80';
-}
-
-// Handle image load errors with better fallback
-function handleImageError(img) {
-    // Prevent infinite redirects by checking if we're already using a fallback
-    if (img.src.includes('placeholder') || img.dataset.fallbackUsed === 'true') {
-        // Use a simple colored placeholder if all else fails
-        img.style.backgroundColor = '#f8f9fa';
-        img.style.display = 'flex';
-        img.style.alignItems = 'center';
-        img.style.justifyContent = 'center';
-        img.style.color = '#6c757d';
-        img.style.fontSize = '14px';
-        img.alt = 'Image not available';
-        return;
-    }
-    
-    // Mark as fallback used to prevent infinite loops
-    img.dataset.fallbackUsed = 'true';
-    
-    // Try a different reliable image
-    img.src = 'https://images.unsplash.com/photo-1519167758481-83f1426e6b3c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80';
-}
-
-// Generate calendar days
-function generateCalendarDays(bookings, calendarState = { currentMonth: 9, currentYear: 2025 }, hallId = '') {
-    const today = new Date();
-    const currentMonth = calendarState.currentMonth;
-    const currentYear = calendarState.currentYear;
-    
-    // Get first day of month and how many days to show before
-    const firstDay = new Date(currentYear, currentMonth, 1);
-    const startDate = new Date(firstDay);
-    startDate.setDate(startDate.getDate() - firstDay.getDay());
-    
-    let html = '';
-    
-    // Generate 6 weeks (42 days)
-    for (let i = 0; i < 42; i++) {
-        const date = new Date(startDate);
-        date.setDate(startDate.getDate() + i);
-        
-        const isCurrentMonth = date.getMonth() === currentMonth;
-        const dayNumber = date.getDate();
-        
-        // Check booking status for this date - use the actual booking data structure
-        const dateStr = date.toISOString().split('T')[0];
-        const dayBookings = bookings.filter(booking => {
-            // Handle both eventDate string and Date object
-            const bookingDate = typeof booking.eventDate === 'string' 
-                ? booking.eventDate.split('T')[0] 
-                : new Date(booking.eventDate).toISOString().split('T')[0];
-            return bookingDate === dateStr;
+        // Add locations to dropdown
+        locations.forEach(location => {
+            const option = document.createElement('option');
+            option.value = location;
+            option.textContent = location;
+            locationFilter.appendChild(option);
         });
-        
-        const hasFullDay = dayBookings.some(b => b.timeSlot === 'fullday');
-        const hasMorning = dayBookings.some(b => b.timeSlot === 'morning');
-        const hasEvening = dayBookings.some(b => b.timeSlot === 'evening');
-        
-        let statusClass = 'available';
-        let statusIcons = '<i class="fas fa-sun" style="color: #FFC107;"></i><i class="fas fa-moon" style="color: #17A2B8;"></i>';
-        
-        if (hasFullDay || (hasMorning && hasEvening)) {
-            statusClass = 'booked';
-            statusIcons = '<i class="fas fa-times" style="color: #DC3545;"></i>';
-        } else if (hasMorning) {
-            statusClass = 'partial';
-            statusIcons = '<i class="fas fa-times" style="color: #DC3545;"></i><i class="fas fa-moon" style="color: #17A2B8;"></i>';
-        } else if (hasEvening) {
-            statusClass = 'partial';
-            statusIcons = '<i class="fas fa-sun" style="color: #FFC107;"></i><i class="fas fa-times" style="color: #DC3545;"></i>';
-        }
-        
-        html += `
-            <div class="calendar-day ${statusClass}" 
-                 title="${getBookingTooltip(dayBookings)}"
-                 data-date="${date.toISOString().split('T')[0]}"
-                 data-hall-id="${hallId}"
-                 onclick="selectDate('${hallId}', '${date.toISOString().split('T')[0]}', '${statusClass}')">
-                <div class="day-number ${isCurrentMonth ? '' : 'text-muted'}">${dayNumber}</div>
-                <div class="availability-icons">
-                    ${statusIcons}
-    </div>
-</div>
-        `;
     }
-    
-    return html;
-}
 
-// Get booking tooltip for calendar days
-function getBookingTooltip(dayBookings) {
-    if (dayBookings.length === 0) {
-        return 'Available for booking';
-    }
-    
-    const tooltips = dayBookings.map(booking => {
-        const timeSlot = booking.timeSlot.charAt(0).toUpperCase() + booking.timeSlot.slice(1);
-        return `${timeSlot}: ${booking.customerName} (${booking.eventType})`;
-    });
-    
-    return tooltips.join('\n');
-}
+    // Apply filters - CORRECTED VERSION
+    function applyFilters() {
+        const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
+        const locationFilter = document.getElementById('locationFilter').value;
+        const capacityFilter = document.getElementById('capacityFilter').value;
 
-// Get status badge class for styling
-function getStatusBadgeClass(status) {
-    switch(status.toLowerCase()) {
-        case 'confirmed':
-            return 'bg-success';
-        case 'active':
-            return 'bg-primary';
-        case 'pending':
-            return 'bg-warning';
-        case 'cancelled':
-            return 'bg-danger';
-        default:
-            return 'bg-secondary';
-    }
-}
+        console.log('Applying filters:', { searchTerm, locationFilter, capacityFilter });
 
-// Update calendar when navigation is clicked
-function updateCalendar(hallId, bookings, calendarState, monthYearElement, calendarGrid) {
-    const monthNames = [
-        'January', 'February', 'March', 'April', 'May', 'June',
-        'July', 'August', 'September', 'October', 'November', 'December'
-    ];
-    
-    // Update month/year display
-    monthYearElement.textContent = `${monthNames[calendarState.currentMonth]} ${calendarState.currentYear}`;
-    
-    // Generate new calendar days
-    const calendarDays = generateCalendarDays(bookings, calendarState, hallId);
-    
-    // Clear existing calendar days (keep the header and weekdays)
-    const existingDays = calendarGrid.querySelectorAll('.calendar-day');
-    existingDays.forEach(day => day.remove());
-    
-    // Add new calendar days
-    calendarGrid.insertAdjacentHTML('beforeend', calendarDays);
-}
-
-// Action functions
-function viewDetails(hallId) {
-    window.location.href = `${window.location.origin}/hall/${hallId}`;
-}
-
-function bookNow(hallId) {
-    alert(`Booking functionality for hall ${hallId} will be implemented soon!`);
-}
-
-// Handle date selection from calendar
-function selectDate(hallId, date, statusClass) {
-    // Don't allow selection of booked days or past days
-    if (statusClass === 'booked') {
-        alert('This date is fully booked and cannot be selected.');
-        return;
-    }
-    
-    // Check if date is in the past
-    const selectedDate = new Date(date);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    
-    if (selectedDate < today) {
-        alert('Cannot select past dates.');
-        return;
-    }
-    
-    // Redirect to booking page with hall ID and selected date
-    window.location.href = `${window.location.origin}/booking/${hallId}?date=${date}`;
-}
-
-// Filter functionality
-function applyFilters() {
-    const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-    const locationFilter = document.getElementById('locationFilter').value;
-    const capacityFilter = document.getElementById('capacityFilter').value;
-    
-    const hallCards = document.querySelectorAll('.col-xl-4.col-lg-6.col-md-12');
-    let visibleCount = 0;
-    
-    hallCards.forEach(card => {
-        const hallName = card.querySelector('.card-title')?.textContent.toLowerCase() || '';
-        const hallLocation = card.querySelector('.text-muted small')?.textContent.toLowerCase() || '';
-        const hallCapacity = parseInt(card.querySelector('.text-muted small:nth-child(2)')?.textContent.match(/\d+/)?.[0] || '0');
-        
-        let show = true;
-        
-        // Search filter
-        if (searchTerm && !hallName.includes(searchTerm) && !hallLocation.includes(searchTerm)) {
-            show = false;
-        }
-        
-        // Location filter
-        if (locationFilter && !hallLocation.includes(locationFilter.toLowerCase())) {
-            show = false;
-        }
-        
-        // Capacity filter
-        if (capacityFilter) {
-            const maxCapacity = parseInt(capacityFilter);
-            if (hallCapacity > maxCapacity) {
-            show = false;
+        // Filter halls based on criteria
+        currentFilteredHalls = allHalls.filter(hall => {
+            // Search filter
+            if (searchTerm) {
+                const nameMatch = hall.name?.toLowerCase().includes(searchTerm) || false;
+                const locationMatch = hall.location?.toLowerCase().includes(searchTerm) || false;
+                if (!nameMatch && !locationMatch) {
+                    return false;
+                }
             }
+
+            // Location filter
+            if (locationFilter && hall.location !== locationFilter) {
+                return false;
+            }
+
+            // Capacity filter
+            if (capacityFilter) {
+                const hallCapacity = parseInt(hall.capacity) || 0;
+                const filterCapacity = parseInt(capacityFilter);
+
+                if (capacityFilter === "1000") {
+                    // For "1000+", show halls with capacity >= 1000
+                    if (hallCapacity < 1000) {
+                        return false;
+                    }
+                } else {
+                    // For "Up to X", show halls with capacity <= X
+                    if (hallCapacity > filterCapacity) {
+                        return false;
+                    }
+                }
+            }
+
+            return true;
+        });
+
+        console.log('Filtered results:', currentFilteredHalls.length);
+
+        // Render filtered halls
+        renderHalls(currentFilteredHalls);
+
+        // Update UI
+        updateFilterResults(currentFilteredHalls.length, allHalls.length);
+        updateActiveFiltersDisplay(searchTerm, locationFilter, capacityFilter);
+    }
+
+    // Update filter results display
+    function updateFilterResults(filteredCount, totalCount) {
+        const filterResults = document.getElementById('filterResults');
+        if (filteredCount === totalCount) {
+            filterResults.textContent = `Showing all ${totalCount} venues`;
+        } else {
+            filterResults.textContent = `Showing ${filteredCount} of ${totalCount} venues`;
         }
-        
-        card.style.display = show ? 'block' : 'none';
-        if (show) visibleCount++;
-    });
-    
-    // Update filter results
-    const filterResults = document.getElementById('filterResults');
-    filterResults.textContent = `Showing ${visibleCount} of ${hallCards.length} venues`;
-}
+    }
 
-function clearFilters() {
-    document.getElementById('searchInput').value = '';
-    document.getElementById('locationFilter').value = '';
-    document.getElementById('capacityFilter').value = '';
-    
-    // Show all cards
-    const hallCards = document.querySelectorAll('.col-xl-4.col-lg-6.col-md-12');
-    hallCards.forEach(card => {
-        card.style.display = 'block';
-    });
-    
-    // Update filter results
-    const filterResults = document.getElementById('filterResults');
-    filterResults.textContent = `Showing ${hallCards.length} venues`;
-}
+    // Update active filters display
+    function updateActiveFiltersDisplay(searchTerm, location, capacity) {
+        const activeFiltersElement = document.getElementById('activeFilters');
+        let filtersHTML = '';
 
-// Populate location filter options
-function populateLocationFilter() {
-    const locationFilter = document.getElementById('locationFilter');
-    const locations = new Set();
-    
-    allHalls.forEach(hall => {
-        if (hall.location) {
-            locations.add(hall.location);
+        if (searchTerm) {
+            filtersHTML += `<span class="filter-tag">
+                Search: ${searchTerm}
+                <i class="fas fa-times ms-1" onclick="clearSearch()"></i>
+            </span>`;
         }
-    });
-    
-    // Sort locations alphabetically
-    const sortedLocations = Array.from(locations).sort();
-    
-    sortedLocations.forEach(location => {
-        const option = document.createElement('option');
-        option.value = location;
-        option.textContent = location;
-        locationFilter.appendChild(option);
-    });
-}
 
-// Load halls when page loads
-document.addEventListener('DOMContentLoaded', function() {
-    loadHalls();
-});
+        if (location) {
+            filtersHTML += `<span class="filter-tag">
+                Location: ${location}
+                <i class="fas fa-times ms-1" onclick="clearLocation()"></i>
+            </span>`;
+        }
+
+        if (capacity) {
+            let capacityText = '';
+            switch(capacity) {
+                case '100': capacityText = 'Up to 100'; break;
+                case '300': capacityText = 'Up to 300'; break;
+                case '500': capacityText = 'Up to 500'; break;
+                case '1000': capacityText = '1000+'; break;
+                default: capacityText = `Up to ${capacity}`;
+            }
+            filtersHTML += `<span class="filter-tag">
+                Capacity: ${capacityText}
+                <i class="fas fa-times ms-1" onclick="clearCapacity()"></i>
+            </span>`;
+        }
+
+        activeFiltersElement.innerHTML = filtersHTML;
+    }
+
+    // Clear individual filters
+    function clearSearch() {
+        document.getElementById('searchInput').value = '';
+        applyFilters();
+    }
+
+    function clearLocation() {
+        document.getElementById('locationFilter').value = '';
+        applyFilters();
+    }
+
+    function clearCapacity() {
+        document.getElementById('capacityFilter').value = '';
+        applyFilters();
+    }
+
+    // Clear all filters
+    function clearFilters() {
+        document.getElementById('searchInput').value = '';
+        document.getElementById('locationFilter').value = '';
+        document.getElementById('capacityFilter').value = '';
+
+        document.getElementById('activeFilters').innerHTML = '';
+
+        currentFilteredHalls = [...allHalls];
+        renderHalls(currentFilteredHalls);
+        updateFilterResults(allHalls.length, allHalls.length);
+    }
+
+    // Load halls when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+        loadHalls();
+    });
 </script>
