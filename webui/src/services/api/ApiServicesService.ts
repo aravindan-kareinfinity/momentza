@@ -24,7 +24,6 @@ export class ApiServicesService implements IServicesService {
 
   async update(id: string, data: Partial<ServiceItem>): Promise<ServiceItem> {
     return apiClient.post<ServiceItem>(`/api/services/${id}`, data);
-    return apiClient.post<ServiceItem>(`/api/services/${id}`, data);
   }
 
   async delete(id: string): Promise<boolean> {
@@ -58,7 +57,6 @@ export class ApiServicesService implements IServicesService {
     id: string,
     updates: Partial<ServiceItem>
   ): Promise<ServiceItem> {
-    return apiClient.post<ServiceItem>(`/api/services/update/${id}`, updates);
     return apiClient.post<ServiceItem>(`/api/services/update/${id}`, updates);
   }
 

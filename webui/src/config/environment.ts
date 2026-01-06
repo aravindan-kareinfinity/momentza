@@ -5,6 +5,7 @@ export const config = {
   // API Configuration
   apiBaseUrl: import.meta.env.VITE_API_BASE_URL || 'http://momentza.com',
   
+  
   // App Configuration
   appTitle: import.meta.env.VITE_APP_TITLE || 'Wedding Hub Manager',
   appVersion: import.meta.env.VITE_APP_VERSION || '1.0.0',
@@ -62,5 +63,7 @@ export const shouldUseMockData = (): boolean => {
   // Use mock data in production only if explicitly enabled
   return import.meta.env.VITE_USE_MOCK_DATA === 'true';
 };
+
+
 
 export default config; 
