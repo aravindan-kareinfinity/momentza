@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -7,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { PublicHallsSection } from '@/components/Home/PublicHallsSection';
 import { PublicReviewsSection } from '@/components/Home/PublicReviewsSection';
 import { PublicHomeCarousel } from '@/components/Home/PublicHomeCarousel';
+import { PublicMap } from '@/components/Home/PublicMap';
 
 interface ComponentConfig {
   slotTime?: number;
@@ -23,6 +23,19 @@ interface ComponentConfig {
   blockWidth?: '1/4' | '1/3' | '1/2' | 'full';
   textPosition?: 'top' | 'center' | 'bottom';
   showGalleryButton?: boolean;
+  // Map specific properties
+  mapType?: 'interactive' | 'static' | 'directions';
+  zoomLevel?: number;
+  showMarkers?: boolean;
+  showDirections?: boolean;
+  tileProvider?: 'openstreetmap' | 'cartodb' | 'esri' | 'mapbox';
+  markers?: Array<{
+    lat: number;
+    lng: number;
+    title: string;
+    description?: string;
+    type?: 'hall' | 'entrance' | 'parking' | 'other';
+  }>;
 }
 
 interface PreviewComponent {
@@ -121,7 +134,7 @@ export function MicrositePreview({
         if (halls && halls.length > 0) {
           return <PublicHallsSection halls={halls} config={{
             width: config.width,
-            height: config.height ? parseInt(config.height) : undefined
+            height: config.height ? parseInt(config.height as string) : undefined
           }} />;
         }
         // Fallback to placeholder
@@ -270,6 +283,24 @@ export function MicrositePreview({
           </div>
         );
 
+      case 'map':
+        return (
+          <PublicMap
+            organization={organization}
+            markers={config?.markers || []}
+            config={{
+              height: config.height,
+              zoomLevel: config.zoomLevel,
+              mapType: config.mapType,
+              showDirections: config.showDirections,
+              title: config.title,
+              description: config.description,
+              tileProvider: config.tileProvider,
+              width: config.width
+            }}
+          />
+        );
+
       // case 'search':
       //   return (
       //     <Card className="bg-gradient-to-r from-blue-50 to-purple-50 border-0">
@@ -297,12 +328,12 @@ export function MicrositePreview({
       //     </Card>
       //   );
 
-      // default:
-      //   return (
-      //     <div className="p-4 border border-dashed border-gray-300 rounded-lg text-center text-gray-500">
-      //       {component.type} component
-      //     </div>
-      //   );
+      default:
+        return (
+          <div className="p-4 border border-dashed border-gray-300 rounded-lg text-center text-gray-500">
+            {component.type} component
+          </div>
+        );
     }
   };
 

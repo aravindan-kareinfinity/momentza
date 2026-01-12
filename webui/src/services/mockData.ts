@@ -170,80 +170,64 @@ export const mockUsers: User[] = [
 
 export const mockHalls: Hall[] = [
   {
-    id: '1',
-    organizationId: '1',
+    id: 'hall-1',
     name: 'Grand Ballroom',
+    location: 'Mumbai',
+    address: '123 Marine Drive, Mumbai, Maharashtra 400020',
+    coordinates: { lat: 19.0760, lng: 72.8777 },
     capacity: 500,
-    location: 'Downtown',
-    address: '123 Main Street, Downtown, City 12345',
-    features: [
-      { name: 'Air Conditioning', charge: 5000 },
-      { name: 'Sound System', charge: 3000 },
-      { name: 'Lighting', charge: 2000 },
-      { name: 'Catering', charge: 10000 },
-      { name: 'Photography', charge: 8000 }
-    ],
     rateCard: {
-      morningRate: 25000,
+      morningRate: 15000,
+      eveningRate: 25000,
+      fullDayRate: 35000
+    },
+    isActive: true,
+    organizationId: 'ddae3baf-3c43-41ba-8f79-c5bb73f60cfd',
+    features: [
+      { name: 'AC', charge: 2000 },
+      { name: 'Sound System', charge: 1500 }
+    ],
+    gallery: ['img1.jpg', 'img2.jpg']
+  },
+  {
+    id: 'hall-2',
+    name: 'Royal Convention Center',
+    location: 'Delhi',
+    address: '45 Connaught Place, New Delhi 110001',
+    coordinates: { lat: 28.6139, lng: 77.2090 },
+    capacity: 1000,
+    rateCard: {
+      morningRate: 20000,
       eveningRate: 35000,
       fullDayRate: 50000
     },
-    gallery: [
-      'photo-1519225421980-715cb0215aed',
-      'photo-1464366400600-7168b8af9bc3',
-      'photo-1478146896981-b80fe463b330'
+    isActive: true,
+    organizationId: 'ddae3baf-3c43-41ba-8f79-c5bb73f60cfd',
+    features: [
+      { name: 'AC', charge: 3000 },
+      { name: 'Projector', charge: 2000 }
     ],
-    isActive: true
+    gallery: ['img3.jpg', 'img4.jpg']
   },
   {
-    id: '2',
-    organizationId: '1',
-    name: 'Royal Gardens',
+    id: 'hall-3',
+    name: 'Garden View Hall',
+    location: 'Bangalore',
+    address: '78 MG Road, Bangalore, Karnataka 560001',
+    coordinates: { lat: 12.9716, lng: 77.5946 },
     capacity: 300,
-    location: 'Uptown',
-    address: '456 Garden Lane, Uptown, City 12345',
-    features: [
-      { name: 'Garden View', charge: 4000 },
-      { name: 'Sound System', charge: 3000 },
-      { name: 'Decoration', charge: 6000 },
-      { name: 'Catering', charge: 8000 }
-    ],
     rateCard: {
-      morningRate: 20000,
-      eveningRate: 30000,
-      fullDayRate: 45000
+      morningRate: 12000,
+      eveningRate: 20000,
+      fullDayRate: 28000
     },
-    gallery: [
-      'photo-1519167758481-83f29c55eae4',
-      'photo-1517457373958-b7bdd4587205',
-      'photo-1522413452208-996ff3f04122'
-    ],
-    isActive: true
-  },
-  {
-    id: '3',
-    organizationId: '1',
-    name: 'Crystal Palace',
-    capacity: 800,
-    location: 'City Center',
-    address: '789 Palace Road, City Center, City 12345',
+    isActive: true,
+    organizationId: 'ddae3baf-3c43-41ba-8f79-c5bb73f60cfd',
     features: [
-      { name: 'Crystal Chandeliers', charge: 8000 },
-      { name: 'Premium Sound', charge: 5000 },
-      { name: 'Stage Setup', charge: 7000 },
-      { name: 'Luxury Catering', charge: 15000 }
+      { name: 'Garden View', charge: 5000 },
+      { name: 'Catering', charge: 3000 }
     ],
-    rateCard: {
-      morningRate: 40000,
-      eveningRate: 60000,
-      fullDayRate: 90000
-    },
-    gallery: [
-      'photo-1465495976277-4387d4b0e4a6',
-      'photo-1469371670807-013ccf25f16a',
-      'photo-1515934751635-c81c6bc9a2d8'
-    ],
-    isActive: true
+    gallery: ['img5.jpg', 'img6.jpg']
   }
 ];
 

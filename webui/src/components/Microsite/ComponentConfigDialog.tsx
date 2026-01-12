@@ -10,12 +10,52 @@ import { galleryService, authService } from '@/services/ServiceFactory';
 import { useToast } from '@/hooks/use-toast';
 import { GalleryImage } from '@/services/mockData';
 
+interface ComponentConfig {
+  slotTime?: number;
+  width?: string;
+  height?: string | number;
+  maxCount?: number;
+  title?: string;
+  description?: string;
+  imageUrl?: string;
+  imageUrls?: string[];
+  imageId?: string;
+  imageIds?: string[];
+  imagePosition?: 'left' | 'right';
+  textAlignment?: 'left' | 'right';
+  alignment?: 'left' | 'center' | 'right';
+  blockWidth?: '1/4' | '1/3' | '1/2' | 'full';
+  textPosition?: 'top' | 'center' | 'bottom';
+  showGalleryButton?: boolean;
+  // Map specific properties
+  mapType?: 'interactive' | 'static' | 'directions';
+  zoomLevel?: number;
+  showMarkers?: boolean;
+  showDirections?: boolean;
+  tileProvider?: 'openstreetmap' | 'cartodb' | 'esri' | 'mapbox';
+  markers?: Array<{
+    lat: number;
+    lng: number;
+    title: string;
+    description?: string;
+    type?: 'hall' | 'entrance' | 'parking' | 'other';
+  }>;
+  // Image component properties
+  images?: any[];
+  // Halls component properties
+  itemsPerPage?: number;
+  showFilters?: boolean;
+  // Reviews component properties
+  showRating?: boolean;
+  maxReviews?: number;
+}
+
 interface ComponentConfigDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   componentType: string;
-  currentConfig?: any;
-  onSave: (config: any) => void;
+  currentConfig?: ComponentConfig;
+  onSave: (config: ComponentConfig) => void;
 }
 
 export const ComponentConfigDialog = ({ 
@@ -29,14 +69,25 @@ export const ComponentConfigDialog = ({
   const [galleryImages, setGalleryImages] = useState<GalleryImage[]>([]);
   const { toast } = useToast();
   
-  const [config, setConfig] = useState<any>(currentConfig || {});
+  const [config, setConfig] = useState<ComponentConfig>(currentConfig || {});
   const [uploadingImage, setUploadingImage] = useState(false);
   const [selectedImageIds, setSelectedImageIds] = useState<string[]>([]);
+
+  // Default center for map markers
+  const defaultCenter = [20.5937, 78.9629];
+
+  // Type-safe config update helper
+  const updateConfig = <K extends keyof ComponentConfig>(
+    key: K, 
+    value: ComponentConfig[K]
+  ) => {
+    setConfig(prev => ({ ...prev, [key]: value }));
+  };
 
   // Initialize config when component type changes or dialog opens
   useEffect(() => {
     if (open) {
-      const defaultConfigs: Record<string, any> = {
+      const defaultConfigs: Record<string, ComponentConfig> = {
         carousel: {
           slotTime: 5,
           textPosition: 'center',
@@ -64,9 +115,21 @@ export const ComponentConfigDialog = ({
           description: '',
           width: 'full',
           height: 300,
-          images: [], // Changed to array for multiple images
+          images: [],
           imageIds: [],
           textPosition: 'center'
+        },
+        map: {
+          title: 'Find Our Venue',
+          description: 'Easily locate our venue and plan your visit',
+          height: 400,
+          zoomLevel: 15,
+          mapType: 'interactive',
+          tileProvider: 'openstreetmap',
+          showDirections: true,
+          showMarkers: true,
+          markers: [],
+          width: 'full'
         }
       };
 
@@ -151,8 +214,8 @@ export const ComponentConfigDialog = ({
       setConfig(prev => ({ 
         ...prev, 
         imageId: uploadedImage.id,
-        imageIds: [...prev.imageIds || [], uploadedImage.id],
-        images: [...prev.images || [], uploadedImage],
+        imageIds: [...(prev.imageIds || []), uploadedImage.id],
+        images: [...(prev.images || []), uploadedImage],
         imageUrl: uploadedImage.url
       }));
       
@@ -216,17 +279,14 @@ export const ComponentConfigDialog = ({
           type="number"
           min="1"
           value={config.slotTime || 5}
-          onChange={(e) => setConfig(prev => ({ 
-            ...prev, 
-            slotTime: Math.max(1, parseInt(e.target.value) || 5) 
-          }))}
+          onChange={(e) => updateConfig('slotTime', Math.max(1, parseInt(e.target.value) || 5))}
         />
       </div>
       <div>
         <Label htmlFor="textPosition">Text Position</Label>
         <Select
           value={config.textPosition || 'center'}
-          onValueChange={(value) => setConfig(prev => ({ ...prev, textPosition: value }))}
+          onValueChange={(value) => updateConfig('textPosition', value as 'top' | 'center' | 'bottom')}
         >
           <SelectTrigger>
             <SelectValue />
@@ -242,7 +302,7 @@ export const ComponentConfigDialog = ({
         <Label htmlFor="width">Width</Label>
         <Select 
           value={config.width || 'full'} 
-          onValueChange={(value) => setConfig(prev => ({ ...prev, width: value }))}
+          onValueChange={(value) => updateConfig('width', value)}
         >
           <SelectTrigger>
             <SelectValue />
@@ -265,7 +325,7 @@ export const ComponentConfigDialog = ({
           <Label htmlFor="width">Width</Label>
           <Select 
             value={config.width || 'full'} 
-            onValueChange={(value) => setConfig(prev => ({ ...prev, width: value }))}
+            onValueChange={(value) => updateConfig('width', value)}
           >
             <SelectTrigger>
               <SelectValue />
@@ -284,11 +344,8 @@ export const ComponentConfigDialog = ({
             id="height"
             type="number"
             min="100"
-            value={config.height || 400}
-            onChange={(e) => setConfig(prev => ({ 
-              ...prev, 
-              height: Math.max(100, parseInt(e.target.value) || 400) 
-            }))}
+            value={config.height?.toString() || '400'}
+            onChange={(e) => updateConfig('height', Math.max(100, parseInt(e.target.value) || 400))}
           />
         </div>
       </div>
@@ -300,10 +357,7 @@ export const ComponentConfigDialog = ({
           min="1"
           max="24"
           value={config.itemsPerPage || 6}
-          onChange={(e) => setConfig(prev => ({ 
-            ...prev, 
-            itemsPerPage: Math.max(1, Math.min(24, parseInt(e.target.value) || 6)) 
-          }))}
+          onChange={(e) => updateConfig('itemsPerPage', Math.max(1, Math.min(24, parseInt(e.target.value) || 6)))}
         />
       </div>
     </div>
@@ -319,10 +373,7 @@ export const ComponentConfigDialog = ({
           min="1"
           max="50"
           value={config.maxReviews || 5}
-          onChange={(e) => setConfig(prev => ({ 
-            ...prev, 
-            maxReviews: Math.max(1, Math.min(50, parseInt(e.target.value) || 5)) 
-          }))}
+          onChange={(e) => updateConfig('maxReviews', Math.max(1, Math.min(50, parseInt(e.target.value) || 5)))}
         />
       </div>
       <div className="flex items-center space-x-2">
@@ -330,7 +381,7 @@ export const ComponentConfigDialog = ({
           type="checkbox"
           id="showRating"
           checked={config.showRating !== false}
-          onChange={(e) => setConfig(prev => ({ ...prev, showRating: e.target.checked }))}
+          onChange={(e) => updateConfig('showRating', e.target.checked)}
           className="rounded"
         />
         <Label htmlFor="showRating">Show Star Ratings</Label>
@@ -346,7 +397,7 @@ export const ComponentConfigDialog = ({
           <Input
             id="title"
             value={config.title || ''}
-            onChange={(e) => setConfig(prev => ({ ...prev, title: e.target.value }))}
+            onChange={(e) => updateConfig('title', e.target.value)}
           />
         </div>
 
@@ -355,7 +406,7 @@ export const ComponentConfigDialog = ({
           <Textarea
             id="description"
             value={config.description || ''}
-            onChange={(e) => setConfig(prev => ({ ...prev, description: e.target.value }))}
+            onChange={(e) => updateConfig('description', e.target.value)}
             rows={3}
           />
         </div>
@@ -364,7 +415,7 @@ export const ComponentConfigDialog = ({
           <Label>Text Position Over Image</Label>
           <Select
             value={config.textPosition || 'center'}
-            onValueChange={(value) => setConfig(prev => ({ ...prev, textPosition: value }))}
+            onValueChange={(value) => updateConfig('textPosition', value as 'top' | 'center' | 'bottom')}
           >
             <SelectTrigger>
               <SelectValue />
@@ -391,26 +442,10 @@ export const ComponentConfigDialog = ({
               </div>
             ) : (
               <>
-                {/* <div className="mb-2">
-                  <Label htmlFor="uploadImage" className="cursor-pointer">
-                    <div className="border-2 border-dashed border-gray-300 rounded-md p-4 text-center hover:bg-gray-50 transition-colors">
-                      <p className="text-sm">Click to upload or drag & drop</p>
-                      <p className="text-xs text-gray-500 mt-1">Upload new image to gallery</p>
-                    </div>
-                    <input
-                      id="uploadImage"
-                      type="file"
-                      accept="image/*"
-                      onChange={handleFileChange}
-                      className="hidden"
-                    />
-                  </Label>
-                </div> */}
-                
                 <div className="grid grid-cols-3 gap-2 max-h-60 overflow-y-auto">
                   {galleryImages.length === 0 ? (
                     <div className="col-span-3 text-center py-4 text-gray-500">
-                      No images in gallery. Upload one above.
+                      No images in gallery.
                     </div>
                   ) : (
                     galleryImages.map((image) => (
@@ -453,7 +488,7 @@ export const ComponentConfigDialog = ({
             <Label htmlFor="imageWidth">Width</Label>
             <Select
               value={config.width || 'full'}
-              onValueChange={(value) => setConfig(prev => ({ ...prev, width: value }))}
+              onValueChange={(value) => updateConfig('width', value)}
             >
               <SelectTrigger>
                 <SelectValue />
@@ -472,11 +507,8 @@ export const ComponentConfigDialog = ({
               id="imageHeight"
               type="number"
               min="100"
-              value={config.height || 300}
-              onChange={(e) => setConfig(prev => ({ 
-                ...prev, 
-                height: Math.max(100, parseInt(e.target.value) || 300) 
-              }))}
+              value={config.height?.toString() || '300'}
+              onChange={(e) => updateConfig('height', Math.max(100, parseInt(e.target.value) || 300))}
             />
           </div>
         </div>
@@ -495,14 +527,14 @@ export const ComponentConfigDialog = ({
             <Input
               id="textTitle"
               value={config.title || ''}
-              onChange={(e) => setConfig(prev => ({ ...prev, title: e.target.value }))}
+              onChange={(e) => updateConfig('title', e.target.value)}
             />
           </div>
           <div>
             <Label htmlFor="textAlignment">Text Alignment</Label>
             <Select 
               value={config.alignment || 'left'} 
-              onValueChange={(value) => setConfig(prev => ({ ...prev, alignment: value }))}
+              onValueChange={(value) => updateConfig('alignment', value as 'left' | 'center' | 'right')}
             >
               <SelectTrigger>
                 <SelectValue />
@@ -521,7 +553,7 @@ export const ComponentConfigDialog = ({
           <Textarea
             id="textDescription"
             value={config.description || ''}
-            onChange={(e) => setConfig(prev => ({ ...prev, description: e.target.value }))}
+            onChange={(e) => updateConfig('description', e.target.value)}
             rows={4}
           />
         </div>
@@ -535,9 +567,9 @@ export const ComponentConfigDialog = ({
               } flex items-center justify-center h-16`}
               onClick={() => setConfig(prev => ({ 
                 ...prev, 
-                imageId: null, 
-                imageUrl: null,
-                image: null 
+                imageId: undefined, 
+                imageUrl: undefined,
+                image: undefined 
               }))}
             >
               <span className={`text-xs ${!selectedImageId ? 'text-primary font-medium' : 'text-gray-500'}`}>
@@ -584,7 +616,7 @@ export const ComponentConfigDialog = ({
           <Label htmlFor="textWidth">Block Width</Label>
           <Select 
             value={config.width || 'full'} 
-            onValueChange={(value) => setConfig(prev => ({ ...prev, width: value }))}
+            onValueChange={(value) => updateConfig('width', value)}
           >
             <SelectTrigger>
               <SelectValue />
@@ -601,6 +633,291 @@ export const ComponentConfigDialog = ({
     );
   };
 
+  const renderMapConfig = () => (
+    <div className="space-y-4">
+      <div>
+        <Label htmlFor="mapTitle">Map Title</Label>
+        <Input
+          id="mapTitle"
+          value={config.title || ''}
+          onChange={(e) => updateConfig('title', e.target.value)}
+          placeholder="e.g., Find Our Venue"
+        />
+      </div>
+      
+      <div>
+        <Label htmlFor="mapDescription">Description</Label>
+        <Textarea
+          id="mapDescription"
+          value={config.description || ''}
+          onChange={(e) => updateConfig('description', e.target.value)}
+          placeholder="e.g., Easily locate our venue and plan your visit"
+          rows={2}
+        />
+      </div>
+      
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <Label htmlFor="mapHeight">Height (px)</Label>
+          <Input
+            id="mapHeight"
+            type="number"
+            min="200"
+            max="1000"
+            value={config.height?.toString() || '400'}
+            onChange={(e) => updateConfig('height', Math.max(200, Math.min(1000, parseInt(e.target.value) || 400)))}
+          />
+        </div>
+        
+        <div>
+          <Label htmlFor="zoomLevel">Zoom Level</Label>
+          <Select
+            value={(config.zoomLevel || 15).toString()}
+            onValueChange={(value) => updateConfig('zoomLevel', parseInt(value))}
+          >
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="10">10 - City Level</SelectItem>
+              <SelectItem value="12">12 - District Level</SelectItem>
+              <SelectItem value="15">15 - Street Level</SelectItem>
+              <SelectItem value="17">17 - Building Level</SelectItem>
+              <SelectItem value="19">19 - Max Detail</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+      
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <Label htmlFor="mapType">Map Type</Label>
+          <Select
+            value={config.mapType || 'interactive'}
+            onValueChange={(value) => updateConfig('mapType', value as 'interactive' | 'static' | 'directions')}
+          >
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="interactive">Interactive Map</SelectItem>
+              <SelectItem value="static">Static Map</SelectItem>
+              <SelectItem value="directions">With Directions</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        
+        <div>
+          <Label htmlFor="tileProvider">Map Style</Label>
+          <Select
+            value={config.tileProvider || 'openstreetmap'}
+            onValueChange={(value) => updateConfig('tileProvider', value as 'openstreetmap' | 'cartodb' | 'esri' | 'mapbox')}
+          >
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="openstreetmap">OpenStreetMap</SelectItem>
+              <SelectItem value="cartodb">Light Theme</SelectItem>
+              <SelectItem value="esri">Street Map</SelectItem>
+              <SelectItem value="mapbox">Mapbox Streets</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+      
+      <div className="space-y-2">
+        <div className="flex items-center justify-between">
+          <Label>Map Features</Label>
+        </div>
+        <div className="grid grid-cols-2 gap-4">
+          <div className="flex items-center space-x-2">
+            <input
+              type="checkbox"
+              id="showDirections"
+              checked={config.showDirections !== false}
+              onChange={(e) => updateConfig('showDirections', e.target.checked)}
+              className="rounded"
+            />
+            <Label htmlFor="showDirections" className="text-sm">Show Directions Button</Label>
+          </div>
+          
+          <div className="flex items-center space-x-2">
+            <input
+              type="checkbox"
+              id="showMarkers"
+              checked={config.showMarkers !== false}
+              onChange={(e) => updateConfig('showMarkers', e.target.checked)}
+              className="rounded"
+            />
+            <Label htmlFor="showMarkers" className="text-sm">Show Location Markers</Label>
+          </div>
+        </div>
+      </div>
+      
+      {/* Markers Configuration Section */}
+      <div className="space-y-3 pt-4 border-t">
+        <div className="flex items-center justify-between">
+          <Label className="text-base">Custom Markers</Label>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              const newMarker = {
+                lat: defaultCenter[0],
+                lng: defaultCenter[1],
+                title: `Location ${(config.markers?.length || 0) + 1}`,
+                description: '',
+                type: 'other' as const
+              };
+              setConfig(prev => ({ 
+                ...prev, 
+                markers: [...(prev.markers || []), newMarker] 
+              }));
+            }}
+          >
+            Add Marker
+          </Button>
+        </div>
+        
+        {config.markers && config.markers.length > 0 ? (
+          <div className="space-y-3 max-h-60 overflow-y-auto p-2 border rounded-md">
+            {config.markers.map((marker, index) => (
+              <div key={index} className="p-3 border rounded-md bg-gray-50">
+                <div className="flex justify-between items-start mb-2">
+                  <h4 className="font-medium">{marker.title}</h4>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      const newMarkers = [...(config.markers || [])];
+                      newMarkers.splice(index, 1);
+                      setConfig(prev => ({ ...prev, markers: newMarkers }));
+                    }}
+                  >
+                    Remove
+                  </Button>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <Label htmlFor={`marker-lat-${index}`} className="text-xs">Latitude</Label>
+                    <Input
+                      id={`marker-lat-${index}`}
+                      type="number"
+                      step="0.000001"
+                      value={marker.lat}
+                      onChange={(e) => {
+                        const newMarkers = [...(config.markers || [])];
+                        newMarkers[index] = { ...newMarkers[index], lat: parseFloat(e.target.value) || 0 };
+                        setConfig(prev => ({ ...prev, markers: newMarkers }));
+                      }}
+                      className="h-8 text-sm"
+                    />
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor={`marker-lng-${index}`} className="text-xs">Longitude</Label>
+                    <Input
+                      id={`marker-lng-${index}`}
+                      type="number"
+                      step="0.000001"
+                      value={marker.lng}
+                      onChange={(e) => {
+                        const newMarkers = [...(config.markers || [])];
+                        newMarkers[index] = { ...newMarkers[index], lng: parseFloat(e.target.value) || 0 };
+                        setConfig(prev => ({ ...prev, markers: newMarkers }));
+                      }}
+                      className="h-8 text-sm"
+                    />
+                  </div>
+                </div>
+                
+                <div className="mt-2">
+                  <Label htmlFor={`marker-title-${index}`} className="text-xs">Title</Label>
+                  <Input
+                    id={`marker-title-${index}`}
+                    value={marker.title}
+                    onChange={(e) => {
+                      const newMarkers = [...(config.markers || [])];
+                      newMarkers[index] = { ...newMarkers[index], title: e.target.value };
+                      setConfig(prev => ({ ...prev, markers: newMarkers }));
+                    }}
+                    className="h-8 text-sm"
+                  />
+                </div>
+                
+                <div className="mt-2">
+                  <Label htmlFor={`marker-desc-${index}`} className="text-xs">Description</Label>
+                  <Textarea
+                    id={`marker-desc-${index}`}
+                    value={marker.description || ''}
+                    onChange={(e) => {
+                      const newMarkers = [...(config.markers || [])];
+                      newMarkers[index] = { ...newMarkers[index], description: e.target.value };
+                      setConfig(prev => ({ ...prev, markers: newMarkers }));
+                    }}
+                    rows={2}
+                    className="text-sm"
+                  />
+                </div>
+                
+                <div className="mt-2">
+                  <Label htmlFor={`marker-type-${index}`} className="text-xs">Marker Type</Label>
+                  <Select
+                    value={marker.type || 'other'}
+                    onValueChange={(value) => {
+                      const newMarkers = [...(config.markers || [])];
+                      newMarkers[index] = { ...newMarkers[index], type: value as any };
+                      setConfig(prev => ({ ...prev, markers: newMarkers }));
+                    }}
+                  >
+                    <SelectTrigger className="h-8 text-sm">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="hall">Hall</SelectItem>
+                      <SelectItem value="entrance">Entrance</SelectItem>
+                      <SelectItem value="parking">Parking</SelectItem>
+                      <SelectItem value="other">Other</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-4 border rounded-md text-gray-500 text-sm">
+            No custom markers added. Click "Add Marker" to add locations.
+          </div>
+        )}
+        
+        <p className="text-xs text-gray-500">
+          Add custom markers for parking lots, entrances, or other points of interest.
+        </p>
+      </div>
+      
+      <div>
+        <Label htmlFor="mapWidth">Map Width</Label>
+        <Select 
+          value={config.width || 'full'} 
+          onValueChange={(value) => updateConfig('width', value)}
+        >
+          <SelectTrigger>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="1/2">1/2 Width</SelectItem>
+            <SelectItem value="2/3">2/3 Width</SelectItem>
+            <SelectItem value="full">Full Width</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+    </div>
+  );
+
   const renderConfigContent = () => {
     switch (componentType) {
       case 'carousel':
@@ -613,6 +930,8 @@ export const ComponentConfigDialog = ({
         return renderImageConfig();
       case 'text':
         return renderTextConfig();
+      case 'map':
+        return renderMapConfig();
       default:
         return <p className="text-center py-4">No configuration available for this component type.</p>;
     }
@@ -625,6 +944,7 @@ export const ComponentConfigDialog = ({
       reviews: 'Reviews Settings',
       image: 'Image Block Settings',
       text: 'Text Block Settings',
+      map: 'Map Settings',
       search: 'Search Settings'
     };
     return titles[componentType] || 'Component Settings';
@@ -636,16 +956,24 @@ export const ComponentConfigDialog = ({
 
     // Ensure proper data types
     if (formattedConfig.height !== undefined) {
-      formattedConfig.height = parseInt(formattedConfig.height) || 300;
+      // Convert height to number if it's a string
+      if (typeof formattedConfig.height === 'string') {
+        formattedConfig.height = parseInt(formattedConfig.height) || 300;
+      }
+      // Ensure it's a number
+      formattedConfig.height = Math.max(100, formattedConfig.height as number);
     }
     if (formattedConfig.slotTime !== undefined) {
-      formattedConfig.slotTime = parseInt(formattedConfig.slotTime) || 5;
+      formattedConfig.slotTime = parseInt(formattedConfig.slotTime as any) || 5;
     }
     if (formattedConfig.maxReviews !== undefined) {
-      formattedConfig.maxReviews = parseInt(formattedConfig.maxReviews) || 5;
+      formattedConfig.maxReviews = parseInt(formattedConfig.maxReviews as any) || 5;
     }
     if (formattedConfig.itemsPerPage !== undefined) {
-      formattedConfig.itemsPerPage = parseInt(formattedConfig.itemsPerPage) || 6;
+      formattedConfig.itemsPerPage = parseInt(formattedConfig.itemsPerPage as any) || 6;
+    }
+    if (formattedConfig.zoomLevel !== undefined) {
+      formattedConfig.zoomLevel = parseInt(formattedConfig.zoomLevel as any) || 15;
     }
 
     // Component-specific validation
@@ -665,6 +993,16 @@ export const ComponentConfigDialog = ({
           toast({
             title: 'Warning',
             description: 'Please provide both title and description for the text block',
+            variant: 'destructive',
+          });
+          return;
+        }
+        break;
+      case 'map':
+        if (!formattedConfig.title?.trim()) {
+          toast({
+            title: 'Warning',
+            description: 'Please provide a title for the map',
             variant: 'destructive',
           });
           return;

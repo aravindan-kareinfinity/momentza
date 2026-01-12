@@ -68,6 +68,8 @@ export function AddHallDialog({ open, onOpenChange, onHallAdded }: AddHallDialog
     capacity: '',
     location: '',
     address: '',
+    lat:'',
+    lng:'',
     morningRate: '',
     eveningRate: '',
     fullDayRate: '',
@@ -114,6 +116,10 @@ export function AddHallDialog({ open, onOpenChange, onHallAdded }: AddHallDialog
         capacity: parseInt(formData.capacity),
         location: formData.location,
         address: formData.address,
+        coordinates:{
+          lat: parseInt(formData.lat),
+          lng: parseInt(formData.lng)
+        },
         features,
         rateCard: {
           morningRate: parseInt(formData.morningRate),
@@ -138,6 +144,8 @@ export function AddHallDialog({ open, onOpenChange, onHallAdded }: AddHallDialog
         capacity: '',
         location: '',
         address: '',
+        lat: '',
+        lng:'',
         morningRate: '',
         eveningRate: '',
         fullDayRate: '',

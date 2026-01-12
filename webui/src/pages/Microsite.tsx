@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import {MapPin} from 'lucide-react';
 import { 
   DndContext, 
   closestCenter,
@@ -46,6 +47,7 @@ const componentTypes = [
  // { type: 'search', label: 'Hall Search', icon: Search, description: 'Search and filter halls' },
   { type: 'image', label: 'Image Block', icon: ImageIcon, description: 'Single image with caption' },
   { type: 'text', label: 'Text Block', icon: Type, description: 'Rich text content' },
+  { type: 'map', label: 'Interactive Map', icon: MapPin, description: 'Location map with markers' }, 
 ];
 
 // Helper functions

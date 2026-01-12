@@ -26,6 +26,9 @@ namespace Momantza.Services
                 Capacity = Convert.ToInt32(reader["capacity"]),
                 Location = reader["location"].ToString() ?? string.Empty,
                 Address = reader["address"].ToString() ?? string.Empty,
+                Coordinates = reader["coordinates"] != DBNull.Value
+                    ? JsonSerializer.Deserialize<Coordinates>(reader["coordinates"].ToString() ?? "{}") ?? new Coordinates()
+                    : new Coordinates(),
                 Features = reader["features"] != DBNull.Value
                     ? JsonSerializer.Deserialize<List<HallFeature>>(reader["features"].ToString() ?? "[]") ?? new List<HallFeature>()
                     : new List<HallFeature>(),
@@ -42,8 +45,8 @@ namespace Momantza.Services
         protected override (string sql, Dictionary<string, object?> parameters, List<string> jsonFields) GenerateInsertSql(Hall entity)
         {
             var sql = @"
-                INSERT INTO halls (id, organizationid, name, capacity, location, address, features, ratecard, gallery, isactive)
-                VALUES (@id, @organizationid, @name, @capacity, @location, @address, @features, @ratecard, @gallery, @isactive)";
+                INSERT INTO halls (id, organizationid, name, capacity, location, address,coordinates, features, ratecard, gallery, isactive)
+                VALUES (@id, @organizationid, @name, @capacity, @location, @address,@coordinates, @features, @ratecard, @gallery, @isactive)";
 
             var parameters = new Dictionary<string, object?>
             {
@@ -53,13 +56,14 @@ namespace Momantza.Services
                 ["@capacity"] = entity.Capacity,
                 ["@location"] = entity.Location,
                 ["@address"] = entity.Address,
+                ["@coordinates"] = entity.Coordinates,
                 ["@features"] = entity.Features,
                 ["@ratecard"] = entity.RateCard,
                 ["@gallery"] = entity.Gallery,
                 ["@isactive"] = entity.IsActive
             };
 
-            var jsonFields = new List<string> { "@features", "@ratecard", "@gallery" };
+            var jsonFields = new List<string> { "@coordinates","@features", "@ratecard", "@gallery" };
 
             return (sql, parameters, jsonFields);
         }
@@ -69,7 +73,8 @@ namespace Momantza.Services
             var sql = @"
                 UPDATE halls 
                 SET organizationid = @organizationid, name = @name, capacity = @capacity, 
-                    location = @location, address = @address, features = @features, 
+                    location = @location, address = @address, features = @features, coordinates= @coordinates,
+
                     ratecard = @ratecard, gallery = @gallery, isactive = @isactive
                 WHERE id = @id";
 
@@ -81,13 +86,14 @@ namespace Momantza.Services
                 ["@capacity"] = entity.Capacity,
                 ["@location"] = entity.Location,
                 ["@address"] = entity.Address,
+                ["@coordinates"] = entity.Coordinates,
                 ["@features"] = entity.Features,
                 ["@ratecard"] = entity.RateCard,
                 ["@gallery"] = entity.Gallery,
                 ["@isactive"] = entity.IsActive
             };
 
-            var jsonFields = new List<string> { "@features", "@ratecard", "@gallery" };
+            var jsonFields = new List<string> { "@coordinates","@features", "@ratecard", "@gallery" };
 
             return (sql, parameters, jsonFields);
         }

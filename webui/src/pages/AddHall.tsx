@@ -7,11 +7,12 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowLeft, Plus, Trash2 } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, MapPin } from 'lucide-react';
 import { hallService, galleryService, authService } from '@/services/ServiceFactory';
 import { useToast } from '@/hooks/use-toast';
 import { HallFeature } from '@/types';
 import { AnimatedPage } from '@/components/Layout/AnimatedPage';
+import { LocationPicker } from '@/components/Home/LocationPicker'; // Add this import
 
 const AddHall = () => {
   const navigate = useNavigate();
@@ -21,6 +22,7 @@ const AddHall = () => {
   const [capacity, setCapacity] = useState('');
   const [location, setLocation] = useState('');
   const [address, setAddress] = useState('');
+  const [coordinates, setCoordinates] = useState<{ lat: number; lng: number } | null>(null); // Add this
   const [features, setFeatures] = useState<HallFeature[]>([]);
   const [morningRate, setMorningRate] = useState('');
   const [eveningRate, setEveningRate] = useState('');
@@ -56,7 +58,13 @@ const AddHall = () => {
       setNewFeature({ name: '', charge: '' });
     }
   };
-  //new
+
+  // const handleAddCoordinates=()=>{
+  //   if (newCordnates.lat && newCoordinates.lng){
+  //     setCoordinates([..coordinates,{lat:parseInt(newCoordinates.lat), lng:parseInt(newCoordinates.lng)}]);
+  //   }
+  // }
+
   const getImageIdentifier = (image: any) => {
     return image.url || image.id;
   };
@@ -73,6 +81,19 @@ const AddHall = () => {
     );
   };
 
+  // Add this function to handle location selection
+  const handleLocationSelect = (locationData: {
+    address: string;
+    location: string;
+    coordinates?: { lat: number; lng: number };
+  }) => {
+    setAddress(locationData.address);
+    setLocation(locationData.location);
+    if (locationData.coordinates) {
+      setCoordinates(locationData.coordinates);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -87,6 +108,7 @@ const AddHall = () => {
         capacity: parseInt(capacity),
         location,
         address,
+        coordinates:coordinates,
         features,
         rateCard: {
           morningRate: parseInt(morningRate),
@@ -158,28 +180,43 @@ const AddHall = () => {
               </div>
             </div>
             
-            <div className="space-y-2">
-              <Label htmlFor="location">Location</Label>
-              <Input
-                id="location"
-                value={location}
-                onChange={(e) => setLocation(e.target.value)}
-                required
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="address">Address</Label>
-              <Textarea
-                id="address"
-                value={address}
-                onChange={(e) => setAddress(e.target.value)}
-                required
-              />
+            {/* Replace Location Field with LocationPicker */}
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <Label>Hall Location</Label>
+                {coordinates && (
+                  <Badge variant="outline" className="text-xs">
+                    <MapPin className="h-3 w-3 mr-1" />
+                    Coordinates: {coordinates.lat.toFixed(4)}, {coordinates.lng.toFixed(4)}
+                  </Badge>
+                )}
+              </div>
+              
+              <div className="space-y-3">
+                {/* Location Picker Button */}
+                <LocationPicker
+                  onLocationSelect={handleLocationSelect}
+                  initialAddress={address}
+                  initialLocation={location}
+                  buttonText="Select Location on Map"
+                />
+                
+                {/* Display Selected Location */}
+                {location && (
+                  <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
+                    <p className="font-medium text-blue-800">Selected Location:</p>
+                    <p className="text-sm text-blue-700">{location}</p>
+                    {address && (
+                      <p className="text-xs text-blue-600 mt-1">{address}</p>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
           </CardContent>
         </Card>
 
+        {/* Rest of your existing code remains the same... */}
         <Card>
           <CardHeader>
             <CardTitle>Features & Additional Charges</CardTitle>

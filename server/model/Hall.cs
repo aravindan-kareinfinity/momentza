@@ -30,6 +30,8 @@ namespace Momantza.Models
 
         public RateCard RateCard { get; set; } = new();
 
+        public Coordinates Coordinates { get; set; } = new();
+
         public List<string> Gallery { get; set; } = new();
 
         public bool IsActive { get; set; } = true;
@@ -59,5 +61,15 @@ namespace Momantza.Models
 
         [Range(0, double.MaxValue)]
         public decimal FullDayRate { get; set; }
+    }
+
+    public class Coordinates
+    {
+        [Range(0, double.MaxValue)]
+        public decimal lat { get; set; }
+
+        [Range(0, double.MaxValue)]
+
+        public decimal lng { get; set; }
     }
 }

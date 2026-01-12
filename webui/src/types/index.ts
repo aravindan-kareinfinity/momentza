@@ -35,7 +35,9 @@ export interface Hall {
   capacity: number;
   location: string;
   address: string;
+  coordinates: { lat: number, lng: number },
   features: HallFeature[];
+
   rateCard: {
     morningRate: number;
     eveningRate: number;
