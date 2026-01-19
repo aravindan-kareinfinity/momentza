@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Mvc;
 using Momantza.Services;
 using Momantza.Models;
 using Microsoft.Extensions.Logging;
+using OfficeOpenXml;
+using Momantza.Middleware;
 
 namespace Momantza.Controllers
 {
@@ -483,6 +485,70 @@ namespace Momantza.Controllers
                 return StatusCode(500, new { message = "Internal server error", error = ex.Message });
             }
         }
+
+        [HttpPost("upload-old-bookings")]
+        public async Task<IActionResult> UploadOldBookings(IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+                return BadRequest("Excel file is required");
+
+            try
+            {
+                using var stream = new MemoryStream();
+                await file.CopyToAsync(stream);
+                stream.Position = 0;
+
+                using var package = new ExcelPackage(stream);
+                var worksheet = package.Workbook.Worksheets[0];
+
+                var rowCount = worksheet.Dimension.Rows;
+                var bookings = new List<Booking>();
+
+                var orgId = User.Claims.FirstOrDefault(c => c.Type == "organizationId")?.Value;
+                if (string.IsNullOrEmpty(orgId))
+                    return Unauthorized();
+
+                for (int row = 2; row <= rowCount; row++)
+                {
+                    var booking = new Booking
+                    {
+                        Id = Guid.NewGuid().ToString(),
+                        OrganizationId = orgId,
+                        CustomerName = worksheet.Cells[row, 1].Text,
+                        CustomerEmail = worksheet.Cells[row, 2].Text,
+                        CustomerPhone = worksheet.Cells[row, 3].Text,
+                        EventDate = DateTime.Parse(worksheet.Cells[row, 4].Text),
+                        EventType = worksheet.Cells[row, 5].Text,
+                        TimeSlot = worksheet.Cells[row, 6].Text,
+                        GuestCount = int.Parse(worksheet.Cells[row, 7].Text),
+                        TotalAmount = decimal.Parse(worksheet.Cells[row, 8].Text),
+                        Status = worksheet.Cells[row, 9].Text,
+                        IsActive = true,
+                        CreatedAt = DateTime.UtcNow,
+                        UpdatedAt = DateTime.UtcNow
+                    };
+
+                    bookings.Add(booking);
+                }
+
+                foreach (var booking in bookings)
+                {
+                    await _bookingDataService.CreateBookingAsync(booking);
+                }
+
+                return Ok(new
+                {
+                    message = "Old bookings uploaded successfully",
+                    insertedCount = bookings.Count
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Excel upload failed");
+                return StatusCode(500, ex.Message);
+            }
+        }
+
     }
 
     public class BookingSearchRequest
