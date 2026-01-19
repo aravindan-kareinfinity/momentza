@@ -218,6 +218,7 @@ namespace Momantza.Controllers
         //        return StatusCode(500, new { message = "Internal server error" });
         //    }
         //}
+        [ResponseCache(Duration = 30)] // Cache for 30 seconds
         public async Task<IActionResult> GetCurrentOrganization()
         {
             try

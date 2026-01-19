@@ -483,6 +483,64 @@ namespace Momantza.Controllers
                 return StatusCode(500, new { message = "Internal server error", error = ex.Message });
             }
         }
+
+        //new
+        [HttpPost("check-availability")]
+        public async Task<IActionResult> CheckAvailability(Booking booking)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                var (isAvailable, message) = await _bookingDataService.CheckAvailabilityAsync(booking);
+                return Ok(new { isAvailable, message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Internal server error", error = ex.Message });
+            }
+        }
+
+        [HttpPost("create-with-check")]
+        public async Task<IActionResult> CreateWithCheck(Booking booking)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                var (createdBooking, message) = await _bookingDataService.CreateBookingWithCheckAsync(booking);
+                if (createdBooking == null)
+                {
+                    return Conflict(new { message });
+                }
+
+                return CreatedAtAction(nameof(GetById), new { id = createdBooking.Id }, createdBooking);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Internal server error", error = ex.Message });
+            }
+        }
+
+        [HttpGet("availability/{hallId}")]
+        public async Task<IActionResult> GetAvailability(string hallId, [FromQuery] DateTime startDate, [FromQuery] DateTime endDate)
+        {
+            try
+            {
+                var availability = await _bookingDataService.GetHallAvailabilityAsync(hallId, startDate, endDate);
+                return Ok(availability);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Internal server error", error = ex.Message });
+            }
+        }
     }
 
     public class BookingSearchRequest

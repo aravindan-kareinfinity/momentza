@@ -1,67 +1,43 @@
+using Newtonsoft.Json;
 using System.ComponentModel.DataAnnotations;
 
 namespace Momantza.Models
 {
     public class Booking
     {
-        [Key]
         public string Id { get; set; } = string.Empty;
-        
-        [Required]
         public string OrganizationId { get; set; } = string.Empty;
-        
-        [Required]
         public string HallId { get; set; } = string.Empty;
-        
-        [Required]
-        [MaxLength(100)]
         public string CustomerName { get; set; } = string.Empty;
-        
-        [Required]
-        [EmailAddress]
-        [MaxLength(100)]
         public string CustomerEmail { get; set; } = string.Empty;
-        
-        [Required]
-        [MaxLength(20)]
         public string CustomerPhone { get; set; } = string.Empty;
-        
-        [Required]
+        public string Address { get; set; } = string.Empty;
+        public string City { get; set; } = string.Empty;
+        public string Village { get; set; } = string.Empty;
+
+        [JsonProperty("eventStartDate")]
+        public DateTime EventStartDate { get; set; }
+
+        [JsonProperty("eventEndDate")]
+        public DateTime EventEndDate { get; set; }
+
+        // Keep EventDate for backward compatibility
         public DateTime EventDate { get; set; }
-        
-        [Required]
-        [MaxLength(50)]
+
         public string EventType { get; set; } = string.Empty;
-        
-        [Required]
-        [MaxLength(20)]
-        public string TimeSlot { get; set; } = string.Empty; // morning, evening, fullday
-        
-        [Required]
-        [Range(1, int.MaxValue)]
+        public string TimeSlot { get; set; } = string.Empty;
         public int GuestCount { get; set; }
-        
-        [Required]
-        [Range(0, double.MaxValue)]
         public decimal TotalAmount { get; set; }
-        
-        [Required]
-        [MaxLength(20)]
-        public string Status { get; set; } = "pending"; // pending, confirmed, active, cancelled
-        
-        public bool IsActive { get; set; } = false;
-        
-        [MaxLength(500)]
-        public string? CustomerResponse { get; set; }
-        
+        public string Status { get; set; } = string.Empty;
+        public bool IsActive { get; set; } = true;
+        public string CustomerResponse { get; set; } = string.Empty;
         public DateTime? LastContactDate { get; set; }
-        
-        public HandOverDetails? HandOverDetails { get; set; }
-        
-        public DateTime CreatedAt { get; set; } = DateTime.Now;
-        
-        public DateTime UpdatedAt { get; set; } = DateTime.Now;
-        public string? HallName { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; }
+        public string Notes { get; set; } = string.Empty;
+        public bool RoomsRequired { get; set; }
+        public int RoomsCount { get; set; }
+        public string HallName { get; set; } = string.Empty;
     }
 
     public class HandOverDetails
@@ -79,4 +55,7 @@ namespace Momantza.Models
         [Required]
         public DateTime HandOverDate { get; set; }
     }
+
+   
+
 } 
