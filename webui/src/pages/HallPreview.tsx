@@ -38,12 +38,12 @@ const HallPreview = () => {
   // Get image URL - same logic as HallEdit
   const getImageUrl = (imageIdentifier: string) => {
     if (!imageIdentifier) return '';
-    
+
     // If it's already a full URL, return it
     if (imageIdentifier.startsWith('http')) {
       return imageIdentifier;
     }
-    
+
     // If it's an image ID, construct URL like HallEdit does
     return galleryService.getImageUrl(imageIdentifier);
   };
@@ -80,13 +80,13 @@ const HallPreview = () => {
         {/* Gallery Section */}
         <div className="space-y-4">
           <h2 className="text-xl font-semibold mb-4">Hall Gallery</h2>
-          
+
           {hall.gallery && hall.gallery.length > 0 ? (
             <div className="grid grid-cols-1 gap-4">
               {hall.gallery.map((imageIdentifier: string, index: number) => {
                 const imageUrl = getImageUrl(imageIdentifier);
                 console.log(`Image ${index}:`, imageIdentifier, 'URL:', imageUrl);
-                
+
                 return (
                   <Card key={index} className="overflow-hidden">
                     <div className="w-full h-48 bg-gray-100 flex items-center justify-center">
@@ -102,7 +102,7 @@ const HallPreview = () => {
                           }}
                         />
                       ) : null}
-                      
+
                       {/* Fallback when no image or image fails to load */}
                       {!imageUrl && (
                         <div className="flex flex-col items-center justify-center text-gray-400">
@@ -155,9 +155,88 @@ const HallPreview = () => {
             </div>
             <div className="flex items-center text-gray-600">
               <Users className="h-5 w-5 mr-2" />
-              Capacity: {hall.capacity} guests
+              Hall Capacity: {hall.amenities.capacity.hall} guests
             </div>
+
           </div>
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                🏷️ Amenities
+              </CardTitle>
+            </CardHeader>
+
+            <CardContent className="space-y-6">
+
+              {/* Food */}
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium text-gray-700">Food Availability</span>
+                <Badge variant="outline">
+                  {hall.amenities.foodType === 'veg' && 'Veg Only'}
+                  {hall.amenities.foodType === 'non-veg' && 'Non-Veg Only'}
+                  {hall.amenities.foodType === 'both' && 'Veg & Non-Veg'}
+                </Badge>
+              </div>
+
+              {/* Capacity */}
+              <div>
+                <p className="text-sm font-medium text-gray-700 mb-2">Capacity</p>
+                <div className="grid grid-cols-3 gap-3 text-center">
+                  <div className="rounded-lg bg-gray-50 p-3">
+                    <p className="text-lg font-semibold">{hall.amenities.capacity.hall}</p>
+                    <p className="text-xs text-gray-500">Hall</p>
+                  </div>
+                  <div className="rounded-lg bg-gray-50 p-3">
+                    <p className="text-lg font-semibold">{hall.amenities.capacity.dining}</p>
+                    <p className="text-xs text-gray-500">Dining</p>
+                  </div>
+                  <div className="rounded-lg bg-gray-50 p-3">
+                    <p className="text-lg font-semibold">{hall.amenities.capacity.parking}</p>
+                    <p className="text-xs text-gray-500">Parking</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Rooms */}
+              <div>
+                <p className="text-sm font-medium text-gray-700 mb-2">Rooms</p>
+                <div className="grid grid-cols-3 gap-3 text-center">
+                  <div className="rounded-lg bg-gray-50 p-3">
+                    <p className="text-lg font-semibold">{hall.amenities.rooms.free}</p>
+                    <p className="text-xs text-gray-500">Free</p>
+                  </div>
+                  <div className="rounded-lg bg-gray-50 p-3">
+                    <p className="text-lg font-semibold">{hall.amenities.rooms.rentedAc}</p>
+                    <p className="text-xs text-gray-500">AC</p>
+                  </div>
+                  <div className="rounded-lg bg-gray-50 p-3">
+                    <p className="text-lg font-semibold">{hall.amenities.rooms.rentedNonAc}</p>
+                    <p className="text-xs text-gray-500">Non-AC</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Facilities */}
+              <div>
+                <p className="text-sm font-medium text-gray-700 mb-2">Facilities</p>
+                <div className="flex gap-2 flex-wrap">
+                  {hall.amenities.facilities.generator && (
+                    <Badge variant="secondary">⚡ Generator</Badge>
+                  )}
+                  {hall.amenities.facilities.airConditioning && (
+                    <Badge variant="secondary">❄️ Air-Conditioned</Badge>
+                  )}
+                  {!hall.amenities.facilities.generator &&
+                    !hall.amenities.facilities.airConditioning && (
+                      <span className="text-sm text-gray-500">No additional facilities</span>
+                    )}
+                </div>
+              </div>
+
+            </CardContent>
+          </Card>
+
+
 
           <Card>
             <CardHeader>
@@ -200,6 +279,22 @@ const HallPreview = () => {
               )}
             </CardContent>
           </Card>
+
+          {hall.amenities.rules?.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Hall Rules</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ul className="list-disc list-inside space-y-1 text-sm text-gray-700">
+                  {hall.amenities.rules.map((rule: string, index: number) => (
+                    <li key={index}>{rule}</li>
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
+          )}
+
 
           <Badge className={hall.isActive ? 'bg-green-500' : 'bg-red-500'}>
             {hall.isActive ? 'Active' : 'Inactive'}

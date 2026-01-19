@@ -3,8 +3,8 @@ export interface Organization {
   name: string;
   contactPerson: string;
   contactNo: string;
-  address:string;
-  about?:string;
+  address: string;
+  about?: string;
   defaultDomain: string;
   customDomain?: string;
   logo?: string;
@@ -28,13 +28,37 @@ export interface HallFeature {
   charge: number;
 }
 
+export interface HallAmenities {
+  foodType: 'veg' | 'non-veg' | 'both';
+
+  capacity: {
+    hall: number;
+    dining: number;
+    parking: number;
+  };
+
+  rooms: {
+    free: number;
+    rentedAc: number;
+    rentedNonAc: number;
+  };
+
+  facilities: {
+    generator: boolean;
+    airConditioning: boolean;
+  };
+
+  rules: string[];
+}
+
 export interface Hall {
   id: string;
   organizationId: string;
   name: string;
-  capacity: number;
+  // capacity: number;
   location: string;
   address: string;
+  amenities: HallAmenities;
   coordinates: { lat: number, lng: number },
   features: HallFeature[];
 
@@ -164,26 +188,26 @@ export interface HandOverImage {
   createdAt: string;
 }
 
-export interface Inventoryitem{
-  id:string;
-  name:string;
-  description:string;
-  quantity:number;
-  unit:string;
-  price:number;
-  organizationid:string;
-  createdat:string;
-  updatedat:string;
-  notes:string;
+export interface Inventoryitem {
+  id: string;
+  name: string;
+  description: string;
+  quantity: number;
+  unit: string;
+  price: number;
+  organizationid: string;
+  createdat: string;
+  updatedat: string;
+  notes: string;
 }
 
-export interface PaymentsItem{
+export interface PaymentsItem {
   id: string;
   date: string;
-  paymentMode :'cash'| 'card' | 'upi' | 'bank transfer';
-  amount:number;
-  personName:string;
-  notes:string;
+  paymentMode: 'cash' | 'card' | 'upi' | 'bank transfer';
+  amount: number;
+  personName: string;
+  notes: string;
   bookingId?: string,
   organizationId: string,
   createdAt?: string;
@@ -193,10 +217,10 @@ export interface PaymentsItem{
 export interface FeatureItem {
   id: string;
   name: string;
-  quantity: number;      
-  price: number;         
-  createdAt: string;     
-  updatedAt: string;     
+  quantity: number;
+  price: number;
+  createdAt: string;
+  updatedAt: string;
   organizationId: string;
   bookingId?: string;
 }

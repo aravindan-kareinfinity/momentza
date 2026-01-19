@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -131,6 +131,29 @@ const Bookings = () => {
   const [statusChangeBooking, setStatusChangeBooking] = useState<Booking | null>(null);
   const [isSearching, setIsSearching] = useState(false);
   const [isSearchActive, setIsSearchActive] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Reset input value to allow same file selection again if needed
+    event.target.value = '';
+
+    setIsUploading(true);
+    try {
+      await bookingService.uploadOldBookings(file);
+      await refreshBookings();
+      // Optional: Add a toast notification here if available
+      alert("Old bookings uploaded successfully");
+    } catch (error: any) {
+      console.error("Upload failed", error);
+      alert("Failed to upload bookings: " + (error.message || "Unknown error"));
+    } finally {
+      setIsUploading(false);
+    }
+  };
 
   // Mutation hooks
   const updateBookingStatusMutation = useServiceMutation(
@@ -359,6 +382,21 @@ const Bookings = () => {
           <h1 className="text-3xl font-bold">Bookings Management</h1>
           <p className="text-gray-600">View and manage all hall bookings</p>
         </div>
+        <input
+          type="file"
+          ref={fileInputRef}
+          className="hidden"
+          accept=".xlsx, .xls"
+          onChange={handleFileUpload}
+        />
+        <Button
+          variant="outline"
+          onClick={() => fileInputRef.current?.click()}
+          disabled={isUploading}
+        >
+          {isUploading ? "Uploading..." : "Old Bookings"}
+        </Button>
+
         <Button onClick={() => setShowAddDialog(true)}>
           <Plus className="h-4 w-4 mr-2" />
           Add New Booking

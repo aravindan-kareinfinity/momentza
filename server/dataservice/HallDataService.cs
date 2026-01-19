@@ -23,9 +23,14 @@ namespace Momantza.Services
                 Id = reader["id"].ToString() ?? string.Empty,
                 OrganizationId = reader["organizationid"].ToString() ?? string.Empty,
                 Name = reader["name"].ToString() ?? string.Empty,
-                Capacity = Convert.ToInt32(reader["capacity"]),
+                //Capacity = Convert.ToInt32(reader["capacity"]),
                 Location = reader["location"].ToString() ?? string.Empty,
                 Address = reader["address"].ToString() ?? string.Empty,
+                Amenities = reader["amenities"] != DBNull.Value
+                    ? JsonSerializer.Deserialize<HallAmenities>(
+                        reader["amenities"].ToString() ?? "{}"
+                      ) ?? new HallAmenities()
+                    : new HallAmenities(),
                 Coordinates = reader["coordinates"] != DBNull.Value
                     ? JsonSerializer.Deserialize<Coordinates>(reader["coordinates"].ToString() ?? "{}") ?? new Coordinates()
                     : new Coordinates(),
@@ -45,17 +50,22 @@ namespace Momantza.Services
         protected override (string sql, Dictionary<string, object?> parameters, List<string> jsonFields) GenerateInsertSql(Hall entity)
         {
             var sql = @"
-                INSERT INTO halls (id, organizationid, name, capacity, location, address,coordinates, features, ratecard, gallery, isactive)
-                VALUES (@id, @organizationid, @name, @capacity, @location, @address,@coordinates, @features, @ratecard, @gallery, @isactive)";
+                INSERT INTO halls
+                (id, organizationid, name, location, address,
+                 amenities, coordinates, features, ratecard, gallery, isactive)
+                VALUES
+                (@id, @organizationid, @name, @location, @address,
+                 @amenities, @coordinates, @features, @ratecard, @gallery, @isactive)";
 
             var parameters = new Dictionary<string, object?>
             {
                 ["@id"] = entity.Id,
                 ["@organizationid"] = entity.OrganizationId,
                 ["@name"] = entity.Name,
-                ["@capacity"] = entity.Capacity,
+                //["@capacity"] = entity.Capacity,
                 ["@location"] = entity.Location,
                 ["@address"] = entity.Address,
+                ["@amenities"] = entity.Amenities,
                 ["@coordinates"] = entity.Coordinates,
                 ["@features"] = entity.Features,
                 ["@ratecard"] = entity.RateCard,
@@ -63,7 +73,7 @@ namespace Momantza.Services
                 ["@isactive"] = entity.IsActive
             };
 
-            var jsonFields = new List<string> { "@coordinates","@features", "@ratecard", "@gallery" };
+            var jsonFields = new List<string> { "@amenities", "@coordinates","@features", "@ratecard", "@gallery" };
 
             return (sql, parameters, jsonFields);
         }
@@ -71,11 +81,18 @@ namespace Momantza.Services
         protected override (string sql, Dictionary<string, object?> parameters, List<string> jsonFields) GenerateUpdateSql(Hall entity)
         {
             var sql = @"
-                UPDATE halls 
-                SET organizationid = @organizationid, name = @name, capacity = @capacity, 
-                    location = @location, address = @address, features = @features, coordinates= @coordinates,
-
-                    ratecard = @ratecard, gallery = @gallery, isactive = @isactive
+                UPDATE halls SET
+                    organizationid = @organizationid,
+                    name = @name,
+                    location = @location,
+                    address = @address,
+                    amenities = @amenities,
+                    coordinates = @coordinates,
+                    features = @features,
+                    ratecard = @ratecard,
+                    gallery = @gallery,
+                    isactive = @isactive,
+                    updatedat = NOW()
                 WHERE id = @id";
 
             var parameters = new Dictionary<string, object?>
@@ -83,9 +100,10 @@ namespace Momantza.Services
                 ["@id"] = entity.Id,
                 ["@organizationid"] = entity.OrganizationId,
                 ["@name"] = entity.Name,
-                ["@capacity"] = entity.Capacity,
+                //["@capacity"] = entity.Capacity,
                 ["@location"] = entity.Location,
                 ["@address"] = entity.Address,
+                ["@amenities"] = entity.Amenities,
                 ["@coordinates"] = entity.Coordinates,
                 ["@features"] = entity.Features,
                 ["@ratecard"] = entity.RateCard,
@@ -93,7 +111,7 @@ namespace Momantza.Services
                 ["@isactive"] = entity.IsActive
             };
 
-            var jsonFields = new List<string> { "@coordinates","@features", "@ratecard", "@gallery" };
+            var jsonFields = new List<string> { "@amenities", "@coordinates","@features", "@ratecard", "@gallery" };
 
             return (sql, parameters, jsonFields);
         }
@@ -188,7 +206,11 @@ namespace Momantza.Services
             try
             {
                 using var connection = await GetConnectionAsync();
-                var sql = "SELECT * FROM halls WHERE capacity >= @minCapacity AND capacity <= @maxCapacity AND isactive = true";
+                var sql = @"
+                        SELECT * FROM halls
+                        WHERE (amenities->'capacity'->>'hall')::int >= @minCapacity
+                          AND (amenities->'capacity'->>'hall')::int <= @maxCapacity
+                          AND isactive = true";
                 using var command = new NpgsqlCommand(sql, connection);
                 command.Parameters.AddWithValue("@minCapacity", minCapacity);
                 command.Parameters.AddWithValue("@maxCapacity", maxCapacity);
@@ -338,9 +360,13 @@ namespace Momantza.Services
 
                 // Update fields
                 existing.Name = updates.Name ?? existing.Name;
-                existing.Capacity = updates.Capacity > 0 ? updates.Capacity : existing.Capacity;
+                //existing.Capacity = updates.Capacity > 0 ? updates.Capacity : existing.Capacity;
                 existing.Location = updates.Location ?? existing.Location;
                 existing.Address = updates.Address ?? existing.Address;
+                if (updates.Amenities != null)
+                {
+                    existing.Amenities = updates.Amenities;
+                }
                 existing.Features = updates.Features ?? existing.Features;
                 existing.RateCard = updates.RateCard ?? existing.RateCard;
                 existing.Gallery = updates.Gallery ?? existing.Gallery;

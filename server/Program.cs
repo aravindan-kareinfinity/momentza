@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using OfficeOpenXml;
 using System.Text;
 using System.Text.Json;
 using System.IO;
@@ -9,6 +10,8 @@ using MomantzaApp.dataservice;
 using MomantzaApp.DataService;
 
 var builder = WebApplication.CreateBuilder(args);
+
+ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
 
 builder.Services.AddControllersWithViews()
     .AddJsonOptions(options =>
