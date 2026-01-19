@@ -699,23 +699,23 @@ export const mockGalleryImages: GalleryImage[] = [
 ];
 
 // Statistics Data
-export const mockMonthlyData: MonthlyData[] = [
-  { month: 'Jan', bookings: 12, revenue: 240000 },
-  { month: 'Feb', bookings: 15, revenue: 300000 },
-  { month: 'Mar', bookings: 18, revenue: 360000 },
-  { month: 'Apr', bookings: 22, revenue: 440000 },
-  { month: 'May', bookings: 20, revenue: 400000 },
-  { month: 'Jun', bookings: 25, revenue: 500000 },
-];
+// export const mockMonthlyData: MonthlyData[] = [
+//   { month: 'Jan', bookings: 12, revenue: 240000 },
+//   { month: 'Feb', bookings: 15, revenue: 300000 },
+//   { month: 'Mar', bookings: 18, revenue: 360000 },
+//   { month: 'Apr', bookings: 22, revenue: 440000 },
+//   { month: 'May', bookings: 20, revenue: 400000 },
+//   { month: 'Jun', bookings: 25, revenue: 500000 },
+// ];
 
-export const mockGrowthMetrics: GrowthMetrics = {
-  monthlyGrowth: 25,
-  customerRetention: 78,
-  averageBookingValue: 45000
-};
+// export const mockGrowthMetrics: GrowthMetrics = {
+//   monthlyGrowth: 25,
+//   customerRetention: 78,
+//   averageBookingValue: 45000
+// };
 
-export const mockCustomerInsights: CustomerInsights = {
-  totalCustomers: 112,
-  repeatCustomers: 32,
-  customerSatisfaction: 4.5
-};
+// export const mockCustomerInsights: CustomerInsights = {
+//   totalCustomers: 112,
+//   repeatCustomers: 32,
+//   customerSatisfaction: 4.5
+// };

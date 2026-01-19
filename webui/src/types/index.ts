@@ -61,6 +61,7 @@ export interface Hall {
   amenities: HallAmenities;
   coordinates: { lat: number, lng: number },
   features: HallFeature[];
+  roomRate:number;
 
   rateCard: {
     morningRate: number;
@@ -79,15 +80,24 @@ export interface Booking {
   customerEmail: string;
   customerPhone: string;
   eventDate: string;
+  eventStartDate: string;
+  eventEndDate:string;
   eventType: string;
   timeSlot: 'morning' | 'evening' | 'fullday';
   guestCount: number;
   totalAmount: number;
+  address:string;
+  village:string;
+  city:string;
+  roomsRequired:boolean;
+  roomsCount:number;
+  notes:string;
   status: 'pending' | 'confirmed' | 'cancelled' | 'active' | 'completed';
   createdAt: string;
   selectedFeatures?: string[];
   lastContactDate?: string;
   customerResponse?: string;
+  handoverStartDate:string;
   isActive?: boolean;
   handOverDetails?: {
     personName: string;

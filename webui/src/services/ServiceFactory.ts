@@ -167,11 +167,9 @@ export class ServiceFactory {
   }
 
   static createStatisticsService() {
-    if (shouldUseMockData()) {
-      return mockStatisticsService;
-    } else {
+    
       return new ApiStatisticsService();
-    }
+    
   }
 
   static createMicrositeService() {

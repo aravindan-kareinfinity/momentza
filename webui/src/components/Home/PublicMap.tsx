@@ -58,6 +58,13 @@ interface Hall {
 }
 
 interface PublicMapProps {
+  markers?: {
+    lat: number;
+    lng: number;
+    title: string;
+    description?: string;
+    type?: "other" | "hall" | "entrance" | "parking";
+  }[];
   organization?: {
     id: string;
     name: string;

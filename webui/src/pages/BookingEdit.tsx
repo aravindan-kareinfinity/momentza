@@ -6,7 +6,9 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowLeft } from 'lucide-react';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { ArrowLeft, Home, MapPinned, Building } from 'lucide-react';
 import { bookingService, hallService } from '@/services/ServiceFactory';
 import { useToast } from '@/hooks/use-toast';
 import { Booking } from '@/types';
@@ -39,6 +41,18 @@ const BookingEdit = () => {
   const [lastContactDate, setLastContactDate] = useState<string>('');
   const [customerResponse, setCustomerResponse] = useState<string>('');
   const [submitting, setSubmitting] = useState<boolean>(false);
+  
+  // New fields state
+  const [address, setAddress] = useState<string>('');
+  const [village, setVillage] = useState<string>('');
+  const [city, setCity] = useState<string>('');
+  const [roomsRequired, setRoomsRequired] = useState<boolean>(false);
+  const [roomsCount, setRoomsCount] = useState<number>(0);
+  const [notes, setNotes] = useState<string>('');
+  
+  // Wedding specific state
+  const [showHandoverInfo, setShowHandoverInfo] = useState<boolean>(false);
+  const [actualHandoverDate, setActualHandoverDate] = useState<string>('');
 
   // Available event types
   const availableEventTypes = [
@@ -52,6 +66,33 @@ const BookingEdit = () => {
     'Baby Shower',
     'Other'
   ];
+
+  // Handle event type change for wedding
+  useEffect(() => {
+    if (eventType === 'Wedding') {
+      setShowHandoverInfo(true);
+      // Auto-select fullday for wedding events
+      setTimeSlot('fullday');
+      
+      // Calculate handover date (day before at 2PM)
+      if (eventDate) {
+        const handoverDate = new Date(eventDate);
+        handoverDate.setDate(handoverDate.getDate() - 1);
+        handoverDate.setHours(14, 0, 0, 0); // 2:00 PM
+        setActualHandoverDate(handoverDate.toLocaleString('en-US', {
+          weekday: 'long',
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        }));
+      }
+    } else {
+      setShowHandoverInfo(false);
+      setActualHandoverDate('');
+    }
+  }, [eventType, eventDate]);
 
   // Fetch time slots based on hall and date
   const fetchTimeSlots = async (hallId: string, date: string) => {
@@ -72,7 +113,17 @@ const BookingEdit = () => {
   // Calculate total amount when time slot is selected
   const calculateTotalAmount = (selectedTimeSlot: string): number => {
     const slot = timeSlots.find(slot => slot.value === selectedTimeSlot);
-    return slot ? slot.price : 0;
+    if (!slot) return 0;
+    
+    let amount = slot.price;
+    
+    // Add room charges if required
+    if (roomsRequired && roomsCount > 0 && hall?.roomRate) {
+      const days = 1; // Single day booking for editing
+      amount += hall.roomRate * roomsCount * days;
+    }
+    
+    return amount;
   };
 
   // Fetch data on component mount
@@ -108,9 +159,9 @@ const BookingEdit = () => {
             setHall(hallData);
             
             // Fetch time slots for the current booking
-            if (bookingData.eventDate) {
-              const formattedDate = formatDateForInput(bookingData.eventDate);
-              await fetchTimeSlots(bookingData.hallId, formattedDate || bookingData.eventDate);
+            if (bookingData.eventStartDate) {
+              const formattedDate = formatDateForInput(bookingData.eventStartDate);
+              await fetchTimeSlots(bookingData.hallId, formattedDate || bookingData.eventStartDate);
             }
           } catch (err) {
             console.error('Failed to load hall data:', err);
@@ -165,7 +216,7 @@ const BookingEdit = () => {
       setCustomerPhone(booking.customerPhone || '');
       
       // Set event date with proper formatting
-      const formattedDate = formatDateForInput(booking.eventDate);
+      const formattedDate = formatDateForInput(booking.eventStartDate);
       setEventDate(formattedDate);
       
       setEventType(booking.eventType || '');
@@ -177,6 +228,32 @@ const BookingEdit = () => {
       setLastContactDate(formatDateForInput(booking.lastContactDate));
       
       setCustomerResponse(booking.customerResponse || '');
+      
+      // Set new fields
+      setAddress(booking.address || '');
+      setVillage(booking.village || '');
+      setCity(booking.city || '');
+      setRoomsRequired(booking.roomsRequired || false);
+      setRoomsCount(booking.roomsCount || 0);
+      setNotes(booking.notes || '');
+      
+      // Trigger wedding handover info if event type is wedding
+      if (booking.eventType === 'Wedding') {
+        setShowHandoverInfo(true);
+        if (formattedDate) {
+          const handoverDate = new Date(formattedDate);
+          handoverDate.setDate(handoverDate.getDate() - 1);
+          handoverDate.setHours(14, 0, 0, 0);
+          setActualHandoverDate(handoverDate.toLocaleString('en-US', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+          }));
+        }
+      }
     }
   }, [booking]);
 
@@ -346,6 +423,89 @@ const BookingEdit = () => {
     }
   };
 
+  // Handle rooms required change
+  const handleRoomsRequiredChange = async (checked: boolean) => {
+    if (!booking) return;
+    
+    try {
+      const newRoomsRequired = checked;
+      const newRoomsCount = checked ? 1 : 0;
+      
+      // Update local state
+      setRoomsRequired(newRoomsRequired);
+      setRoomsCount(newRoomsCount);
+      
+      // Recalculate total amount
+      const newTotalAmount = calculateTotalAmount(timeSlot);
+      
+      // Update booking
+      const updatedBooking = {
+        ...booking,
+        roomsRequired: newRoomsRequired,
+        roomsCount: newRoomsCount,
+        totalAmount: newTotalAmount,
+        updatedAt: new Date().toISOString()
+      };
+      
+      await bookingService.update(booking.id, updatedBooking);
+      
+      // Update local booking state
+      setBooking(updatedBooking);
+      if (clonedBooking) {
+        setClonedBooking(updatedBooking);
+      }
+      
+      console.log(`Rooms required: ${newRoomsRequired}, Count: ${newRoomsCount}, Total amount: ₹${newTotalAmount}`);
+    } catch (error) {
+      console.error('Failed to update rooms:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to update room requirements',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  // Handle rooms count change
+  const handleRoomsCountChange = async (count: number) => {
+    if (!booking) return;
+    
+    try {
+      const newRoomsCount = Math.max(1, count);
+      
+      // Update local state
+      setRoomsCount(newRoomsCount);
+      
+      // Recalculate total amount
+      const newTotalAmount = calculateTotalAmount(timeSlot);
+      
+      // Update booking
+      const updatedBooking = {
+        ...booking,
+        roomsCount: newRoomsCount,
+        totalAmount: newTotalAmount,
+        updatedAt: new Date().toISOString()
+      };
+      
+      await bookingService.update(booking.id, updatedBooking);
+      
+      // Update local booking state
+      setBooking(updatedBooking);
+      if (clonedBooking) {
+        setClonedBooking(updatedBooking);
+      }
+      
+      console.log(`Rooms count updated to: ${newRoomsCount}, Total amount: ₹${newTotalAmount}`);
+    } catch (error) {
+      console.error('Failed to update rooms count:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to update rooms count',
+        variant: 'destructive',
+      });
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
@@ -356,12 +516,18 @@ const BookingEdit = () => {
         customerName !== booking.customerName ||
         customerEmail !== booking.customerEmail ||
         customerPhone !== booking.customerPhone ||
-        eventDate !== formatDateForInput(booking.eventDate) ||
+        eventDate !== formatDateForInput(booking.eventStartDate) ||
         eventType !== booking.eventType ||
         timeSlot !== booking.timeSlot ||
         parseInt(guestCount) !== booking.guestCount ||
         customerResponse !== booking.customerResponse ||
-        lastContactDate !== formatDateForInput(booking.lastContactDate);
+        lastContactDate !== formatDateForInput(booking.lastContactDate) ||
+        address !== booking.address ||
+        village !== booking.village ||
+        city !== booking.city ||
+        roomsRequired !== booking.roomsRequired ||
+        roomsCount !== booking.roomsCount ||
+        notes !== booking.notes;
 
       // Update all updateable fields if any changed
       if (hasChanged && clonedBooking) {
@@ -375,7 +541,15 @@ const BookingEdit = () => {
           timeSlot,
           guestCount: parseInt(guestCount),
           customerResponse,
-          lastContactDate
+          lastContactDate,
+          address,
+          village,
+          city,
+          roomsRequired,
+          roomsCount,
+          notes,
+          // Recalculate total amount for the update
+          totalAmount: calculateTotalAmount(timeSlot)
         };
         await bookingService.update(booking.id, updatedBooking);
       }
@@ -501,6 +675,49 @@ const BookingEdit = () => {
           </CardContent>
         </Card>
 
+        {/* Address Information */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center">
+              <Home className="h-5 w-5 mr-2" />
+              Address Information
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="address">Full Address</Label>
+              <Textarea
+                id="address"
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                placeholder="House no, Street, Area"
+                rows={2}
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="village">Village/Town</Label>
+                <Input
+                  id="village"
+                  value={village}
+                  onChange={(e) => setVillage(e.target.value)}
+                  placeholder="Enter village or town"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="city">City/District</Label>
+                <Input
+                  id="city"
+                  value={city}
+                  onChange={(e) => setCity(e.target.value)}
+                  placeholder="Enter city or district"
+                />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
         <Card>
           <CardHeader>
             <CardTitle>Event Details</CardTitle>
@@ -570,10 +787,13 @@ const BookingEdit = () => {
                 <Select 
                   value={timeSlot} 
                   onValueChange={handleTimeSlotChange}
-                  disabled={!hall || !eventDate || timeSlots.length === 0}
+                  disabled={!hall || !eventDate || timeSlots.length === 0 || eventType === 'Wedding'}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder={timeSlots.length === 0 ? "No slots available" : "Select time slot"} />
+                    <SelectValue placeholder={
+                      eventType === 'Wedding' ? 'Full Day (Wedding)' : 
+                      timeSlots.length === 0 ? "No slots available" : "Select time slot"
+                    } />
                   </SelectTrigger>
                   <SelectContent>
                     {timeSlots?.map((slot) => (
@@ -583,6 +803,9 @@ const BookingEdit = () => {
                     ))}
                   </SelectContent>
                 </Select>
+                {eventType === 'Wedding' && (
+                  <p className="text-xs text-gray-500 mt-1">Wedding events are always Full Day</p>
+                )}
               </div>
               
               <div className="space-y-2">
@@ -597,6 +820,99 @@ const BookingEdit = () => {
                   max="2000"
                 />
               </div>
+            </div>
+
+            {/* Wedding Handover Information */}
+            {showHandoverInfo && actualHandoverDate && (
+              <Alert className="bg-blue-50 border-blue-200">
+                <AlertDescription className="flex items-center">
+                  <div className="flex-shrink-0">
+                    <svg className="h-5 w-5 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <div className="ml-3">
+                    <p className="text-sm text-blue-700">
+                      <strong>Wedding Handover:</strong> Hall will be handed over on{' '}
+                      <strong>{actualHandoverDate}</strong> (day before the wedding). 
+                      Event starts at <strong>12:00 PM</strong> on the wedding day.
+                    </p>
+                  </div>
+                </AlertDescription>
+              </Alert>
+            )}
+
+            {/* Rooms Required Section */}
+            <div className="space-y-3 border rounded-lg p-4">
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="roomsRequired"
+                  checked={roomsRequired}
+                  onCheckedChange={(checked) => handleRoomsRequiredChange(checked as boolean)}
+                />
+                <Label htmlFor="roomsRequired" className="font-medium flex items-center">
+                  <Building className="h-4 w-4 mr-2" />
+                  Rooms Required
+                </Label>
+              </div>
+              
+              {roomsRequired && (
+                <div className="ml-6 space-y-2">
+                  <Label htmlFor="roomsCount">Number of Rooms</Label>
+                  <div className="flex items-center space-x-4">
+                    <Input
+                      id="roomsCount"
+                      type="number"
+                      value={roomsCount}
+                      onChange={(e) => handleRoomsCountChange(parseInt(e.target.value) || 1)}
+                      min="1"
+                      max="20"
+                      className="w-32"
+                    />
+                    <span className="text-sm text-gray-600">
+                      {hall?.roomRate ? `₹${hall.roomRate.toLocaleString()} per room per day` : 'No room rate set'}
+                    </span>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Total Amount Display */}
+            <div className="border-t pt-4">
+              <div className="flex justify-between items-center">
+                <span className="font-semibold">Current Total Amount</span>
+                <span className="text-xl font-bold text-green-600">
+                  ₹{currentTimeSlotPrice.toLocaleString()}
+                </span>
+              </div>
+              {roomsRequired && roomsCount > 0 && (
+                <p className="text-sm text-gray-500 mt-1">
+                  Includes {roomsCount} room(s) at ₹{hall?.roomRate?.toLocaleString() || '0'} each
+                </p>
+              )}
+              {eventType === 'Wedding' && (
+                <p className="text-xs text-gray-500 mt-1">
+                  * Wedding rate includes handover from previous day 2PM
+                </p>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Notes & Additional Information</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="notes">Notes</Label>
+              <Textarea
+                id="notes"
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                placeholder="Enter any special notes or additional information..."
+                rows={4}
+              />
             </div>
           </CardContent>
         </Card>

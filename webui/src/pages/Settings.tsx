@@ -572,10 +572,20 @@ const Settings = () => {
 
   return (
     <AnimatedPage className="space-y-6">
+      <div className="flex justify-between items-center">
       <div>
         <h1 className="text-3xl font-bold">Settings</h1>
         <p className="text-gray-600">Manage organization settings and master data</p>
       </div>
+      {/* <div className="flex items-center h-full pt-2">
+    <button
+      onClick={() => setShowResetModal(true)}
+      className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+    >
+      Reset All Data
+    </button>
+  </div> */}
+  </div>
 
       <Tabs defaultValue="organization" className="space-y-4">
         <TabsList className="grid w-full grid-cols-8">
