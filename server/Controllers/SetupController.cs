@@ -68,11 +68,14 @@ namespace Momantza.Controllers
                 }
 
                 // Save user
-                var userResult = await _userDataService.CreateAsync(user);
-                if (!userResult)
-                {
-                    return Json(new { success = false, message = "Failed to create user" });
-                }
+
+                await _userDataService.CreateUserAsync(user);
+
+                //var userResult = await _userDataService.CreateAsync(user);
+                //if (!userResult)
+                //{
+                //    return Json(new { success = false, message = "Failed to create user" });
+                //}
 
                 // Store in session
                 HttpContext.Session.SetString("OrganizationId", organizationId);
