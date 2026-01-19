@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Mvc;
 using Momantza.Services;
 using Momantza.Models;
 using Microsoft.Extensions.Logging;
+using OfficeOpenXml;
+using Momantza.Middleware;
 
 namespace Momantza.Controllers
 {
@@ -484,63 +486,69 @@ namespace Momantza.Controllers
             }
         }
 
-        //new
-        [HttpPost("check-availability")]
-        public async Task<IActionResult> CheckAvailability(Booking booking)
+        [HttpPost("upload-old-bookings")]
+        public async Task<IActionResult> UploadOldBookings(IFormFile file)
         {
+            if (file == null || file.Length == 0)
+                return BadRequest("Excel file is required");
+
             try
             {
-                if (!ModelState.IsValid)
+                using var stream = new MemoryStream();
+                await file.CopyToAsync(stream);
+                stream.Position = 0;
+
+                using var package = new ExcelPackage(stream);
+                var worksheet = package.Workbook.Worksheets[0];
+
+                var rowCount = worksheet.Dimension.Rows;
+                var bookings = new List<Booking>();
+
+                var orgId = User.Claims.FirstOrDefault(c => c.Type == "organizationId")?.Value;
+                if (string.IsNullOrEmpty(orgId))
+                    return Unauthorized();
+
+                for (int row = 2; row <= rowCount; row++)
                 {
-                    return BadRequest(ModelState);
+                    var booking = new Booking
+                    {
+                        Id = Guid.NewGuid().ToString(),
+                        OrganizationId = orgId,
+                        CustomerName = worksheet.Cells[row, 1].Text,
+                        CustomerEmail = worksheet.Cells[row, 2].Text,
+                        CustomerPhone = worksheet.Cells[row, 3].Text,
+                        EventDate = DateTime.Parse(worksheet.Cells[row, 4].Text),
+                        EventType = worksheet.Cells[row, 5].Text,
+                        TimeSlot = worksheet.Cells[row, 6].Text,
+                        GuestCount = int.Parse(worksheet.Cells[row, 7].Text),
+                        TotalAmount = decimal.Parse(worksheet.Cells[row, 8].Text),
+                        Status = worksheet.Cells[row, 9].Text,
+                        IsActive = true,
+                        CreatedAt = DateTime.UtcNow,
+                        UpdatedAt = DateTime.UtcNow
+                    };
+
+                    bookings.Add(booking);
                 }
 
-                var (isAvailable, message) = await _bookingDataService.CheckAvailabilityAsync(booking);
-                return Ok(new { isAvailable, message });
+                foreach (var booking in bookings)
+                {
+                    await _bookingDataService.CreateBookingAsync(booking);
+                }
+
+                return Ok(new
+                {
+                    message = "Old bookings uploaded successfully",
+                    insertedCount = bookings.Count
+                });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { message = "Internal server error", error = ex.Message });
+                _logger.LogError(ex, "Excel upload failed");
+                return StatusCode(500, ex.Message);
             }
         }
 
-        [HttpPost("create-with-check")]
-        public async Task<IActionResult> CreateWithCheck(Booking booking)
-        {
-            try
-            {
-                if (!ModelState.IsValid)
-                {
-                    return BadRequest(ModelState);
-                }
-
-                var (createdBooking, message) = await _bookingDataService.CreateBookingWithCheckAsync(booking);
-                if (createdBooking == null)
-                {
-                    return Conflict(new { message });
-                }
-
-                return CreatedAtAction(nameof(GetById), new { id = createdBooking.Id }, createdBooking);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = "Internal server error", error = ex.Message });
-            }
-        }
-
-        [HttpGet("availability/{hallId}")]
-        public async Task<IActionResult> GetAvailability(string hallId, [FromQuery] DateTime startDate, [FromQuery] DateTime endDate)
-        {
-            try
-            {
-                var availability = await _bookingDataService.GetHallAvailabilityAsync(hallId, startDate, endDate);
-                return Ok(availability);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = "Internal server error", error = ex.Message });
-            }
-        }
     }
 
     public class BookingSearchRequest

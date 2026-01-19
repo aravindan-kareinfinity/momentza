@@ -12,6 +12,7 @@ namespace Momantza.Controllers
     {
         private readonly IAuthDataService _authService;
 
+
         public AuthController(IAuthDataService authService)
         {
             _authService = authService;
@@ -278,5 +279,6 @@ namespace Momantza.Controllers
                 return StatusCode(500, new { message = "Internal server error", error = ex.Message });
             }
         }
+    
     }
 }

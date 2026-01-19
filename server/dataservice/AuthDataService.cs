@@ -74,80 +74,109 @@ namespace Momantza.Services
         }
 
         // Replace the LoginAsync method implementation with this updated version
+        //public async Task<Users?> LoginAsync(string email, string password)
+        //{
+        //    try
+        //    {
+        //        var orgId = GetCurrentOrganizationId();
+
+
+        //        var user = await _userDataService.GetByEmailAndOrganizationAsync( email, orgId);
+
+        //        if (user != null)
+        //        {
+        //            // First try normal verification (works for bcrypt hashes)
+        //            var passwordVerified = VerifyPassword(password, user.Password);
+
+        //            // If verification failed and stored password looks like plain text, try direct compare and migrate
+        //            if (!passwordVerified && !string.IsNullOrEmpty(user.Password) && !user.Password.StartsWith("$2"))
+        //            {
+        //                if (password == user.Password)
+        //                {
+        //                    // Successful plain-text match -> migrate to bcrypt
+        //                    try
+        //                    {
+        //                        var newHashed = HashPassword(password);
+        //                        var updated = await _userDataService.UpdatePasswordAsync(user.Id, newHashed);
+        //                        if (updated)
+        //                        {
+        //                            user.Password = newHashed; // keep in-memory consistent
+        //                            passwordVerified = true;
+        //                            Console.WriteLine($"Migrated plaintext password for user {user.Email} to bcrypt.");
+        //                        }
+        //                        else
+        //                        {
+        //                            Console.WriteLine($"Failed to update hashed password for user {user.Email}.");
+        //                        }
+        //                    }
+        //                    catch (Exception ex)
+        //                    {
+        //                        Console.WriteLine($"Error migrating password for {user.Email}: {ex.Message}");
+        //                    }
+        //                }
+        //            }
+
+        //            if (passwordVerified)
+        //            {
+        //                // Generate JWT token for the user
+        //                var token = await GenerateTokenAsync(user);
+        //                if (!string.IsNullOrEmpty(token))
+        //                {
+        //                    return user;
+        //                }
+        //            }
+        //        }
+        //        //else
+        //        //{
+        //        //    // existing logic for no user: create admin on first-run per org
+        //        //    var existingUsers = await _userDataService.GetByOrganizationAsync(orgId);
+        //        //    if (!existingUsers.Any())
+        //        //    {
+        //        //        password = "Momantza";
+        //        //        // No users exist for this organization, create admin user
+        //        //        var adminUser = await CreateAdminUserAsync(orgId);
+        //        //        if (adminUser != null && VerifyPassword(password, adminUser.Password))
+        //        //        {
+        //        //            // Generate JWT token for the admin user
+        //        //            var token = await GenerateTokenAsync(adminUser);
+        //        //            if (!string.IsNullOrEmpty(token))
+        //        //            {
+        //        //                return adminUser;
+        //        //            }
+        //        //        }
+        //        //    }
+        //        //}
+
+        //        return null;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Console.WriteLine($"Error during login: {ex.Message}");
+        //        return null;
+        //    }
+        //}
+
         public async Task<Users?> LoginAsync(string email, string password)
         {
             try
             {
                 var orgId = GetCurrentOrganizationId();
 
-
-                var user = await _userDataService.GetByEmailAndOrganizationAsync( email, orgId);
-
-                if (user != null)
+                // ❌ No org → cannot login
+                if (string.IsNullOrEmpty(orgId))
                 {
-                    // First try normal verification (works for bcrypt hashes)
-                    var passwordVerified = VerifyPassword(password, user.Password);
-
-                    // If verification failed and stored password looks like plain text, try direct compare and migrate
-                    if (!passwordVerified && !string.IsNullOrEmpty(user.Password) && !user.Password.StartsWith("$2"))
-                    {
-                        if (password == user.Password)
-                        {
-                            // Successful plain-text match -> migrate to bcrypt
-                            try
-                            {
-                                var newHashed = HashPassword(password);
-                                var updated = await _userDataService.UpdatePasswordAsync(user.Id, newHashed);
-                                if (updated)
-                                {
-                                    user.Password = newHashed; // keep in-memory consistent
-                                    passwordVerified = true;
-                                    Console.WriteLine($"Migrated plaintext password for user {user.Email} to bcrypt.");
-                                }
-                                else
-                                {
-                                    Console.WriteLine($"Failed to update hashed password for user {user.Email}.");
-                                }
-                            }
-                            catch (Exception ex)
-                            {
-                                Console.WriteLine($"Error migrating password for {user.Email}: {ex.Message}");
-                            }
-                        }
-                    }
-
-                    if (passwordVerified)
-                    {
-                        // Generate JWT token for the user
-                        var token = await GenerateTokenAsync(user);
-                        if (!string.IsNullOrEmpty(token))
-                        {
-                            return user;
-                        }
-                    }
-                }
-                else
-                {
-                    // existing logic for no user: create admin on first-run per org
-                    var existingUsers = await _userDataService.GetByOrganizationAsync(orgId);
-                    if (!existingUsers.Any())
-                    {
-                        password = "Momantza";
-                        // No users exist for this organization, create admin user
-                        var adminUser = await CreateAdminUserAsync(orgId);
-                        if (adminUser != null && VerifyPassword(password, adminUser.Password))
-                        {
-                            // Generate JWT token for the admin user
-                            var token = await GenerateTokenAsync(adminUser);
-                            if (!string.IsNullOrEmpty(token))
-                            {
-                                return adminUser;
-                            }
-                        }
-                    }
+                    Console.WriteLine("Login attempted without organization context");
+                    return null;
                 }
 
-                return null;
+                var user = await _userDataService.GetByEmailAndOrganizationAsync(email, orgId);
+                if (user == null)
+                    return null;
+
+                if (!VerifyPassword(password, user.Password))
+                    return null;
+
+                return user;
             }
             catch (Exception ex)
             {
@@ -155,6 +184,7 @@ namespace Momantza.Services
                 return null;
             }
         }
+
 
         public async Task<bool> LogoutAsync(string token)
         {
@@ -641,6 +671,26 @@ namespace Momantza.Services
             }
         }
 
+        //Login from base server
+        public async Task<UserSession?> GetActiveSessionFromCookieAsync()
+        {
+            var context = _httpContextAccessor.HttpContext;
+            if (context == null) return null;
+
+            if (!context.Request.Cookies.TryGetValue("momantza_access_token", out var token))
+                return null;
+
+            var session = await GetSessionByTokenAsync(token);
+
+            if (session == null)
+                return null;
+
+            if (!session.IsActive || session.ExpiresAt < DateTime.UtcNow)
+                return null;
+
+            return session;
+        }
+
         // Create admin user for organization
         private async Task<Users?> CreateAdminUserAsync(string organizationId)
         {
@@ -691,5 +741,6 @@ namespace Momantza.Services
         Task<bool> ResetPasswordAsync(string email);
         Task<Users?> RegisterAsync(string email, string password, string name, string? organizationId = null);
         Task<Users?> RefreshTokenAsync(string refreshToken);
+        Task<UserSession?> GetActiveSessionFromCookieAsync();
     }
 }

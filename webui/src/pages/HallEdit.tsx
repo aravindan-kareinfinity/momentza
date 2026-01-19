@@ -18,10 +18,22 @@ const HallEdit = () => {
   const { hallId } = useParams<{ hallId: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
-  
+
   const [hall, setHall] = useState<Hall | null>(null);
   const [name, setName] = useState('');
   const [capacity, setCapacity] = useState('');
+  // additional basic information
+  const [diningCapacity, setDiningCapacity] = useState('');
+  const [parkingCapacity, setParkingCapacity] = useState('');
+  const [foodType, setFoodType] = useState<'veg' | 'non-veg' | 'both'>('both');
+  const [freeRooms, setFreeRooms] = useState('');
+  const [rentedAcRooms, setRentedAcRooms] = useState('');
+  const [rentedNonAcRooms, setRentedNonAcRooms] = useState('');
+  const [hasGenerator, setHasGenerator] = useState(false);
+  const [hasAirConditioning, setHasAirConditioning] = useState(false);
+  const [rules, setRules] = useState<string[]>([]);
+  const [newRule, setNewRule] = useState('');
+
   const [location, setLocation] = useState('');
   const [address, setAddress] = useState('');
   const [features, setFeatures] = useState<HallFeature[]>([]);
@@ -44,7 +56,7 @@ const HallEdit = () => {
       try {
         const user = await authService.getCurrentUser();
         setCurrentUser(user);
-        
+
         if (user?.organizationId) {
           setGalleryLoading(true);
           setGalleryError(null);
@@ -64,15 +76,24 @@ const HallEdit = () => {
 
   const fetchHall = useCallback(async () => {
     if (!hallId) return;
-    
+
     try {
       const hallData = await hallService.getHallById(hallId);
       if (hallData) {
         setHall(hallData);
         setName(hallData.name || '');
-        setCapacity(hallData.capacity ? hallData.capacity.toString() : '');
         setLocation(hallData.location || '');
         setAddress(hallData.address || '');
+        setCapacity(hallData.amenities.capacity.hall.toString());
+        setDiningCapacity(hallData.amenities.capacity.dining.toString());
+        setParkingCapacity(hallData.amenities.capacity.parking.toString());
+        setFoodType(hallData.amenities.foodType);
+        setFreeRooms(hallData.amenities.rooms.free.toString());
+        setRentedAcRooms(hallData.amenities.rooms.rentedAc.toString());
+        setRentedNonAcRooms(hallData.amenities.rooms.rentedNonAc.toString());
+        setHasGenerator(hallData.amenities.facilities.generator);
+        setHasAirConditioning(hallData.amenities.facilities.airConditioning);
+        setRules(hallData.amenities.rules || []);
         setFeatures(hallData.features || []);
         setMorningRate(hallData.rateCard?.morningRate ? hallData.rateCard.morningRate.toString() : '');
         setEveningRate(hallData.rateCard?.eveningRate ? hallData.rateCard.eveningRate.toString() : '');
@@ -93,7 +114,7 @@ const HallEdit = () => {
 
   const fetchGalleryImages = useCallback(async () => {
     if (!currentUser) return;
-    
+
     try {
       setGalleryLoading(true);
       setGalleryError(null);
@@ -121,6 +142,17 @@ const HallEdit = () => {
     return <AnimatedPage className="space-y-6">Hall not found</AnimatedPage>;
   }
 
+  //rules methods
+  const handleAddRule = () => {
+    if (!newRule.trim()) return;
+    setRules(prev => [...prev, newRule.trim()]);
+    setNewRule('');
+  };
+
+  const handleRemoveRule = (index: number) => {
+    setRules(prev => prev.filter((_, i) => i !== index));
+  };
+
   const handleAddFeature = () => {
     if (newFeature.name && newFeature.charge) {
       setFeatures([...features, { name: newFeature.name, charge: parseInt(newFeature.charge) }]);
@@ -133,8 +165,8 @@ const HallEdit = () => {
   };
 
   const handleImageToggle = (imageUrl: string) => {
-    setSelectedImages(prev => 
-      prev.includes(imageUrl) 
+    setSelectedImages(prev =>
+      prev.includes(imageUrl)
         ? prev.filter(url => url !== imageUrl)
         : [...prev, imageUrl]
     );
@@ -152,9 +184,26 @@ const HallEdit = () => {
       const updatedHall = {
         ...hall,
         name,
-        capacity: parseInt(capacity),
         location,
         address,
+        amenities: {
+          foodType,
+          capacity: {
+            hall: parseInt(capacity),
+            dining: parseInt(diningCapacity),
+            parking: parseInt(parkingCapacity),
+          },
+          rooms: {
+            free: parseInt(freeRooms),
+            rentedAc: parseInt(rentedAcRooms),
+            rentedNonAc: parseInt(rentedNonAcRooms),
+          },
+          facilities: {
+            generator: hasGenerator,
+            airConditioning: hasAirConditioning,
+          },
+          rules,
+        },
         features,
         rateCard: {
           morningRate: parseInt(morningRate),
@@ -166,12 +215,12 @@ const HallEdit = () => {
       };
 
       await hallService.updateHall(hall.id, updatedHall);
-      
+
       toast({
         title: 'Success',
         description: 'Hall updated successfully!',
       });
-      
+
       navigate('/admin/halls');
     } catch (error) {
       toast({
@@ -187,8 +236,8 @@ const HallEdit = () => {
   return (
     <AnimatedPage className="space-y-6">
       <div className="flex items-center justify-between">
-        <Button 
-          variant="outline" 
+        <Button
+          variant="outline"
           onClick={() => navigate('/admin/halls')}
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
@@ -213,9 +262,9 @@ const HallEdit = () => {
                   required
                 />
               </div>
-              
+
               <div className="space-y-2">
-                <Label htmlFor="capacity">Capacity</Label>
+                <Label htmlFor="capacity">Hall Capacity</Label>
                 <Input
                   id="capacity"
                   type="number"
@@ -225,7 +274,31 @@ const HallEdit = () => {
                 />
               </div>
             </div>
-            
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="diningcapacity">Dining Capacity</Label>
+                <Input
+                  id="diningcapacity"
+                  type="number"
+                  value={diningCapacity}
+                  onChange={(e) => setDiningCapacity(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="parkingcapacity">Parking Capacity</Label>
+                <Input
+                  id="parkingcapacity"
+                  type="number"
+                  value={parkingCapacity}
+                  onChange={(e) => setParkingCapacity(e.target.value)}
+                  required
+                />
+              </div>
+            </div>
+
             <div className="space-y-2">
               <Label htmlFor="location">Location</Label>
               <Input
@@ -235,7 +308,7 @@ const HallEdit = () => {
                 required
               />
             </div>
-            
+
             <div className="space-y-2">
               <Label htmlFor="address">Address</Label>
               <Textarea
@@ -248,9 +321,166 @@ const HallEdit = () => {
           </CardContent>
         </Card>
 
+        {/* food availability */}
         <Card>
           <CardHeader>
-            <CardTitle>Features & Additional Charges</CardTitle>
+            <CardTitle>Food Availability</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-3 gap-4">
+              <label className="flex items-center space-x-2">
+                <input
+                  type="radio"
+                  name="foodType"
+                  value="veg"
+                  checked={foodType === 'veg'}
+                  onChange={() => setFoodType('veg')}
+                />
+                <span>Veg Only</span>
+              </label>
+
+              <label className="flex items-center space-x-2">
+                <input
+                  type="radio"
+                  name="foodType"
+                  value="non-veg"
+                  checked={foodType === 'non-veg'}
+                  onChange={() => setFoodType('non-veg')}
+                />
+                <span>Non-Veg Only</span>
+              </label>
+
+              <label className="flex items-center space-x-2">
+                <input
+                  type="radio"
+                  name="foodType"
+                  value="both"
+                  checked={foodType === 'both'}
+                  onChange={() => setFoodType('both')}
+                />
+                <span>Veg & Non-Veg</span>
+              </label>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Room availability */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Room Availability</CardTitle>
+          </CardHeader>
+
+          <CardContent>
+            <div className="grid grid-cols-3 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="freeRooms">Free Rooms</Label>
+                <Input
+                  id="freeRooms"
+                  type="number"
+                  min={0}
+                  value={freeRooms}
+                  onChange={(e) => setFreeRooms(e.target.value)}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="rentedAcRooms">Rented AC Rooms</Label>
+                <Input
+                  id="rentedAcRooms"
+                  type="number"
+                  min={0}
+                  value={rentedAcRooms}
+                  onChange={(e) => setRentedAcRooms(e.target.value)}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="rentedNonAcRooms">Rented Non-AC Rooms</Label>
+                <Input
+                  id="rentedNonAcRooms"
+                  type="number"
+                  min={0}
+                  value={rentedNonAcRooms}
+                  onChange={(e) => setRentedNonAcRooms(e.target.value)}
+                />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Rules/Terms and conditions */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Hall Rules</CardTitle>
+          </CardHeader>
+
+          <CardContent className="space-y-4">
+            <div className="flex gap-2">
+              <Input
+                placeholder="Enter a rule (e.g. No alcohol allowed)"
+                value={newRule}
+                onChange={(e) => setNewRule(e.target.value)}
+              />
+              <Button type="button" onClick={handleAddRule}>
+                <Plus className="h-4 w-4" />
+              </Button>
+            </div>
+
+            <div className="space-y-2">
+              {rules.length === 0 && (
+                <p className="text-sm text-gray-500">No rules added</p>
+              )}
+
+              {rules.map((rule, index) => (
+                <div
+                  key={index}
+                  className="flex items-center justify-between p-2 border rounded"
+                >
+                  <span className="text-sm">{rule}</span>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="destructive"
+                    onClick={() => handleRemoveRule(index)}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+
+        {/* generator and air conditioner facility */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Facilities</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="flex items-center space-x-3">
+                <Switch
+                  checked={hasGenerator}
+                  onCheckedChange={setHasGenerator}
+                />
+                <Label>Generator Available</Label>
+              </div>
+
+              <div className="flex items-center space-x-3">
+                <Switch
+                  checked={hasAirConditioning}
+                  onCheckedChange={setHasAirConditioning}
+                />
+                <Label>Air Conditioned</Label>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Additional Charges</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-3 gap-2">
@@ -304,7 +534,7 @@ const HallEdit = () => {
                   required
                 />
               </div>
-              
+
               <div className="space-y-2">
                 <Label htmlFor="eveningRate">Evening Rate (₹)</Label>
                 <Input
@@ -315,7 +545,7 @@ const HallEdit = () => {
                   required
                 />
               </div>
-              
+
               <div className="space-y-2">
                 <Label htmlFor="fullDayRate">Full Day Rate (₹)</Label>
                 <Input
@@ -348,8 +578,8 @@ const HallEdit = () => {
                   </svg>
                 </div>
                 <p className="text-red-600 mb-4">{galleryError}</p>
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   onClick={() => fetchGalleryImages()}
                   className="text-sm"
                 >
@@ -371,21 +601,19 @@ const HallEdit = () => {
                 {galleryImages.map((image) => (
                   <div
                     key={image.id}
-                    className={`relative cursor-pointer rounded-lg overflow-hidden border-2 transition-all duration-200 ${
-                      selectedImages.includes(getImageIdentifier(image)) 
-                        ? 'border-green-500 bg-green-50 shadow-lg' 
-                        : 'border-gray-200 hover:border-gray-300'
-                    }`}
+                    className={`relative cursor-pointer rounded-lg overflow-hidden border-2 transition-all duration-200 ${selectedImages.includes(getImageIdentifier(image))
+                      ? 'border-green-500 bg-green-50 shadow-lg'
+                      : 'border-gray-200 hover:border-gray-300'
+                      }`}
                     onClick={() => handleImageToggle(getImageIdentifier(image))}
                   >
                     <img
                       src={image.url ? `${image.url}?auto=format&fit=crop&w=200&q=80` : galleryService.getImageUrl(image.id)}
                       alt={image.title}
-                      className={`w-full h-24 object-cover transition-all duration-200 ${
-                        selectedImages.includes(getImageIdentifier(image)) 
-                          ? 'brightness-110 saturate-110' 
-                          : ''
-                      }`}
+                      className={`w-full h-24 object-cover transition-all duration-200 ${selectedImages.includes(getImageIdentifier(image))
+                        ? 'brightness-110 saturate-110'
+                        : ''
+                        }`}
                       onError={(e) => {
                         const target = e.target as HTMLImageElement;
                         target.src = '/placeholder.svg';
@@ -423,7 +651,7 @@ const HallEdit = () => {
             </div>
           </CardContent>
         </Card>
-        
+
         <div className="flex justify-end space-x-4">
           <Button type="button" variant="outline" onClick={() => navigate('/admin/halls')}>
             Cancel

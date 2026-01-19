@@ -18,6 +18,10 @@ const Halls = () => {
   const [error, setError] = useState<Error | null>(null);
   const [showErrorDialog, setShowErrorDialog] = useState(false);
 
+  // rules
+  const [rulesOpen, setRulesOpen] = useState(false);
+  const [selectedRules, setSelectedRules] = useState<string[]>([]);
+
   // Function to get image URL for a hall
   const getImageUrl = (hall: Hall): string => {
     if (!hall.gallery || hall.gallery.length === 0) {
@@ -25,17 +29,17 @@ const Halls = () => {
     }
 
     const galleryItem = hall.gallery[0];
-    
+
     // If it's already a full URL, use it directly
     if (galleryItem.startsWith('http')) {
       return galleryItem;
     }
-    
+
     // If it's a photo ID, construct Unsplash URL
     if (galleryItem.startsWith('photo-')) {
       return `https://images.unsplash.com/${galleryItem}?auto=format&fit=crop&w=400&q=80`;
     }
-    
+
     // If it's a gallery image ID, try to resolve it
     try {
       const resolvedUrl = galleryService.getImageUrl(galleryItem);
@@ -52,16 +56,16 @@ const Halls = () => {
       try {
         setLoading(true);
         setError(null);
-        
+
         console.log('[Halls] Fetching all halls data from API...');
         // Get current user - this is async!
         const user = await authService.getCurrentUser();
         setCurrentUser(user);
-        
+
         // Fetch all halls directly from API
         const hallsData = await hallService.getAllHalls();
         setHalls(hallsData || []);
-        
+
         setShowErrorDialog(false);
       } catch (err) {
         const error = err as Error;
@@ -80,15 +84,15 @@ const Halls = () => {
     // Reset and refetch data
     setLoading(true);
     setError(null);
-    
+
     try {
       const user = await authService.getCurrentUser();
       setCurrentUser(user);
-      
+
       // Fetch all halls directly from API
       const hallsData = await hallService.getAllHalls();
       setHalls(hallsData || []);
-      
+
       setShowErrorDialog(false);
     } catch (err) {
       const error = err as Error;
@@ -118,7 +122,7 @@ const Halls = () => {
     navigate('/admin/halls/enable');
   };
 
-  
+
 
   // Loading state
   if (loading) {
@@ -182,13 +186,13 @@ const Halls = () => {
           <p className="text-gray-600">Manage your wedding halls and their details</p>
         </div>
         <div className="flex flex-row gap-4">
-        <Button onClick={updateHallStatus}>
-          Enable Hall
-        </Button>
-        <Button onClick={handleAddHall}>
-          <Plus className="h-4 w-4 mr-2" />
-          Add New Hall
-        </Button>
+          <Button onClick={updateHallStatus}>
+            Enable Hall
+          </Button>
+          <Button onClick={handleAddHall}>
+            <Plus className="h-4 w-4 mr-2" />
+            Add New Hall
+          </Button>
         </div>
       </div>
 
@@ -218,60 +222,111 @@ const Halls = () => {
                 {hall.isActive ? 'Active' : 'Inactive'}
               </Badge>
             </div>
-            
+
             <CardHeader>
               <CardTitle>{hall.name}</CardTitle>
-              <CardDescription className="flex items-center">
+              {/* <CardDescription className="flex items-center">
                 <MapPin className="h-4 w-4 mr-1" />
                 {hall.location}
+              </CardDescription> */}
+
+              <CardDescription className="flex items-center">
+                <MapPin className="h-4 w-4 mr-1" />
+                {hall.address}
               </CardDescription>
             </CardHeader>
-            
+
             <CardContent>
               <div className="space-y-3">
-                <div className="flex items-center">
-                  <Users className="h-4 w-4 mr-2 text-gray-500" />
-                  <span className="text-sm">Capacity: {hall.capacity} guests</span>
+
+                {/* Capacity */}
+                <div className="space-y-1 text-sm">
+                  <div className="flex items-center">
+                    <Users className="h-4 w-4 mr-2 text-gray-500" />
+                    Hall: {hall.amenities.capacity.hall} guests
+                  </div>
+                  <div className="text-gray-600">
+                    Dining: {hall.amenities.capacity.dining} | Parking: {hall.amenities.capacity.parking}
+                  </div>
                 </div>
-                
-                <div className="grid grid-cols-2 gap-2 text-sm">
+
+                {/* Food Type */}
+                <Badge variant="outline">
+                  {hall.amenities.foodType === 'veg' && 'Veg Only'}
+                  {hall.amenities.foodType === 'non-veg' && 'Non-Veg Only'}
+                  {hall.amenities.foodType === 'both' && 'Veg & Non-Veg'}
+                </Badge>
+
+                {/* Rooms */}
+                <div className="text-sm text-gray-600">
+                  Rooms: {hall.amenities.rooms.free} Free · {hall.amenities.rooms.rentedAc} AC · {hall.amenities.rooms.rentedNonAc} Non-AC
+                </div>
+
+                {/* Facilities */}
+                <div className="flex flex-wrap gap-1">
+                  {hall.amenities.facilities.generator && (
+                    <Badge variant="secondary" className="text-xs">Generator</Badge>
+                  )}
+                  {hall.amenities.facilities.airConditioning && (
+                    <Badge variant="secondary" className="text-xs">Air-Conditioned</Badge>
+                  )}
+                </div>
+
+
+                {/* Pricing */}
+                <div className="grid grid-cols-2 gap-2 text-sm pt-2">
                   <div>
-                    <span className="text-gray-500">Morning:</span>
+                    <span className="text-gray-500">Morning</span>
                     <div className="font-semibold">₹{hall.rateCard.morningRate.toLocaleString()}</div>
                   </div>
                   <div>
-                    <span className="text-gray-500">Evening:</span>
+                    <span className="text-gray-500">Evening</span>
                     <div className="font-semibold">₹{hall.rateCard.eveningRate.toLocaleString()}</div>
                   </div>
                 </div>
-                
-                <div className="space-y-2">
-                  <div className="text-sm font-medium">Features & Charges:</div>
-                  <div className="flex flex-wrap gap-1">
-                    {Array.isArray(hall.features) && hall.features.length > 0 ? 
-                      hall.features.slice(0, 3).map((feature, index) => (
-                        <Badge key={index} variant="secondary" className="text-xs">
-                          {feature.name} (+₹{feature.charge})
-                        </Badge>
-                      )) :
-                      <Badge variant="outline" className="text-xs">No features</Badge>
-                    }
-                  </div>
-                </div>
-                
-                <div className="pt-2">
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
+
+
+                <div className="grid grid-cols-2 gap-2 text-sm pt-3">
+                  {/* Preview */}
+                  <Button
+                    variant="outline"
+                    size="sm"
                     className="w-full"
                     onClick={() => handlePreviewHall(hall)}
                   >
                     <Eye className="h-4 w-4 mr-2" />
                     Preview
                   </Button>
+
+                  {/* Rules */}
+                  {hall.amenities.rules?.length > 0 ? (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="w-full flex items-center justify-center gap-2"
+                      onClick={() => {
+                        setSelectedRules(hall.amenities.rules);
+                        setRulesOpen(true);
+                      }}
+                    >
+                      📜 View Rules ({hall.amenities.rules.length})
+                    </Button>
+                  ) : (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="w-full opacity-50 cursor-not-allowed"
+                      disabled
+                    >
+                      📜 No Rules
+                    </Button>
+                  )}
                 </div>
+
+
               </div>
             </CardContent>
+
           </Card>
         ))}
       </div>
@@ -284,6 +339,42 @@ const Halls = () => {
         title="Halls Service Error"
         message={error?.message || 'Unable to load halls data. Please try again.'}
       />
+
+      {/* RULES MODAL — PLACE HERE */}
+      {rulesOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-white rounded-xl w-full max-w-md max-h-[70vh] overflow-hidden shadow-xl">
+
+            {/* Header */}
+            <div className="flex items-center justify-between px-4 py-3 border-b">
+              <h3 className="font-semibold text-lg">Hall Rules</h3>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setRulesOpen(false)}
+              >
+                ✕
+              </Button>
+            </div>
+
+            {/* Content */}
+            <div className="p-4 overflow-y-auto">
+              <ul className="list-disc list-inside space-y-2 text-sm text-gray-700">
+                {selectedRules.map((rule, index) => (
+                  <li key={index}>{rule}</li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Footer */}
+            <div className="border-t px-4 py-3 text-right">
+              <Button onClick={() => setRulesOpen(false)}>Close</Button>
+            </div>
+
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };

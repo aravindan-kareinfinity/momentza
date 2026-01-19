@@ -115,9 +115,9 @@ export class ApiBookingService implements IBookingService {
   }
 
   async updateBookingCommunication(id: string, lastContactDate: string, customerResponse: string): Promise<Booking> {
-    const booking = await apiClient.patch<any>(`/api/bookings/${id}/communication`, { 
-      lastContactDate, 
-      customerResponse 
+    const booking = await apiClient.patch<any>(`/api/bookings/${id}/communication`, {
+      lastContactDate,
+      customerResponse
     });
     return this.transformBooking(booking);
   }
@@ -129,5 +129,27 @@ export class ApiBookingService implements IBookingService {
   async createBooking(booking: Omit<Booking, 'id' | 'createdAt'>): Promise<Booking> {
     const createdBooking = await apiClient.post<any>('/api/bookings', booking);
     return this.transformBooking(createdBooking);
+  }
+
+  async uploadOldBookings(file: File): Promise<any> {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const token = localStorage.getItem("token"); // or wherever you store JWT
+
+    const response = await fetch("/api/bookings/upload-old-bookings", {
+      method: "POST",
+      body: formData,
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+
+    if (!response.ok) {
+      const err = await response.text();
+      throw new Error(err || "Upload failed");
+    }
+
+    return response.json();
   }
 } 
