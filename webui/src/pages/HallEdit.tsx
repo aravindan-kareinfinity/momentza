@@ -33,6 +33,9 @@ const HallEdit = () => {
   const [hasAirConditioning, setHasAirConditioning] = useState(false);
   const [rules, setRules] = useState<string[]>([]);
   const [newRule, setNewRule] = useState('');
+  //new
+  const [latitude, setLatitude] = useState('');
+  const [longitude, setLongitude] = useState('');
 
   const [location, setLocation] = useState('');
   const [address, setAddress] = useState('');
@@ -100,6 +103,8 @@ const HallEdit = () => {
         setFullDayRate(hallData.rateCard?.fullDayRate ? hallData.rateCard.fullDayRate.toString() : '');
         setSelectedImages(hallData.gallery || []);
         setIsActive(hallData.isActive || false);
+        setLatitude(hallData.coordinates?.lat ? hallData.coordinates.lat.toString() : '');
+        setLongitude(hallData.coordinates?.lng ? hallData.coordinates.lng.toString() : '');
       }
     } catch (error) {
       toast({
@@ -184,6 +189,8 @@ const HallEdit = () => {
       const updatedHall = {
         ...hall,
         name,
+        latitude,
+        longitude,
         location,
         address,
         amenities: {
@@ -297,6 +304,29 @@ const HallEdit = () => {
                   required
                 />
               </div>
+            </div>
+           
+            <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="latitude">Latitude</Label>
+              <Input
+                id="latitude"
+                type="number"
+                value={latitude}
+                onChange={(e)=>setLatitude(e.target.value)}
+                required
+            />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="latitude">Longitude</Label>
+              <Input
+                id="longitude"
+                type="number"
+                value={longitude}
+                onChange={(e)=>setLongitude(e.target.value)}
+                required
+            />
+            </div>
             </div>
 
             <div className="space-y-2">
