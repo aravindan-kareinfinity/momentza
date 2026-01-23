@@ -34,8 +34,8 @@ const HallEdit = () => {
   const [rules, setRules] = useState<string[]>([]);
   const [newRule, setNewRule] = useState('');
   //new
-  const [latitude, setLatitude] = useState('');
-  const [longitude, setLongitude] = useState('');
+  const [lat, setLat] = useState('');
+  const [lng, setLng] = useState('');
 
   const [location, setLocation] = useState('');
   const [address, setAddress] = useState('');
@@ -103,8 +103,8 @@ const HallEdit = () => {
         setFullDayRate(hallData.rateCard?.fullDayRate ? hallData.rateCard.fullDayRate.toString() : '');
         setSelectedImages(hallData.gallery || []);
         setIsActive(hallData.isActive || false);
-        setLatitude(hallData.coordinates?.lat ? hallData.coordinates.lat.toString() : '');
-        setLongitude(hallData.coordinates?.lng ? hallData.coordinates.lng.toString() : '');
+        setLat(hallData.coordinates?.lat ? hallData.coordinates.lat.toString() : '');
+        setLng(hallData.coordinates?.lng ? hallData.coordinates.lng.toString() : '');
       }
     } catch (error) {
       toast({
@@ -189,8 +189,10 @@ const HallEdit = () => {
       const updatedHall = {
         ...hall,
         name,
-        latitude,
-        longitude,
+        coordinates:{
+          lat,
+          lng
+        },
         location,
         address,
         amenities: {
@@ -312,8 +314,8 @@ const HallEdit = () => {
               <Input
                 id="latitude"
                 type="number"
-                value={latitude}
-                onChange={(e)=>setLatitude(e.target.value)}
+                value={lat}
+                onChange={(e)=>setLat(e.target.value)}
                 required
             />
             </div>
@@ -322,8 +324,8 @@ const HallEdit = () => {
               <Input
                 id="longitude"
                 type="number"
-                value={longitude}
-                onChange={(e)=>setLongitude(e.target.value)}
+                value={lng}
+                onChange={(e)=>setLng(e.target.value)}
                 required
             />
             </div>
