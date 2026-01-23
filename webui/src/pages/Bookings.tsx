@@ -389,13 +389,13 @@ const Bookings = () => {
           accept=".xlsx, .xls"
           onChange={handleFileUpload}
         />
-        <Button
+        {/* <Button
           variant="outline"
           onClick={() => fileInputRef.current?.click()}
           disabled={isUploading}
         >
           {isUploading ? "Uploading..." : "Old Bookings"}
-        </Button>
+        </Button> */}
 
         <Button onClick={() => setShowAddDialog(true)}>
           <Plus className="h-4 w-4 mr-2" />

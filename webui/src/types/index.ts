@@ -41,6 +41,8 @@ export interface HallAmenities {
     free: number;
     rentedAc: number;
     rentedNonAc: number;
+    acRoomRate: number;
+    nonAcRoomRate: number;
   };
 
   facilities: {
@@ -72,6 +74,7 @@ export interface Hall {
   isActive: boolean;
 }
 
+// In your types.ts or Booking type definition
 export interface Booking {
   id: string;
   organizationId: string;
@@ -79,38 +82,39 @@ export interface Booking {
   customerName: string;
   customerEmail: string;
   customerPhone: string;
+  address: string;
+  city: string;
+  village: string;
+  eventStartDate: string ;
+  eventEndDate: string ;
+  handoverStartDate: string ;
   eventDate: string;
-  eventStartDate: string;
-  eventEndDate:string;
   eventType: string;
-  timeSlot: 'morning' | 'evening' | 'fullday';
+  timeSlot: string;
   guestCount: number;
   totalAmount: number;
-  address:string;
-  village:string;
-  city:string;
-  roomsRequired:boolean;
-  roomsCount:number;
-  notes:string;
-  status: 'pending' | 'confirmed' | 'cancelled' | 'active' | 'completed';
-  createdAt: string;
-  selectedFeatures?: string[];
-  lastContactDate?: string;
-  customerResponse?: string;
-  handoverStartDate:string;
-  isActive?: boolean;
-  handOverDetails?: {
-    personName: string;
-    ebReading: number;
-    advanceAmount: number;
-    handOverDate: string;
+  status: string;
+  isActive: boolean;
+  customerResponse: string;
+  lastContactDate: string | null;
+  createdAt: string | Date;
+  updatedAt: string | Date;
+  notes: string;
+  roomsRequired: boolean;
+  roomsCount: number;
+  roomDetails:{
+    Charges: {
+      AcRoomCharges: number;
+      NonAcRoomCharges: number;
+      TotalRoomCharges: number;
+    };
+    RoomsCount: {
+      Free: number;
+      RentedAc: number;
+      RentedNonAc: number;
+    };
   };
-  billingDetails?: {
-    billingName: string;
-    billingAddress: string;
-    gstNumber: string;
-  };
-  // hallName: string;
+  hallName?: string; // Optional, may come from join
 }
 
 export interface Review {

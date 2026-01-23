@@ -96,6 +96,11 @@ namespace Momantza.Models
         public int Free { get; set; }
         public int RentedAc { get; set; }
         public int RentedNonAc { get; set; }
+
+        public int AcRoomRate { get; set; }
+        public int NonAcRoomRate { get; set; }
+
+
     }
 
     public class FacilityInfo
