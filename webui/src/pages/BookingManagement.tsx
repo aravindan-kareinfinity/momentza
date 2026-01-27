@@ -80,6 +80,7 @@ interface InventoryItem {
   name: string;
   quantity: number;
   price: number;
+  charge:number;
   notes: string;
 }
 
@@ -194,15 +195,11 @@ const BookingManagement = () => {
   const [statusChangeDialog, setStatusChangeDialog] = useState({ open: false, bookingId: '', newStatus: '', reason: '' });
 
   // Form states
-  const [newFeature, setNewFeature] = useState({
-    name: '',
-    quantity: 1,
-    price: 0
-  });
+  const [newFeature, setNewFeature] = useState({name: '',quantity: 1,price: 0});
   const [newService, setNewService] = useState({ name: '', directPay: false });
   const [newPayment, setNewPayment] = useState({ date: new Date().toISOString(), mode: 'cash' as PaymentsItem['paymentMode'], amount: 0, personName: '', notes: '' });
   const [newTicket, setNewTicket] = useState({ title: '', description: '', category: '', assignedTo: '', priority: 'medium' as 'low' | 'medium' | 'high', status: 'open' as 'open' | 'in-progress' | 'completed' });
-  const [newInventoryItem, setNewInventoryItem] = useState({ name: '', quantity: 1, price: 0, notes: '' });
+  const [newInventoryItem, setNewInventoryItem] = useState({ name: '', quantity: 1, charge: 0 });
   const [newHandoverImage, setNewHandoverImage] = useState({ category: '', description: '' });
   const [selectedHandoverFile, setSelectedHandoverFile] = useState<File | null>(null);
   const [newCommunication, setNewCommunication] = useState({
@@ -611,7 +608,8 @@ const BookingManagement = () => {
     0
   );
   const servicesTotal = servicesArray.filter(s => !s.directPay).reduce((sum, s) => sum + Number(s.price || 0), 0);
-  const inventoryTotal = bookingInventoryItems.reduce((sum, item) => sum + (Number(item.price || 0) * Number(item.quantity || 0)), 0);
+  const inventoryTotal = bookingInventoryItems.reduce((sum, item) => 
+    sum + (Number(item.charge || 0) * Number(item.quantity || 0)), 0);
   const safeDiscount = Number(discount || 0);
   const totalCharges = safeBookingTotal + featuresTotal + servicesTotal + inventoryTotal - safeDiscount;
 
@@ -1037,18 +1035,16 @@ const BookingManagement = () => {
 
     await inventoryService.create({
       name: newInventoryItem.name,
-      description: newInventoryItem.notes || '',
       quantity: newInventoryItem.quantity,
-      // unit: 'pcs',
-      price: newInventoryItem.price,
+      charge: newInventoryItem.charge,  // Send charge to API
+      price: newInventoryItem.charge,   // Also set price for backward compatibility
       orgId: orgId,
       BookingId: bookingId,
       createdat: new Date().toISOString(),
       updatedat: new Date().toISOString(),
-      notes: newInventoryItem.notes || ''
     } as any);
     await fetchPageData();
-    setNewInventoryItem({ name: '', quantity: 1, price: 0, notes: '' });
+    setNewInventoryItem({ name: '', quantity: 1, charge: 0 });
     setShowInventoryDialog(false);
   };
 
@@ -1057,8 +1053,7 @@ const BookingManagement = () => {
     setNewInventoryItem({
       name: item.name,
       quantity: item.quantity,
-      price: item.price,
-      notes: item.notes
+      charge: item.charge || item.price || 0  // Use charge or fallback to price
     });
     setShowEditInventoryDialog(true);
   };
@@ -1069,13 +1064,13 @@ const BookingManagement = () => {
         ...editingItem,
         name: newInventoryItem.name,
         quantity: newInventoryItem.quantity,
-        price: newInventoryItem.price,
-        notes: newInventoryItem.notes
+        charge: newInventoryItem.charge,  // Update charge
+        price: newInventoryItem.charge, 
       };
       await inventoryService.update(editingItem.id, updatedInventoryItem);
       await fetchPageData();
       setEditingItem(null);
-      setNewInventoryItem({ name: '', quantity: 1, price: 0, notes: '' });
+      setNewInventoryItem({ name: '', quantity: 1, charge:0 });
       setShowEditInventoryDialog(false);
     }
   };
@@ -1182,7 +1177,7 @@ const BookingManagement = () => {
       setNewInventoryItem(prev => ({
         ...prev,
         name: itemName,
-        price: selectedItem.price || 0
+        charge: selectedItem.charge || 0  // Set the charge here
       }));
     }
   };
@@ -1483,60 +1478,67 @@ const BookingManagement = () => {
           </TabsContent>
 
           <TabsContent value="inventory">
-            <Card>
-              <CardHeader>
-                <div className="flex justify-between items-center">
-                  <CardTitle>Inventory Management</CardTitle>
-                  <Button onClick={() => setShowInventoryDialog(true)}>
-                    <Plus className="h-4 w-4 mr-2" />
-                    Add Item
-                  </Button>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {bookingInventoryArray.map((item) => (
-                    <div key={item.id} className="flex justify-between items-center p-3 bg-gray-50 rounded">
-                      <div>
-                        <span className="font-medium">{item.name}</span>
-                        <span className="text-gray-500 ml-2">Qty: {item.quantity}</span>
-                        <span className="text-gray-500 ml-2">₹{item.charge} each</span>
-                        {item.notes && <p className="text-sm text-gray-600">{item.notes}</p>}
-                      </div>
-                      <div className="flex gap-2 items-center">
-                        <span className="font-semibold">₹{(item.price * item.quantity).toLocaleString()}</span>
-                        <Button variant="outline" size="sm" onClick={() => handleEditInventory(item)}>
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button variant="outline" size="sm" onClick={() => {
-                          const reason = prompt('Please provide reason for deletion:');
-                          if (reason) handleDeleteInventory(item.id, reason);
-                        }}>
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
-                  {bookingInventoryArray.length === 0 && (
-                    <div className="text-center py-8 text-gray-500">
-                      <p>No inventory items found.</p>
-                      <p className="text-sm">Click "Add Item" to add inventory items.</p>
-                    </div>
-                  )}
-                </div>
+  <Card>
+    <CardHeader>
+      <div className="flex justify-between items-center">
+        <CardTitle>Inventory Management</CardTitle>
+        <Button onClick={() => setShowInventoryDialog(true)}>
+          <Plus className="h-4 w-4 mr-2" />
+          Add Item
+        </Button>
+      </div>
+    </CardHeader>
+    <CardContent>
+      <div className="space-y-3">
+        {bookingInventoryArray.map((item) => (
+          <div key={item.id} className="flex justify-between items-center p-3 bg-gray-50 rounded">
+            <div>
+              <span className="font-medium">{item.name}</span>
+              <span className="text-gray-500 ml-2">Qty: {item.quantity}</span>
+              <span className="text-gray-500 ml-2">₹{item.charge || item.price} each</span>
+            </div>
+            <div className="flex gap-2 items-center">
+              {/* Calculate total like features do: price * quantity */}
+              <span className="font-semibold">
+  ₹{((item.charge || item.price) * item.quantity).toLocaleString()}
+</span>
+              <Button variant="outline" size="sm" onClick={() => handleEditInventory(item)}>
+                <Edit className="h-4 w-4" />
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => {
+                const reason = prompt('Please provide reason for deletion:');
+                if (reason) handleDeleteInventory(item.id, reason);
+              }}>
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        ))}
+        {bookingInventoryArray.length === 0 && (
+          <div className="text-center py-8 text-gray-500">
+            <p>No inventory items found.</p>
+            <p className="text-sm">Click "Add Item" to add inventory items.</p>
+          </div>
+        )}
+      </div>
 
-                {/* Inventory Total
+      {/* Inventory Total - Calculate like features */}
       {bookingInventoryArray.length > 0 && (
         <div className="mt-4 p-3 bg-blue-50 rounded">
           <div className="flex justify-between font-semibold">
             <span>Total Inventory Amount:</span>
-            <span>₹{bookingInventoryArray.reduce((sum, item) => sum + (item.price * item.quantity), 0).toLocaleString()}</span>
+            <span>
+              ₹{bookingInventoryArray.reduce(
+                (sum, item) => sum + (Number(item.price || item.charge || 0) * Number(item.quantity || 0)),
+                0
+              ).toLocaleString()}
+            </span>
           </div>
         </div>
-      )} */}
-              </CardContent>
-            </Card>
-          </TabsContent>
+      )}
+    </CardContent>
+  </Card>
+</TabsContent>
 
           <TabsContent value="payments">
             <Card>
@@ -2196,7 +2198,7 @@ const BookingManagement = () => {
                 <SelectContent>
                   {availableInventoryItems.map(item => (
                     <SelectItem key={item.name} value={item.name}>
-                      {item.name}
+                      {item.name}-₹{item.charge}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -2210,7 +2212,7 @@ const BookingManagement = () => {
                 onChange={(e) => setNewInventoryItem({...newInventoryItem, quantity: Number(e.target.value) || 0})}
               />
             </div>
-            <div>
+            {/* <div>
               <Label>Price per Unit</Label>
               <Input
                 type="number"
@@ -2219,14 +2221,14 @@ const BookingManagement = () => {
                 min="0"
                 step="0.01"
               />
-            </div>
-            <div>
+            </div> */}
+            {/* <div>
               <Label>Notes</Label>
               <Textarea
                 value={newInventoryItem.notes}
                 onChange={(e) => setNewInventoryItem({...newInventoryItem, notes: e.target.value})}
               />
-            </div>
+            </div> */}
             <Button onClick={handleAddInventoryItem} className="w-full">
               Add Item
             </Button>
@@ -2253,7 +2255,7 @@ const BookingManagement = () => {
                 <SelectContent>
                   {availableInventoryItems.map(item => (
                     <SelectItem key={item.name} value={item.name}>
-                      {item.name} - ₹{item.price}
+                      {item.name} - ₹{item.charge}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -2267,7 +2269,7 @@ const BookingManagement = () => {
                 onChange={(e) => setNewInventoryItem({ ...newInventoryItem, quantity: parseInt(e.target.value) })}
               />
             </div>
-            <div>
+            {/* <div>
               <Label>Price per Unit</Label>
               <Input
                 type="number"
@@ -2275,14 +2277,14 @@ const BookingManagement = () => {
                 readOnly
                 className="bg-gray-50"
               />
-            </div>
-            <div>
+            </div> */}
+            {/* <div>
               <Label>Notes</Label>
               <Textarea
                 value={newInventoryItem.notes}
                 onChange={(e) => setNewInventoryItem({ ...newInventoryItem, notes: e.target.value })}
               />
-            </div>
+            </div> */}
             <Button onClick={handleUpdateInventory} className="w-full">
               Update Item
             </Button>

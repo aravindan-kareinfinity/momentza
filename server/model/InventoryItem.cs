@@ -11,9 +11,9 @@ namespace Momantza.Models
         [MaxLength(100)]
         public string Name { get; set; } = string.Empty;
 
-        [Required]
-        [MaxLength(500)]
-        public string Description { get; set; } = string.Empty;
+        //[Required]
+        //[MaxLength(500)]
+        //public string Description { get; set; } = string.Empty;
 
         public int Unit { get; set; } = 0;
 
@@ -25,8 +25,8 @@ namespace Momantza.Models
         [Range(0, double.MaxValue)]
         public decimal Price { get; set; }
 
-        [MaxLength(500)]
-        public string Notes { get; set; } = string.Empty;
+        //[MaxLength(500)]
+        //public string Notes { get; set; } = string.Empty;
 
         public string orgId { get; set; } = string.Empty;
 

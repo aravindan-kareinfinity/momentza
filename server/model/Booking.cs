@@ -1,5 +1,6 @@
 using Newtonsoft.Json;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Momantza.Models
 {
@@ -21,6 +22,11 @@ namespace Momantza.Models
         [JsonProperty("eventEndDate")]
         public DateTime EventEndDate { get; set; }
 
+        [JsonProperty("handoverStartDatde")]
+        public DateTime HandoverStartDate { get; set; }
+
+
+
         // Keep EventDate for backward compatibility
         public DateTime EventDate { get; set; }
 
@@ -38,6 +44,9 @@ namespace Momantza.Models
         public bool RoomsRequired { get; set; }
         public int RoomsCount { get; set; }
         public string HallName { get; set; } = string.Empty;
+
+        [Column(TypeName = "jsonb")]
+        public  RoomsInfo RoomDetails  { get; set; }
     }
 
     public class HandOverDetails
@@ -55,7 +64,30 @@ namespace Momantza.Models
         [Required]
         public DateTime HandOverDate { get; set; }
     }
+    //new
+    public class RoomsInfo
+    {
+        public RoomCharge Charges { get; set; } = new();
+        public Rooms RoomsCount { get; set; } = new();
+       
+    }
 
-   
+    public class RoomCharge
+    {
+        public int AcRoomCharges { get; set; } = new();
+
+        public int NonAcRoomCharges { get; set; } = new();
+
+        public int TotalRoomCharges { get; set; } = new();
+    }
+
+    public class Rooms
+    {
+        public int Free { get; set; } = new();
+
+        public int RentedAc { get; set; } = new();
+
+        public int RentedNonAc { get; set; } = new();
+    }
 
 } 

@@ -34,17 +34,22 @@ export function AddBookingDialog({ isOpen, onClose, onBookingAdded }: AddBooking
     hallId: '',
     notes: '',
     totalAmount: 0,
-    // New fields
     address: '',
     village: '',
     city: '',
-    roomsRequired: false,
-    roomsCount: 0
+    requireRooms: false,
+    requireFreeRooms: false,
+    requireAcRooms: false,
+    requireNonAcRooms: false,
+    freeRoomsCount: 0,
+    acRoomsCount: 0,
+    nonAcRoomsCount: 0,
   });
 
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [halls, setHalls] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [selectedHall, setSelectedHall] = useState<any>(null);
+  const [loading, setLoading] = useState(false); // Start with false
   const [error, setError] = useState<Error | null>(null);
   const [showErrorDialog, setShowErrorDialog] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -52,11 +57,226 @@ export function AddBookingDialog({ isOpen, onClose, onBookingAdded }: AddBooking
   const [showHandoverInfo, setShowHandoverInfo] = useState(false);
   const [actualHandoverDate, setActualHandoverDate] = useState<Date | undefined>(undefined);
 
-  const fetchData = async () => {
-    try {
-      setLoading(true);
-      setError(null);
+  // Get available rooms from selected hall
+  const availableRooms = selectedHall?.amenities?.rooms || {
+    free: 0,
+    rentedAc: 0,
+    rentedNonAc: 0,
+    acRoomRate: 0,
+    nonAcRoomRate: 0
+  };
+
+  // SIMPLIFIED: Fetch data when dialog opens - move fetchData inside useEffect
+  useEffect(() => {
+    const fetchData = async () => {
+      if (!isOpen) return;
       
+      try {
+        setLoading(true);
+        setError(null);
+        
+        const [user, hallsData] = await Promise.all([
+          authService.getCurrentUser(),
+          hallService.getAllHalls()
+        ]);
+        
+        setCurrentUser(user);
+        setHalls(hallsData || []);
+        setShowErrorDialog(false);
+      } catch (err) {
+        const error = err as Error;
+        setError(error);
+        setShowErrorDialog(true);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [isOpen]); // Only depends on isOpen
+
+  // Simplified: Handle event type change
+  useEffect(() => {
+    if (formData.eventType === 'wedding') {
+      setShowHandoverInfo(true);
+      // Only set timeSlot to fullday if it's not already set
+      if (formData.timeSlot !== 'fullday') {
+        setFormData(prev => ({ ...prev, timeSlot: 'fullday' }));
+      }
+    } else {
+      setShowHandoverInfo(false);
+    }
+  }, [formData.eventType]); // Don't include timeSlot in dependencies
+
+  // Calculate handover date
+  useEffect(() => {
+    if (formData.eventType === 'wedding' && formData.eventStartDate) {
+      const handoverDate = subDays(formData.eventStartDate, 1);
+      setActualHandoverDate(handoverDate);
+    } else {
+      setActualHandoverDate(undefined);
+    }
+  }, [formData.eventType, formData.eventStartDate]);
+
+  // Validate dates
+  useEffect(() => {
+    if (formData.eventStartDate && formData.eventEndDate) {
+      const start = new Date(formData.eventStartDate);
+      const end = new Date(formData.eventEndDate);
+      
+      if (end < start) {
+        setFormData(prev => ({ ...prev, eventEndDate: undefined }));
+        setDateError('End date cannot be before start date');
+      } else {
+        const isMultiDay = start.getTime() !== end.getTime();
+        if (isMultiDay && formData.timeSlot && formData.timeSlot !== 'fullday') {
+          setDateError('Multi-day events must use "Full Day" time slot');
+        } else {
+          setDateError('');
+        }
+      }
+    } else {
+      setDateError('');
+    }
+  }, [formData.eventStartDate, formData.eventEndDate, formData.timeSlot]);
+
+  // Update selected hall
+  useEffect(() => {
+    if (formData.hallId) {
+      const hall = halls.find(h => h.id === formData.hallId);
+      setSelectedHall(hall);
+      
+      // Reset room selections
+      setFormData(prev => ({
+        ...prev,
+        requireRooms: false,
+        requireFreeRooms: false,
+        requireAcRooms: false,
+        requireNonAcRooms: false,
+        freeRoomsCount: 0,
+        acRoomsCount: 0,
+        nonAcRoomsCount: 0,
+      }));
+    } else {
+      setSelectedHall(null);
+    }
+  }, [formData.hallId, halls]);
+
+  // Calculate total amount - SIMPLIFIED to remove unnecessary dependencies
+  useEffect(() => {
+    const calculateTotal = () => {
+      if (!formData.timeSlot || !formData.hallId || !formData.eventStartDate || !formData.eventEndDate) {
+        setFormData(prev => ({ ...prev, totalAmount: 0 }));
+        return;
+      }
+      
+      if (!selectedHall || !selectedHall.rateCard) return;
+      
+      const { rateCard } = selectedHall;
+      let calculatedAmount = 0;
+      
+      const start = new Date(formData.eventStartDate);
+      const end = new Date(formData.eventEndDate);
+      const timeDiff = end.getTime() - start.getTime();
+      const days = Math.ceil(timeDiff / (1000 * 3600 * 24)) + 1;
+      
+      if (formData.eventType === 'wedding') {
+        calculatedAmount = rateCard.fullDayRate * days;
+      } else {
+        switch (formData.timeSlot) {
+          case 'morning':
+            calculatedAmount = (rateCard.morningRate || rateCard.halfDayRate || rateCard.fullDayRate * 0.6) * days;
+            break;
+          case 'evening':
+            calculatedAmount = (rateCard.eveningRate || rateCard.halfDayRate || rateCard.fullDayRate * 0.6) * days;
+            break;
+          case 'fullday':
+            calculatedAmount = rateCard.fullDayRate * days;
+            break;
+          default:
+            calculatedAmount = 0;
+        }
+      }
+      
+      // Add room charges
+      if (formData.requireAcRooms && formData.acRoomsCount > 0 && availableRooms.acRoomRate) {
+        calculatedAmount += availableRooms.acRoomRate * formData.acRoomsCount * days;
+      }
+      
+      if (formData.requireNonAcRooms && formData.nonAcRoomsCount > 0 && availableRooms.nonAcRoomRate) {
+        calculatedAmount += availableRooms.nonAcRoomRate * formData.nonAcRoomsCount * days;
+      }
+      
+      setFormData(prev => ({ ...prev, totalAmount: calculatedAmount }));
+    };
+    
+    calculateTotal();
+  }, [
+    formData.timeSlot,
+    formData.hallId,
+    formData.eventStartDate,
+    formData.eventEndDate,
+    formData.eventType,
+    formData.requireAcRooms,
+    formData.acRoomsCount,
+    formData.requireNonAcRooms,
+    formData.nonAcRoomsCount,
+    selectedHall,
+    availableRooms.acRoomRate,
+    availableRooms.nonAcRoomRate
+  ]);
+
+  // Set event end date same as start date
+  useEffect(() => {
+    if (formData.eventStartDate && !formData.eventEndDate) {
+      setFormData(prev => ({ ...prev, eventEndDate: formData.eventStartDate }));
+    }
+  }, [formData.eventStartDate, formData.eventEndDate]);
+
+  // Reset form when dialog closes
+  useEffect(() => {
+    if (!isOpen) {
+      // Use setTimeout to avoid state updates during render
+      const timer = setTimeout(() => {
+        setFormData({
+          customerName: '',
+          customerPhone: '',
+          customerEmail: '',
+          eventType: '',
+          eventDate: '',
+          eventStartDate: undefined,
+          eventEndDate: undefined,
+          timeSlot: '',
+          guestCount: '',
+          hallId: '',
+          notes: '',
+          totalAmount: 0,
+          address: '',
+          village: '',
+          city: '',
+          requireRooms: false,
+          requireFreeRooms: false,
+          requireAcRooms: false,
+          requireNonAcRooms: false,
+          freeRoomsCount: 0,
+          acRoomsCount: 0,
+          nonAcRoomsCount: 0,
+        });
+        setSelectedHall(null);
+        setDateError('');
+        setShowHandoverInfo(false);
+        setActualHandoverDate(undefined);
+        setError(null);
+        setShowErrorDialog(false);
+      }, 100);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [isOpen]);
+
+  const handleRetry = async () => {
+    setLoading(true);
+    try {
       const [user, hallsData] = await Promise.all([
         authService.getCurrentUser(),
         hallService.getAllHalls()
@@ -74,138 +294,21 @@ export function AddBookingDialog({ isOpen, onClose, onBookingAdded }: AddBooking
     }
   };
 
-  // Handle event type change
-  useEffect(() => {
-    if (formData.eventType === 'wedding') {
-      setShowHandoverInfo(true);
-      // Auto-select fullday for wedding events
-      setFormData(prev => ({ ...prev, timeSlot: 'fullday' }));
-      
-      // Calculate handover date if start date is set
-      if (formData.eventStartDate) {
-        const handoverDate = subDays(formData.eventStartDate, 1);
-        setActualHandoverDate(handoverDate);
-      }
-    } else {
-      setShowHandoverInfo(false);
-      setActualHandoverDate(undefined);
-      // Reset time slot if it was forced to fullday
-      if (formData.timeSlot === 'fullday' && formData.eventType === 'wedding') {
-        setFormData(prev => ({ ...prev, timeSlot: '' }));
-      }
-    }
-  }, [formData.eventType, formData.eventStartDate]);
-
-  // Validate dates when they change
-  useEffect(() => {
-    if (formData.eventStartDate && formData.eventEndDate) {
-      const start = new Date(formData.eventStartDate);
-      const end = new Date(formData.eventEndDate);
-      
-      // Reset end date if it's before start date
-      if (end < start) {
-        setFormData(prev => ({ ...prev, eventEndDate: undefined }));
-        setDateError('End date cannot be before start date');
-      } else {
-        setDateError('');
-        
-        // Check if multi-day event is selected as morning/evening slot
-        const isMultiDay = start.getTime() !== end.getTime();
-        if (isMultiDay && formData.timeSlot && formData.timeSlot !== 'fullday') {
-          setDateError('Multi-day events must use "Full Day" time slot');
-        } else {
-          setDateError('');
-        }
-      }
-    } else {
-      setDateError('');
-    }
-  }, [formData.eventStartDate, formData.eventEndDate, formData.timeSlot]);
-
-  // Calculate total amount based on timeSlot selection and event type
-  useEffect(() => {
-    if (formData.timeSlot && formData.hallId && formData.eventStartDate && formData.eventEndDate) {
-      const selectedHall = halls.find(hall => hall.id === formData.hallId);
-      if (!selectedHall || !selectedHall.rateCard) return;
-      
-      const { rateCard } = selectedHall;
-      let calculatedAmount = 0;
-      
-      // Calculate number of days (inclusive of both start and end dates)
-      const start = new Date(formData.eventStartDate);
-      const end = new Date(formData.eventEndDate);
-      const timeDiff = end.getTime() - start.getTime();
-      const days = Math.ceil(timeDiff / (1000 * 3600 * 24)) + 1;
-      
-      // For weddings, check if it's multi-day wedding celebration
-      const isMultiDayWedding = formData.eventType === 'wedding' && days > 1;
-      
-      if (formData.eventType === 'wedding') {
-        // Wedding pricing logic
-        if (isMultiDayWedding) {
-          // Multi-day wedding celebration
-          // First day: Full wedding rate (includes handover day before)
-          // Subsequent days: Apply normal full day rate for each additional day
-          calculatedAmount = rateCard.fullDayRate; // First day (wedding day with handover)
-          if (days > 1) {
-            calculatedAmount += rateCard.fullDayRate * (days - 1); // Additional celebration days
-          }
-        } else {
-          // Single day wedding (with handover day before)
-          calculatedAmount = rateCard.fullDayRate; // Wedding rate (includes handover)
-        }
-      } else {
-        // Non-wedding events
-        switch (formData.timeSlot) {
-          case 'morning':
-            calculatedAmount = (rateCard.morningRate || rateCard.halfDayRate || rateCard.fullDayRate * 0.6) * days;
-            break;
-          case 'evening':
-            calculatedAmount = (rateCard.eveningRate || rateCard.halfDayRate || rateCard.fullDayRate * 0.6) * days;
-            break;
-          case 'fullday':
-            calculatedAmount = rateCard.fullDayRate * days;
-            break;
-          default:
-            calculatedAmount = 0;
-        }
-      }
-      
-      // Add room charges if rooms required
-      if (formData.roomsRequired && formData.roomsCount > 0 && selectedHall.roomRate) {
-        calculatedAmount += selectedHall.roomRate * formData.roomsCount * days;
-      }
-      
-      setFormData(prev => ({ ...prev, totalAmount: calculatedAmount }));
-    } else {
-      setFormData(prev => ({ ...prev, totalAmount: 0 }));
-    }
-  }, [formData.timeSlot, formData.hallId, formData.eventStartDate, formData.eventEndDate, formData.eventType, formData.roomsRequired, formData.roomsCount, halls]);
-
-  // Set event end date same as start date for single day events (non-wedding)
-  useEffect(() => {
-    if (formData.eventStartDate && formData.eventType !== 'wedding' && !formData.eventEndDate) {
-      setFormData(prev => ({ ...prev, eventEndDate: formData.eventStartDate }));
-    }
-    
-    // For weddings, also set end date same as start if not set
-    if (formData.eventStartDate && formData.eventType === 'wedding' && !formData.eventEndDate) {
-      setFormData(prev => ({ ...prev, eventEndDate: formData.eventStartDate }));
-    }
-  }, [formData.eventStartDate, formData.eventType]);
-
-  useEffect(() => {
-    if (isOpen) {
-      fetchData();
-    }
-  }, [isOpen]);
-
-  const handleRetry = async () => {
-    await fetchData();
-  };
-
   const handleCloseErrorDialog = () => {
     setShowErrorDialog(false);
+  };
+
+  const handleRequireRoomsChange = (checked: boolean) => {
+    setFormData(prev => ({
+      ...prev,
+      requireRooms: checked,
+      requireFreeRooms: false,
+      requireAcRooms: false,
+      requireNonAcRooms: false,
+      freeRoomsCount: 0,
+      acRoomsCount: 0,
+      nonAcRoomsCount: 0
+    }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -215,112 +318,117 @@ export function AddBookingDialog({ isOpen, onClose, onBookingAdded }: AddBooking
         !formData.eventEndDate || !formData.timeSlot || dateError) {
       return;
     }
-
+  
     try {
       setSubmitting(true);
       
-      // Format dates to ISO strings
       const startDate = new Date(formData.eventStartDate);
       const endDate = new Date(formData.eventEndDate);
       let handoverStartDate: Date | undefined;
       
-      // Calculate if it's a multi-day event
       const days = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 3600 * 24)) + 1;
       const isMultiDay = days > 1;
       const isWedding = formData.eventType === 'wedding';
       
-      // Set times based on timeSlot, event type, and duration
       if (isWedding) {
-        // Wedding events
         if (isMultiDay) {
-          // Multi-day wedding celebration
-          // First day: Handover starts day before at 2PM, event starts at event day 12PM
           handoverStartDate = subDays(startDate, 1);
-          handoverStartDate.setHours(14, 0, 0, 0); // 2:00 PM day before
-          
-          startDate.setHours(12, 0, 0, 0); // Wedding starts at 12:00 PM on first day
-          
-          // Last day ends at 11:00 PM
+          handoverStartDate.setHours(14, 0, 0, 0);
+          startDate.setHours(12, 0, 0, 0);
           endDate.setHours(23, 0, 0, 0);
-          
-          // For multi-day weddings, middle days are full days
-          // We'll set appropriate times for each day in the backend
         } else {
-          // Single day wedding (with handover day before)
           handoverStartDate = subDays(startDate, 1);
-          handoverStartDate.setHours(14, 0, 0, 0); // 2:00 PM day before
-          
-          startDate.setHours(12, 0, 0, 0); // Wedding starts at 12:00 PM
-          endDate.setHours(23, 0, 0, 0); // 11:00 PM on wedding day
+          handoverStartDate.setHours(14, 0, 0, 0);
+          startDate.setHours(12, 0, 0, 0);
+          endDate.setHours(23, 0, 0, 0);
         }
       } else {
-        // Non-wedding events
         if (formData.timeSlot === 'morning') {
-          startDate.setHours(9, 0, 0, 0); // 9:00 AM
-          endDate.setHours(15, 0, 0, 0); // 3:00 PM
+          startDate.setHours(9, 0, 0, 0);
+          endDate.setHours(15, 0, 0, 0);
         } else if (formData.timeSlot === 'evening') {
-          startDate.setHours(16, 0, 0, 0); // 4:00 PM
-          endDate.setHours(23, 0, 0, 0); // 11:00 PM
+          startDate.setHours(16, 0, 0, 0);
+          endDate.setHours(23, 0, 0, 0);
         } else if (formData.timeSlot === 'fullday') {
-          startDate.setHours(9, 0, 0, 0); // 9:00 AM
-          endDate.setHours(23, 0, 0, 0); // 11:00 PM
-        }
-        
-        // For multi-day events with full day, adjust end date time
-        if (isMultiDay && formData.timeSlot === 'fullday') {
-          endDate.setHours(23, 0, 0, 0); // Last day ends at 11:00 PM
+          startDate.setHours(9, 0, 0, 0);
+          endDate.setHours(23, 0, 0, 0);
         }
       }
       
-      await bookingService.createBooking({
+      let roomDetails: any = {
+        Charges: {
+          AcRoomCharges: 0,
+          NonAcRoomCharges: 0,
+          TotalRoomCharges: 0
+        },
+        RoomsCount: {
+          Free: 0,
+          RentedAc: 0,
+          RentedNonAc: 0
+        }
+      };
+      
+      let totalRoomsCount = 0;
+      
+      if (formData.requireRooms) {
+        if (formData.requireFreeRooms && formData.freeRoomsCount > 0) {
+          roomDetails.RoomsCount.Free = formData.freeRoomsCount;
+          totalRoomsCount += formData.freeRoomsCount;
+        }
+        
+        if (formData.requireAcRooms && formData.acRoomsCount > 0) {
+          roomDetails.RoomsCount.RentedAc = formData.acRoomsCount;
+          totalRoomsCount += formData.acRoomsCount;
+          roomDetails.Charges.AcRoomCharges = availableRooms.acRoomRate * formData.acRoomsCount * days;
+        }
+        
+        if (formData.requireNonAcRooms && formData.nonAcRoomsCount > 0) {
+          roomDetails.RoomsCount.RentedNonAc = formData.nonAcRoomsCount;
+          totalRoomsCount += formData.nonAcRoomsCount;
+          roomDetails.Charges.NonAcRoomCharges = availableRooms.nonAcRoomRate * formData.nonAcRoomsCount * days;
+        }
+        
+        roomDetails.Charges.TotalRoomCharges = roomDetails.Charges.AcRoomCharges + roomDetails.Charges.NonAcRoomCharges;
+      }
+      
+      const bookingData: any = {
+        id: Date.now().toString(),
         customerName: formData.customerName,
         customerPhone: formData.customerPhone,
-        customerEmail: formData.customerEmail,
+        customerEmail: formData.customerEmail || '',
         eventType: formData.eventType,
         eventDate: startDate.toISOString(),
         eventStartDate: startDate.toISOString(),
         eventEndDate: endDate.toISOString(),
-        handoverStartDate: handoverStartDate ? handoverStartDate.toISOString() : undefined,
+        handoverStartDate: handoverStartDate ? handoverStartDate.toISOString() : startDate.toISOString(),
         timeSlot: formData.timeSlot,
         guestCount: parseInt(formData.guestCount) || 0,
         hallId: formData.hallId,
         organizationId: currentUser?.organizationId || '',
-        status: 'pending',
         totalAmount: formData.totalAmount,
-        // New fields
-        address: formData.address,
-        village: formData.village,
-        city: formData.city,
-        roomsRequired: formData.roomsRequired,
-        roomsCount: formData.roomsRequired ? formData.roomsCount : 0,
-        notes: formData.notes
-      });
+        address: formData.address || '',
+        city: formData.city || '',
+        village: formData.village || '',
+        notes: formData.notes || '',
+        roomsRequired: formData.requireRooms,
+        roomsCount: totalRoomsCount,
+        roomDetails: roomDetails,
+        status: 'pending',
+        isActive: true,
+        customerResponse: '',
+        lastContactDate: null,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+      
+      console.log('Booking data being sent:', JSON.stringify(bookingData, null, 2));
+      
+      await bookingService.createBooking(bookingData);
       
       onBookingAdded();
       onClose();
-      setFormData({
-        customerName: '',
-        customerPhone: '',
-        customerEmail: '',
-        eventType: '',
-        eventDate: '',
-        eventStartDate: undefined,
-        eventEndDate: undefined,
-        timeSlot: '',
-        guestCount: '',
-        hallId: '',
-        notes: '',
-        totalAmount: 0,
-        address: '',
-        village: '',
-        city: '',
-        roomsRequired: false,
-        roomsCount: 0
-      });
-      setDateError('');
-      setShowHandoverInfo(false);
-      setActualHandoverDate(undefined);
     } catch (error) {
+      console.error('Error creating booking:', error);
       setError(error as Error);
       setShowErrorDialog(true);
     } finally {
@@ -330,6 +438,42 @@ export function AddBookingDialog({ isOpen, onClose, onBookingAdded }: AddBooking
 
   const handleInputChange = (field: string, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleRoomCountChange = (roomType: 'freeRoomsCount' | 'acRoomsCount' | 'nonAcRoomsCount', value: string) => {
+    if (value === '') {
+      setFormData(prev => ({ ...prev, [roomType]: 0 }));
+      return;
+    }
+    
+    const numValue = parseInt(value);
+    if (!isNaN(numValue)) {
+      const maxRooms = {
+        freeRoomsCount: availableRooms.free,
+        acRoomsCount: availableRooms.rentedAc,
+        nonAcRoomsCount: availableRooms.rentedNonAc
+      }[roomType];
+      
+      setFormData(prev => ({ 
+        ...prev, 
+        [roomType]: Math.min(Math.max(0, numValue), maxRooms)
+      }));
+    }
+  };
+
+  const handleRoomCountBlur = (roomType: 'freeRoomsCount' | 'acRoomsCount' | 'nonAcRoomsCount') => {
+    const currentValue = formData[roomType];
+    const maxRooms = {
+      freeRoomsCount: availableRooms.free,
+      acRoomsCount: availableRooms.rentedAc,
+      nonAcRoomsCount: availableRooms.rentedNonAc
+    }[roomType];
+    
+    if (currentValue < 1) {
+      setFormData(prev => ({ ...prev, [roomType]: 1 }));
+    } else if (currentValue > maxRooms) {
+      setFormData(prev => ({ ...prev, [roomType]: maxRooms }));
+    }
   };
 
   if (loading) {
@@ -398,11 +542,12 @@ export function AddBookingDialog({ isOpen, onClose, onBookingAdded }: AddBooking
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="customerPhone">Phone Number</Label>
+              <Label htmlFor="customerPhone">Phone Number *</Label>
               <Input
                 id="customerPhone"
                 value={formData.customerPhone}
                 onChange={(e) => handleInputChange('customerPhone', e.target.value)}
+                required
               />
             </div>
 
@@ -458,12 +603,13 @@ export function AddBookingDialog({ isOpen, onClose, onBookingAdded }: AddBooking
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="city">City/District</Label>
+              <Label htmlFor="city">City/District *</Label>
               <Input
                 id="city"
                 value={formData.city}
                 onChange={(e) => handleInputChange('city', e.target.value)}
                 placeholder="City or district"
+                required
               />
             </div>
 
@@ -495,7 +641,7 @@ export function AddBookingDialog({ isOpen, onClose, onBookingAdded }: AddBooking
               </Popover>
             </div>
 
-            {/* Event End Date - Show for ALL event types including wedding */}
+            {/* Event End Date */}
             <div className="space-y-2">
               <Label htmlFor="eventEndDate">Event End Date *</Label>
               <Popover>
@@ -572,8 +718,14 @@ export function AddBookingDialog({ isOpen, onClose, onBookingAdded }: AddBooking
                 <SelectContent>
                   {halls.map((hall) => (
                     <SelectItem key={hall.id} value={hall.id}>
-                      {hall.name} - ₹{hall.rateCard?.fullDayRate?.toLocaleString() || '0'}
-                      {hall.roomRate && ` (Rooms: ₹${hall.roomRate?.toLocaleString() || '0'}/room)`}
+                      {hall.name} {/*- ₹{hall.rateCard?.fullDayRate?.toLocaleString() || '0'}
+                      {hall.amenities?.rooms && (
+                        <span className="text-xs ml-2">
+                          {hall.amenities.rooms.free > 0 && `Free:${hall.amenities.rooms.free} `}
+                          {hall.amenities.rooms.rentedAc > 0 && `AC:${hall.amenities.rooms.rentedAc} `}
+                          {hall.amenities.rooms.rentedNonAc > 0 && `Non-AC:${hall.amenities.rooms.rentedNonAc}`}
+                        </span>
+                      )}*/}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -594,9 +746,9 @@ export function AddBookingDialog({ isOpen, onClose, onBookingAdded }: AddBooking
                   } />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="morning">Morning (9 AM - 3 PM)</SelectItem>
-                  <SelectItem value="evening">Evening (4 PM - 11 PM)</SelectItem>
-                  <SelectItem value="fullday">Full Day (9 AM - 11 PM)</SelectItem>
+                  <SelectItem value="morning">Morning (00 AM - 12 PM)</SelectItem>
+                  <SelectItem value="evening">Evening (02 PM - 11 PM)</SelectItem>
+                  <SelectItem value="fullday">Full Day (00 AM - 11 PM)</SelectItem>
                 </SelectContent>
               </Select>
               {formData.eventType === 'wedding' && (
@@ -614,38 +766,189 @@ export function AddBookingDialog({ isOpen, onClose, onBookingAdded }: AddBooking
                 min="1"
               />
             </div>
+          </div>
 
-            {/* Rooms Required Checkbox and Count */}
-            <div className="space-y-2 col-span-2">
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="roomsRequired"
-                  checked={formData.roomsRequired}
-                  onCheckedChange={(checked) => handleInputChange('roomsRequired', checked)}
-                />
-                <Label htmlFor="roomsRequired" className="cursor-pointer">
-                  Rooms Required
-                </Label>
-              </div>
-              
-              {formData.roomsRequired && (
-                <div className="ml-6 mt-2">
-                  <Label htmlFor="roomsCount">Number of Rooms</Label>
-                  <Input
-                    id="roomsCount"
-                    type="number"
-                    value={formData.roomsCount}
-                    onChange={(e) => handleInputChange('roomsCount', parseInt(e.target.value) || 0)}
-                    min="1"
-                    max="20"
-                    className="w-32"
-                  />
-                  <p className="text-xs text-gray-500 mt-1">
-                    Additional ₹{halls.find(h => h.id === formData.hallId)?.roomRate?.toLocaleString() || '0'} per room per day
-                  </p>
-                </div>
-              )}
+          {/* Rooms Required Section */}
+          <div className="space-y-2 border rounded-lg p-4 bg-gray-50">
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="roomsRequired"
+                checked={formData.requireRooms}
+                onCheckedChange={(checked) => handleRequireRoomsChange(checked as boolean)}
+                disabled={!formData.hallId}
+              />
+              <Label htmlFor="roomsRequired" className="cursor-pointer font-medium">
+                Rooms Required
+              </Label>
             </div>
+            
+            {formData.requireRooms && (
+              <div className="space-y-4 ml-6 border-l-2 border-gray-300 pl-4">
+                {availableRooms.free === 0 && availableRooms.rentedAc === 0 && availableRooms.rentedNonAc === 0 ? (
+                  <div className="bg-yellow-50 border border-yellow-200 rounded p-3">
+                    <p className="text-sm text-yellow-700">
+                      No rooms available in this hall
+                    </p>
+                  </div>
+                ) : (
+                  <>
+                    {/* Free Rooms */}
+                    {availableRooms.free > 0 && (
+                      <div className="space-y-2">
+                        <div className="flex items-center space-x-2">
+                          <Checkbox
+                            id="requireFreeRooms"
+                            checked={formData.requireFreeRooms}
+                            onCheckedChange={(checked) => setFormData(prev => ({ 
+                              ...prev, 
+                              requireFreeRooms: checked as boolean,
+                              freeRoomsCount: checked ? 1 : 0
+                            }))}
+                          />
+                          <Label htmlFor="requireFreeRooms" className="font-medium">
+                            Free Rooms (Available: {availableRooms.free})
+                          </Label>
+                        </div>
+                        
+                        {formData.requireFreeRooms && (
+                          <div className="ml-6 space-y-2">
+                            <div className="flex items-center space-x-4">
+                              <div className="w-32">
+                                <Label htmlFor="freeRoomsCount">Number of Rooms</Label>
+                                <Input
+                                  id="freeRoomsCount"
+                                  type="number"
+                                  value={formData.freeRoomsCount}
+                                  onChange={(e) => handleRoomCountChange('freeRoomsCount', e.target.value)}
+                                  onBlur={() => handleRoomCountBlur('freeRoomsCount')}
+                                  min="1"
+                                  max={availableRooms.free}
+                                />
+                              </div>
+                              <div className="flex-1">
+                                <p className="text-sm text-gray-600">
+                                  Max: {availableRooms.free} room(s) available
+                                  <span className="ml-2 text-green-600 font-medium">
+                                    (Free of charge)
+                                  </span>
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* AC Rooms */}
+                    {availableRooms.rentedAc > 0 && (
+                      <div className="space-y-2 pt-2 border-t border-gray-200">
+                        <div className="flex items-center space-x-2">
+                          <Checkbox
+                            id="requireAcRooms"
+                            checked={formData.requireAcRooms}
+                            onCheckedChange={(checked) => setFormData(prev => ({ 
+                              ...prev, 
+                              requireAcRooms: checked as boolean,
+                              acRoomsCount: checked ? 1 : 0
+                            }))}
+                          />
+                          <Label htmlFor="requireAcRooms" className="font-medium">
+                            AC Rooms (Available: {availableRooms.rentedAc})
+                          </Label>
+                        </div>
+                        
+                        {formData.requireAcRooms && (
+                          <div className="ml-6 space-y-2">
+                            <div className="flex items-center space-x-4">
+                              <div className="w-32">
+                                <Label htmlFor="acRoomsCount">Number of Rooms</Label>
+                                <Input
+                                  id="acRoomsCount"
+                                  type="number"
+                                  value={formData.acRoomsCount}
+                                  onChange={(e) => handleRoomCountChange('acRoomsCount', e.target.value)}
+                                  onBlur={() => handleRoomCountBlur('acRoomsCount')}
+                                  min="1"
+                                  max={availableRooms.rentedAc}
+                                />
+                              </div>
+                              <div className="flex-1">
+                                <p className="text-sm text-gray-600">
+                                  Max: {availableRooms.rentedAc} room(s) available
+                                  {availableRooms.acRoomRate > 0 && (
+                                    <span className="ml-2 text-blue-600 font-medium">
+                                      (₹{availableRooms.acRoomRate * formData.acRoomsCount}/day)
+                                    </span>
+                                  )}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Non-AC Rooms */}
+                    {availableRooms.rentedNonAc > 0 && (
+                      <div className="space-y-2 pt-2 border-t border-gray-200">
+                        <div className="flex items-center space-x-2">
+                          <Checkbox
+                            id="requireNonAcRooms"
+                            checked={formData.requireNonAcRooms}
+                            onCheckedChange={(checked) => setFormData(prev => ({ 
+                              ...prev, 
+                              requireNonAcRooms: checked as boolean,
+                              nonAcRoomsCount: checked ? 1 : 0
+                            }))}
+                          />
+                          <Label htmlFor="requireNonAcRooms" className="font-medium">
+                            Non-AC Rooms (Available: {availableRooms.rentedNonAc})
+                          </Label>
+                        </div>
+                        
+                        {formData.requireNonAcRooms && (
+                          <div className="ml-6 space-y-2">
+                            <div className="flex items-center space-x-4">
+                              <div className="w-32">
+                                <Label htmlFor="nonAcRoomsCount">Number of Rooms</Label>
+                                <Input
+                                  id="nonAcRoomsCount"
+                                  type="number"
+                                  value={formData.nonAcRoomsCount}
+                                  onChange={(e) => handleRoomCountChange('nonAcRoomsCount', e.target.value)}
+                                  onBlur={() => handleRoomCountBlur('nonAcRoomsCount')}
+                                  min="1"
+                                  max={availableRooms.rentedNonAc}
+                                />
+                              </div>
+                              <div className="flex-1">
+                                <p className="text-sm text-gray-600">
+                                  Max: {availableRooms.rentedNonAc} room(s) available
+                                  {availableRooms.nonAcRoomRate > 0 && (
+                                    <span className="ml-2 text-amber-600 font-medium">
+                                      (₹{availableRooms.nonAcRoomRate * formData.nonAcRoomsCount}/day)
+                                    </span>
+                                  )}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Info message when no room type is selected */}
+                    {!formData.requireFreeRooms && !formData.requireAcRooms && !formData.requireNonAcRooms && (
+                      <div className="bg-yellow-50 border border-yellow-200 rounded p-3">
+                        <p className="text-sm text-yellow-700">
+                          Please select at least one room type above
+                        </p>
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
+            )}
           </div>
 
           <div className="space-y-2">
@@ -678,9 +981,12 @@ export function AddBookingDialog({ isOpen, onClose, onBookingAdded }: AddBooking
                     )}
                   </p>
                 )}
-                {formData.roomsRequired && formData.roomsCount > 0 && (
+                {(formData.requireFreeRooms || formData.requireAcRooms || formData.requireNonAcRooms) && (
                   <p className="text-sm text-gray-500">
-                    Includes {formData.roomsCount} room(s)
+                    Includes: 
+                    {formData.requireFreeRooms && formData.freeRoomsCount > 0 && ` ${formData.freeRoomsCount} free room(s)`}
+                    {formData.requireAcRooms && formData.acRoomsCount > 0 && ` ${formData.acRoomsCount} AC room(s)`}
+                    {formData.requireNonAcRooms && formData.nonAcRoomsCount > 0 && ` ${formData.nonAcRoomsCount} non-AC room(s)`}
                   </p>
                 )}
               </div>

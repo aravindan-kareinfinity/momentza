@@ -361,6 +361,7 @@ namespace Momantza.Services
                 // Update fields
                 existing.Name = updates.Name ?? existing.Name;
                 //existing.Capacity = updates.Capacity > 0 ? updates.Capacity : existing.Capacity;
+                existing.Coordinates = updates.Coordinates ?? existing.Coordinates;
                 existing.Location = updates.Location ?? existing.Location;
                 existing.Address = updates.Address ?? existing.Address;
                 if (updates.Amenities != null)

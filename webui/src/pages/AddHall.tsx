@@ -12,7 +12,7 @@ import { hallService, galleryService, authService } from '@/services/ServiceFact
 import { useToast } from '@/hooks/use-toast';
 import { HallFeature } from '@/types';
 import { AnimatedPage } from '@/components/Layout/AnimatedPage';
-import { LocationPicker } from '@/components/Home/LocationPicker'; // Add this import
+import { LocationPicker } from '@/components/Home/LocationPicker';
 
 const AddHall = () => {
   const navigate = useNavigate();
@@ -20,13 +20,14 @@ const AddHall = () => {
 
   const [name, setName] = useState('');
   const [capacity, setCapacity] = useState('');
-  // additional basic information
   const [diningCapacity, setDiningCapacity] = useState('');
   const [parkingCapacity, setParkingCapacity] = useState('');
   const [foodType, setFoodType] = useState<'veg' | 'non-veg' | 'both'>('both');
   const [freeRooms, setFreeRooms] = useState('');
   const [rentedAcRooms, setRentedAcRooms] = useState('');
   const [rentedNonAcRooms, setRentedNonAcRooms] = useState('');
+  const [acRoomRate, setAcRoomRate] = useState(''); // Add AC room rate
+  const [nonAcRoomRate, setNonAcRoomRate] = useState(''); // Add Non-AC room rate
   const [hasGenerator, setHasGenerator] = useState(false);
   const [hasAirConditioning, setHasAirConditioning] = useState(false);
   const [rules, setRules] = useState<string[]>([]);
@@ -34,7 +35,7 @@ const AddHall = () => {
 
   const [location, setLocation] = useState('');
   const [address, setAddress] = useState('');
-  const [coordinates, setCoordinates] = useState<{ lat: number; lng: number } | null>(null); // Add this
+  const [coordinates, setCoordinates] = useState<{ lat: number; lng: number } | null>(null);
   const [features, setFeatures] = useState<HallFeature[]>([]);
   const [morningRate, setMorningRate] = useState('');
   const [eveningRate, setEveningRate] = useState('');
@@ -64,7 +65,6 @@ const AddHall = () => {
     fetchData();
   }, []);
 
-  //rules methods
   const handleAddRule = () => {
     if (!newRule.trim()) return;
     setRules(prev => [...prev, newRule.trim()]);
@@ -82,12 +82,6 @@ const AddHall = () => {
     }
   };
 
-  // const handleAddCoordinates=()=>{
-  //   if (newCordnates.lat && newCoordinates.lng){
-  //     setCoordinates([..coordinates,{lat:parseInt(newCoordinates.lat), lng:parseInt(newCoordinates.lng)}]);
-  //   }
-  // }
-
   const getImageIdentifier = (image: any) => {
     return image.url || image.id;
   };
@@ -104,7 +98,6 @@ const AddHall = () => {
     );
   };
 
-  // Add this function to handle location selection
   const handleLocationSelect = (locationData: {
     address: string;
     location: string;
@@ -141,6 +134,8 @@ const AddHall = () => {
             free: parseInt(freeRooms),
             rentedAc: parseInt(rentedAcRooms),
             rentedNonAc: parseInt(rentedNonAcRooms),
+            acRoomRate: parseInt(acRoomRate) || 0,
+            nonAcRoomRate: parseInt(nonAcRoomRate) || 0
           },
           facilities: {
             generator: hasGenerator,
@@ -218,8 +213,6 @@ const AddHall = () => {
                   required
                 />
               </div>
-
-
             </div>
 
             <div className="grid grid-cols-2 gap-4">
@@ -245,8 +238,6 @@ const AddHall = () => {
                 />
               </div>
             </div>
-
-
 
             {/* Replace Location Field with LocationPicker */}
             <div className="space-y-4">
@@ -333,8 +324,10 @@ const AddHall = () => {
             <CardTitle>Room Availability</CardTitle>
           </CardHeader>
 
-          <CardContent>
-            <div className="grid grid-cols-3 gap-4">
+          <CardContent className="space-y-6">
+            {/* Room Counts with Rates */}
+            <div className="grid grid-cols-2 gap-4">
+              {/* Free Rooms - No Rate Field */}
               <div className="space-y-2">
                 <Label htmlFor="freeRooms">Free Rooms</Label>
                 <Input
@@ -343,34 +336,69 @@ const AddHall = () => {
                   min={0}
                   value={freeRooms}
                   onChange={(e) => setFreeRooms(e.target.value)}
+                  placeholder="0"
                 />
               </div>
 
+              {/* Empty column for alignment */}
+              <div></div>
+
+              {/* Rented AC Rooms with Rate */}
               <div className="space-y-2">
                 <Label htmlFor="rentedAcRooms">Rented AC Rooms</Label>
-                <Input
-                  id="rentedAcRooms"
-                  type="number"
-                  min={0}
-                  value={rentedAcRooms}
-                  onChange={(e) => setRentedAcRooms(e.target.value)}
-                />
+                <div className="flex gap-2">
+                  <Input
+                    id="rentedAcRooms"
+                    type="number"
+                    min={0}
+                    value={rentedAcRooms}
+                    onChange={(e) => setRentedAcRooms(e.target.value)}
+                    placeholder="0"
+                    className="flex-1"
+                  />
+                  <div className="w-32">
+                    <Input
+                      type="number"
+                      min={0}
+                      value={acRoomRate}
+                      onChange={(e) => setAcRoomRate(e.target.value)}
+                      placeholder="Rate"
+                      disabled={!rentedAcRooms || parseInt(rentedAcRooms) === 0}
+                    />
+                    <p className="text-xs text-gray-500 mt-1">₹ per room</p>
+                  </div>
+                </div>
               </div>
 
+              {/* Rented Non-AC Rooms with Rate */}
               <div className="space-y-2">
                 <Label htmlFor="rentedNonAcRooms">Rented Non-AC Rooms</Label>
-                <Input
-                  id="rentedNonAcRooms"
-                  type="number"
-                  min={0}
-                  value={rentedNonAcRooms}
-                  onChange={(e) => setRentedNonAcRooms(e.target.value)}
-                />
+                <div className="flex gap-2">
+                  <Input
+                    id="rentedNonAcRooms"
+                    type="number"
+                    min={0}
+                    value={rentedNonAcRooms}
+                    onChange={(e) => setRentedNonAcRooms(e.target.value)}
+                    placeholder="0"
+                    className="flex-1"
+                  />
+                  <div className="w-32">
+                    <Input
+                      type="number"
+                      min={0}
+                      value={nonAcRoomRate}
+                      onChange={(e) => setNonAcRoomRate(e.target.value)}
+                      placeholder="Rate"
+                      disabled={!rentedNonAcRooms || parseInt(rentedNonAcRooms) === 0}
+                    />
+                    <p className="text-xs text-gray-500 mt-1">₹ per room</p>
+                  </div>
+                </div>
               </div>
             </div>
           </CardContent>
         </Card>
-
 
         {/* generator and air conditioner facility */}
         <Card>
@@ -441,9 +469,6 @@ const AddHall = () => {
           </CardContent>
         </Card>
 
-
-
-        {/* Rest of your existing code remains the same... */}
         <Card>
           <CardHeader>
             <CardTitle>Additional Charges</CardTitle>

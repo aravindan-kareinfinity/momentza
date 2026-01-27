@@ -77,16 +77,31 @@ export function PublicHallCalendar({ hallId, onDateSelect, selectedDate }: Publi
   };
 
   const getBookingStatus = (date: Date) => {
-    const dateStr = format(date, 'yyyy-MM-dd');
-    const dayBookings = safeBookings.filter(booking => 
-      booking.eventDate === dateStr && 
-      (booking.status === 'confirmed' || booking.status === 'active')
-    );
-
+    // Create date string in YYYY-MM-DD format in local timezone
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const dateStr = `${year}-${month}-${day}`;
+    
+    const dayBookings = safeBookings.filter(booking => {
+      // Normalize booking dates to local timezone
+      if (booking.eventDate) {
+        const bookingDate = new Date(booking.eventDate);
+        const bookingYear = bookingDate.getFullYear();
+        const bookingMonth = String(bookingDate.getMonth() + 1).padStart(2, '0');
+        const bookingDay = String(bookingDate.getDate()).padStart(2, '0');
+        const normalizedBookingDate = `${bookingYear}-${bookingMonth}-${bookingDay}`;
+        
+        return normalizedBookingDate === dateStr && 
+          (booking.status === 'confirmed' || booking.status === 'active');
+      }
+      return false;
+    })
+  
     const hasFullDay = dayBookings.some(b => b.timeSlot === 'fullday');
     const hasMorning = dayBookings.some(b => b.timeSlot === 'morning');
     const hasEvening = dayBookings.some(b => b.timeSlot === 'evening');
-
+  
     if (hasFullDay || (hasMorning && hasEvening)) {
       return 'full';
     } else if (hasMorning) {
@@ -114,7 +129,10 @@ export function PublicHallCalendar({ hallId, onDateSelect, selectedDate }: Publi
   const renderDay = (day: Date) => {
     const status = getBookingStatus(day);
     const dayNumber = day.getDate();
-    const isSelected = selectedDate && format(selectedDate, 'yyyy-MM-dd') === format(day, 'yyyy-MM-dd');
+    const isSelected = selectedDate && 
+  selectedDate.getDate() === day.getDate() &&
+  selectedDate.getMonth() === day.getMonth() &&
+  selectedDate.getFullYear() === day.getFullYear();
     const isDisabled = status === 'full' || day < new Date();
     
     return (

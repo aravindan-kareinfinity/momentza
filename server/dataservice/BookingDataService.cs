@@ -2,6 +2,8 @@ using Npgsql;
 using Microsoft.Extensions.Configuration;
 using Momantza.Models;
 using System.Data;
+using System.Text.Json;
+
 
 namespace Momantza.Services
 {
@@ -26,6 +28,7 @@ namespace Momantza.Services
                 Village = reader["village"]?.ToString() ?? string.Empty,
                 EventStartDate = reader["eventstartdate"] != DBNull.Value ? Convert.ToDateTime(reader["eventstartdate"]) : DateTime.MinValue,
                 EventEndDate = reader["eventenddate"] != DBNull.Value ? Convert.ToDateTime(reader["eventenddate"]) : DateTime.MinValue,
+                HandoverStartDate = reader["handoverstartdate"] != DBNull.Value ? Convert.ToDateTime(reader["handoverstartdate"]) : DateTime.MinValue,
                 EventDate = reader["eventdate"] != DBNull.Value ? Convert.ToDateTime(reader["eventdate"]) : DateTime.MinValue,
                 EventType = reader["eventtype"].ToString() ?? string.Empty,
                 TimeSlot = reader["timeslot"].ToString() ?? string.Empty,
@@ -39,7 +42,13 @@ namespace Momantza.Services
                 UpdatedAt = reader["updatedat"] != DBNull.Value ? Convert.ToDateTime(reader["updatedat"]) : DateTime.Now,
                 Notes = reader["notes"]?.ToString() ?? string.Empty,
                 RoomsRequired = reader["roomsrequired"] != DBNull.Value ? Convert.ToBoolean(reader["roomsrequired"]) : false,
-                RoomsCount = reader["roomscount"] != DBNull.Value ? Convert.ToInt32(reader["roomscount"]) : 0,
+                //
+                RoomDetails = reader["roomdetails"] != DBNull.Value
+                    ? JsonSerializer.Deserialize<RoomsInfo>(
+                        reader["roomdetails"].ToString() ?? "{}"
+                      ) ?? new RoomsInfo()
+                    : new RoomsInfo(),
+               RoomsCount = reader["roomscount"] != DBNull.Value ? Convert.ToInt32(reader["roomscount"]) : 0,
                 //HallName = reader["hallname"]?.ToString() ?? string.Empty
             };
         }
@@ -50,13 +59,13 @@ namespace Momantza.Services
             entity.EventDate = entity.EventStartDate.Date;
 
             var sql = @"INSERT INTO bookings (id, organizationid, hallid, customername, customeremail, customerphone, 
-                       address, city, village, eventstartdate, eventenddate, eventdate, eventtype, timeslot, 
+                       address, city, village, eventstartdate, eventenddate,handoverstartdate, eventdate, eventtype, timeslot, 
                        guestcount, totalamount, status, isactive, customerresponse, lastcontactdate, 
-                       createdat, updatedat, notes, roomsrequired, roomscount) 
+                       createdat, updatedat, notes, roomsrequired, roomscount, roomdetails) 
                        VALUES (@id, @organizationid, @hallid, @customername, @customeremail, @customerphone, 
-                       @address, @city, @village, @eventstartdate, @eventenddate, @eventdate, @eventtype, @timeslot, 
+                       @address, @city, @village, @eventstartdate, @eventenddate, @handoverStartDate, @eventdate, @eventtype, @timeslot, 
                        @guestcount, @totalamount, @status, @isactive, @customerresponse, @lastcontactdate, 
-                       @createdat, @updatedat, @notes, @roomsrequired, @roomscount)";
+                       @createdat, @updatedat, @notes, @roomsrequired, @roomscount, @roomdetails)";
 
             var parameters = new Dictionary<string, object?>
             {
@@ -71,6 +80,7 @@ namespace Momantza.Services
                 ["@village"] = entity.Village ?? (object)DBNull.Value,
                 ["@eventstartdate"] = entity.EventStartDate,
                 ["@eventenddate"] = entity.EventEndDate,
+                ["@handoverStartDate"] = entity.HandoverStartDate,
                 ["@eventdate"] = entity.EventDate,
                 ["@eventtype"] = entity.EventType ?? (object)DBNull.Value,
                 ["@timeslot"] = entity.TimeSlot ?? (object)DBNull.Value,
@@ -84,10 +94,11 @@ namespace Momantza.Services
                 ["@updatedat"] = entity.UpdatedAt,
                 ["@notes"] = entity.Notes ?? (object)DBNull.Value,
                 ["@roomsrequired"] = entity.RoomsRequired,
-                ["@roomscount"] = entity.RoomsCount
+                ["@roomscount"] = entity.RoomsCount,
+                ["@roomdetails"] = entity.RoomDetails ?? (object)DBNull.Value
             };
 
-            return (sql, parameters, new List<string>());
+            return (sql, parameters, new List<string> { "@roomdetails" });
         }
 
         protected override (string sql, Dictionary<string, object?> parameters, List<string> jsonFields) GenerateUpdateSql(Booking entity)
@@ -106,7 +117,7 @@ namespace Momantza.Services
                        village = @village,
                        eventstartdate = @eventstartdate, 
                        eventenddate = @eventenddate, 
-                       eventdate = @eventdate, 
+                       handoverstartdate = @handoverStartDate,
                        eventtype = @eventtype, 
                        timeslot = @timeslot, 
                        guestcount = @guestcount, 
@@ -118,7 +129,8 @@ namespace Momantza.Services
                        updatedat = @updatedat,
                        notes = @notes,
                        roomsrequired = @roomsrequired,
-                       roomscount = @roomscount
+                       roomscount = @roomscount,
+                       roomdetails = @roomdetails
                        WHERE id = @id AND organizationid = @currentOrganizationId";
 
             var parameters = new Dictionary<string, object?>
@@ -134,7 +146,8 @@ namespace Momantza.Services
                 ["@village"] = entity.Village ?? (object)DBNull.Value,
                 ["@eventstartdate"] = entity.EventStartDate,
                 ["@eventenddate"] = entity.EventEndDate,
-                ["@eventdate"] = entity.EventDate,
+                ["@handoverStartDate"] = entity.HandoverStartDate,
+                //["@eventdate"] = entity.EventDate,
                 ["@eventtype"] = entity.EventType ?? (object)DBNull.Value,
                 ["@timeslot"] = entity.TimeSlot ?? (object)DBNull.Value,
                 ["@guestcount"] = entity.GuestCount,
@@ -147,10 +160,11 @@ namespace Momantza.Services
                 ["@notes"] = entity.Notes ?? (object)DBNull.Value,
                 ["@roomsrequired"] = entity.RoomsRequired,
                 ["@roomscount"] = entity.RoomsCount,
+                ["@roomdetails"] = entity.RoomDetails ?? (object)DBNull.Value,
                 ["@currentOrganizationId"] = GetCurrentOrganizationId()
             };
 
-            return (sql, parameters, new List<string>());
+            return (sql, parameters, new List<string> { "@roomdetails" });
         }
 
         public async Task<List<Booking>> GetByHallIdAsync(string hallId)
@@ -244,7 +258,7 @@ namespace Momantza.Services
 
                 // First, get the current booking details
                 Booking? currentBooking = null;
-                string fetchSql = @"SELECT hallid, eventstartdate, eventenddate, timeslot, status 
+                string fetchSql = @"SELECT hallid, eventstartdate, eventenddate, handoverstartdate, timeslot, status 
                                   FROM bookings 
                                   WHERE id = @id AND organizationid = @organizationId";
 
@@ -261,6 +275,7 @@ namespace Momantza.Services
                             HallId = reader["hallid"].ToString() ?? string.Empty,
                             EventStartDate = Convert.ToDateTime(reader["eventstartdate"]),
                             EventEndDate = Convert.ToDateTime(reader["eventenddate"]),
+                            HandoverStartDate = Convert.ToDateTime(reader["handoverstartdate"]),
                             TimeSlot = reader["timeslot"].ToString() ?? string.Empty,
                             Status = reader["status"].ToString() ?? string.Empty
                         };
