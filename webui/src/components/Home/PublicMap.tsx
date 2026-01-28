@@ -9,6 +9,7 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { hallService } from '@/services/ServiceFactory'; // Add this import
 import { useNavigate } from 'react-router-dom';
+import { Hall, Booking } from '@/types';
 
 
 // Fix for default marker icons in Leaflet
@@ -33,29 +34,31 @@ interface MapConfig {
   organizationId?: string;
 }
 
-interface Hall {
-  id: string;
-  name: string;
-  location: string;
-  address: string;
-  coordinates?: {
-    lat: number;
-    lng: number;
-  };
-  capacity: number;
-  rateCard?: {
-    morningRate: number;
-    eveningRate: number;
-    fullDayRate: number;
-  };
-  isActive: boolean;
-  organizationId?: string;
-  features?: Array<{
-    name: string;
-    charge: number;
-  }>;
-  gallery?: string[];
-}
+// interface Hall {
+//   id: string;
+//   name: string;
+//   location: string;
+//   address: string;
+//   coordinates?: {
+//     lat: number;
+//     lng: number;
+//   };
+//   capacity: {
+//     hall: number;
+//   };
+//   rateCard?: {
+//     morningRate: number;
+//     eveningRate: number;
+//     fullDayRate: number;
+//   };
+//   isActive: boolean;
+//   organizationId?: string;
+//   features?: Array<{
+//     name: string;
+//     charge: number;
+//   }>;
+//   gallery?: string[];
+// }
 
 interface PublicMapProps {
   markers?: {
@@ -459,7 +462,7 @@ export function PublicMap({ organization, config }: PublicMapProps) {
                           <span className="font-medium">Location:</span> {hall.location}
                         </div>
                         <div>
-                          <span className="font-medium">Capacity:</span> {hall.capacity} people
+                          <span className="font-medium">Capacity:</span> {hall.amenities.capacity.hall} people
                         </div>
                         {hall.rateCard && (
                           <div>
@@ -583,7 +586,7 @@ export function PublicMap({ organization, config }: PublicMapProps) {
                       </div>
                       <div className="flex justify-between">
                         <span className="font-medium">Capacity:</span>
-                        <span>{selectedHall.capacity} people</span>
+                        <span>{selectedHall.amenities.capacity.hall} people</span>
                       </div>
                       {selectedHall.rateCard && (
                         <div className="flex justify-between">
@@ -667,7 +670,7 @@ export function PublicMap({ organization, config }: PublicMapProps) {
                       </div>
                       <div className="flex items-center gap-1">
                         <span className="text-gray-500">👥</span>
-                        <span>{hall.capacity} people</span>
+                        <span>{hall.amenities.capacity.hall} people</span>
                       </div>
                     </div>
                     
@@ -718,22 +721,22 @@ export function PublicMap({ organization, config }: PublicMapProps) {
         </Card>
       )}
 
-      {/* How to Use Guide */}
+      {/* How to Use Guide
       <div className="bg-gray-50 p-4 rounded-lg">
-        <h4 className="font-medium mb-2 flex items-center gap-2">
+       // <h4 className="font-medium mb-2 flex items-center gap-2">
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
           How to Use This Map:
-        </h4>
-        <ul className="text-sm text-gray-600 space-y-1">
+        </h4> */}
+        {/* <ul className="text-sm text-gray-600 space-y-1">
           <li>• Click on hall markers to see detailed information</li>
           <li>• Click "My Location" to see your current position</li>
           <li>• Click "Get Directions" on any hall for navigation</li>
           <li>• Use zoom controls (+/-) to adjust the map view</li>
           <li>• Click on hall cards below to highlight them on the map</li>
-        </ul>
+        </ul> */}
       </div>
-    </div>
+   
   );
 }

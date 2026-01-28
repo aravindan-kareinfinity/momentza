@@ -55,7 +55,7 @@ export function PublicHallCalendar({ hallId, onDateSelect, selectedDate }: Publi
   // Error state
   if (bookingsError) {
     return (
-      <div className="text-center py-8">
+      <div className="text-center py-4">
         <p className="text-gray-500">Unable to load calendar</p>
       </div>
     );

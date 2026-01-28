@@ -44,6 +44,9 @@ const BookingEdit = () => {
   const [lastContactDate, setLastContactDate] = useState<string>('');
   const [customerResponse, setCustomerResponse] = useState<string>('');
   const [submitting, setSubmitting] = useState<boolean>(false);
+  const [hallId, setHallId] = useState<string>(''); // Add hallId state
+  const [hallName, setHallName] = useState<string>('');
+  const [updatingHallName, setUpdatingHallName] = useState<boolean>(false);
   
   // New fields state
   const [address, setAddress] = useState<string>('');
@@ -108,8 +111,11 @@ const BookingEdit = () => {
           setTotalAmount(bookingData.totalAmount);
         }
         
-        // Fetch current hall data if booking exists
+        // Set hallId from booking data
         if (bookingData?.hallId) {
+          setHallId(bookingData.hallId);
+          
+          // Fetch current hall data
           try {
             const hallData = await hallService.getById(bookingData.hallId);
             setHall(hallData);
@@ -128,6 +134,16 @@ const BookingEdit = () => {
 
     fetchData();
   }, [bookingId]);
+
+  // Update hall when hallId changes
+  useEffect(() => {
+    if (hallId && halls.length > 0) {
+      const selectedHall = halls.find(h => h.id === hallId);
+      if (selectedHall) {
+        setHall(selectedHall);
+      }
+    }
+  }, [hallId, halls]);
 
   // Update form state when booking data is loaded
   useEffect(() => {
@@ -152,6 +168,11 @@ const BookingEdit = () => {
       setTimeSlot(originalBooking.timeSlot || 'morning');
       setGuestCount(originalBooking.guestCount?.toString() || '');
       setStatus(originalBooking.status || 'pending');
+      
+      // Set hallId from original booking
+      if (originalBooking.hallId) {
+        setHallId(originalBooking.hallId);
+      }
       
       // Set last contact date
       if (originalBooking.lastContactDate) {
@@ -349,9 +370,19 @@ const BookingEdit = () => {
 
   // Handle hall change
   const handleHallChange = (newHallId: string) => {
+    setHallId(newHallId);
     const selectedHall = halls.find(h => h.id === newHallId);
     if (selectedHall) {
       setHall(selectedHall);
+      
+      // Reset room selections when hall changes
+      setRoomsRequired(false);
+      setRequireFreeRooms(false);
+      setRequireAcRooms(false);
+      setRequireNonAcRooms(false);
+      setFreeRoomsCount(0);
+      setAcRoomsCount(0);
+      setNonAcRoomsCount(0);
     }
   };
 
@@ -550,10 +581,9 @@ const BookingEdit = () => {
         roomsCount: calculateTotalRoomsCount(),
         roomDetails: roomDetails,
         notes: notes,
-        // FIX: Use the calculated total amount instead of original
         totalAmount: finalTotalAmount,
         status: status,
-        hallId: originalBooking.hallId, // Keep original hall ID
+        hallId: hallId, // Use the updated hallId from state
         updatedAt: new Date().toISOString(),
         lastContactDate: lastContactDate || null,
         customerResponse: customerResponse || null,
@@ -768,8 +798,9 @@ const BookingEdit = () => {
               <div className="space-y-2">
                 <Label htmlFor="hall">Hall *</Label>
                 <Select 
-                  value={hall?.id || ''} 
+                  value={hallId} 
                   onValueChange={handleHallChange}
+                  required
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Select hall" />
@@ -777,21 +808,38 @@ const BookingEdit = () => {
                   <SelectContent>
                     {halls.map((hallItem) => (
                       <SelectItem key={hallItem.id} value={hallItem.id}>
-                        {hallItem.name}
+                        {hallItem.name} 
+                        {/* {hallItem.rateCard && (
+                          <span className="text-xs text-gray-500 ml-2">
+                            (₹{hallItem.rateCard.fullDayRate?.toLocaleString() || '0'}/day)
+                          </span>
+                        )} */}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
-                {hall && (
-                  <p className="text-sm text-gray-600 mt-1">
-                    Current: {hall.name}
+                {/* {hall && (
+                  <div className="text-sm text-gray-600 mt-1">
+                    <p>Current: {hall.name}</p>
                     {hall.rateCard && (
-                      <span className="ml-2">
-                        (₹{hall.rateCard.fullDayRate?.toLocaleString()}/day)
-                      </span>
-                    )}
-                  </p>
-                )}
+                      <div className="mt-1">
+                        <p className="text-xs">Rates: 
+                          {hall.rateCard.morningRate && ` Morning: ₹${hall.rateCard.morningRate}`}
+                          {hall.rateCard.eveningRate && ` | Evening: ₹${hall.rateCard.eveningRate}`}
+                          {hall.rateCard.fullDayRate && ` | Full Day: ₹${hall.rateCard.fullDayRate}`}
+                        </p>
+                        {hall.amenities?.rooms && (
+                          <p className="text-xs mt-1">
+                            Rooms: 
+                            {hall.amenities.rooms.free > 0 && ` Free: ${hall.amenities.rooms.free}`}
+                            {hall.amenities.rooms.rentedAc > 0 && ` | AC: ${hall.amenities.rooms.rentedAc} (₹${hall.amenities.rooms.acRoomRate || 0}/room)`}
+                            {hall.amenities.rooms.rentedNonAc > 0 && ` | Non-AC: ${hall.amenities.rooms.rentedNonAc} (₹${hall.amenities.rooms.nonAcRoomRate || 0}/room)`}
+                          </p>
+                        )}
+                      </div>
+                    )} */}
+                  {/* </div>
+                )} */}
               </div>
               
               <div className="space-y-2">
@@ -920,6 +968,7 @@ const BookingEdit = () => {
                   value={timeSlot} 
                   onValueChange={(value: Booking['timeSlot']) => setTimeSlot(value)}
                   disabled={eventType === 'wedding' || !eventStartDate}
+                  required
                 >
                   <SelectTrigger>
                     <SelectValue placeholder={
@@ -955,7 +1004,7 @@ const BookingEdit = () => {
                   id="roomsRequired"
                   checked={roomsRequired}
                   onCheckedChange={(checked) => handleRequireRoomsChange(checked as boolean)}
-                  disabled={!hall}
+                  disabled={!hallId}
                 />
                 <Label htmlFor="roomsRequired" className="cursor-pointer font-medium">
                   Rooms Required
