@@ -9,6 +9,8 @@ import { TopNavigation } from '@/components/Layout/TopNavigation';
 import { PublicFooter } from '@/components/Home/PublicFooter';
 import { HallDetailCalendar } from '@/components/HallDetail/HallDetailCalendar';
 import { HallDetailReviews } from '@/components/HallDetail/HallDetailReviews';
+import { CheckCircle, XCircle, Utensils, Car, Home } from 'lucide-react';
+
 
 const HallDetail = () => {
   const { hallId } = useParams<{ hallId: string }>();
@@ -28,7 +30,7 @@ const HallDetail = () => {
       try {
         setLoading(true);
         setError(null);
-        
+
         const hallData = await hallService.getHallById(hallId);
         console.log('Hall data:', hallData);
         console.log('Hall gallery:', hallData?.gallery);
@@ -47,25 +49,25 @@ const HallDetail = () => {
   // Get image URL - using the same logic as HallPreview
   const getImageUrl = (imageIdentifier: string) => {
     if (!imageIdentifier) return '';
-    
+
     // If it's already a full URL, return it
     if (imageIdentifier.startsWith('http')) {
       return imageIdentifier;
     }
-    
+
     // If it's an image ID, construct URL using galleryService
     return galleryService.getImageUrl(imageIdentifier);
   };
 
   // Image titles and descriptions
-  const imageDetails = [
-    { title: 'Main Hall', description: 'Spacious main hall perfect for large celebrations' },
-    { title: 'Dining Area', description: 'Elegant dining space with modern amenities' },
-    { title: 'Stage Area', description: 'Beautiful stage setup for ceremonies and performances' },
-    { title: 'Garden View', description: 'Scenic garden area for outdoor photography' },
-    { title: 'Reception Area', description: 'Welcoming reception space for guests' },
-    { title: 'Exterior View', description: 'Beautiful building exterior and entrance' }
-  ];
+  // const imageDetails = [
+  //   { title: 'Main Hall', description: 'Spacious main hall perfect for large celebrations' },
+  //   { title: 'Stage Area', description: 'Beautiful stage setup for ceremonies and performances' },
+  //   { title: 'Reception Area', description: 'Welcoming reception space for guests' },
+  //   { title: 'Dining Area', description: 'Elegant dining space with modern amenities' },
+  //   { title: 'Exterior View', description: 'Beautiful building exterior and entrance' },
+  //   { title: 'Garden View', description: 'Scenic garden area for outdoor photography' }
+  // ];
 
   // Show loading state
   if (loading) {
@@ -117,8 +119,8 @@ const HallDetail = () => {
               </div>
             </div>
           </div>
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             onClick={() => navigate(-1)}
             className="mt-4"
           >
@@ -145,10 +147,10 @@ const HallDetail = () => {
   return (
     <div className="min-h-screen bg-background">
       <TopNavigation />
-      
+
       <div className="container mx-auto px-4 py-8">
-        <Button 
-          variant="outline" 
+        <Button
+          variant="outline"
           onClick={() => navigate(-1)}
           className="mb-6"
         >
@@ -160,54 +162,53 @@ const HallDetail = () => {
           {/* Gallery Section - Updated with HallPreview logic */}
           <div className="space-y-4">
             <h2 className="text-xl font-semibold mb-4">Hall Gallery</h2>
-            
+
             {hall.gallery && hall.gallery.length > 0 ? (
               <div className="grid grid-cols-1 gap-4">
                 {hall.gallery.map((imageIdentifier: string, index: number) => {
                   const imageUrl = getImageUrl(imageIdentifier);
-                  console.log(`Image ${index}:`, imageIdentifier, 'URL:', imageUrl);
-                  
+
                   return (
                     <Card key={index} className="overflow-hidden">
                       <div className="w-full h-64 bg-gray-100 flex items-center justify-center">
                         {imageUrl ? (
                           <img
                             src={imageUrl}
-                            alt={`${hall.name} - ${imageDetails[index]?.title || `Image ${index + 1}`}`}
+                            alt={`${hall.name} - Image ${index + 1}`}
                             className="w-full h-full object-cover"
                             onError={(e) => {
-                              // If image fails to load, show placeholder
                               const target = e.target as HTMLImageElement;
                               target.style.display = 'none';
                             }}
                           />
-                        ) : null}
-                        
-                        {/* Fallback when no image or image fails to load */}
-                        {!imageUrl && (
+                        ) : (
                           <div className="flex flex-col items-center justify-center text-gray-400">
                             <ImageIcon className="h-12 w-12 mb-2" />
                             <span className="text-sm">No Image Available</span>
                           </div>
                         )}
                       </div>
+
                       <CardContent className="p-4">
-                        <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center justify-between">
                           <h4 className="font-semibold text-lg">
-                            {imageDetails[index]?.title || `Image ${index + 1}`}
+                            Gallery Image {index + 1}
                           </h4>
+
                           <Badge variant="secondary">
-                            {imageDetails[index] ? imageDetails[index].title.split(' ')[0] : 'General'}
+                            Photo {index + 1}
                           </Badge>
                         </div>
-                        <p className="text-gray-600 text-sm">
-                          {imageDetails[index]?.description || 'Beautiful venue space'}
+
+                        <p className="text-gray-600 text-sm mt-1">
+                          Venue photo
                         </p>
                       </CardContent>
                     </Card>
                   );
                 })}
               </div>
+
             ) : (
               <Card>
                 <CardContent className="p-6 text-center">
@@ -220,6 +221,8 @@ const HallDetail = () => {
 
           {/* Hall Details Section */}
           <div className="space-y-6">
+
+            {/* Title & Location */}
             <div>
               <div className="flex items-center justify-between mb-2">
                 <h1 className="text-3xl font-bold">{hall.name}</h1>
@@ -228,49 +231,191 @@ const HallDetail = () => {
                   <span className="ml-1 text-lg">4.8</span>
                 </div>
               </div>
-              <div className="flex items-center text-gray-600 mb-4">
+
+              <div className="flex items-center text-gray-600">
                 <MapPin className="h-5 w-5 mr-2" />
                 {hall.address}
               </div>
-              <div className="flex items-center text-gray-600">
-                <Users className="h-5 w-5 mr-2" />
-                Capacity: {hall.capacity} guests
-              </div>
             </div>
 
+            {/* Pricing */}
             <Card>
               <CardHeader>
                 <CardTitle>Pricing</CardTitle>
               </CardHeader>
+
               <CardContent className="space-y-3">
                 <div className="flex justify-between">
-                  <span>Morning Rate:</span>
-                  <span className="font-semibold">₹{hall.rateCard?.morningRate?.toLocaleString() || '0'}</span>
+                  <span>Morning Rate</span>
+                  <span className="font-semibold">
+                    ₹{hall.rateCard?.morningRate?.toLocaleString() || '0'}
+                  </span>
                 </div>
+
                 <div className="flex justify-between">
-                  <span>Evening Rate:</span>
-                  <span className="font-semibold">₹{hall.rateCard?.eveningRate?.toLocaleString() || '0'}</span>
+                  <span>Evening Rate</span>
+                  <span className="font-semibold">
+                    ₹{hall.rateCard?.eveningRate?.toLocaleString() || '0'}
+                  </span>
                 </div>
+
                 <div className="flex justify-between">
-                  <span>Full Day Rate:</span>
-                  <span className="font-semibold">₹{hall.rateCard?.fullDayRate?.toLocaleString() || '0'}</span>
+                  <span>Full Day Rate</span>
+                  <span className="font-semibold">
+                    ₹{hall.rateCard?.fullDayRate?.toLocaleString() || '0'}
+                  </span>
                 </div>
               </CardContent>
             </Card>
 
+            {/* Amenities */}
+            {hall.amenities && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Amenities</CardTitle>
+                </CardHeader>
+
+                <CardContent className="space-y-6">
+
+                  {/* Food Type */}
+                  <div className="flex items-center justify-between">
+                    <span className="font-medium">Food Type</span>
+                    <Badge variant="secondary">Veg & Non-Veg</Badge>
+                  </div>
+
+                  {/* Capacity */}
+                  <div>
+                    <h4 className="font-semibold mb-3">Capacity</h4>
+                    <div className="grid grid-cols-3 gap-3 text-sm">
+
+                      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center">
+                        <Users className="mx-auto mb-1 h-4 w-4 text-blue-600" />
+                        <p className="text-gray-600">Hall</p>
+                        <p className="text-xl font-bold text-blue-700">
+                          {hall.amenities.capacity.hall}
+                        </p>
+                      </div>
+
+                      <div className="bg-green-50 border border-green-200 rounded-lg p-4 text-center">
+                        <Utensils className="mx-auto mb-1 h-4 w-4 text-green-600" />
+                        <p className="text-gray-600">Dining</p>
+                        <p className="text-xl font-bold text-green-700">
+                          {hall.amenities.capacity.dining}
+                        </p>
+                      </div>
+
+                      <div className="bg-purple-50 border border-purple-200 rounded-lg p-4 text-center">
+                        <Car className="mx-auto mb-1 h-4 w-4 text-purple-600" />
+                        <p className="text-gray-600">Parking</p>
+                        <p className="text-xl font-bold text-purple-700">
+                          {hall.amenities.capacity.parking}
+                        </p>
+                      </div>
+
+                    </div>
+                  </div>
+
+                  {/* Rooms */}
+                  <div>
+                    <h4 className="font-semibold mb-3">Rooms Available</h4>
+                    <div className="grid grid-cols-3 gap-3 text-sm">
+
+                      <div className="bg-green-50 border border-green-200 rounded-lg p-4 text-center">
+                        <p className="text-gray-600">Free</p>
+                        <p className="text-xl font-bold text-green-700">
+                          {hall.amenities.rooms.free}
+                        </p>
+                      </div>
+
+                      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center">
+                        <p className="text-gray-600">AC</p>
+                        <p className="text-xl font-bold text-blue-700">
+                          {hall.amenities.rooms.rentedAc}
+                        </p>
+                      </div>
+
+                      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-center">
+                        <p className="text-gray-600">Non-AC</p>
+                        <p className="text-xl font-bold text-yellow-700">
+                          {hall.amenities.rooms.rentedNonAc}
+                        </p>
+                      </div>
+
+                    </div>
+                  </div>
+
+                  {/* Facilities */}
+                  <div>
+                    <h4 className="font-semibold mb-2">Facilities</h4>
+
+                    <div className="space-y-2 text-sm">
+
+                      {/* Generator */}
+                      <div className="flex items-center justify-between">
+                        <span className="text-gray-700">Generator</span>
+
+                        {hall.amenities.facilities.generator ? (
+                          <span className="flex items-center gap-1 text-green-600 font-medium">
+                            <CheckCircle className="h-4 w-4" />
+                            Available
+                          </span>
+                        ) : (
+                          <span className="flex items-center gap-1 text-red-500 font-medium">
+                            <XCircle className="h-4 w-4" />
+                            Not Available
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Air Conditioning */}
+                      <div className="flex items-center justify-between">
+                        <span className="text-gray-700">Air Conditioning</span>
+
+                        {hall.amenities.facilities.airConditioning ? (
+                          <span className="flex items-center gap-1 text-green-600 font-medium">
+                            <CheckCircle className="h-4 w-4" />
+                            Available
+                          </span>
+                        ) : (
+                          <span className="flex items-center gap-1 text-red-500 font-medium">
+                            <XCircle className="h-4 w-4" />
+                            Not Available
+                          </span>
+                        )}
+                      </div>
+
+                    </div>
+                  </div>
+
+                  {/* Rules */}
+                  {hall.amenities.rules?.length > 0 && (
+                    <div>
+                      <h4 className="font-semibold mb-2">Important Rules</h4>
+                      <div className="flex flex-wrap gap-2">
+                        {hall.amenities.rules.map((rule: string, i: number) => (
+                          <Badge key={i} variant="outline">{rule}</Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Features */}
             <Card>
               <CardHeader>
                 <CardTitle>Features & Add-ons</CardTitle>
               </CardHeader>
+
               <CardContent>
-                {hall.features && hall.features.length > 0 ? (
-                  <div className="grid grid-cols-1 gap-3">
-                    {hall.features.map((feature: any, index: number) => (
-                      <div key={index} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                        <span>{feature.name}</span>
-                        <Badge variant="secondary">
-                          +₹{feature.charge?.toLocaleString() || '0'}
-                        </Badge>
+                {hall.features?.length ? (
+                  <div className="space-y-3">
+                    {hall.features.map((f: any, i: number) => (
+                      <div key={i} className="flex justify-between p-3 bg-gray-50 rounded-lg">
+                        <span>{f.name}</span>
+                        <Badge variant="secondary">+₹{f.charge}</Badge>
                       </div>
                     ))}
                   </div>
@@ -280,21 +425,8 @@ const HallDetail = () => {
               </CardContent>
             </Card>
 
-            <HallDetailCalendar
-              hallId={hall.id}
-              onDateSelect={setSelectedDate}
-              selectedDate={selectedDate}
-            />
-
-            <Button 
-              size="lg" 
-              className="w-full"
-              onClick={handleBookNow}
-              disabled={!selectedDate}
-            >
-              {selectedDate ? 'Book Now' : 'Select Date to Book'}
-            </Button>
           </div>
+
         </div>
 
         <HallDetailReviews hallId={hall.id} />
