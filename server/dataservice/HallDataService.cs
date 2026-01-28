@@ -4,6 +4,7 @@ using Momantza.Models;
 using System.Text.Json;
 using Microsoft.AspNetCore.Http;
 using Momantza.Middleware;
+using System.Security.Cryptography.X509Certificates;
 
 namespace Momantza.Services
 {
@@ -73,7 +74,7 @@ namespace Momantza.Services
                 ["@isactive"] = entity.IsActive
             };
 
-            var jsonFields = new List<string> { "@amenities", "@coordinates","@features", "@ratecard", "@gallery" };
+            var jsonFields = new List<string> { "@amenities", "@coordinates", "@features", "@ratecard", "@gallery" };
 
             return (sql, parameters, jsonFields);
         }
@@ -111,13 +112,14 @@ namespace Momantza.Services
                 ["@isactive"] = entity.IsActive
             };
 
-            var jsonFields = new List<string> { "@amenities", "@coordinates","@features", "@ratecard", "@gallery" };
+            var jsonFields = new List<string> { "@amenities", "@coordinates", "@features", "@ratecard", "@gallery" };
 
             return (sql, parameters, jsonFields);
         }
 
         public override async Task<List<Hall>> GetAllAsync()
         {
+            
             var orgId = GetCurrentOrganizationId();
             var sql = "SELECT * FROM halls WHERE organizationid = @organizationId AND isactive = true";
             using var connection = await GetConnectionAsync();
@@ -390,7 +392,7 @@ namespace Momantza.Services
             return await DeleteAsync(id);
         }
 
-        public async Task<Hall>GetHallsByNameAsync(string name)
+        public async Task<Hall> GetHallsByNameAsync(string name)
         {
             using var connection = await GetConnectionAsync();
             var sql = @"
@@ -419,7 +421,7 @@ namespace Momantza.Services
     {
         Task<List<Hall>> GetActiveHallsAsync();
         Task<List<Hall>> GetByCapacityRangeAsync(int minCapacity, int maxCapacity);
-        Task<List<Hall>> GetAllHallsAsync(); 
+        Task<List<Hall>> GetAllHallsAsync();
         Task<List<Hall>> GetEnableAsync();
         Task<List<Hall>> GetHallsByOrganizationAsync(string organizationId);
         Task<List<Hall>> GetAccessibleHallsAsync(string organizationId, List<string> accessibleHallIds);

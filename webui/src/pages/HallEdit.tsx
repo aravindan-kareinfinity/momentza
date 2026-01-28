@@ -29,14 +29,15 @@ const HallEdit = () => {
   const [freeRooms, setFreeRooms] = useState('');
   const [rentedAcRooms, setRentedAcRooms] = useState('');
   const [rentedNonAcRooms, setRentedNonAcRooms] = useState('');
+  const [acRoomRate, setAcRoomRate] = useState('');
+  const [nonAcRoomRate, setNonAcRoomRate] = useState('');
   const [hasGenerator, setHasGenerator] = useState(false);
   const [hasAirConditioning, setHasAirConditioning] = useState(false);
   const [rules, setRules] = useState<string[]>([]);
   const [newRule, setNewRule] = useState('');
-  //new
+  // coordinates
   const [lat, setLat] = useState('');
   const [lng, setLng] = useState('');
-
   const [location, setLocation] = useState('');
   const [address, setAddress] = useState('');
   const [features, setFeatures] = useState<HallFeature[]>([]);
@@ -80,6 +81,7 @@ const HallEdit = () => {
   const fetchHall = useCallback(async () => {
     if (!hallId) return;
 
+    setLoading(true);
     try {
       const hallData = await hallService.getHallById(hallId);
       if (hallData) {
@@ -87,24 +89,26 @@ const HallEdit = () => {
         setName(hallData.name || '');
         setLocation(hallData.location || '');
         setAddress(hallData.address || '');
-        setCapacity(hallData.amenities.capacity.hall.toString());
-        setDiningCapacity(hallData.amenities.capacity.dining.toString());
-        setParkingCapacity(hallData.amenities.capacity.parking.toString());
-        setFoodType(hallData.amenities.foodType);
-        setFreeRooms(hallData.amenities.rooms.free.toString());
-        setRentedAcRooms(hallData.amenities.rooms.rentedAc.toString());
-        setRentedNonAcRooms(hallData.amenities.rooms.rentedNonAc.toString());
-        setHasGenerator(hallData.amenities.facilities.generator);
-        setHasAirConditioning(hallData.amenities.facilities.airConditioning);
-        setRules(hallData.amenities.rules || []);
+        setCapacity(hallData.amenities?.capacity?.hall?.toString() || '');
+        setDiningCapacity(hallData.amenities?.capacity?.dining?.toString() || '');
+        setParkingCapacity(hallData.amenities?.capacity?.parking?.toString() || '');
+        setFoodType(hallData.amenities?.foodType || 'both');
+        setFreeRooms(hallData.amenities?.rooms?.free?.toString() || '');
+        setRentedAcRooms(hallData.amenities?.rooms?.rentedAc?.toString() || '');
+        setRentedNonAcRooms(hallData.amenities?.rooms?.rentedNonAc?.toString() || '');
+        setAcRoomRate(hallData.amenities?.rooms?.acRoomRate?.toString() || '');
+        setNonAcRoomRate(hallData.amenities?.rooms?.nonAcRoomRate?.toString() || '');
+        setHasGenerator(hallData.amenities?.facilities?.generator || false);
+        setHasAirConditioning(hallData.amenities?.facilities?.airConditioning || false);
+        setRules(hallData.amenities?.rules || []);
         setFeatures(hallData.features || []);
-        setMorningRate(hallData.rateCard?.morningRate ? hallData.rateCard.morningRate.toString() : '');
-        setEveningRate(hallData.rateCard?.eveningRate ? hallData.rateCard.eveningRate.toString() : '');
-        setFullDayRate(hallData.rateCard?.fullDayRate ? hallData.rateCard.fullDayRate.toString() : '');
+        setMorningRate(hallData.rateCard?.morningRate?.toString() || '');
+        setEveningRate(hallData.rateCard?.eveningRate?.toString() || '');
+        setFullDayRate(hallData.rateCard?.fullDayRate?.toString() || '');
         setSelectedImages(hallData.gallery || []);
         setIsActive(hallData.isActive || false);
-        setLat(hallData.coordinates?.lat ? hallData.coordinates.lat.toString() : '');
-        setLng(hallData.coordinates?.lng ? hallData.coordinates.lng.toString() : '');
+        setLat(hallData.coordinates?.lat?.toString() || '');
+        setLng(hallData.coordinates?.lng?.toString() || '');
       }
     } catch (error) {
       toast({
@@ -139,15 +143,7 @@ const HallEdit = () => {
     fetchGalleryImages();
   }, [fetchHall, fetchGalleryImages]);
 
-  if (loading) {
-    return <AnimatedPage className="space-y-6">Loading...</AnimatedPage>;
-  }
-
-  if (!hall) {
-    return <AnimatedPage className="space-y-6">Hall not found</AnimatedPage>;
-  }
-
-  //rules methods
+  // Rules methods
   const handleAddRule = () => {
     if (!newRule.trim()) return;
     setRules(prev => [...prev, newRule.trim()]);
@@ -160,7 +156,10 @@ const HallEdit = () => {
 
   const handleAddFeature = () => {
     if (newFeature.name && newFeature.charge) {
-      setFeatures([...features, { name: newFeature.name, charge: parseInt(newFeature.charge) }]);
+      setFeatures([...features, { 
+        name: newFeature.name, 
+        charge: parseInt(newFeature.charge) || 0 
+      }]);
       setNewFeature({ name: '', charge: '' });
     }
   };
@@ -186,26 +185,28 @@ const HallEdit = () => {
     setSubmitting(true);
 
     try {
-      const updatedHall = {
+      const updatedHall: Partial<Hall> = {
         ...hall,
         name,
-        coordinates:{
-          lat,
-          lng
+        coordinates: {
+          lat: parseFloat(lat) || 0,
+          lng: parseFloat(lng) || 0
         },
         location,
         address,
         amenities: {
           foodType,
           capacity: {
-            hall: parseInt(capacity),
-            dining: parseInt(diningCapacity),
-            parking: parseInt(parkingCapacity),
+            hall: parseInt(capacity) || 0,
+            dining: parseInt(diningCapacity) || 0,
+            parking: parseInt(parkingCapacity) || 0,
           },
           rooms: {
-            free: parseInt(freeRooms),
-            rentedAc: parseInt(rentedAcRooms),
-            rentedNonAc: parseInt(rentedNonAcRooms),
+            free: parseInt(freeRooms) || 0,
+            rentedAc: parseInt(rentedAcRooms) || 0,
+            rentedNonAc: parseInt(rentedNonAcRooms) || 0,
+            acRoomRate: parseInt(acRoomRate) || 0,
+            nonAcRoomRate: parseInt(nonAcRoomRate) || 0,
           },
           facilities: {
             generator: hasGenerator,
@@ -215,15 +216,17 @@ const HallEdit = () => {
         },
         features,
         rateCard: {
-          morningRate: parseInt(morningRate),
-          eveningRate: parseInt(eveningRate),
-          fullDayRate: parseInt(fullDayRate),
+          morningRate: parseInt(morningRate) || 0,
+          eveningRate: parseInt(eveningRate) || 0,
+          fullDayRate: parseInt(fullDayRate) || 0,
         },
         gallery: selectedImages,
         isActive,
       };
 
-      await hallService.updateHall(hall.id, updatedHall);
+      if (hallId) {
+        await hallService.updateHall(hallId, updatedHall);
+      }
 
       toast({
         title: 'Success',
@@ -241,6 +244,14 @@ const HallEdit = () => {
       setSubmitting(false);
     }
   };
+
+  if (loading) {
+    return <AnimatedPage className="space-y-6">Loading...</AnimatedPage>;
+  }
+
+  if (!hall) {
+    return <AnimatedPage className="space-y-6">Hall not found</AnimatedPage>;
+  }
 
   return (
     <AnimatedPage className="space-y-6">
@@ -309,26 +320,28 @@ const HallEdit = () => {
             </div>
            
             <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="latitude">Latitude</Label>
-              <Input
-                id="latitude"
-                type="number"
-                value={lat}
-                onChange={(e)=>setLat(e.target.value)}
-                required
-            />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="latitude">Longitude</Label>
-              <Input
-                id="longitude"
-                type="number"
-                value={lng}
-                onChange={(e)=>setLng(e.target.value)}
-                required
-            />
-            </div>
+              <div className="space-y-2">
+                <Label htmlFor="latitude">Latitude</Label>
+                <Input
+                  id="latitude"
+                  type="number"
+                  step="any"
+                  value={lat}
+                  onChange={(e) => setLat(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="longitude">Longitude</Label>
+                <Input
+                  id="longitude"
+                  type="number"
+                  step="any"
+                  value={lng}
+                  onChange={(e) => setLng(e.target.value)}
+                  required
+                />
+              </div>
             </div>
 
             <div className="space-y-2">
@@ -353,7 +366,7 @@ const HallEdit = () => {
           </CardContent>
         </Card>
 
-        {/* food availability */}
+        {/* Food availability */}
         <Card>
           <CardHeader>
             <CardTitle>Food Availability</CardTitle>
@@ -437,6 +450,30 @@ const HallEdit = () => {
                 />
               </div>
             </div>
+
+            <div className="grid grid-cols-2 gap-4 mt-4">
+              <div className="space-y-2">
+                <Label htmlFor="acRoomRate">AC Room Rate (₹)</Label>
+                <Input
+                  id="acRoomRate"
+                  type="number"
+                  min={0}
+                  value={acRoomRate}
+                  onChange={(e) => setAcRoomRate(e.target.value)}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="nonAcRoomRate">Non-AC Room Rate (₹)</Label>
+                <Input
+                  id="nonAcRoomRate"
+                  type="number"
+                  min={0}
+                  value={nonAcRoomRate}
+                  onChange={(e) => setNonAcRoomRate(e.target.value)}
+                />
+              </div>
+            </div>
           </CardContent>
         </Card>
 
@@ -483,8 +520,7 @@ const HallEdit = () => {
           </CardContent>
         </Card>
 
-
-        {/* generator and air conditioner facility */}
+        {/* Generator and air conditioner facility */}
         <Card>
           <CardHeader>
             <CardTitle>Facilities</CardTitle>

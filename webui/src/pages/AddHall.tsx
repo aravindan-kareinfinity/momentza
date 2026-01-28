@@ -26,8 +26,9 @@ const AddHall = () => {
   const [freeRooms, setFreeRooms] = useState('');
   const [rentedAcRooms, setRentedAcRooms] = useState('');
   const [rentedNonAcRooms, setRentedNonAcRooms] = useState('');
-  const [acRoomRate, setAcRoomRate] = useState(''); // Add AC room rate
-  const [nonAcRoomRate, setNonAcRoomRate] = useState(''); // Add Non-AC room rate
+  const [acRoomRate, setAcRoomRate] = useState('');
+  const [nonAcRoomRate, setNonAcRoomRate] = useState('');
+  const [roomRate, setRoomRate] = useState(''); // Add roomRate at root level
   const [hasGenerator, setHasGenerator] = useState(false);
   const [hasAirConditioning, setHasAirConditioning] = useState(false);
   const [rules, setRules] = useState<string[]>([]);
@@ -123,19 +124,20 @@ const AddHall = () => {
         name,
         location,
         address,
+        roomRate: parseInt(roomRate) || 0, // Add roomRate at root level
         amenities: {
           foodType,
           capacity: {
-            hall: parseInt(capacity),
-            dining: parseInt(diningCapacity),
-            parking: parseInt(parkingCapacity),
+            hall: parseInt(capacity) || 0,
+            dining: parseInt(diningCapacity) || 0,
+            parking: parseInt(parkingCapacity) || 0,
           },
           rooms: {
-            free: parseInt(freeRooms),
-            rentedAc: parseInt(rentedAcRooms),
-            rentedNonAc: parseInt(rentedNonAcRooms),
+            free: parseInt(freeRooms) || 0,
+            rentedAc: parseInt(rentedAcRooms) || 0,
+            rentedNonAc: parseInt(rentedNonAcRooms) || 0,
             acRoomRate: parseInt(acRoomRate) || 0,
-            nonAcRoomRate: parseInt(nonAcRoomRate) || 0
+            nonAcRoomRate: parseInt(nonAcRoomRate) || 0,
           },
           facilities: {
             generator: hasGenerator,
@@ -143,12 +145,12 @@ const AddHall = () => {
           },
           rules,
         },
-        coordinates: coordinates,
+        coordinates: coordinates || { lat: 0, lng: 0 }, // Provide default coordinates
         features,
         rateCard: {
-          morningRate: parseInt(morningRate),
-          eveningRate: parseInt(eveningRate),
-          fullDayRate: parseInt(fullDayRate),
+          morningRate: parseInt(morningRate) || 0,
+          eveningRate: parseInt(eveningRate) || 0,
+          fullDayRate: parseInt(fullDayRate) || 0,
         },
         gallery: selectedImages,
         isActive,
@@ -236,6 +238,22 @@ const AddHall = () => {
                   onChange={(e) => setParkingCapacity(e.target.value)}
                   required
                 />
+              </div>
+            </div>
+
+            {/* Room Rate Field - Root Level */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="roomRate">Base Room Rate (₹)</Label>
+                <Input
+                  id="roomRate"
+                  type="number"
+                  min={0}
+                  value={roomRate}
+                  onChange={(e) => setRoomRate(e.target.value)}
+                  placeholder="Enter base room rate"
+                />
+                <p className="text-xs text-gray-500">This is the default room rate for this hall</p>
               </div>
             </div>
 
@@ -362,10 +380,10 @@ const AddHall = () => {
                       min={0}
                       value={acRoomRate}
                       onChange={(e) => setAcRoomRate(e.target.value)}
-                      placeholder="Rate"
+                      placeholder="AC Rate"
                       disabled={!rentedAcRooms || parseInt(rentedAcRooms) === 0}
                     />
-                    <p className="text-xs text-gray-500 mt-1">₹ per room</p>
+                    <p className="text-xs text-gray-500 mt-1">₹ per AC room</p>
                   </div>
                 </div>
               </div>
@@ -389,10 +407,10 @@ const AddHall = () => {
                       min={0}
                       value={nonAcRoomRate}
                       onChange={(e) => setNonAcRoomRate(e.target.value)}
-                      placeholder="Rate"
+                      placeholder="Non-AC Rate"
                       disabled={!rentedNonAcRooms || parseInt(rentedNonAcRooms) === 0}
                     />
-                    <p className="text-xs text-gray-500 mt-1">₹ per room</p>
+                    <p className="text-xs text-gray-500 mt-1">₹ per non-AC room</p>
                   </div>
                 </div>
               </div>

@@ -6,6 +6,7 @@ using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Http;
 using Momantza.Middleware;
 using System.Linq;
+using System.Text.Json;
 
 namespace Momantza.Services
 {
@@ -31,36 +32,68 @@ namespace Momantza.Services
             _httpContextAccessor = httpContextAccessor;
         }
 
-        protected string GetCurrentOrganizationId()
-        {
-            var context = _httpContextAccessor.HttpContext;
-            if (context == null) return string.Empty;
+protected string GetCurrentOrganizationId()
+{
+    var context = _httpContextAccessor.HttpContext;
+    if (context == null) return string.Empty;
 
-            // 1) Prefer explicit OrganizationId item (string or Guid)
-            if (context.Items.TryGetValue("OrganizationId", out var orgIdObj) && orgIdObj != null)
-            {
-                if (orgIdObj is string s && !string.IsNullOrEmpty(s)) return s;
-                if (orgIdObj is Guid g) return g.ToString();
-            }
+    // 1) Prefer explicit OrganizationId item (string or Guid)
+    if (context.Items.TryGetValue("OrganizationId", out var orgIdObj) && orgIdObj != null)
+    {
+        if (orgIdObj is string s && !string.IsNullOrEmpty(s)) return s;
+        if (orgIdObj is Guid g) return g.ToString();
+    }
 
-            // 2) Fallback to Organization object
-            if (context.Items.TryGetValue("Organization", out var orgObj) && orgObj != null)
-            {
-                // Middleware's OrganizationContext lives in Momantza.Middleware
-                if (orgObj is Momantza.Middleware.OrganizationContext oc)
-                    return oc.OrganizationId.ToString();
+    // 2) Fallback to Organization object
+    if (context.Items.TryGetValue("Organization", out var orgObj) && orgObj != null)
+    {
+        // Middleware's OrganizationContext lives in Momantza.Middleware
+        if (orgObj is Momantza.Middleware.OrganizationContext oc)
+            return oc.OrganizationId.ToString();
 
-                if (orgObj is Guid g) return g.ToString();
-                if (orgObj is string s && !string.IsNullOrEmpty(s)) return s;
-            }
+        if (orgObj is Guid g) return g.ToString();
+        if (orgObj is string s && !string.IsNullOrEmpty(s)) return s;
+    }
 
-            // 3) Try common JWT claims
-            var claim = context.User?.Claims.FirstOrDefault(c =>
-                c.Type == "organizationId" || c.Type == "org" || c.Type == "organization")?.Value;
-            if (!string.IsNullOrEmpty(claim)) return claim;
+    // 3) Try common JWT claims
+    var claim = context.User?.Claims.FirstOrDefault(c =>
+        c.Type == "organizationId" || c.Type == "org" || c.Type == "organization")?.Value;
+    if (!string.IsNullOrEmpty(claim)) return claim;
 
-            return string.Empty;
-        }
+    return string.Empty;
+}
+
+protected string GetCurrentUserRole()
+{
+    var context = _httpContextAccessor.HttpContext;
+    if (context == null) return string.Empty;
+    var claim = context.User?.Claims.FirstOrDefault(c => c.Type == "role")?.Value;
+    return claim ?? string.Empty;
+}
+
+protected string GetCurrentUserId()
+{
+    var context = _httpContextAccessor.HttpContext;
+    if (context == null) return string.Empty;
+    var claim = context.User?.Claims.FirstOrDefault(c => c.Type == "nameid")?.Value;
+    return claim ?? string.Empty;
+}
+
+protected List<string> GetCurrentUserAccessibleHalls()
+{
+    var context = _httpContextAccessor.HttpContext;
+    if (context == null) return new List<string>();
+    var claim = context.User?.Claims.FirstOrDefault(c => c.Type == "accessibleHalls")?.Value;
+    if (string.IsNullOrEmpty(claim)) return new List<string>();
+    try
+    {
+        return JsonSerializer.Deserialize<List<string>>(claim) ?? new List<string>();
+    }
+    catch
+    {
+        return new List<string>();
+    }
+}
 
         public string GetSQL(Npgsql.NpgsqlCommand command)
         {
