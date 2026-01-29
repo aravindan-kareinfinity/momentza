@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Momantza.Services;
 using Momantza.Models;
@@ -11,11 +11,13 @@ namespace Momantza.Controllers
     public class AuthController : ControllerBase
     {
         private readonly IAuthDataService _authService;
+        private readonly IHallDataService _hallDataService;
 
 
-        public AuthController(IAuthDataService authService)
+        public AuthController(IAuthDataService authService, IHallDataService hallDataService)
         {
             _authService = authService;
+            _hallDataService = hallDataService;
         }
 
         [HttpPost("login")]
@@ -41,6 +43,27 @@ namespace Momantza.Controllers
                     return StatusCode(500, new { message = "Failed to generate token" });
                 }
 
+                // Load halls based on user role and accessible halls
+                List<Hall> halls;
+                if (string.Equals(result.Role, "admin", StringComparison.OrdinalIgnoreCase))
+                {
+                    // Admin: all halls for the organization
+                    halls = await _hallDataService.GetHallsByOrganizationAsync(result.OrganizationId);
+                }
+                else if (result.AccessibleHalls != null && result.AccessibleHalls.Any())
+                {
+                    // Manager/other roles: only halls in AccessibleHalls
+                    halls = await _hallDataService.GetAccessibleHallsAsync(
+                        result.OrganizationId,
+                        result.AccessibleHalls
+                    );
+                }
+                else
+                {
+                    // No accessible halls defined
+                    halls = new List<Hall>();
+                }
+
                 // Create response without password
                 var loginResponse = new LoginResponse
                 {
@@ -56,7 +79,8 @@ namespace Momantza.Controllers
                         UpdatedAt = result.UpdatedAt
                     },
                     Token = token,
-                    Message = "Login successful"
+                    Message = "Login successful",
+                    Halls = halls
                 };
 
                 return Ok(loginResponse);
@@ -270,6 +294,7 @@ namespace Momantza.Controllers
                     },
                     Token = token,
                     Message = "Token refreshed successfully"
+                   
                 };
 
                 return Ok(refreshResponse);
