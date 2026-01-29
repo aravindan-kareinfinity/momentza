@@ -35,6 +35,8 @@ namespace Momantza.Models
         public UserResponse User { get; set; } = new();
         public string Token { get; set; } = "";
         public string Message { get; set; } = "";
+
+        public List<Hall> Halls { get; set; } = new();
     }
 
     public class UserResponse
@@ -47,5 +49,7 @@ namespace Momantza.Models
         public List<string> AccessibleHalls { get; set; } = new();
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
+
+        
     }
 }

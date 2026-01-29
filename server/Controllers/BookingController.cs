@@ -4,6 +4,8 @@ using Momantza.Models;
 using Microsoft.Extensions.Logging;
 using OfficeOpenXml;
 using Momantza.Middleware;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 namespace Momantza.Controllers
 {
@@ -15,14 +17,67 @@ namespace Momantza.Controllers
         private readonly IBookingDataService _bookingDataService;
         private readonly IHallDataService _hallDataService;
         private readonly IOrganizationsDataService _organizationsDataService;
+        private readonly IUserDataService _userDataService;
         private readonly ILogger<BookingController> _logger;
 
-        public BookingController(IBookingDataService bookingDataService, IHallDataService hallDataService, IOrganizationsDataService organizationsDataService, ILogger<BookingController> logger)
+        public BookingController(
+            IBookingDataService bookingDataService,
+            IHallDataService hallDataService,
+            IOrganizationsDataService organizationsDataService,
+            IUserDataService userDataService,
+            ILogger<BookingController> logger)
         {
             _bookingDataService = bookingDataService;
             _hallDataService = hallDataService;
             _organizationsDataService = organizationsDataService;
+            _userDataService = userDataService;
             _logger = logger;
+        }
+
+        // Helper: get current user and accessible hall IDs from JWT
+        private async Task<(Users? user, List<string> accessibleHallIds)> GetCurrentUserWithAccessibleHallsAsync()
+        {
+            var authHeader = Request.Headers["Authorization"].ToString();
+            if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
+            {
+                return (null, new List<string>());
+            }
+
+            var token = authHeader.Replace("Bearer ", "");
+            try
+            {
+                var handler = new JwtSecurityTokenHandler();
+                var jwt = handler.ReadJwtToken(token);
+
+                var userId = jwt.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value
+                             ?? jwt.Claims.FirstOrDefault(c => c.Type == "nameid")?.Value;
+                var organizationId = jwt.Claims.FirstOrDefault(c => c.Type == "organizationId")?.Value ?? string.Empty;
+
+                if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(organizationId))
+                {
+                    return (null, new List<string>());
+                }
+
+                var user = await _userDataService.GetByIdAndOrganizationAsync(userId, organizationId);
+                if (user == null)
+                {
+                    return (null, new List<string>());
+                }
+
+                // Admin → treat as full access (empty list means "no restriction" for callers)
+                if (string.Equals(user.Role, "admin", StringComparison.OrdinalIgnoreCase))
+                {
+                    return (user, new List<string>());
+                }
+
+                // Manager / other roles
+                var halls = user.AccessibleHalls ?? new List<string>();
+                return (user, halls);
+            }
+            catch
+            {
+                return (null, new List<string>());
+            }
         }
 
         [HttpGet]
@@ -30,7 +85,16 @@ namespace Momantza.Controllers
         {
             try
             {
+                var (user, accessibleHallIds) = await GetCurrentUserWithAccessibleHallsAsync();
+
                 var bookings = await _bookingDataService.GetAllAsync();
+
+                if (user != null && accessibleHallIds.Any())
+                {
+                    // Non-admin with restricted halls: filter bookings to those halls only
+                    bookings = bookings.Where(b => accessibleHallIds.Contains(b.HallId)).ToList();
+                }
+
                 return Ok(bookings);
             }
             catch (Exception ex)
@@ -146,7 +210,15 @@ namespace Momantza.Controllers
         {
             try
             {
+                var (user, accessibleHallIds) = await GetCurrentUserWithAccessibleHallsAsync();
+
                 var bookings = await _bookingDataService.GetBookingsByOrganizationAsync(organizationId);
+
+                if (user != null && accessibleHallIds.Any())
+                {
+                    bookings = bookings.Where(b => accessibleHallIds.Contains(b.HallId)).ToList();
+                }
+
                 return Ok(bookings);
             }
             catch (Exception ex)
@@ -174,7 +246,15 @@ namespace Momantza.Controllers
         {
             try
             {
+                var (user, accessibleHallIds) = await GetCurrentUserWithAccessibleHallsAsync();
+
                 var bookings = await _bookingDataService.GetByStatusAsync(status);
+
+                if (user != null && accessibleHallIds.Any())
+                {
+                    bookings = bookings.Where(b => accessibleHallIds.Contains(b.HallId)).ToList();
+                }
+
                 return Ok(bookings);
             }
             catch (Exception ex)
@@ -194,6 +274,8 @@ namespace Momantza.Controllers
                     return BadRequest(ModelState);
                 }
 
+                var (user, accessibleHallIds) = await GetCurrentUserWithAccessibleHallsAsync();
+
                 var filters = new BookingFilters
                 {
                     StartDate = request.StartDate,
@@ -205,6 +287,12 @@ namespace Momantza.Controllers
                 };
 
                 var bookings = await _bookingDataService.SearchBookingsAsync(request.OrganizationId ?? "", filters);
+
+                if (user != null && accessibleHallIds.Any())
+                {
+                    bookings = bookings.Where(b => accessibleHallIds.Contains(b.HallId)).ToList();
+                }
+
                 return Ok(bookings);
             }
             catch (Exception ex)
@@ -218,7 +306,34 @@ namespace Momantza.Controllers
         {
             try
             {
+                var (user, accessibleHallIds) = await GetCurrentUserWithAccessibleHallsAsync();
+
                 var statistics = await _bookingDataService.GetBookingStatisticsAsync(organizationId ?? "");
+
+                // If manager, recalc statistics based only on accessible halls
+                if (user != null && accessibleHallIds.Any())
+                {
+                    var allBookings = await _bookingDataService.GetBookingsByOrganizationAsync(organizationId ?? "");
+                    var filtered = allBookings.Where(b => accessibleHallIds.Contains(b.HallId)).ToList();
+                    var today = DateTime.Today;
+
+                    statistics = new Momantza.Services.BookingStatistics
+                    {
+                        NewLeads = filtered.Count(b => b.Status == "pending"),
+                        RejectedLeads = filtered.Count(b => b.Status == "cancelled"),
+                        ConfirmedLeads = filtered.Count(b => b.Status == "confirmed"),
+                        UpcomingEvents = filtered.Count(b =>
+                            b.Status == "confirmed" && b.EventStartDate.Date >= today),
+                        HappeningEvents = filtered.Count(b =>
+                            b.Status == "active" || (b.Status == "confirmed" &&
+                            b.EventStartDate.Date <= today && b.EventEndDate.Date >= today)),
+                        TotalBookings = filtered.Count,
+                        TotalRevenue = filtered
+                            .Where(b => b.Status != "cancelled")
+                            .Sum(b => b.TotalAmount)
+                    };
+                }
+
                 return Ok(statistics);
             }
             catch (Exception ex)
