@@ -91,6 +91,9 @@ builder.Services.AddScoped<ILeadsDataService, LeadsDataService>();
 builder.Services.AddHttpContextAccessor();
 //builder.Services.AddHttpContextAccessor();
 
+// B2B Services
+builder.Services.AddHttpClient<IB2BClientService, B2BClientService>();
+
 var app = builder.Build();
 
 // Middleware ordering: resolve organization BEFORE authentication/authorization
@@ -145,6 +148,10 @@ app.UseCors("AllowAll");
 
 // <-- run resolver early so HttpContext.Items["Organization"] is set for controllers/services
 app.UseMiddleware<OrganizationResolverMiddleware>();
+
+// ✅ MIDDLEWARE FOR /api/b2b (B2B server-to-server authentication)
+app.UseMiddleware<ServerToServerAuthMiddleware>();
+
 app.UseRouting();
 app.UseSession();
 app.UseAuthentication();
