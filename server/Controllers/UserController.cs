@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Momantza.Services;
 using Momantza.Models;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 namespace Momantza.Controllers
 {
@@ -16,11 +18,68 @@ namespace Momantza.Controllers
             _userDataService = userDataService;
         }
 
+        private async Task<Users?> GetCurrentUserFromBearerTokenAsync()
+        {
+            var authHeader = Request.Headers["Authorization"].ToString();
+            if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
+            {
+                return null;
+            }
+
+            var token = authHeader.Replace("Bearer ", "");
+            try
+            {
+                var handler = new JwtSecurityTokenHandler();
+                var jwt = handler.ReadJwtToken(token);
+
+                var userId = jwt.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value
+                             ?? jwt.Claims.FirstOrDefault(c => c.Type == "nameid")?.Value;
+                var organizationId = jwt.Claims.FirstOrDefault(c => c.Type == "organizationId")?.Value ?? string.Empty;
+
+                if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(organizationId))
+                {
+                    return null;
+                }
+
+                return await _userDataService.GetByIdAndOrganizationAsync(userId, organizationId);
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
             try
             {
+                // If logged in, restrict results based on role:
+                // - admin: all users in organization
+                // - others: only (current user + admins)
+                var currentUser = await GetCurrentUserFromBearerTokenAsync();
+
+                if (currentUser != null && !string.IsNullOrEmpty(currentUser.OrganizationId))
+                {
+                    var orgUsers = await _userDataService.GetUsersByOrganizationAsync(currentUser.OrganizationId);
+
+                    if (string.Equals(currentUser.Role, "admin", StringComparison.OrdinalIgnoreCase))
+                    {
+                        return Ok(orgUsers);
+                    }
+
+                    var filtered = orgUsers
+                        .Where(u =>
+                            string.Equals(u.Role, "admin", StringComparison.OrdinalIgnoreCase) ||
+                            string.Equals(u.Id, currentUser.Id, StringComparison.OrdinalIgnoreCase))
+                        .GroupBy(u => u.Id)
+                        .Select(g => g.First())
+                        .ToList();
+
+                    return Ok(filtered);
+                }
+
+                // Fallback (no valid token): keep previous behavior
                 var users = await _userDataService.GetAllAsync();
                 return Ok(users);
             }

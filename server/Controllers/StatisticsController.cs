@@ -1,5 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Momantza.Services;
+using Momantza.Models;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 namespace Momantza.Controllers
 {
@@ -8,10 +11,64 @@ namespace Momantza.Controllers
     public class StatisticsController : ControllerBase
     {
         private readonly IStatisticsDataService _statisticsDataService;
+        private readonly IBookingDataService _bookingDataService;
+        private readonly IHallDataService _hallDataService;
+        private readonly IUserDataService _userDataService;
 
-        public StatisticsController(IStatisticsDataService statisticsDataService)
+        public StatisticsController(
+            IStatisticsDataService statisticsDataService,
+            IBookingDataService bookingDataService,
+            IHallDataService hallDataService,
+            IUserDataService userDataService)
         {
             _statisticsDataService = statisticsDataService;
+            _bookingDataService = bookingDataService;
+            _hallDataService = hallDataService;
+            _userDataService = userDataService;
+        }
+
+        // Helper: get current user and accessible hall IDs from JWT
+        private async Task<(Users? user, List<string> accessibleHallIds)> GetCurrentUserWithAccessibleHallsAsync()
+        {
+            var authHeader = Request.Headers["Authorization"].ToString();
+            if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
+            {
+                return (null, new List<string>());
+            }
+
+            var token = authHeader.Replace("Bearer ", "");
+            try
+            {
+                var handler = new JwtSecurityTokenHandler();
+                var jwt = handler.ReadJwtToken(token);
+
+                var userId = jwt.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value
+                             ?? jwt.Claims.FirstOrDefault(c => c.Type == "nameid")?.Value;
+                var organizationId = jwt.Claims.FirstOrDefault(c => c.Type == "organizationId")?.Value ?? string.Empty;
+
+                if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(organizationId))
+                {
+                    return (null, new List<string>());
+                }
+
+                var user = await _userDataService.GetByIdAndOrganizationAsync(userId, organizationId);
+                if (user == null)
+                {
+                    return (null, new List<string>());
+                }
+
+                // Admin → treat as full access (empty list means "no restriction")
+                if (string.Equals(user.Role, "admin", StringComparison.OrdinalIgnoreCase))
+                {
+                    return (user, new List<string>());
+                }
+
+                return (user, user.AccessibleHalls ?? new List<string>());
+            }
+            catch
+            {
+                return (null, new List<string>());
+            }
         }
 
         // GET: /api/statistics/organizations/{organizationId}/all
@@ -25,35 +82,139 @@ namespace Momantza.Controllers
                     return BadRequest(new { message = "Organization ID is required" });
                 }
 
-                // Get all statistics data using the new methods
-                var basicStats = await _statisticsDataService.GetBasicStatisticsAsync(organizationId);
-                var leadMetrics = await _statisticsDataService.GetLeadMetricsAsync(organizationId);
-                var monthlyData = await _statisticsDataService.GetMonthlyDataAsync(organizationId);
-                var growthMetrics = await _statisticsDataService.GetGrowthMetricsAsync(organizationId);
-                var customerInsights = await _statisticsDataService.GetCustomerInsightsAsync(organizationId);
-                var statusData = await _statisticsDataService.GetStatusDataAsync(organizationId);
-                var hallUtilization = await _statisticsDataService.GetHallUtilizationAsync(organizationId);
+                var (user, accessibleHallIds) = await GetCurrentUserWithAccessibleHallsAsync();
 
-                // Transform the data to match frontend expectations
+                // Admin or no restrictions -> keep existing org-wide statistics
+                if (user == null || !accessibleHallIds.Any())
+                {
+                    var basicStats = await _statisticsDataService.GetBasicStatisticsAsync(organizationId);
+                    var leadMetrics = await _statisticsDataService.GetLeadMetricsAsync(organizationId);
+                    var monthlyData = await _statisticsDataService.GetMonthlyDataAsync(organizationId);
+                    var growthMetrics = await _statisticsDataService.GetGrowthMetricsAsync(organizationId);
+                    var customerInsights = await _statisticsDataService.GetCustomerInsightsAsync(organizationId);
+                    var statusData = await _statisticsDataService.GetStatusDataAsync(organizationId);
+                    var hallUtilization = await _statisticsDataService.GetHallUtilizationAsync(organizationId);
+
+                    var resultAll = new
+                    {
+                        basic = basicStats,
+                        leads = leadMetrics,
+                        statusDistribution = statusData,
+                        hallUtilization = hallUtilization,
+                        monthlyData = monthlyData,
+                        growthMetrics = growthMetrics,
+                        customerInsights = customerInsights,
+                        chartConfig = new
+                        {
+                            colors = new[] { "#10B981", "#F59E0B", "#EF4444", "#6B7280", "#3B82F6", "#8B5CF6" },
+                            chartTypes = new[] { "line", "bar", "pie", "doughnut" },
+                            defaultChartType = "line"
+                        }
+                    };
+
+                    return Ok(resultAll);
+                }
+
+                // Manager / non-admin: compute statistics only for accessible halls
+                var allBookings = await _bookingDataService.GetBookingsByOrganizationAsync(organizationId);
+                var filtered = allBookings.Where(b => accessibleHallIds.Contains(b.HallId)).ToList();
+                var today = DateTime.Today;
+
+                // Basic stats
+                var basic = new
+                {
+                    totalBookings = filtered.Count,
+                    activeBookings = filtered.Count(b => b.Status == "active"),
+                    confirmedBookings = filtered.Count(b => b.Status == "confirmed"),
+                    totalRevenue = filtered.Where(b => b.Status != "cancelled").Sum(b => b.TotalAmount),
+                    // Reviews still org-wide for now
+                    totalReviews = 0,
+                    averageRating = 0.0
+                };
+
+                // Lead metrics
+                var leads = new
+                {
+                    newLeads = filtered.Count(b => b.Status == "pending"),
+                    rejectedLeads = filtered.Count(b => b.Status == "cancelled"),
+                    confirmedLeads = filtered.Count(b => b.Status == "confirmed"),
+                    upcomingEvents = filtered.Count(b =>
+                        b.Status == "confirmed" && b.EventStartDate.Date >= today),
+                    happeningEvents = filtered.Count(b =>
+                        b.Status == "active" ||
+                        (b.Status == "confirmed" &&
+                         b.EventStartDate.Date <= today &&
+                         b.EventEndDate.Date >= today))
+                };
+
+                // Status distribution
+                var colors = new[] { "#10B981", "#F59E0B", "#EF4444", "#6B7280", "#3B82F6", "#8B5CF6" };
+                var statusGroups = filtered
+                    .GroupBy(b => b.Status)
+                    .Select((g, idx) => new StatusData
+                    {
+                        Name = g.Key,
+                        Value = g.Count(),
+                        Color = colors[idx % colors.Length]
+                    })
+                    .ToList();
+
+                // Hall utilization (for accessible halls only)
+                var utilization = new List<HallUtilization>();
+                var hallsById = new Dictionary<string, Hall>();
+
+                foreach (var hallId in accessibleHallIds.Distinct())
+                {
+                    var hall = await _hallDataService.GetHallByIdAsync(hallId);
+                    if (hall == null) continue;
+
+                    hallsById[hallId] = hall;
+                }
+
+                var byHall = filtered.GroupBy(b => b.HallId);
+                foreach (var g in byHall)
+                {
+                    if (!hallsById.TryGetValue(g.Key, out var hall)) continue;
+
+                    utilization.Add(new HallUtilization
+                    {
+                        Name = hall.Name,
+                        Bookings = g.Count(),
+                        Revenue = g.Sum(b => b.TotalAmount)
+                    });
+                }
+
+                // Monthly data (last 6 months based on booking createdAt)
+                var sixMonthsAgo = today.AddMonths(-6);
+                var filteredMonthlyData = filtered
+                    .Where(b => (b.CreatedAt is DateTime dt ? dt : DateTime.Parse(b.CreatedAt.ToString()!)) >= sixMonthsAgo)
+                    .GroupBy(b => (b.CreatedAt is DateTime dt ? dt : DateTime.Parse(b.CreatedAt.ToString()!))
+                                  .ToString("MMM"))
+                    .OrderBy(g => g.Key)
+                    .Select(g => new MonthlyData
+                    {
+                        Month = g.Key,
+                        Bookings = g.Count(),
+                        Revenue = g.Sum(b => b.TotalAmount)
+                    })
+                    .ToList();
+
+                // Growth metrics & customer insights: reuse org-wide for now
+                var orgGrowthMetrics = await _statisticsDataService.GetGrowthMetricsAsync(organizationId);
+                var orgCustomerInsights = await _statisticsDataService.GetCustomerInsightsAsync(organizationId);
+
                 var result = new
                 {
-                    // Basic statistics - dashboard overview
-                    basic = basicStats,
-
-                    // Lead metrics
-                    leads = leadMetrics,
-
-                    // Direct data from services
-                    statusDistribution = statusData,
-                    hallUtilization = hallUtilization,
-                    monthlyData = monthlyData,
-                    growthMetrics = growthMetrics,
-                    customerInsights = customerInsights,
-
-                    // Chart configuration
+                    basic,
+                    leads,
+                    statusDistribution = statusGroups,
+                    hallUtilization = utilization,
+                    monthlyData = filteredMonthlyData,
+                    growthMetrics = orgGrowthMetrics,
+                    customerInsights = orgCustomerInsights,
                     chartConfig = new
                     {
-                        colors = new[] { "#10B981", "#F59E0B", "#EF4444", "#6B7280", "#3B82F6", "#8B5CF6" },
+                        colors = colors,
                         chartTypes = new[] { "line", "bar", "pie", "doughnut" },
                         defaultChartType = "line"
                     }
