@@ -226,6 +226,7 @@ namespace Momantza.Services
             }
         }
 
+        // In your StatisticsDataService.cs, update the GetMonthlyDataAsync method:
         public async Task<List<MonthlyData>> GetMonthlyDataAsync(string? organizationId = null)
         {
             var monthlyData = new List<MonthlyData>();
@@ -234,12 +235,12 @@ namespace Momantza.Services
             try
             {
                 var sql = @"
-                    SELECT 
-                        TO_CHAR(DATE_TRUNC('month', eventdate), 'Mon') as month,
-                        COUNT(*) as bookings,
-                        COALESCE(SUM(totalamount), 0) as revenue
-                    FROM bookings 
-                    WHERE createdat >= CURRENT_DATE - INTERVAL '5 months'";
+            SELECT 
+                TO_CHAR(DATE_TRUNC('month', eventdate), 'Mon YYYY') as month,
+                COUNT(*) as bookings,
+                COALESCE(SUM(totalamount), 0) as revenue
+            FROM bookings 
+            WHERE createdat >= CURRENT_DATE - INTERVAL '8 months'";
 
                 if (!string.IsNullOrEmpty(orgId))
                 {
@@ -272,8 +273,8 @@ namespace Momantza.Services
                 // Ensure we always have data for the frontend
                 if (monthlyData.Count == 0)
                 {
-                    // Return mock data for development
-                    monthlyData = GetMockMonthlyData();
+                    // Return empty list instead of mock data for production
+                    return new List<MonthlyData>();
                 }
 
                 return monthlyData;
@@ -281,22 +282,9 @@ namespace Momantza.Services
             catch (Exception ex)
             {
                 Console.WriteLine($"Error in GetMonthlyDataAsync: {ex.Message}");
-                // Return mock data instead of empty list
-                return GetMockMonthlyData();
+                // Return empty list instead of mock data for production
+                return new List<MonthlyData>();
             }
-        }
-
-        private List<MonthlyData> GetMockMonthlyData()
-        {
-            return new List<MonthlyData>
-            {
-                new MonthlyData { Month = "Jan", Bookings = 45, Revenue = 12500 },
-                new MonthlyData { Month = "Feb", Bookings = 52, Revenue = 14200 },
-                new MonthlyData { Month = "Mar", Bookings = 38, Revenue = 9800 },
-                new MonthlyData { Month = "Apr", Bookings = 61, Revenue = 16800 },
-                new MonthlyData { Month = "May", Bookings = 49, Revenue = 13200 },
-                new MonthlyData { Month = "Jun", Bookings = 55, Revenue = 14800 }
-            };
         }
 
         public async Task<GrowthMetrics> GetGrowthMetricsAsync(string? organizationId = null)
