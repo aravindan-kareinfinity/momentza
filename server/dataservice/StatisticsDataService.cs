@@ -235,19 +235,19 @@ namespace Momantza.Services
             {
                 var sql = @"
                     SELECT 
-                        TO_CHAR(DATE_TRUNC('month', createdat), 'Mon') as month,
+                        TO_CHAR(DATE_TRUNC('month', eventdate), 'Mon') as month,
                         COUNT(*) as bookings,
                         COALESCE(SUM(totalamount), 0) as revenue
                     FROM bookings 
-                    WHERE createdat >= CURRENT_DATE - INTERVAL '6 months'";
+                    WHERE createdat >= CURRENT_DATE - INTERVAL '5 months'";
 
                 if (!string.IsNullOrEmpty(orgId))
                 {
                     sql += " AND organizationid = @organizationId";
                 }
 
-                sql += " GROUP BY DATE_TRUNC('month', createdat)";
-                sql += " ORDER BY MIN(createdat)";
+                sql += " GROUP BY DATE_TRUNC('month', eventdate)";
+                sql += " ORDER BY MIN(eventdate)";
 
                 using var connection = await GetConnectionAsync();
                 using var command = new NpgsqlCommand(sql, connection);
@@ -327,16 +327,16 @@ namespace Momantza.Services
             ),
             customer_data AS (
                 SELECT 
-                    COUNT(DISTINCT customeremail) as total_customers,
+                    COUNT(DISTINCT customerphone) as total_customers,
                     COUNT(DISTINCT CASE 
-                        WHEN customeremail IN (
-                            SELECT customeremail 
+                        WHEN customerphone IN (
+                            SELECT customerphone 
                             FROM bookings 
                             WHERE (@organizationId IS NULL OR organizationid = @organizationId)
                             AND totalamount > 0  -- Only count meaningful bookings
-                            GROUP BY customeremail 
+                            GROUP BY customerphone 
                             HAVING COUNT(*) > 1
-                        ) THEN customeremail 
+                        ) THEN customerphone 
                     END) as repeat_customers
                 FROM bookings 
                 WHERE (@organizationId IS NULL OR organizationid = @organizationId)
@@ -449,14 +449,14 @@ namespace Momantza.Services
             {
                 var sql = @"
             SELECT 
-                COALESCE(COUNT(DISTINCT customeremail), 0) as total_customers,
+                COALESCE(COUNT(DISTINCT customerphone), 0) as total_customers,
                 COALESCE((
-                    SELECT COUNT(DISTINCT customeremail)
+                    SELECT COUNT(DISTINCT customerphone)
                     FROM (
-                        SELECT customeremail
+                        SELECT customerphone
                         FROM bookings 
                         WHERE (@organizationId IS NULL OR organizationid = @organizationId)
-                        GROUP BY customeremail 
+                        GROUP BY customerphone 
                         HAVING COUNT(*) > 1
                     ) repeat_customers
                 ), 0) as repeat_customers,
@@ -712,7 +712,7 @@ namespace Momantza.Services
                 }
 
                 // Get total customers
-                var totalCustomersSql = "SELECT COUNT(DISTINCT customeremail) FROM bookings";
+                var totalCustomersSql = "SELECT COUNT(DISTINCT customerphone) FROM bookings";
                 if (!string.IsNullOrEmpty(orgId))
                 {
                     totalCustomersSql += " WHERE organizationid = @organizationId";
@@ -790,7 +790,7 @@ namespace Momantza.Services
                 COALESCE((SELECT COUNT(*) FROM bookings WHERE organizationid = @organizationId), 0) as total_bookings,
                 COALESCE((SELECT SUM(totalamount) FROM bookings WHERE organizationid = @organizationId), 0) as total_revenue,
                 COALESCE((SELECT COUNT(*) FROM halls WHERE organizationid = @organizationId), 0) as total_halls,
-                COALESCE((SELECT COUNT(DISTINCT customeremail) FROM bookings WHERE organizationid = @organizationId), 0) as total_customers,
+                COALESCE((SELECT COUNT(DISTINCT customerphone) FROM bookings WHERE organizationid = @organizationId), 0) as total_customers,
                 COALESCE((SELECT COUNT(*) FROM reviews WHERE organizationid = @organizationId), 0) as total_reviews,
                 COALESCE((SELECT AVG(rating) FROM reviews WHERE organizationid = @organizationId), 0) as average_rating";
 

@@ -1,7 +1,4 @@
 import { 
-  mockMonthlyData, 
-  mockGrowthMetrics, 
-  mockCustomerInsights,
   MonthlyData, 
   StatusData, 
   HallUtilization, 
@@ -94,30 +91,30 @@ class StatisticsService {
   }
 
   // Monthly Data
-  async getMonthlyData(): Promise<MonthlyData[]> {
-    return mockMonthlyData;
-  }
+  // async getMonthlyData(): Promise<MonthlyData[]> {
+  //   //return MonthlyData;
+  // }
 
   // Growth Metrics
-  async getGrowthMetrics(organizationId: string): Promise<GrowthMetrics> {
-    const { totalRevenue, totalBookings } = await this.getBasicStatistics(organizationId);
+  // async getGrowthMetrics(organizationId: string): Promise<GrowthMetrics> {
+  //   const { totalRevenue, totalBookings } = await this.getBasicStatistics(organizationId);
     
-    return {
-      ...mockGrowthMetrics,
-      averageBookingValue: totalBookings > 0 ? Math.round(totalRevenue / totalBookings) : 0
-    };
-  }
+  //   return {
+  //     ...mockGrowthMetrics,
+  //     averageBookingValue: totalBookings > 0 ? Math.round(totalRevenue / totalBookings) : 0
+  //   };
+  // }
 
   // Customer Insights
-  async getCustomerInsights(organizationId: string): Promise<CustomerInsights> {
-    const { totalBookings, averageRating } = await this.getBasicStatistics(organizationId);
+  // async getCustomerInsights(organizationId: string): Promise<CustomerInsights> {
+  //   const { totalBookings, averageRating } = await this.getBasicStatistics(organizationId);
     
-    return {
-      ...mockCustomerInsights,
-      totalCustomers: totalBookings,
-      customerSatisfaction: averageRating
-    };
-  }
+  //   return {
+  //     ...mockCustomerInsights,
+  //     totalCustomers: totalBookings,
+  //     customerSatisfaction: averageRating
+  //   };
+  // }
 
   // Chart Configuration
   async getChartConfig() {
@@ -140,9 +137,9 @@ class StatisticsService {
       leads: await this.getLeadMetrics(organizationId),
       statusDistribution: await this.getStatusDistribution(organizationId),
       hallUtilization: await this.getHallUtilization(organizationId),
-      monthlyData: await this.getMonthlyData(),
-      growthMetrics: await this.getGrowthMetrics(organizationId),
-      customerInsights: await this.getCustomerInsights(organizationId),
+     // monthlyData: await this.getMonthlyData(),
+     // growthMetrics: await this.getGrowthMetrics(organizationId),
+     // customerInsights: await this.getCustomerInsights(organizationId),
       chartConfig: await this.getChartConfig()
     };
   }

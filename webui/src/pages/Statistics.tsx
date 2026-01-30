@@ -8,19 +8,16 @@ import { useOrganization } from '@/hooks/useOrganization';
 import { AnimatedPage } from '@/components/Layout/AnimatedPage';
 
 const Statistics = () => {
-  // Get current organization using singleton pattern
   const {
     organization,
     loading: orgLoading,
     error: orgError
   } = useOrganization();
 
-  // State for statistics data
   const [stats, setStats] = useState(null);
   const [statsLoading, setStatsLoading] = useState(false);
   const [statsError, setStatsError] = useState(null);
 
-  // Fetch statistics when organization changes
   const fetchStatistics = useCallback(async () => {
     if (!organization?.id) {
       setStats(null);
@@ -31,15 +28,16 @@ const Statistics = () => {
       setStatsLoading(true);
       setStatsError(null);
       const statisticsData = await statisticsService.getAllStatistics(organization.id);
+      console.log('Fetched statistics data:', statisticsData); // Debug log
       setStats(statisticsData);
     } catch (error) {
+      console.error('Error fetching statistics:', error);
       setStatsError(error.message || 'Failed to load statistics');
     } finally {
       setStatsLoading(false);
     }
   }, [organization?.id]);
 
-  // Effect to fetch statistics when organization changes
   useEffect(() => {
     fetchStatistics();
   }, [fetchStatistics]);
@@ -114,39 +112,99 @@ const Statistics = () => {
     );
   }
 
+  // Safely extract data with defaults
   const {
-    basic,
-    leads,
-    statusDistribution,
-    hallUtilization,
-    monthlyData,
-    growthMetrics,
-    customerInsights,
-    chartConfig
+    basic = {
+      totalBookings: 0,
+      activeBookings: 0,
+      confirmedBookings: 0,
+      totalRevenue: 0,
+      averageRating: 0,
+      totalReviews: 0
+    },
+    leads = {
+      newLeads: 0,
+      rejectedLeads: 0,
+      confirmedLeads: 0,
+      upcomingEvents: 0,
+      happeningEvents: 0
+    },
+    statusDistribution = [],
+    hallUtilization = [],
+    monthlyData = [],
+    growthMetrics = {
+      monthlyGrowth: 0,
+      customerRetention: 0,
+      averageBookingValue: 0
+    },
+    customerInsights = {
+      totalCustomers: 0,
+      repeatCustomers: 0,
+      customerSatisfaction: 0
+    },
+    chartConfig = {
+      bookings: { label: "Bookings", color: "#3b82f6" },
+      revenue: { label: "Revenue", color: "#10b981" }
+    }
   } = stats;
-  
-  // Defensive checks for potentially undefined objects
-  const safeBasic = basic && typeof basic === 'object'
-    ? basic
-    : { totalBookings: 0, activeBookings: 0, confirmedBookings: 0, totalRevenue: 0, averageRating: 0, totalReviews: 0 };
-    
-  const safeLeads = leads && typeof leads === 'object'
-    ? leads
-    : { newLeads: 0, rejectedLeads: 0, confirmedLeads: 0, upcomingEvents: 0, happeningEvents: 0 };
-    
-  const safeStatusDistribution = Array.isArray(statusDistribution) ? statusDistribution : [];
-  const safeHallUtilization = Array.isArray(hallUtilization) ? hallUtilization : [];
-  const safeMonthlyData = Array.isArray(monthlyData) ? monthlyData : [];
-  
-  const safeGrowthMetrics = growthMetrics && typeof growthMetrics === 'object'
-    ? growthMetrics
-    : { monthlyGrowth: 0, customerRetention: 0, averageBookingValue: 0 };
-    
-  const safeCustomerInsights = customerInsights && typeof customerInsights === 'object'
-    ? customerInsights
-    : { totalCustomers: 0, repeatCustomers: 0, customerSatisfaction: 0 };
-    
-  const safeChartConfig = chartConfig && typeof chartConfig === 'object' ? chartConfig : {};
+
+  // Ensure data types are correct
+  const safeBasic = {
+    totalBookings: Number(basic.totalBookings) || 0,
+    activeBookings: Number(basic.activeBookings) || 0,
+    confirmedBookings: Number(basic.confirmedBookings) || 0,
+    totalRevenue: Number(basic.totalRevenue) || 0,
+    averageRating: Number(basic.averageRating) || 0,
+    totalReviews: Number(basic.totalReviews) || 0
+  };
+
+  const safeLeads = {
+    newLeads: Number(leads.newLeads) || 0,
+    rejectedLeads: Number(leads.rejectedLeads) || 0,
+    confirmedLeads: Number(leads.confirmedLeads) || 0,
+    upcomingEvents: Number(leads.upcomingEvents) || 0,
+    happeningEvents: Number(leads.happeningEvents) || 0
+  };
+
+  const safeGrowthMetrics = {
+    monthlyGrowth: Number(growthMetrics.monthlyGrowth) || 0,
+    customerRetention: Number(growthMetrics.customerRetention) || 0,
+    averageBookingValue: Number(growthMetrics.averageBookingValue) || 0
+  };
+
+  const safeCustomerInsights = {
+    totalCustomers: Number(customerInsights.totalCustomers) || 0,
+    repeatCustomers: Number(customerInsights.repeatCustomers) || 0,
+    customerSatisfaction: Number(customerInsights.customerSatisfaction) || 0
+  };
+
+  // Prepare chart data
+  const safeMonthlyData = Array.isArray(monthlyData) 
+    ? monthlyData.map(item => ({
+        month: String(item.month || ''),
+        bookings: Number(item.bookings) || 0,
+        revenue: Number(item.revenue) || 0
+      }))
+    : [];
+
+  const safeStatusDistribution = Array.isArray(statusDistribution)
+    ? statusDistribution.map(item => ({
+        name: String(item.name || ''),
+        value: Number(item.value) || 0,
+        color: String(item.color || '#6b7280')
+      }))
+    : [];
+
+  const safeHallUtilization = Array.isArray(hallUtilization)
+    ? hallUtilization.map(item => ({
+        name: String(item.name || ''),
+        bookings: Number(item.bookings) || 0,
+        revenue: Number(item.revenue) || 0
+      }))
+    : [];
+
+  // Debug log to verify customer insights
+  console.log('Customer Insights:', safeCustomerInsights);
 
   return (
     <AnimatedPage className="space-y-8">
@@ -157,7 +215,7 @@ const Statistics = () => {
         </p>
       </div>
 
-      {/* Enhanced Key Metrics Cards */}
+      {/* Lead Metrics Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -166,9 +224,7 @@ const Statistics = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-blue-600">{safeLeads.newLeads}</div>
-            <p className="text-xs text-muted-foreground">
-              Pending inquiries
-            </p>
+            <p className="text-xs text-muted-foreground">Pending inquiries</p>
           </CardContent>
         </Card>
 
@@ -179,9 +235,7 @@ const Statistics = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-red-600">{safeLeads.rejectedLeads}</div>
-            <p className="text-xs text-muted-foreground">
-              Cancelled bookings
-            </p>
+            <p className="text-xs text-muted-foreground">Cancelled bookings</p>
           </CardContent>
         </Card>
 
@@ -192,9 +246,7 @@ const Statistics = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-green-600">{safeLeads.confirmedLeads}</div>
-            <p className="text-xs text-muted-foreground">
-              Successful conversions
-            </p>
+            <p className="text-xs text-muted-foreground">Successful conversions</p>
           </CardContent>
         </Card>
 
@@ -205,9 +257,7 @@ const Statistics = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-orange-600">{safeLeads.upcomingEvents}</div>
-            <p className="text-xs text-muted-foreground">
-              Events scheduled
-            </p>
+            <p className="text-xs text-muted-foreground">Events scheduled</p>
           </CardContent>
         </Card>
 
@@ -218,14 +268,12 @@ const Statistics = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-purple-600">{safeLeads.happeningEvents}</div>
-            <p className="text-xs text-muted-foreground">
-              Active events
-            </p>
+            <p className="text-xs text-muted-foreground">Active events</p>
           </CardContent>
         </Card>
       </div>
 
-      {/* Legacy metrics for comparison */}
+      {/* Basic Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -233,7 +281,7 @@ const Statistics = () => {
             <Calendar className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{safeBasic.totalBookings}</div>
+            <div className="text-2xl font-bold">{safeBasic.totalBookings.toLocaleString()}</div>
             <p className="text-xs text-muted-foreground">
               +{safeGrowthMetrics.monthlyGrowth}% from last month
             </p>
@@ -246,10 +294,8 @@ const Statistics = () => {
             <Activity className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{safeBasic.activeBookings}</div>
-            <p className="text-xs text-muted-foreground">
-              Currently ongoing
-            </p>
+            <div className="text-2xl font-bold">{safeBasic.activeBookings.toLocaleString()}</div>
+            <p className="text-xs text-muted-foreground">Currently ongoing</p>
           </CardContent>
         </Card>
 
@@ -259,7 +305,7 @@ const Statistics = () => {
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">₹{safeBasic.totalRevenue.toLocaleString()}</div>
+            <div className="text-2xl font-bold">₹{safeBasic.totalRevenue.toLocaleString('en-IN')}</div>
             <p className="text-xs text-muted-foreground">
               +{safeGrowthMetrics.monthlyGrowth}% from last month
             </p>
@@ -282,40 +328,40 @@ const Statistics = () => {
 
       {/* Charts Section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Monthly Bookings and Revenue */}
+        {/* Monthly Bookings */}
         <Card>
-  <CardHeader>
-    <CardTitle>Monthly Performance</CardTitle>
-    <CardDescription>Bookings and revenue trends over time</CardDescription>
-  </CardHeader>
-  <CardContent>
-    <ChartContainer config={safeChartConfig} className="h-[300px]">
-      <ResponsiveContainer width="100%" height="100%">
-        <BarChart data={safeMonthlyData}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-          <XAxis 
-            dataKey="month" 
-            stroke="#6b7280"
-            tick={{ fill: "#6b7280" }}
-          />
-          <YAxis 
-            stroke="#6b7280"
-            tick={{ fill: "#6b7280" }}
-          />
-          <ChartTooltip 
-            content={<ChartTooltipContent />}
-            labelStyle={{ color: "#374151" }}
-          />
-          <Bar 
-            dataKey="bookings" 
-            fill="#8b5cf6" // Purple
-            radius={[4, 4, 0, 0]}
-          />
-        </BarChart>
-      </ResponsiveContainer>
-    </ChartContainer>
-  </CardContent>
-</Card>
+          <CardHeader>
+            <CardTitle>Monthly Performance</CardTitle>
+            <CardDescription>Bookings and revenue trends over time</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ChartContainer config={chartConfig} className="h-[300px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={safeMonthlyData}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                  <XAxis 
+                    dataKey="month" 
+                    stroke="#6b7280"
+                    tick={{ fill: "#6b7280" }}
+                  />
+                  <YAxis 
+                    stroke="#6b7280"
+                    tick={{ fill: "#6b7280" }}
+                  />
+                  <ChartTooltip 
+                    content={<ChartTooltipContent />}
+                    labelStyle={{ color: "#374151" }}
+                  />
+                  <Bar 
+                    dataKey="bookings" 
+                    fill="#8b5cf6"
+                    radius={[4, 4, 0, 0]}
+                  />
+                </BarChart>
+              </ResponsiveContainer>
+            </ChartContainer>
+          </CardContent>
+        </Card>
 
         {/* Booking Status Distribution */}
         <Card>
@@ -324,7 +370,7 @@ const Statistics = () => {
             <CardDescription>Current status of all bookings</CardDescription>
           </CardHeader>
           <CardContent>
-            <ChartContainer config={safeChartConfig} className="h-[300px]">
+            <ChartContainer config={chartConfig} className="h-[300px]">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
@@ -332,7 +378,7 @@ const Statistics = () => {
                     cx="50%"
                     cy="50%"
                     labelLine={false}
-                    label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                    label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
                     outerRadius={80}
                     fill="#8884d8"
                     dataKey="value"
@@ -341,7 +387,10 @@ const Statistics = () => {
                       <Cell key={`cell-${index}`} fill={entry.color} />
                     ))}
                   </Pie>
-                  <ChartTooltip content={<ChartTooltipContent />} />
+                  <ChartTooltip 
+                    content={<ChartTooltipContent />}
+                    formatter={(value, name) => [`${value} bookings`, name]}
+                  />
                 </PieChart>
               </ResponsiveContainer>
             </ChartContainer>
@@ -350,74 +399,84 @@ const Statistics = () => {
 
         {/* Revenue Trend */}
         <Card>
-  <CardHeader>
-    <CardTitle>Revenue Trend</CardTitle>
-    <CardDescription>Gradient revenue progression</CardDescription>
-  </CardHeader>
-  <CardContent>
-    <ChartContainer config={safeChartConfig} className="h-[300px]">
-      <ResponsiveContainer width="100%" height="100%">
-        <LineChart data={safeMonthlyData}>
-          <defs>
-            <linearGradient id="revenueGradient" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor="var(--color-revenue)" stopOpacity={0.8}/>
-              <stop offset="95%" stopColor="var(--color-revenue)" stopOpacity={0.1}/>
-            </linearGradient>
-          </defs>
-          <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
-          <XAxis dataKey="month" />
-          <YAxis />
-          <ChartTooltip content={<ChartTooltipContent />} />
-          <Line
-            type="monotone" 
-            dataKey="revenue" 
-            stroke="var(--color-revenue)" 
-            strokeWidth={3}
-            fill="url(#revenueGradient)"
-          />
-        </LineChart>
-      </ResponsiveContainer>
-    </ChartContainer>
-  </CardContent>
-</Card>
+          <CardHeader>
+            <CardTitle>Revenue Trend</CardTitle>
+            <CardDescription>Revenue progression over time</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ChartContainer config={chartConfig} className="h-[300px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={safeMonthlyData}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                  <XAxis 
+                    dataKey="month" 
+                    stroke="#6b7280"
+                    tick={{ fill: "#6b7280" }}
+                  />
+                  <YAxis 
+                    stroke="#6b7280"
+                    tick={{ fill: "#6b7280" }}
+                  />
+                  <ChartTooltip 
+                    content={<ChartTooltipContent />}
+                    formatter={(value) => [`₹${Number(value).toLocaleString('en-IN')}`, 'Revenue']}
+                  />
+                  <Line
+                    type="monotone" 
+                    dataKey="revenue" 
+                    stroke="#10b981" 
+                    strokeWidth={3}
+                    dot={{ r: 4 }}
+                    activeDot={{ r: 6 }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </ChartContainer>
+          </CardContent>
+        </Card>
 
         {/* Hall Utilization */}
         <Card>
-  <CardHeader>
-    <CardTitle>Hall Utilization</CardTitle>
-    <CardDescription>Intensity of bookings per hall</CardDescription>
-  </CardHeader>
-  <CardContent>
-    <ChartContainer config={safeChartConfig} className="h-[300px]">
-      <ResponsiveContainer width="100%" height="100%">
-        <BarChart data={safeHallUtilization} layout="vertical">
-          <CartesianGrid strokeDasharray="3 3" horizontal={false} />
-          <XAxis type="number" />
-          <YAxis 
-            dataKey="name" 
-            type="category" 
-            width={80}
-          />
-          <ChartTooltip content={<ChartTooltipContent />} />
-          <Bar 
-            dataKey="bookings" 
-            fill="url(#heatmap-gradient)"
-            barSize={30}
-            radius={[0, 4, 4, 0]}
-          >
-            <defs>
-              <linearGradient id="heatmap-gradient" x1="0" y1="0" x2="1" y2="0">
-                <stop offset="0%" stopColor="#f0f9ff" />
-                <stop offset="50%" stopColor="#0ea5e9" />
-                <stop offset="100%" stopColor="#0369a1" />
-              </linearGradient>
-            </defs>
-          </Bar>
-        </BarChart>
-      </ResponsiveContainer>
-    </ChartContainer>
-  </CardContent>
-</Card>
+          <CardHeader>
+            <CardTitle>Hall Utilization</CardTitle>
+            <CardDescription>Booking intensity per hall</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ChartContainer config={chartConfig} className="h-[300px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={safeHallUtilization} layout="vertical">
+                  <CartesianGrid strokeDasharray="3 3" horizontal={false} />
+                  <XAxis 
+                    type="number" 
+                    stroke="#6b7280"
+                    tick={{ fill: "#6b7280" }}
+                  />
+                  <YAxis 
+                    dataKey="name" 
+                    type="category" 
+                    width={80}
+                    stroke="#6b7280"
+                    tick={{ fill: "#6b7280" }}
+                  />
+                  <ChartTooltip 
+                    content={<ChartTooltipContent />}
+                    formatter={(value, name) => {
+                      if (name === 'bookings') return [`${value} bookings`, 'Bookings'];
+                      if (name === 'revenue') return [`₹${Number(value).toLocaleString('en-IN')}`, 'Revenue'];
+                      return [value, name];
+                    }}
+                  />
+                  <Bar 
+                    dataKey="bookings" 
+                    fill="#0ea5e9"
+                    barSize={30}
+                    radius={[0, 4, 4, 0]}
+                  />
+                </BarChart>
+              </ResponsiveContainer>
+            </ChartContainer>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Business Insights */}
@@ -460,7 +519,7 @@ const Statistics = () => {
               </div>
               <div className="flex justify-between">
                 <span className="text-sm">Average Booking Value</span>
-                <span className="font-medium">₹{safeGrowthMetrics.averageBookingValue.toLocaleString()}</span>
+                <span className="font-medium">₹{safeGrowthMetrics.averageBookingValue.toLocaleString('en-IN')}</span>
               </div>
             </div>
           </CardContent>
@@ -477,7 +536,7 @@ const Statistics = () => {
             <div className="space-y-3">
               <div className="flex justify-between">
                 <span className="text-sm">Total Customers</span>
-                <span className="font-medium">{safeCustomerInsights.totalCustomers}</span>
+                <span className="font-medium">{safeCustomerInsights.totalCustomers.toLocaleString()}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-sm">Repeat Customers</span>

@@ -109,6 +109,8 @@ namespace Momantza.Models
 
         public string OrganizationId { get; set; } = string.Empty;
 
+        //public string  HallId { get; set; } 
+
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     }
 
