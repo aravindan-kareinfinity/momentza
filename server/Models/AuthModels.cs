@@ -52,4 +52,13 @@ namespace Momantza.Models
 
         
     }
+
+    public class B2BTokenRequest
+    {
+        public string ClientId { get; set; } = string.Empty;
+        public string ClientSecret { get; set; } = string.Empty;
+        public string Company { get; set; } = string.Empty;
+        public string? Mobile { get; set; }
+        public string? Email { get; set; }
+    }
 }

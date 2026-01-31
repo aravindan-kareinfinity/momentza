@@ -8,6 +8,11 @@ using Momantza.Services;
 using Momantza.Middleware;
 using MomantzaApp.dataservice;
 using MomantzaApp.DataService;
+using Microsoft.OpenApi.Models;
+using Microsoft.AspNetCore.Http;
+using Swashbuckle.AspNetCore.SwaggerGen;
+using Microsoft.OpenApi.Any;
+using Momantza.Swagger;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,6 +23,72 @@ builder.Services.AddControllersWithViews()
     {
         options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase; // Use camelCase
     });
+
+// Add Swagger/OpenAPI
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "Momantza API",
+        Version = "v1",
+        Description = "Momantza API Documentation including B2B endpoints"
+    });
+    
+    // Use simple schema IDs to avoid conflicts
+    c.CustomSchemaIds(type => type.Name);
+    
+    // Resolve conflicting actions (same HTTP method + path)
+    c.ResolveConflictingActions(apiDescriptions =>
+    {
+        // For conflicting actions, prefer the first one
+        // You can customize this logic based on your needs
+        return apiDescriptions.First();
+    });
+    
+    // Add JWT Bearer authentication to Swagger
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Description = "JWT Authorization header using the Bearer scheme. Enter 'Bearer' [space] and then your token.",
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.ApiKey,
+        Scheme = "Bearer"
+    });
+    
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            new string[] { }
+        }
+    });
+    
+    // Include XML comments if available
+    var xmlFile = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+    if (File.Exists(xmlPath))
+    {
+        c.IncludeXmlComments(xmlPath);
+    }
+    
+    // Handle file uploads (IFormFile)
+    c.MapType<IFormFile>(() => new OpenApiSchema
+    {
+        Type = "string",
+        Format = "binary"
+    });
+    
+    // Custom operation filter to handle [FromForm] with IFormFile
+    c.OperationFilter<FileUploadOperationFilter>();
+});
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddSession(options =>
@@ -95,6 +166,21 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddHttpClient<IB2BClientService, B2BClientService>();
 
 var app = builder.Build();
+
+// Configure Swagger UI (only in Development)
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger(c =>
+    {
+        c.RouteTemplate = "swagger/{documentName}/swagger.json";
+    });
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Momantza API v1");
+        c.RoutePrefix = "swagger"; // Swagger UI will be available at /swagger
+        c.DisplayRequestDuration();
+    });
+}
 
 // Middleware ordering: resolve organization BEFORE authentication/authorization
 // Configure static files to serve from wwwroot

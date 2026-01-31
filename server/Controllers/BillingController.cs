@@ -80,7 +80,7 @@ namespace Momantza.Controllers
             }
         }
 
-        [HttpPost("{id}")]
+        [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(string id)
         {
             try
