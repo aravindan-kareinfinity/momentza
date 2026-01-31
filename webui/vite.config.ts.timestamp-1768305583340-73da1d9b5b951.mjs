@@ -47,7 +47,7 @@ var vite_config_default = defineConfig(({ mode }) => {
       // ADD PROXY CONFIGURATION HERE
       proxy: {
         "/api": {
-          target: "http://localhost:5000",
+          target: "http://localhost:5000/",
           // Your backend URL
           changeOrigin: true,
           secure: false,
@@ -108,7 +108,7 @@ var vite_config_default = defineConfig(({ mode }) => {
           } else {
             if (!existsSync(wwwrootConfigPath)) {
               const devConfig = {
-                VITE_API_BASE_URL: config.VITE_API_BASE_URL || "http://localhost:5000",
+                VITE_API_BASE_URL: config.VITE_API_BASE_URL || "http://localhost:5000/",
                 VITE_APP_TITLE: config.VITE_APP_TITLE || "Wedding Hub Manager",
                 VITE_APP_VERSION: config.VITE_APP_VERSION || "1.0.0",
                 VITE_ENVIRONMENT: "development",
@@ -144,7 +144,7 @@ var vite_config_default = defineConfig(({ mode }) => {
       // Fix for Recharts/Lodash compatibility issue
       "process.env.NODE_ENV": JSON.stringify(mode),
       // Ensure API base URL is available in build
-      "import.meta.env.VITE_API_BASE_URL": JSON.stringify(process.env.VITE_API_BASE_URL || "http://localhost:5000"),
+      "import.meta.env.VITE_API_BASE_URL": JSON.stringify(process.env.VITE_API_BASE_URL || "http://localhost:5000/"),
       // Ensure base URL is available in build
       "import.meta.env.VITE_BASE_URL": JSON.stringify(baseUrl)
     },

@@ -100,7 +100,7 @@ namespace Momantza.Middleware
                 {
                     "https://appointza.com",
                     "https://latrexa.com",
-                    "https://momantza.com",
+                    "http://localhost:5000",
                     "https://campusza.com",
                     "appointza.com",
                     "latrexa.com",

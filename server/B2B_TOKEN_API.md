@@ -109,7 +109,7 @@ Authorization: Bearer <access_token>
 ### Example cURL Request
 
 ```bash
-curl -X POST "http://localhost:5000/api/b2b/auth/token" \
+curl -X POST "http://localhost:5000//api/b2b/auth/token" \
   -H "Content-Type: application/json" \
   -d '{
     "clientId": "appointza-client",

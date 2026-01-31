@@ -113,7 +113,7 @@ Edit `wwwroot/config.json` for your environment:
 **Development:**
 ```json
 {
-  "VITE_API_BASE_URL": "http://localhost:5000",
+  "VITE_API_BASE_URL": "http://localhost:5000/",
   "VITE_APP_TITLE": "Wedding Hub Manager",
   "VITE_APP_VERSION": "1.0.0",
   "VITE_ENVIRONMENT": "development"
@@ -123,7 +123,7 @@ Edit `wwwroot/config.json` for your environment:
 **Production:**
 ```json
 {
-  "VITE_API_BASE_URL": "http://localhost:5000",
+  "VITE_API_BASE_URL": "http://localhost:5000/",
   "VITE_APP_TITLE": "Wedding Hub Manager",
   "VITE_APP_VERSION": "1.0.0",
   "VITE_ENVIRONMENT": "production"
@@ -163,7 +163,7 @@ You can also test manually by:
 
 | Property | Description | Default | Required |
 |----------|-------------|---------|----------|
-| `VITE_API_BASE_URL` | API server base URL | `http://localhost:5000` | ✅ |
+| `VITE_API_BASE_URL` | API server base URL | `http://localhost:5000/` | ✅ |
 | `VITE_APP_TITLE` | Application title | `Wedding Hub Manager` | ❌ |
 | `VITE_APP_VERSION` | Application version | `1.0.0` | ❌ |
 | `VITE_ENVIRONMENT` | Environment name | `development` | ❌ |

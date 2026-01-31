@@ -36,6 +36,7 @@ import { AIChatBot } from "@/components/AIChatBot/AIChatBot";
 import BookingPreview from "./pages/BookingPreview";
 import { getBaseUrl } from "@/config/environment";
 import EnableHall from './pages/EnableHall';
+import MobileBookingScreen from './pages/mobilebookingscreen';
 
 const queryClient = new QueryClient();
 
@@ -63,6 +64,14 @@ const App = () => {
               {/* <Route path="/booking-confirmation" element={<BookingConfirmation />} /> */}
               <Route path="/login" element={<Login />} />
               <Route path="/:hallName/:bookingId" element={<BookingConfirmation />} />
+              <Route
+                path="/admin/bookingsmobile"
+                element={
+                  <ProtectedRoute>
+                    <MobileBookingScreen />
+                  </ProtectedRoute>
+                }
+              />
               <Route
                 path="/admin/*"
                 element={

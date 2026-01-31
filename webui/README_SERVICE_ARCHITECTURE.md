@@ -120,13 +120,13 @@ const MyComponent = () => {
 ### Development
 ```bash
 REACT_APP_USE_MOCK_DATA=true
-REACT_APP_API_BASE_URL=http://localhost:5000
+REACT_APP_API_BASE_URL=http://localhost:5000/
 ```
 
 ### Production
 ```bash
 REACT_APP_USE_MOCK_DATA=false
-REACT_APP_API_BASE_URL=http://localhost:5000
+REACT_APP_API_BASE_URL=http://localhost:5000/
 ```
 
 ## 📋 Next Steps

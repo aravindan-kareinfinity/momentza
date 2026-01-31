@@ -10,7 +10,7 @@ Create these files in your project root:
 #### `.env` (Development)
 ```bash
 # API Configuration
-VITE_API_BASE_URL=http://localhost:5000
+VITE_API_BASE_URL=http://localhost:5000/
 
 # Environment
 NODE_ENV=development
@@ -23,7 +23,7 @@ VITE_APP_VERSION=1.0.0
 #### `.env.production` (Production)
 ```bash
 # API Configuration
-VITE_API_BASE_URL=http://localhost:5000
+VITE_API_BASE_URL=http://localhost:5000/
 
 # Environment
 NODE_ENV=production
@@ -79,7 +79,7 @@ const users = await apiClient.get('/api/users');
 
 | Variable | Description | Default |
 |----------|-------------|---------|
-| `VITE_API_BASE_URL` | API server base URL | `http://localhost:5000` |
+| `VITE_API_BASE_URL` | API server base URL | `http://localhost:5000/` |
 | `VITE_APP_TITLE` | Application title | `Wedding Hub Manager` |
 | `VITE_APP_VERSION` | Application version | `1.0.0` |
 | `NODE_ENV` | Environment mode | `development` |
@@ -113,7 +113,7 @@ const users = await apiClient.get('/api/users');
 
 ### Local Development
 ```bash
-VITE_API_BASE_URL=http://localhost:5000
+VITE_API_BASE_URL=http://localhost:5000/
 VITE_APP_TITLE=Wedding Hub Manager (Dev)
 ```
 
@@ -125,6 +125,6 @@ VITE_APP_TITLE=Wedding Hub Manager (Staging)
 
 ### Production
 ```bash
-VITE_API_BASE_URL=http://localhost:5000
+VITE_API_BASE_URL=http://localhost:5000/
 VITE_APP_TITLE=Wedding Hub Manager
 ``` 
