@@ -226,6 +226,7 @@ namespace Momantza.Services
             }
         }
 
+        // In your StatisticsDataService.cs, update the GetMonthlyDataAsync method:
         public async Task<List<MonthlyData>> GetMonthlyDataAsync(string? organizationId = null)
         {
             var monthlyData = new List<MonthlyData>();
@@ -234,20 +235,20 @@ namespace Momantza.Services
             try
             {
                 var sql = @"
-                    SELECT 
-                        TO_CHAR(DATE_TRUNC('month', createdat), 'Mon') as month,
-                        COUNT(*) as bookings,
-                        COALESCE(SUM(totalamount), 0) as revenue
-                    FROM bookings 
-                    WHERE createdat >= CURRENT_DATE - INTERVAL '6 months'";
+            SELECT 
+                TO_CHAR(DATE_TRUNC('month', eventdate), 'Mon YYYY') as month,
+                COUNT(*) as bookings,
+                COALESCE(SUM(totalamount), 0) as revenue
+            FROM bookings 
+            WHERE createdat >= CURRENT_DATE - INTERVAL '8 months'";
 
                 if (!string.IsNullOrEmpty(orgId))
                 {
                     sql += " AND organizationid = @organizationId";
                 }
 
-                sql += " GROUP BY DATE_TRUNC('month', createdat)";
-                sql += " ORDER BY MIN(createdat)";
+                sql += " GROUP BY DATE_TRUNC('month', eventdate)";
+                sql += " ORDER BY MIN(eventdate)";
 
                 using var connection = await GetConnectionAsync();
                 using var command = new NpgsqlCommand(sql, connection);
@@ -272,8 +273,8 @@ namespace Momantza.Services
                 // Ensure we always have data for the frontend
                 if (monthlyData.Count == 0)
                 {
-                    // Return mock data for development
-                    monthlyData = GetMockMonthlyData();
+                    // Return empty list instead of mock data for production
+                    return new List<MonthlyData>();
                 }
 
                 return monthlyData;
@@ -281,22 +282,9 @@ namespace Momantza.Services
             catch (Exception ex)
             {
                 Console.WriteLine($"Error in GetMonthlyDataAsync: {ex.Message}");
-                // Return mock data instead of empty list
-                return GetMockMonthlyData();
+                // Return empty list instead of mock data for production
+                return new List<MonthlyData>();
             }
-        }
-
-        private List<MonthlyData> GetMockMonthlyData()
-        {
-            return new List<MonthlyData>
-            {
-                new MonthlyData { Month = "Jan", Bookings = 45, Revenue = 12500 },
-                new MonthlyData { Month = "Feb", Bookings = 52, Revenue = 14200 },
-                new MonthlyData { Month = "Mar", Bookings = 38, Revenue = 9800 },
-                new MonthlyData { Month = "Apr", Bookings = 61, Revenue = 16800 },
-                new MonthlyData { Month = "May", Bookings = 49, Revenue = 13200 },
-                new MonthlyData { Month = "Jun", Bookings = 55, Revenue = 14800 }
-            };
         }
 
         public async Task<GrowthMetrics> GetGrowthMetricsAsync(string? organizationId = null)
@@ -327,16 +315,16 @@ namespace Momantza.Services
             ),
             customer_data AS (
                 SELECT 
-                    COUNT(DISTINCT customeremail) as total_customers,
+                    COUNT(DISTINCT customerphone) as total_customers,
                     COUNT(DISTINCT CASE 
-                        WHEN customeremail IN (
-                            SELECT customeremail 
+                        WHEN customerphone IN (
+                            SELECT customerphone 
                             FROM bookings 
                             WHERE (@organizationId IS NULL OR organizationid = @organizationId)
                             AND totalamount > 0  -- Only count meaningful bookings
-                            GROUP BY customeremail 
+                            GROUP BY customerphone 
                             HAVING COUNT(*) > 1
-                        ) THEN customeremail 
+                        ) THEN customerphone 
                     END) as repeat_customers
                 FROM bookings 
                 WHERE (@organizationId IS NULL OR organizationid = @organizationId)
@@ -449,14 +437,14 @@ namespace Momantza.Services
             {
                 var sql = @"
             SELECT 
-                COALESCE(COUNT(DISTINCT customeremail), 0) as total_customers,
+                COALESCE(COUNT(DISTINCT customerphone), 0) as total_customers,
                 COALESCE((
-                    SELECT COUNT(DISTINCT customeremail)
+                    SELECT COUNT(DISTINCT customerphone)
                     FROM (
-                        SELECT customeremail
+                        SELECT customerphone
                         FROM bookings 
                         WHERE (@organizationId IS NULL OR organizationid = @organizationId)
-                        GROUP BY customeremail 
+                        GROUP BY customerphone 
                         HAVING COUNT(*) > 1
                     ) repeat_customers
                 ), 0) as repeat_customers,
@@ -712,7 +700,7 @@ namespace Momantza.Services
                 }
 
                 // Get total customers
-                var totalCustomersSql = "SELECT COUNT(DISTINCT customeremail) FROM bookings";
+                var totalCustomersSql = "SELECT COUNT(DISTINCT customerphone) FROM bookings";
                 if (!string.IsNullOrEmpty(orgId))
                 {
                     totalCustomersSql += " WHERE organizationid = @organizationId";
@@ -790,7 +778,7 @@ namespace Momantza.Services
                 COALESCE((SELECT COUNT(*) FROM bookings WHERE organizationid = @organizationId), 0) as total_bookings,
                 COALESCE((SELECT SUM(totalamount) FROM bookings WHERE organizationid = @organizationId), 0) as total_revenue,
                 COALESCE((SELECT COUNT(*) FROM halls WHERE organizationid = @organizationId), 0) as total_halls,
-                COALESCE((SELECT COUNT(DISTINCT customeremail) FROM bookings WHERE organizationid = @organizationId), 0) as total_customers,
+                COALESCE((SELECT COUNT(DISTINCT customerphone) FROM bookings WHERE organizationid = @organizationId), 0) as total_customers,
                 COALESCE((SELECT COUNT(*) FROM reviews WHERE organizationid = @organizationId), 0) as total_reviews,
                 COALESCE((SELECT AVG(rating) FROM reviews WHERE organizationid = @organizationId), 0) as average_rating";
 

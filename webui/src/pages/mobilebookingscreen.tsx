@@ -226,11 +226,11 @@ const MobileBookingScreen = () => {
   };
 
   const handleEditBooking = (booking: Booking) => {
-    navigate(`/admin/bookings/edit/${booking.id}`);
+    navigate(`/admin/bookingseditmobile/${booking.id}`);
   };
 
   const handleManageBooking = (booking: Booking) => {
-    navigate(`/admin/happening/manage/${booking.id}`);
+    navigate(`/admin/bookingsmanagemobile/${booking.id}`)
   };
 
   const handleActiveToggle = async (bookingId: string, isActive: boolean) => {

@@ -3,6 +3,7 @@ using Momantza.Services;
 using Momantza.Models;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Text.Json;
 
 namespace Momantza.Controllers
 {
@@ -28,12 +29,12 @@ namespace Momantza.Controllers
         }
 
         // Helper: get current user and accessible hall IDs from JWT
-        private async Task<(Users? user, List<string> accessibleHallIds)> GetCurrentUserWithAccessibleHallsAsync()
+        private async Task<(Users? user, List<string> accessibleHallIds, bool isAdmin)> GetCurrentUserWithAccessibleHallsAsync()
         {
             var authHeader = Request.Headers["Authorization"].ToString();
             if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
             {
-                return (null, new List<string>());
+                return (null, new List<string>(), false);
             }
 
             var token = authHeader.Replace("Bearer ", "");
@@ -48,26 +49,30 @@ namespace Momantza.Controllers
 
                 if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(organizationId))
                 {
-                    return (null, new List<string>());
+                    return (null, new List<string>(), false);
                 }
 
                 var user = await _userDataService.GetByIdAndOrganizationAsync(userId, organizationId);
                 if (user == null)
                 {
-                    return (null, new List<string>());
+                    return (null, new List<string>(), false);
                 }
 
-                // Admin → treat as full access (empty list means "no restriction")
-                if (string.Equals(user.Role, "admin", StringComparison.OrdinalIgnoreCase))
+                // Check if user is admin
+                var isAdmin = string.Equals(user.Role, "admin", StringComparison.OrdinalIgnoreCase);
+
+                // For admin, return all halls (empty list means no restriction)
+                if (isAdmin)
                 {
-                    return (user, new List<string>());
+                    return (user, new List<string>(), true);
                 }
 
-                return (user, user.AccessibleHalls ?? new List<string>());
+                // For non-admin, return their accessible halls
+                return (user, user.AccessibleHalls ?? new List<string>(), false);
             }
             catch
             {
-                return (null, new List<string>());
+                return (null, new List<string>(), false);
             }
         }
 
@@ -82,10 +87,15 @@ namespace Momantza.Controllers
                     return BadRequest(new { message = "Organization ID is required" });
                 }
 
-                var (user, accessibleHallIds) = await GetCurrentUserWithAccessibleHallsAsync();
+                var (user, accessibleHallIds, isAdmin) = await GetCurrentUserWithAccessibleHallsAsync();
 
-                // Admin or no restrictions -> keep existing org-wide statistics
-                if (user == null || !accessibleHallIds.Any())
+                if (user == null)
+                {
+                    return Unauthorized(new { message = "Invalid token or user not found" });
+                }
+
+                // ADMIN: Get organization-wide statistics (all halls)
+                if (isAdmin)
                 {
                     var basicStats = await _statisticsDataService.GetBasicStatisticsAsync(organizationId);
                     var leadMetrics = await _statisticsDataService.GetLeadMetricsAsync(organizationId);
@@ -115,41 +125,48 @@ namespace Momantza.Controllers
                     return Ok(resultAll);
                 }
 
-                // Manager / non-admin: compute statistics only for accessible halls
+                // USER (NON-ADMIN): Get statistics only for accessible halls
                 var allBookings = await _bookingDataService.GetBookingsByOrganizationAsync(organizationId);
-                var filtered = allBookings.Where(b => accessibleHallIds.Contains(b.HallId)).ToList();
+
+                // Filter bookings by accessible halls
+                var filteredBookings = allBookings
+                    .Where(b => accessibleHallIds.Contains(b.HallId))
+                    .ToList();
+
                 var today = DateTime.Today;
 
-                // Basic stats
+                // Basic stats for filtered halls
                 var basic = new
                 {
-                    totalBookings = filtered.Count,
-                    activeBookings = filtered.Count(b => b.Status == "active"),
-                    confirmedBookings = filtered.Count(b => b.Status == "confirmed"),
-                    totalRevenue = filtered.Where(b => b.Status != "cancelled").Sum(b => b.TotalAmount),
-                    // Reviews still org-wide for now
-                    totalReviews = 0,
+                    totalBookings = filteredBookings.Count,
+                    activeBookings = filteredBookings.Count(b => b.Status == "active"),
+                    confirmedBookings = filteredBookings.Count(b => b.Status == "confirmed"),
+                    totalRevenue = filteredBookings
+                        .Where(b => b.Status != "cancelled")
+                        .Sum(b => b.TotalAmount),
+                    totalReviews = 0, // You might want to implement filtered reviews too
                     averageRating = 0.0
                 };
 
-                // Lead metrics
+                // Lead metrics for filtered halls
                 var leads = new
                 {
-                    newLeads = filtered.Count(b => b.Status == "pending"),
-                    rejectedLeads = filtered.Count(b => b.Status == "cancelled"),
-                    confirmedLeads = filtered.Count(b => b.Status == "confirmed"),
-                    upcomingEvents = filtered.Count(b =>
-                        b.Status == "confirmed" && b.EventStartDate.Date >= today),
-                    happeningEvents = filtered.Count(b =>
+                    newLeads = filteredBookings.Count(b => b.Status == "pending"),
+                    rejectedLeads = filteredBookings.Count(b => b.Status == "cancelled"),
+                    confirmedLeads = filteredBookings.Count(b => b.Status == "confirmed"),
+                    upcomingEvents = filteredBookings.Count(b =>
+                        b.Status == "confirmed" &&
+                        b.EventStartDate.Date >= today),
+                    happeningEvents = filteredBookings.Count(b =>
                         b.Status == "active" ||
                         (b.Status == "confirmed" &&
                          b.EventStartDate.Date <= today &&
                          b.EventEndDate.Date >= today))
                 };
 
-                // Status distribution
+                // Status distribution for filtered halls
                 var colors = new[] { "#10B981", "#F59E0B", "#EF4444", "#6B7280", "#3B82F6", "#8B5CF6" };
-                var statusGroups = filtered
+                var statusGroups = filteredBookings
                     .GroupBy(b => b.Status)
                     .Select((g, idx) => new StatusData
                     {
@@ -159,38 +176,66 @@ namespace Momantza.Controllers
                     })
                     .ToList();
 
-                // Hall utilization (for accessible halls only)
+                // Hall utilization for accessible halls only
                 var utilization = new List<HallUtilization>();
-                var hallsById = new Dictionary<string, Hall>();
 
+                // Get hall details for accessible halls
                 foreach (var hallId in accessibleHallIds.Distinct())
                 {
                     var hall = await _hallDataService.GetHallByIdAsync(hallId);
                     if (hall == null) continue;
 
-                    hallsById[hallId] = hall;
-                }
-
-                var byHall = filtered.GroupBy(b => b.HallId);
-                foreach (var g in byHall)
-                {
-                    if (!hallsById.TryGetValue(g.Key, out var hall)) continue;
+                    var hallBookings = filteredBookings
+                        .Where(b => b.HallId == hallId)
+                        .ToList();
 
                     utilization.Add(new HallUtilization
                     {
                         Name = hall.Name,
-                        Bookings = g.Count(),
-                        Revenue = g.Sum(b => b.TotalAmount)
+                        Bookings = hallBookings.Count,
+                        Revenue = hallBookings.Sum(b => b.TotalAmount)
                     });
                 }
 
-                // Monthly data (last 6 months based on booking createdAt)
+                // Monthly data for filtered halls (last 6 months)
                 var sixMonthsAgo = today.AddMonths(-6);
-                var filteredMonthlyData = filtered
-                    .Where(b => (b.CreatedAt is DateTime dt ? dt : DateTime.Parse(b.CreatedAt.ToString()!)) >= sixMonthsAgo)
-                    .GroupBy(b => (b.CreatedAt is DateTime dt ? dt : DateTime.Parse(b.CreatedAt.ToString()!))
-                                  .ToString("MMM"))
-                    .OrderBy(g => g.Key)
+                var filteredMonthlyData = filteredBookings
+                    .Where(b =>
+                    {
+                        DateTime bookingDate;
+                        if (b.EventDate is DateTime dt)
+                            bookingDate = dt;
+                        else if (DateTime.TryParse(b.EventDate.ToString(), out DateTime parsedDate))
+                            bookingDate = parsedDate;
+                        else
+                            return false;
+
+                        return bookingDate >= sixMonthsAgo;
+                    })
+                    .GroupBy(b =>
+                    {
+                        DateTime bookingDate;
+                        if (b.EventDate is DateTime dt)
+                            bookingDate = dt;
+                        else
+                            DateTime.TryParse(b.CreatedAt.ToString(), out bookingDate);
+
+                        return bookingDate.ToString("MMM yyyy");
+                    })
+                    .OrderBy(g =>
+                    {
+                        // Parse month for proper ordering
+                        var parts = g.Key.Split(' ');
+                        if (parts.Length >= 2 && DateTime.TryParseExact(parts[0] + " 1 " + parts[1],
+                            "MMM d yyyy",
+                            System.Globalization.CultureInfo.InvariantCulture,
+                            System.Globalization.DateTimeStyles.None,
+                            out DateTime date))
+                        {
+                            return date;
+                        }
+                        return DateTime.MaxValue;
+                    })
                     .Select(g => new MonthlyData
                     {
                         Month = g.Key,
@@ -199,9 +244,33 @@ namespace Momantza.Controllers
                     })
                     .ToList();
 
-                // Growth metrics & customer insights: reuse org-wide for now
-                var orgGrowthMetrics = await _statisticsDataService.GetGrowthMetricsAsync(organizationId);
-                var orgCustomerInsights = await _statisticsDataService.GetCustomerInsightsAsync(organizationId);
+                // For user, get growth metrics based on their accessible halls
+                var userGrowthMetrics = new GrowthMetrics
+                {
+                    MonthlyGrowth = 100.0m, // You might want to calculate this based on filtered data
+                    CustomerRetention = 0.00m,
+                    AverageBookingValue = filteredBookings.Count > 0 ?
+                        filteredBookings.Where(b => b.TotalAmount > 0).Average(b => b.TotalAmount) : 0
+                };
+
+                // For user, get customer insights based on their accessible halls
+                var customerBookings = filteredBookings
+    .Where(b => !string.IsNullOrEmpty(b.CustomerPhone))
+    .GroupBy(b => b.CustomerPhone)
+    .ToList();
+
+                var totalCustomers = customerBookings.Count;
+
+               
+                var repeatCustomers = customerBookings.Count(g => g.Count() > 1);
+                var customerSatisfaction = 0.0m;
+
+                var userCustomerInsights = new CustomerInsights
+                {
+                    TotalCustomers = totalCustomers,
+                    RepeatCustomers = repeatCustomers, // Now correctly calculated
+                    CustomerSatisfaction = customerSatisfaction
+                };
 
                 var result = new
                 {
@@ -210,8 +279,8 @@ namespace Momantza.Controllers
                     statusDistribution = statusGroups,
                     hallUtilization = utilization,
                     monthlyData = filteredMonthlyData,
-                    growthMetrics = orgGrowthMetrics,
-                    customerInsights = orgCustomerInsights,
+                    growthMetrics = userGrowthMetrics,
+                    customerInsights = userCustomerInsights,
                     chartConfig = new
                     {
                         colors = colors,
@@ -239,8 +308,39 @@ namespace Momantza.Controllers
                     return BadRequest(new { message = "Organization ID is required" });
                 }
 
-                var basicStats = await _statisticsDataService.GetBasicStatisticsAsync(organizationId);
-                return Ok(basicStats);
+                var (user, accessibleHallIds, isAdmin) = await GetCurrentUserWithAccessibleHallsAsync();
+
+                if (user == null)
+                {
+                    return Unauthorized(new { message = "Invalid token or user not found" });
+                }
+
+                // Admin gets organization-wide stats
+                if (isAdmin)
+                {
+                    var basicStats = await _statisticsDataService.GetBasicStatisticsAsync(organizationId);
+                    return Ok(basicStats);
+                }
+
+                // User gets filtered stats
+                var allBookings = await _bookingDataService.GetBookingsByOrganizationAsync(organizationId);
+                var filteredBookings = allBookings
+                    .Where(b => accessibleHallIds.Contains(b.HallId))
+                    .ToList();
+
+                var basic = new
+                {
+                    totalBookings = filteredBookings.Count,
+                    activeBookings = filteredBookings.Count(b => b.Status == "active"),
+                    confirmedBookings = filteredBookings.Count(b => b.Status == "confirmed"),
+                    totalRevenue = filteredBookings
+                        .Where(b => b.Status != "cancelled")
+                        .Sum(b => b.TotalAmount),
+                    totalReviews = 0,
+                    averageRating = 0.0
+                };
+
+                return Ok(basic);
             }
             catch (Exception ex)
             {
@@ -259,8 +359,44 @@ namespace Momantza.Controllers
                     return BadRequest(new { message = "Organization ID is required" });
                 }
 
-                var leadMetrics = await _statisticsDataService.GetLeadMetricsAsync(organizationId);
-                return Ok(leadMetrics);
+                var (user, accessibleHallIds, isAdmin) = await GetCurrentUserWithAccessibleHallsAsync();
+
+                if (user == null)
+                {
+                    return Unauthorized(new { message = "Invalid token or user not found" });
+                }
+
+                // Admin gets organization-wide stats
+                if (isAdmin)
+                {
+                    var leadMetrics = await _statisticsDataService.GetLeadMetricsAsync(organizationId);
+                    return Ok(leadMetrics);
+                }
+
+                // User gets filtered stats
+                var allBookings = await _bookingDataService.GetBookingsByOrganizationAsync(organizationId);
+                var filteredBookings = allBookings
+                    .Where(b => accessibleHallIds.Contains(b.HallId))
+                    .ToList();
+
+                var today = DateTime.Today;
+
+                var leads = new
+                {
+                    newLeads = filteredBookings.Count(b => b.Status == "pending"),
+                    rejectedLeads = filteredBookings.Count(b => b.Status == "cancelled"),
+                    confirmedLeads = filteredBookings.Count(b => b.Status == "confirmed"),
+                    upcomingEvents = filteredBookings.Count(b =>
+                        b.Status == "confirmed" &&
+                        b.EventStartDate.Date >= today),
+                    happeningEvents = filteredBookings.Count(b =>
+                        b.Status == "active" ||
+                        (b.Status == "confirmed" &&
+                         b.EventStartDate.Date <= today &&
+                         b.EventEndDate.Date >= today))
+                };
+
+                return Ok(leads);
             }
             catch (Exception ex)
             {
@@ -279,8 +415,38 @@ namespace Momantza.Controllers
                     return BadRequest(new { message = "Organization ID is required" });
                 }
 
-                var statusData = await _statisticsDataService.GetStatusDataAsync(organizationId);
-                return Ok(statusData);
+                var (user, accessibleHallIds, isAdmin) = await GetCurrentUserWithAccessibleHallsAsync();
+
+                if (user == null)
+                {
+                    return Unauthorized(new { message = "Invalid token or user not found" });
+                }
+
+                // Admin gets organization-wide stats
+                if (isAdmin)
+                {
+                    var statusData = await _statisticsDataService.GetStatusDataAsync(organizationId);
+                    return Ok(statusData);
+                }
+
+                // User gets filtered stats
+                var allBookings = await _bookingDataService.GetBookingsByOrganizationAsync(organizationId);
+                var filteredBookings = allBookings
+                    .Where(b => accessibleHallIds.Contains(b.HallId))
+                    .ToList();
+
+                var colors = new[] { "#10B981", "#F59E0B", "#EF4444", "#6B7280", "#3B82F6", "#8B5CF6" };
+                var statusGroups = filteredBookings
+                    .GroupBy(b => b.Status)
+                    .Select((g, idx) => new StatusData
+                    {
+                        Name = g.Key,
+                        Value = g.Count(),
+                        Color = colors[idx % colors.Length]
+                    })
+                    .ToList();
+
+                return Ok(statusGroups);
             }
             catch (Exception ex)
             {
@@ -299,8 +465,42 @@ namespace Momantza.Controllers
                     return BadRequest(new { message = "Organization ID is required" });
                 }
 
-                var hallUtilization = await _statisticsDataService.GetHallUtilizationAsync(organizationId);
-                return Ok(hallUtilization);
+                var (user, accessibleHallIds, isAdmin) = await GetCurrentUserWithAccessibleHallsAsync();
+
+                if (user == null)
+                {
+                    return Unauthorized(new { message = "Invalid token or user not found" });
+                }
+
+                // Admin gets organization-wide stats
+                if (isAdmin)
+                {
+                    var hallUtilization = await _statisticsDataService.GetHallUtilizationAsync(organizationId);
+                    return Ok(hallUtilization);
+                }
+
+                // User gets stats only for accessible halls
+                var utilization = new List<HallUtilization>();
+                var allBookings = await _bookingDataService.GetBookingsByOrganizationAsync(organizationId);
+
+                foreach (var hallId in accessibleHallIds.Distinct())
+                {
+                    var hall = await _hallDataService.GetHallByIdAsync(hallId);
+                    if (hall == null) continue;
+
+                    var hallBookings = allBookings
+                        .Where(b => b.HallId == hallId)
+                        .ToList();
+
+                    utilization.Add(new HallUtilization
+                    {
+                        Name = hall.Name,
+                        Bookings = hallBookings.Count,
+                        Revenue = hallBookings.Sum(b => b.TotalAmount)
+                    });
+                }
+
+                return Ok(utilization);
             }
             catch (Exception ex)
             {
@@ -314,16 +514,85 @@ namespace Momantza.Controllers
         {
             try
             {
-                var monthlyData = await _statisticsDataService.GetMonthlyDataAsync(organizationId);
-                return Ok(monthlyData);
+                if (string.IsNullOrEmpty(organizationId))
+                {
+                    return BadRequest(new { message = "Organization ID is required" });
+                }
+
+                var (user, accessibleHallIds, isAdmin) = await GetCurrentUserWithAccessibleHallsAsync();
+
+                if (user == null)
+                {
+                    return Unauthorized(new { message = "Invalid token or user not found" });
+                }
+
+                // Admin gets organization-wide stats
+                if (isAdmin)
+                {
+                    var monthlyData = await _statisticsDataService.GetMonthlyDataAsync(organizationId);
+                    return Ok(monthlyData);
+                }
+
+                // User gets filtered stats
+                var allBookings = await _bookingDataService.GetBookingsByOrganizationAsync(organizationId);
+                var filteredBookings = allBookings
+                    .Where(b => accessibleHallIds.Contains(b.HallId))
+                    .ToList();
+
+                var today = DateTime.Today;
+                var sixMonthsAgo = today.AddMonths(-6);
+
+                var filteredMonthlyData = filteredBookings
+                    .Where(b =>
+                    {
+                        DateTime bookingDate;
+                        if (b.CreatedAt is DateTime dt)
+                            bookingDate = dt;
+                        else if (DateTime.TryParse(b.CreatedAt.ToString(), out DateTime parsedDate))
+                            bookingDate = parsedDate;
+                        else
+                            return false;
+
+                        return bookingDate >= sixMonthsAgo;
+                    })
+                    .GroupBy(b =>
+                    {
+                        DateTime bookingDate;
+                        if (b.CreatedAt is DateTime dt)
+                            bookingDate = dt;
+                        else
+                            DateTime.TryParse(b.CreatedAt.ToString(), out bookingDate);
+
+                        return bookingDate.ToString("MMM yyyy");
+                    })
+                    .OrderBy(g =>
+                    {
+                        var parts = g.Key.Split(' ');
+                        if (parts.Length >= 2 && DateTime.TryParseExact(parts[0] + " 1 " + parts[1],
+                            "MMM d yyyy",
+                            System.Globalization.CultureInfo.InvariantCulture,
+                            System.Globalization.DateTimeStyles.None,
+                            out DateTime date))
+                        {
+                            return date;
+                        }
+                        return DateTime.MaxValue;
+                    })
+                    .Select(g => new MonthlyData
+                    {
+                        Month = g.Key,
+                        Bookings = g.Count(),
+                        Revenue = g.Sum(b => b.TotalAmount)
+                    })
+                    .ToList();
+
+                return Ok(filteredMonthlyData);
             }
             catch (Exception ex)
             {
                 return StatusCode(500, new { message = "Internal server error", error = ex.Message });
             }
         }
-
-
 
         // GET: /api/statistics/organizations/{organizationId}/growth
         [HttpGet("organizations/{organizationId}/growth")]
@@ -336,8 +605,35 @@ namespace Momantza.Controllers
                     return BadRequest(new { message = "Organization ID is required" });
                 }
 
-                var growthMetrics = await _statisticsDataService.GetGrowthMetricsAsync(organizationId);
-                return Ok(growthMetrics);
+                var (user, accessibleHallIds, isAdmin) = await GetCurrentUserWithAccessibleHallsAsync();
+
+                if (user == null)
+                {
+                    return Unauthorized(new { message = "Invalid token or user not found" });
+                }
+
+                // Admin gets organization-wide stats
+                if (isAdmin)
+                {
+                    var growthMetrics = await _statisticsDataService.GetGrowthMetricsAsync(organizationId);
+                    return Ok(growthMetrics);
+                }
+
+                // For user, calculate simplified growth metrics based on accessible halls
+                var allBookings = await _bookingDataService.GetBookingsByOrganizationAsync(organizationId);
+                var filteredBookings = allBookings
+                    .Where(b => accessibleHallIds.Contains(b.HallId))
+                    .ToList();
+
+                var userGrowthMetrics = new GrowthMetrics
+                {
+                    MonthlyGrowth = 100.0m,
+                    CustomerRetention = 0.00m,
+                    AverageBookingValue = filteredBookings.Count > 0 ?
+                        filteredBookings.Where(b => b.TotalAmount > 0).Average(b => b.TotalAmount) : 0
+                };
+
+                return Ok(userGrowthMetrics);
             }
             catch (Exception ex)
             {
@@ -356,8 +652,34 @@ namespace Momantza.Controllers
                     return BadRequest(new { message = "Organization ID is required" });
                 }
 
-                var customerInsights = await _statisticsDataService.GetCustomerInsightsAsync(organizationId);
-                return Ok(customerInsights);
+                var (user, accessibleHallIds, isAdmin) = await GetCurrentUserWithAccessibleHallsAsync();
+
+                if (user == null)
+                {
+                    return Unauthorized(new { message = "Invalid token or user not found" });
+                }
+
+                // Admin gets organization-wide stats
+                if (isAdmin)
+                {
+                    var customerInsights = await _statisticsDataService.GetCustomerInsightsAsync(organizationId);
+                    return Ok(customerInsights);
+                }
+
+                // For user, calculate customer insights based on accessible halls
+                var allBookings = await _bookingDataService.GetBookingsByOrganizationAsync(organizationId);
+                var filteredBookings = allBookings
+                    .Where(b => accessibleHallIds.Contains(b.HallId))
+                    .ToList();
+
+                var userCustomerInsights = new CustomerInsights
+                {
+                    TotalCustomers = filteredBookings.Select(b => b.CustomerPhone).Distinct().Count(),
+                    RepeatCustomers = 0,
+                    CustomerSatisfaction = 3.0m
+                };
+
+                return Ok(userCustomerInsights);
             }
             catch (Exception ex)
             {

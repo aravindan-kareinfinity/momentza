@@ -37,6 +37,9 @@ import BookingPreview from "./pages/BookingPreview";
 import { getBaseUrl } from "@/config/environment";
 import EnableHall from './pages/EnableHall';
 import MobileBookingScreen from './pages/mobilebookingscreen';
+import MobileBookingEditScreen from './pages/mobilebookingseditscreen';
+import MobileBookingManagement from './pages/mobilebookingmanagescreen';
+import MobileInvoice from './pages/mobileinvoice';
 
 const queryClient = new QueryClient();
 
@@ -71,6 +74,30 @@ const App = () => {
                     <MobileBookingScreen />
                   </ProtectedRoute>
                 }
+              />
+              <Route
+              path="admin/bookingsmanagemobile/:bookingId"
+              element={
+                <ProtectedRoute>
+                  <MobileBookingManagement />
+                </ProtectedRoute>
+              }
+              />
+              <Route
+              path="admin/bookingseditmobile/:bookingId"
+              element={
+                <ProtectedRoute>
+                  <MobileBookingEditScreen />
+                </ProtectedRoute>
+              }
+              />
+              <Route
+              path="admin/mobileinvoice/:bookingId"
+              element={
+                <ProtectedRoute>
+                  <MobileInvoice />
+                </ProtectedRoute>
+              }
               />
               <Route
                 path="/admin/*"

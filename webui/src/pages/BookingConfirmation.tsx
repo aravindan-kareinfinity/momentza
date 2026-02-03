@@ -110,11 +110,19 @@ const BookingConfirmation = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
+            <div className="flex items-center space-x-3">
+                <Users className="w-5 h-5 text-gray-500" />
+                <div>
+                  <p className="text-sm text-gray-500">Name</p>
+                  <p className="font-medium">{booking.customerName}</p>
+                </div>
+              </div>
+
               <div className="flex items-center space-x-3">
                 <Calendar className="w-5 h-5 text-gray-500" />
                 <div>
                   <p className="text-sm text-gray-500">Event Date</p>
-                  <p className="font-medium">{booking.eventDate}</p>
+                  <p className="font-medium">{booking.eventStartDate}</p>
                 </div>
               </div>
 
@@ -126,13 +134,7 @@ const BookingConfirmation = () => {
                 </div>
               </div>
 
-              <div className="flex items-center space-x-3">
-                <Users className="w-5 h-5 text-gray-500" />
-                <div>
-                  <p className="text-sm text-gray-500">Guests</p>
-                  <p className="font-medium">{booking.guestCount}</p>
-                </div>
-              </div>
+             
 
               {/* <div className="flex items-center space-x-3">
                 <MapPin className="w-5 h-5 text-gray-500" />

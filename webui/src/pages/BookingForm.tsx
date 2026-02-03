@@ -608,7 +608,7 @@ const BookingForm = () => {
                   {/* Event Information */}
                   <div className="space-y-4 border-t pt-4">
                     <h3 className="font-semibold">Event Information</h3>
-                    
+                    <div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
                         <Label htmlFor="eventStartDate">Event Start Date *</Label>
@@ -635,6 +635,9 @@ const BookingForm = () => {
                           min={formData.eventStartDate}
                         />
                       </div>
+                    </div>
+                    <p className="text-red-500 text-sm col-span-2">Choose the date correctly for the event.Once check the event type and event date</p>
+    
                     </div>
 
                     {dateError && (
