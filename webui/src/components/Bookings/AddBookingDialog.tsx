@@ -344,13 +344,13 @@ export function AddBookingDialog({ isOpen, onClose, onBookingAdded }: AddBooking
         }
       } else {
         if (formData.timeSlot === 'morning') {
-          startDate.setHours(9, 0, 0, 0);
-          endDate.setHours(15, 0, 0, 0);
+          startDate.setHours(0, 0, 0, 0);
+          endDate.setHours(12, 0, 0, 0);
         } else if (formData.timeSlot === 'evening') {
-          startDate.setHours(16, 0, 0, 0);
+          startDate.setHours(14, 0, 0, 0);
           endDate.setHours(23, 0, 0, 0);
         } else if (formData.timeSlot === 'fullday') {
-          startDate.setHours(9, 0, 0, 0);
+          startDate.setHours(0, 0, 0, 0);
           endDate.setHours(23, 0, 0, 0);
         }
       }
