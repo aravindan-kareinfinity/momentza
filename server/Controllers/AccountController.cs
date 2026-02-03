@@ -35,7 +35,7 @@ namespace MomantzaApp.Controllers
                     var redirectUrl =
                         Request.Host.Host == "localhost"
                             ? $"{protocol}://{org.DefaultDomain}.localhost:8082/home"
-                            : $"{protocol}://{org.DefaultDomain}.momentza.com/home";
+                            : $"{protocol}://{org.DefaultDomain}.momantza.com/home";
 
                     return Redirect(redirectUrl);
                 }
@@ -67,7 +67,7 @@ namespace MomantzaApp.Controllers
             var redirectUrl =
                 Request.Host.Host == "localhost"
                     ? $"{protocol}://{org.DefaultDomain}.localhost:8082/home"
-                    : $"{protocol}://{org.DefaultDomain}.momentza.com/home";
+                    : $"{protocol}://{org.DefaultDomain}.momantza.com/home";
 
             return Redirect(redirectUrl);
         }

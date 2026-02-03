@@ -609,6 +609,14 @@ namespace Momantza.Controllers
 
             try
             {
+                // 1️⃣ Auth + Organization
+                var (user, _) = await GetCurrentUserWithAccessibleHallsAsync();
+                if (user == null || string.IsNullOrEmpty(user.OrganizationId))
+                    return Unauthorized();
+
+                var orgId = user.OrganizationId;
+
+                // 2️⃣ Load Excel
                 using var stream = new MemoryStream();
                 await file.CopyToAsync(stream);
                 stream.Position = 0;
@@ -616,53 +624,144 @@ namespace Momantza.Controllers
                 using var package = new ExcelPackage(stream);
                 var worksheet = package.Workbook.Worksheets[0];
 
-                var rowCount = worksheet.Dimension.Rows;
-                var bookings = new List<Booking>();
+                if (worksheet.Dimension == null)
+                    return BadRequest("Excel sheet is empty");
 
-                var orgId = User.Claims.FirstOrDefault(c => c.Type == "organizationId")?.Value;
-                if (string.IsNullOrEmpty(orgId))
-                    return Unauthorized();
+                var rowCount = worksheet.Dimension.Rows;
+                var errors = new List<string>();
+
+                // 3️⃣ Parse rows
+                for (int row = 2; row <= rowCount; row++)
+                {
+                    var hallName = worksheet.Cells[row, 10].Text?.Trim();
+
+                    if (string.IsNullOrEmpty(hallName))
+                    {
+                        errors.Add($"Row {row}: Hall name is missing");
+                        continue;
+                    }
+
+                    var hall = await _hallDataService
+                        .GetByNameAndOrganizationAsync(hallName, orgId);
+
+                    if (hall == null)
+                    {
+                        errors.Add($"Row {row}: Hall '{hallName}' does not belong to this organization");
+                    }
+                }
+
+                if (errors.Any())
+                {
+                    return BadRequest(new
+                    {
+                        message = "Excel validation failed. Fix errors and re-upload.",
+                        errorCount = errors.Count,
+                        errors
+                    });
+                }
+
+                var bookings = new List<Booking>();
 
                 for (int row = 2; row <= rowCount; row++)
                 {
-                    var booking = new Booking
+                    var hallName = worksheet.Cells[row, 10].Text.Trim();
+                    var hall = await _hallDataService.GetByNameAndOrganizationAsync(hallName, orgId);
+
+                    var eventDate = DateTime.Parse(worksheet.Cells[row, 4].Text);
+
+                    var rawEventType = worksheet.Cells[row, 5].Text?.Trim().ToLower();
+                    var eventType = rawEventType switch
+                    {
+                        "wedding" => "wedding",
+                        "birthday party" => "birthday",
+                        "birthday" => "birthday",
+                        "corporate event" => "corporate",
+                        _ => "other"
+                    };
+
+                    var roomsRequiredText = worksheet.Cells[row, 14].Text?.Trim();
+                    bool roomsRequired =
+                        !string.IsNullOrWhiteSpace(roomsRequiredText) &&
+                        roomsRequiredText.ToLower() is "yes" or "true" or "1";
+
+                    int freeRooms = int.TryParse(worksheet.Cells[row, 15].Text, out var fr) ? fr : 0;
+                    int acRooms = int.TryParse(worksheet.Cells[row, 16].Text, out var ar) ? ar : 0;
+                    int nonAcRooms = int.TryParse(worksheet.Cells[row, 17].Text, out var nar) ? nar : 0;
+
+                    var roomDetails = new RoomsInfo
+                    {
+                        Charges = new RoomCharge
+                        {
+                            AcRoomCharges = 0,
+                            NonAcRoomCharges = 0,
+                            TotalRoomCharges = 0
+                        },
+                        RoomsCount = new Rooms
+                        {
+                            Free = freeRooms,
+                            RentedAc = acRooms,
+                            RentedNonAc = nonAcRooms
+                        }
+                    };
+
+                    bookings.Add(new Booking
                     {
                         Id = Guid.NewGuid().ToString(),
                         OrganizationId = orgId,
+                        HallId = hall.Id,
+                        HallName = hall.Name,
+
                         CustomerName = worksheet.Cells[row, 1].Text,
                         CustomerEmail = worksheet.Cells[row, 2].Text,
                         CustomerPhone = worksheet.Cells[row, 3].Text,
-                        EventDate = DateTime.Parse(worksheet.Cells[row, 4].Text),
-                        EventType = worksheet.Cells[row, 5].Text,
-                        TimeSlot = worksheet.Cells[row, 6].Text,
+
+                        Address = worksheet.Cells[row, 11].Text?.Trim(),
+                        Village = worksheet.Cells[row, 12].Text?.Trim(),
+                        City = worksheet.Cells[row, 13].Text?.Trim(),
+
+                        EventDate = eventDate,
+                        EventStartDate = eventDate,
+                        EventEndDate = eventDate,
+                        HandoverStartDate = eventDate,
+
+                        EventType = eventType,
+                        TimeSlot = worksheet.Cells[row, 6].Text?.Trim().ToLower(),
                         GuestCount = int.Parse(worksheet.Cells[row, 7].Text),
                         TotalAmount = decimal.Parse(worksheet.Cells[row, 8].Text),
-                        Status = worksheet.Cells[row, 9].Text,
+                        Status = worksheet.Cells[row, 9].Text?.Trim().ToLower(),
+
+                        RoomsRequired = roomsRequired,
+                        RoomsCount = freeRooms + acRooms + nonAcRooms,
+                        RoomDetails = roomDetails,
+
                         IsActive = true,
                         CreatedAt = DateTime.UtcNow,
                         UpdatedAt = DateTime.UtcNow
-                    };
-
-                    bookings.Add(booking);
+                    });
                 }
 
+                // 4️⃣ Save bookings
                 foreach (var booking in bookings)
                 {
                     await _bookingDataService.CreateBookingAsync(booking);
                 }
 
+                // 5️⃣ Final response
                 return Ok(new
                 {
-                    message = "Old bookings uploaded successfully",
-                    insertedCount = bookings.Count
+                    message = "Old bookings upload completed",
+                    insertedCount = bookings.Count,
+                    failedCount = errors.Count,
+                    errors
                 });
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Excel upload failed");
-                return StatusCode(500, ex.Message);
+                return StatusCode(500, "Excel upload failed");
             }
         }
+
 
     }
 
