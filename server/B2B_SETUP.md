@@ -13,7 +13,7 @@ This document describes the B2B (Business-to-Business) authentication system tha
 
 1. **Token Request**: Server A requests a token from Server B
    ```
-   POST https://momantza.com/api/b2b/auth/token
+   POST http://localhost:5000/api/b2b/auth/token
    {
      "ClientId": "appointza-client",
      "ClientSecret": "appointza-secret",
@@ -31,7 +31,7 @@ This document describes the B2B (Business-to-Business) authentication system tha
 
 3. **API Call**: Server A uses the token to call Server B's APIs
    ```
-   GET https://momantza.com/api/b2b/...
+   GET http://localhost:5000/api/b2b/...
    Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
    ```
 
@@ -63,7 +63,7 @@ This document describes the B2B (Business-to-Business) authentication system tha
     "ServerUrls": {
       "appointza": "https://appointza.com",
       "latrexa": "https://latrexa.com",
-      "momantza": "https://momantza.com"
+      "momantza": "http://localhost:5000"
     },
     "Clients": {
       "appointza": {
@@ -143,7 +143,7 @@ public class MyB2BController : ControllerBase
 ### Test Token Request
 
 ```bash
-curl -X POST https://momantza.com/api/b2b/auth/token \
+curl -X POST http://localhost:5000/api/b2b/auth/token \
   -H "Content-Type: application/json" \
   -d '{
     "ClientId": "appointza-client",
@@ -155,7 +155,7 @@ curl -X POST https://momantza.com/api/b2b/auth/token \
 ### Test B2B API Call
 
 ```bash
-curl -X GET https://momantza.com/api/b2b/my-endpoint \
+curl -X GET http://localhost:5000/api/b2b/my-endpoint \
   -H "Authorization: Bearer YOUR_TOKEN_HERE"
 ```
 

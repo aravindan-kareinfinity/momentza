@@ -72,7 +72,7 @@ const normalizeUrl = (value?: string): string | undefined => {
     
 //     // Direct localhost or 127.0.0.1
 //     if (hostname === 'localhost' || hostname === '127.0.0.1') {
-//       return 'http://localhost:5000';
+//       return 'http://localhost:5000/';
 //     }
 //   }
   

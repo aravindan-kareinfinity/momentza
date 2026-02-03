@@ -1,6 +1,7 @@
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
+using Momantza.Models;
 
 namespace Momantza.Services
 {
@@ -156,7 +157,13 @@ namespace Momantza.Services
 
     public class B2BTokenResponse
     {
+        [System.Text.Json.Serialization.JsonPropertyName("access_token")]
         public string AccessToken { get; set; } = string.Empty;
+        
+        [System.Text.Json.Serialization.JsonPropertyName("expires_in")]
         public int ExpiresIn { get; set; }
+        
+        [System.Text.Json.Serialization.JsonPropertyName("user")]
+        public LoginResponse? User { get; set; }
     }
 }
