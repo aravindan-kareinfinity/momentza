@@ -132,24 +132,33 @@ export class ApiBookingService implements IBookingService {
   }
 
   async uploadOldBookings(file: File): Promise<any> {
+    const userRaw = localStorage.getItem("currentUser");
+    const token = userRaw ? JSON.parse(userRaw).token : null;
+
+    if (!token) {
+      throw new Error("Auth token missing");
+    }
+
     const formData = new FormData();
     formData.append("file", file);
 
-    const token = localStorage.getItem("token"); // or wherever you store JWT
-
-    const response = await fetch("/api/bookings/upload-old-bookings", {
-      method: "POST",
-      body: formData,
-      headers: {
-        Authorization: `Bearer ${token}`
+    const response = await fetch(
+      "http://storesoft.localhost:8082/api/bookings/upload-old-bookings",
+      {
+        method: "POST",
+        body: formData,
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
       }
-    });
+    );
 
     if (!response.ok) {
       const err = await response.text();
-      throw new Error(err || "Upload failed");
+      throw new Error(err);
     }
 
     return response.json();
   }
+
 } 

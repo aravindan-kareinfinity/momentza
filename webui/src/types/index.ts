@@ -63,7 +63,7 @@ export interface Hall {
   amenities: HallAmenities;
   coordinates: { lat: number, lng: number },
   features: HallFeature[];
-  roomRate:number;
+  roomRate: number;
 
   rateCard: {
     morningRate: number;
@@ -85,9 +85,9 @@ export interface Booking {
   address: string;
   city: string;
   village: string;
-  eventStartDate: string ;
-  eventEndDate: string ;
-  handoverStartDate: string ;
+  eventStartDate: string;
+  eventEndDate: string;
+  handoverStartDate: string;
   eventDate: string;
   eventType: string;
   timeSlot: string;
@@ -102,16 +102,16 @@ export interface Booking {
   notes: string;
   roomsRequired: boolean;
   roomsCount: number;
-  roomDetails:{
-    Charges: {
-      AcRoomCharges: number;
-      NonAcRoomCharges: number;
-      TotalRoomCharges: number;
+  roomDetails: {
+    charges: {
+      acRoomCharges: number;
+      nonAcRoomCharges: number;
+      totalRoomCharges: number;
     };
-    RoomsCount: {
-      Free: number;
-      RentedAc: number;
-      RentedNonAc: number;
+    roomsCount: {
+      free: number;
+      rentedAc: number;
+      rentedNonAc: number;
     };
   };
   hallName?: string; // Optional, may come from join

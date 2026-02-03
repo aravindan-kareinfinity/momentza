@@ -9,8 +9,8 @@ import { useToast } from '@/hooks/use-toast';
 import { LogIn } from 'lucide-react';
 
 export function LoginForm() {
-  const [email, setEmail] = useState('admin@momantza.com');
-  const [password, setPassword] = useState('abc@123');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -70,11 +70,11 @@ export function LoginForm() {
             </div>
           </CardContent>
           <CardFooter>
-            <Button 
-              type="submit" 
-              variant="outline" 
-              size="sm" 
-              className="w-full flex items-center justify-center gap-2" 
+            <Button
+              type="submit"
+              variant="outline"
+              size="sm"
+              className="w-full flex items-center justify-center gap-2"
               disabled={loading}
             >
               <LogIn className="h-4 w-4" />
