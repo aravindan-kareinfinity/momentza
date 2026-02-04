@@ -21,7 +21,7 @@ const MobileBookingEditScreen = () => {
   const { bookingId } = useParams<{ bookingId: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
-  
+
   // State for data
   const [originalBooking, setOriginalBooking] = useState<Booking | null>(null);
   const [hall, setHall] = useState<any>(null);
@@ -46,13 +46,13 @@ const MobileBookingEditScreen = () => {
   const [hallId, setHallId] = useState<string>(''); // Add hallId state
   const [hallName, setHallName] = useState<string>('');
   const [updatingHallName, setUpdatingHallName] = useState<boolean>(false);
-  
+
   // New fields state
   const [address, setAddress] = useState<string>('');
   const [village, setVillage] = useState<string>('');
   const [city, setCity] = useState<string>('');
   const [notes, setNotes] = useState<string>('');
-  
+
   // Room fields state - Updated to match response structure
   const [roomsRequired, setRoomsRequired] = useState<boolean>(false);
   const [requireFreeRooms, setRequireFreeRooms] = useState<boolean>(false);
@@ -61,7 +61,7 @@ const MobileBookingEditScreen = () => {
   const [freeRoomsCount, setFreeRoomsCount] = useState<number>(0);
   const [acRoomsCount, setAcRoomsCount] = useState<number>(0);
   const [nonAcRoomsCount, setNonAcRoomsCount] = useState<number>(0);
-  
+
   // Wedding specific state
   const [showHandoverInfo, setShowHandoverInfo] = useState<boolean>(false);
   const [actualHandoverDate, setActualHandoverDate] = useState<Date | undefined>(undefined);
@@ -94,26 +94,26 @@ const MobileBookingEditScreen = () => {
       try {
         setLoading(true);
         setError(null);
-        
+
         // Fetch all halls for selection
         const allHalls = await hallService.getAllHalls();
         setHalls(allHalls);
-        
+
         // Fetch the specific booking by ID
         const bookingData = await bookingService.getById(bookingId);
         setOriginalBooking(bookingData);
-        
+
         console.log('Fetched booking data:', bookingData);
-        
+
         // Set total amount from response
         if (bookingData?.totalAmount) {
           setTotalAmount(bookingData.totalAmount);
         }
-        
+
         // Set hallId from booking data
         if (bookingData?.hallId) {
           setHallId(bookingData.hallId);
-          
+
           // Fetch current hall data
           try {
             const hallData = await hallService.getById(bookingData.hallId);
@@ -148,11 +148,11 @@ const MobileBookingEditScreen = () => {
   useEffect(() => {
     if (originalBooking) {
       console.log('Setting form state from booking:', originalBooking);
-      
+
       setCustomerName(originalBooking.customerName || '');
       setCustomerEmail(originalBooking.customerEmail || '');
       setCustomerPhone(originalBooking.customerPhone || '');
-      
+
       // Set event dates
       if (originalBooking.eventStartDate) {
         const startDate = parseISO(originalBooking.eventStartDate);
@@ -162,72 +162,61 @@ const MobileBookingEditScreen = () => {
         const endDate = parseISO(originalBooking.eventEndDate);
         setEventEndDate(endDate);
       }
-      
+
       setEventType(originalBooking.eventType || '');
       setTimeSlot(originalBooking.timeSlot || 'morning');
       setGuestCount(originalBooking.guestCount?.toString() || '');
       setStatus(originalBooking.status || 'pending');
-      
+
       // Set hallId from original booking
       if (originalBooking.hallId) {
         setHallId(originalBooking.hallId);
       }
-      
+
       // Set last contact date
       if (originalBooking.lastContactDate) {
         const date = parseISO(originalBooking.lastContactDate);
         setLastContactDate(format(date, 'yyyy-MM-dd'));
       }
-      
+
       setCustomerResponse(originalBooking.customerResponse || '');
-      
+
       // Set new fields
       setAddress(originalBooking.address || '');
       setVillage(originalBooking.village || '');
       setCity(originalBooking.city || '');
       setRoomsRequired(originalBooking.roomsRequired || false);
       setNotes(originalBooking.notes || '');
-      
+
+
       // Set room details from response
       if (originalBooking.roomDetails) {
-        const roomDetails = originalBooking.roomDetails;
-        console.log('Room details from response:', roomDetails);
-        
-        // Handle both lowercase and uppercase property names
-        const roomsCount = roomDetails.RoomsCount || roomDetails.RoomsCount;
-        const charges = roomDetails.Charges || roomDetails.Charges;
-        
-        if (roomsCount) {
-          const freeCount = roomsCount.Free || roomsCount.Free || 0;
-          const acCount = roomsCount.RentedAc || roomsCount.RentedAc || 0;
-          const nonAcCount = roomsCount.RentedNonAc || roomsCount.RentedNonAc || 0;
-          
-          console.log('Room counts:', { freeCount, acCount, nonAcCount });
-          
-          setFreeRoomsCount(freeCount);
-          setAcRoomsCount(acCount);
-          setNonAcRoomsCount(nonAcCount);
-          
-          // Determine which room types are required
-          if (freeCount > 0) {
-            setRequireFreeRooms(true);
-          }
-          if (acCount > 0) {
-            setRequireAcRooms(true);
-          }
-          if (nonAcCount > 0) {
-            setRequireNonAcRooms(true);
-          }
-        }
+        const { roomsCount } = originalBooking.roomDetails;
+
+        setFreeRoomsCount(roomsCount?.free ?? 0);
+        setAcRoomsCount(roomsCount?.rentedAc ?? 0);
+        setNonAcRoomsCount(roomsCount?.rentedNonAc ?? 0);
+
+        // Auto enable roomsRequired
+        setRoomsRequired(
+          (roomsCount?.free ?? 0) +
+          (roomsCount?.rentedAc ?? 0) +
+          (roomsCount?.rentedNonAc ?? 0) > 0
+        );
+
+        // Auto enable individual room toggles
+        setRequireFreeRooms((roomsCount?.free ?? 0) > 0);
+        setRequireAcRooms((roomsCount?.rentedAc ?? 0) > 0);
+        setRequireNonAcRooms((roomsCount?.rentedNonAc ?? 0) > 0);
       }
-      
+
       // Check if it's a multi-day event
       if (originalBooking.eventStartDate && originalBooking.eventEndDate) {
         const start = parseISO(originalBooking.eventStartDate);
         const end = parseISO(originalBooking.eventEndDate);
         setIsMultiDay(!isSameDay(start, end));
       }
-      
+
       // Trigger wedding handover info if event type is wedding
       if (originalBooking.eventType === 'wedding' && originalBooking.eventStartDate) {
         setShowHandoverInfo(true);
@@ -244,7 +233,7 @@ const MobileBookingEditScreen = () => {
       setShowHandoverInfo(true);
       // Auto-select fullday for wedding events
       setTimeSlot('fullday');
-      
+
       // Calculate handover date (day before at 2PM)
       if (eventStartDate) {
         const handoverDate = subDays(eventStartDate, 1);
@@ -261,7 +250,7 @@ const MobileBookingEditScreen = () => {
     if (eventStartDate && eventEndDate) {
       const start = startOfDay(new Date(eventStartDate));
       const end = startOfDay(new Date(eventEndDate));
-      
+
       // Check if end date is before start date
       if (end < start) {
         setEventEndDate(eventStartDate);
@@ -269,11 +258,11 @@ const MobileBookingEditScreen = () => {
         setIsMultiDay(false);
         return;
       }
-      
+
       // Check if multi-day
       const multiDay = !isSameDay(start, end);
       setIsMultiDay(multiDay);
-      
+
       // Check if multi-day event is selected as morning/evening slot
       if (multiDay && timeSlot && timeSlot !== 'fullday' && eventType !== 'wedding') {
         setDateError('Multi-day events must use "Full Day" time slot');
@@ -296,13 +285,13 @@ const MobileBookingEditScreen = () => {
   // Calculate hall charges (without rooms)
   const calculateHallCharges = (): number => {
     if (!hall?.rateCard || !timeSlot || !eventStartDate || !eventEndDate) return 0;
-    
+
     const { rateCard } = hall;
     let calculatedAmount = 0;
-    
+
     // Calculate number of days
     const days = calculateDays();
-    
+
     if (eventType === 'wedding') {
       // Wedding pricing logic
       if (isMultiDay) {
@@ -326,27 +315,27 @@ const MobileBookingEditScreen = () => {
             return 0;
         }
       };
-      
+
       calculatedAmount = dailyRate() * days;
     }
-    
+
     return Math.round(calculatedAmount);
   };
 
   // Calculate room charges
   const calculateRoomCharges = () => {
     if (!eventStartDate || !eventEndDate || !hall) return { acCharges: 0, nonAcCharges: 0, total: 0 };
-    
+
     const days = calculateDays();
     const availableRooms = hall?.amenities?.rooms || {
       acRoomRate: 0,
       nonAcRoomRate: 0
     };
-    
+
     const acCharges = availableRooms.acRoomRate * acRoomsCount * days;
     const nonAcCharges = availableRooms.nonAcRoomRate * nonAcRoomsCount * days;
     const total = acCharges + nonAcCharges;
-    
+
     return { acCharges, nonAcCharges, total };
   };
 
@@ -354,7 +343,7 @@ const MobileBookingEditScreen = () => {
   const calculateTotalAmount = (): number => {
     const hallCharges = calculateHallCharges();
     const roomCharges = calculateRoomCharges();
-    
+
     return hallCharges + roomCharges.total;
   };
 
@@ -364,8 +353,8 @@ const MobileBookingEditScreen = () => {
       const calculated = calculateTotalAmount();
       setTotalAmount(calculated);
     }
-  }, [eventStartDate, eventEndDate, hall, timeSlot, eventType, 
-      requireAcRooms, acRoomsCount, requireNonAcRooms, nonAcRoomsCount, isMultiDay]);
+  }, [eventStartDate, eventEndDate, hall, timeSlot, eventType,
+    requireAcRooms, acRoomsCount, requireNonAcRooms, nonAcRoomsCount, isMultiDay]);
 
   // Handle hall change
   const handleHallChange = (newHallId: string) => {
@@ -373,7 +362,7 @@ const MobileBookingEditScreen = () => {
     const selectedHall = halls.find(h => h.id === newHallId);
     if (selectedHall) {
       setHall(selectedHall);
-      
+
       // Reset room selections when hall changes
       setRoomsRequired(false);
       setRequireFreeRooms(false);
@@ -388,7 +377,7 @@ const MobileBookingEditScreen = () => {
   // Set time based on time slot
   const setTimeForTimeSlot = (date: Date, timeSlot: string, isStart: boolean = true): Date => {
     const newDate = new Date(date);
-    
+
     if (eventType === 'wedding') {
       if (isStart) {
         newDate.setHours(12, 0, 0, 0); // Wedding starts at 12:00 PM
@@ -426,14 +415,14 @@ const MobileBookingEditScreen = () => {
           }
       }
     }
-    
+
     return newDate;
   };
 
   // Handle main room requirement toggle
   const handleRequireRoomsChange = (checked: boolean) => {
     setRoomsRequired(checked);
-    
+
     // Reset all room selections when turning off rooms required
     if (!checked) {
       setRequireFreeRooms(false);
@@ -454,23 +443,23 @@ const MobileBookingEditScreen = () => {
   // Handle room count change with validation
   const handleRoomCountChange = (roomType: string, value: string) => {
     const numValue = parseInt(value) || 0;
-    
+
     // Get available rooms from selected hall
     const availableRooms = hall?.amenities?.rooms || {
       free: 0,
       rentedAc: 0,
       rentedNonAc: 0
     };
-    
+
     // Set max rooms based on availability
     const maxRooms = {
       'freeRoomsCount': availableRooms.free,
       'acRoomsCount': availableRooms.rentedAc,
       'nonAcRoomsCount': availableRooms.rentedNonAc
     }[roomType] || 20;
-    
+
     const finalValue = Math.min(Math.max(0, numValue), maxRooms);
-    
+
     switch (roomType) {
       case 'freeRoomsCount':
         setFreeRoomsCount(finalValue);
@@ -497,7 +486,7 @@ const MobileBookingEditScreen = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!originalBooking) {
       toast({
         title: 'Error',
@@ -531,18 +520,18 @@ const MobileBookingEditScreen = () => {
       // Calculate days and room charges
       const days = calculateDays();
       const roomCharges = calculateRoomCharges();
-      
+
       // Set times for start and end dates
       const eventStartDateTime = setTimeForTimeSlot(eventStartDate, timeSlot, true);
       const eventEndDateTime = setTimeForTimeSlot(eventEndDate, timeSlot, false);
-      
+
       // Calculate handover date for weddings
       let handoverStartDate: Date | undefined;
       if (eventType === 'wedding') {
         handoverStartDate = subDays(eventStartDateTime, 1);
         handoverStartDate.setHours(14, 0, 0, 0); // 2:00 PM day before
       }
-      
+
       // Prepare room details according to backend model - Use uppercase for consistency
       const roomDetails: any = {
         Charges: {
@@ -556,10 +545,10 @@ const MobileBookingEditScreen = () => {
           RentedNonAc: nonAcRoomsCount
         }
       };
-      
+
       // Calculate final total amount
       const finalTotalAmount = calculateTotalAmount();
-      
+
       // Prepare the updated booking object
       const updatedBooking: any = {
         id: originalBooking.id,
@@ -588,7 +577,7 @@ const MobileBookingEditScreen = () => {
         customerResponse: customerResponse || null,
         isActive: originalBooking.isActive !== false
       };
-      
+
       // Add handover date for weddings
       if (eventType === 'wedding' && handoverStartDate) {
         updatedBooking.handoverStartDate = handoverStartDate.toISOString();
@@ -602,8 +591,8 @@ const MobileBookingEditScreen = () => {
       // Update booking status log if status changed
       if (status !== originalBooking.status || statusReason) {
         await bookingService.updateBookingStatus(
-          originalBooking.id, 
-          status, 
+          originalBooking.id,
+          status,
           statusReason || `Status changed from ${originalBooking.status} to ${status}`
         );
       }
@@ -665,8 +654,8 @@ const MobileBookingEditScreen = () => {
               </p>
             </div>
           </div>
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             className="mt-4"
             onClick={() => navigate('/admin/bookingsmobile')}
           >
@@ -694,8 +683,8 @@ const MobileBookingEditScreen = () => {
     <div className="container mx-auto p-3 md:p-6 space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-4">
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             size="sm"
             onClick={() => navigate('/admin/bookingsmobile')}
             className="h-9 w-9 p-0 sm:h-10 sm:w-auto sm:px-4"
@@ -733,7 +722,7 @@ const MobileBookingEditScreen = () => {
                   onChange={(e) => setCustomerEmail(e.target.value)}
                 />
               </div>
-              
+
               <div className="space-y-2">
                 <Label htmlFor="customerPhone">Phone *</Label>
                 <Input
@@ -800,8 +789,8 @@ const MobileBookingEditScreen = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="hall">Hall *</Label>
-                <Select 
-                  value={hallId} 
+                <Select
+                  value={hallId}
                   onValueChange={handleHallChange}
                   required
                 >
@@ -817,11 +806,11 @@ const MobileBookingEditScreen = () => {
                   </SelectContent>
                 </Select>
               </div>
-              
+
               <div className="space-y-2">
                 <Label htmlFor="eventType">Event Type *</Label>
-                <Select 
-                  value={eventType} 
+                <Select
+                  value={eventType}
                   onValueChange={(value) => {
                     setEventType(value);
                     if (value === 'wedding') {
@@ -843,7 +832,7 @@ const MobileBookingEditScreen = () => {
                 </Select>
               </div>
             </div>
-            
+
             {/* Event Dates */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
@@ -904,7 +893,7 @@ const MobileBookingEditScreen = () => {
                 )}
               </div>
             </div>
-            
+
             {dateError && (
               <div className="col-span-2">
                 <Alert variant="destructive">
@@ -928,7 +917,7 @@ const MobileBookingEditScreen = () => {
                   ) : (
                     <>
                       <strong>Single Day Wedding:</strong> Hall will be handed over on{' '}
-                      <strong>{format(actualHandoverDate, "PPP")} at 2:00 PM</strong> (day before the wedding). 
+                      <strong>{format(actualHandoverDate, "PPP")} at 2:00 PM</strong> (day before the wedding).
                       Event starts on <strong>{format(eventStartDate, "PPP")} at 12:00 PM</strong>.
                     </>
                   )}
@@ -940,8 +929,8 @@ const MobileBookingEditScreen = () => {
               {/* Time Slot Select */}
               <div className="space-y-2">
                 <Label htmlFor="timeSlot">Time Slot *</Label>
-                <Select 
-                  value={timeSlot} 
+                <Select
+                  value={timeSlot}
                   onValueChange={(value: Booking['timeSlot']) => setTimeSlot(value)}
                   disabled={eventType === 'wedding' || !eventStartDate}
                   required
@@ -961,7 +950,7 @@ const MobileBookingEditScreen = () => {
                   <p className="text-xs text-gray-500 mt-1">Wedding events are always Full Day</p>
                 )}
               </div>
-              
+
               <div className="space-y-2">
                 <Label htmlFor="guestCount">Guest Count</Label>
                 <Input
@@ -986,7 +975,7 @@ const MobileBookingEditScreen = () => {
                   Rooms Required
                 </Label>
               </div>
-              
+
               {roomsRequired && (
                 <div className="space-y-4 ml-0 sm:ml-6 border-l-0 sm:border-l-2 border-gray-300 pl-0 sm:pl-4">
                   {/* Check if hall has rooms available */}
@@ -1018,7 +1007,7 @@ const MobileBookingEditScreen = () => {
                               Free Rooms (Available: {availableRooms.free})
                             </Label>
                           </div>
-                          
+
                           {requireFreeRooms && (
                             <div className="ml-0 sm:ml-6 space-y-2">
                               <div className="flex flex-col sm:flex-row sm:items-center gap-4">
@@ -1067,7 +1056,7 @@ const MobileBookingEditScreen = () => {
                               AC Rooms (Available: {availableRooms.rentedAc})
                             </Label>
                           </div>
-                          
+
                           {requireAcRooms && (
                             <div className="ml-0 sm:ml-6 space-y-2">
                               <div className="flex flex-col sm:flex-row sm:items-center gap-4">
@@ -1118,7 +1107,7 @@ const MobileBookingEditScreen = () => {
                               Non-AC Rooms (Available: {availableRooms.rentedNonAc})
                             </Label>
                           </div>
-                          
+
                           {requireNonAcRooms && (
                             <div className="ml-0 sm:ml-6 space-y-2">
                               <div className="flex flex-col sm:flex-row sm:items-center gap-4">
@@ -1198,7 +1187,7 @@ const MobileBookingEditScreen = () => {
                     </span>
                   </div>
                 </div>
-                
+
                 {/* Breakdown */}
                 <div className="border-t pt-3">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
@@ -1210,13 +1199,13 @@ const MobileBookingEditScreen = () => {
                           <span>₹{hallCharges.toLocaleString()}</span>
                         </div>
                         <div className="text-gray-500">
-                          {eventType === 'wedding' ? 'Wedding Rate' : 
-                           timeSlot === 'morning' ? 'Morning Slot' :
-                           timeSlot === 'evening' ? 'Evening Slot' : 'Full Day Slot'}
+                          {eventType === 'wedding' ? 'Wedding Rate' :
+                            timeSlot === 'morning' ? 'Morning Slot' :
+                              timeSlot === 'evening' ? 'Evening Slot' : 'Full Day Slot'}
                         </div>
                       </div>
                     </div>
-                    
+
                     <div>
                       <p className="font-medium mb-2">Room Charges:</p>
                       <div className="space-y-1 pl-0 sm:pl-4">
@@ -1288,7 +1277,7 @@ const MobileBookingEditScreen = () => {
                 </SelectContent>
               </Select>
             </div>
-            
+
             {status !== originalBooking.status && (
               <div className="space-y-2">
                 <Label htmlFor="statusReason">Reason for Status Change</Label>
@@ -1318,7 +1307,7 @@ const MobileBookingEditScreen = () => {
                 onChange={(e) => setLastContactDate(e.target.value)}
               />
             </div>
-            
+
             <div className="space-y-2">
               <Label htmlFor="customerResponse">Customer Response</Label>
               <Textarea
@@ -1331,18 +1320,18 @@ const MobileBookingEditScreen = () => {
             </div>
           </CardContent>
         </Card>
-        
+
         <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 sm:space-x-4">
-          <Button 
-            type="button" 
-            variant="outline" 
+          <Button
+            type="button"
+            variant="outline"
             onClick={() => navigate('/admin/bookings')}
             className="w-full sm:w-auto"
           >
             Cancel
           </Button>
-          <Button 
-            type="submit" 
+          <Button
+            type="submit"
             disabled={submitting || !!dateError}
             className="w-full sm:w-auto sm:min-w-[120px]"
           >
