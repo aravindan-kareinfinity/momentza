@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
-import { Calendar, User, MapPin, Users, Plus, MessageCircle, Edit, Settings, Search } from 'lucide-react';
+import { Calendar, User, MapPin, Users, Plus, MessageCircle, Edit, Settings, Search, Upload, Loader2 } from 'lucide-react';
 import {
   bookingService,
   hallService,
@@ -389,18 +389,41 @@ const Bookings = () => {
           accept=".xlsx, .xls"
           onChange={handleFileUpload}
         />
-        <Button
-          variant="outline"
-          onClick={() => fileInputRef.current?.click()}
-          disabled={isUploading}
-        >
-          {isUploading ? "Uploading..." : "Old Bookings"}
-        </Button>
+        <div className="flex flex-row gap-4">
+  {/* Old Bookings Upload Button */}
+  <div>
+    <input
+      type="file"
+      ref={fileInputRef}
+      accept=".xlsx,.xls,.csv"
+      className="hidden"
+      onChange={handleFileUpload}
+      disabled={isUploading}
+    />
+    <Button
+      variant="outline"
+      onClick={() => fileInputRef.current?.click()}
+      disabled={isUploading}
+    >
+      {isUploading ? (
+        <>
+          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+          Uploading...
+        </>
+      ) : (
+        <>
+          <Upload className="h-4 w-4 mr-2" />
+          Bulk Upload
+        </>
+      )}
+    </Button>
+  </div>
 
-        <Button onClick={() => setShowAddDialog(true)}>
-          <Plus className="h-4 w-4 mr-2" />
-          Add New Booking
-        </Button>
+  <Button onClick={() => setShowAddDialog(true)}>
+    <Plus className="h-4 w-4 mr-2" />
+    Add New Booking
+  </Button>
+</div>
       </div>
 
       {/* Enhanced Search and Filter Section */}
